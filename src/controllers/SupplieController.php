@@ -216,7 +216,7 @@ class SupplieController extends Controller {
             'shipping' => $shipping,
             'treasury' => $treasury,
             'atms' => $atms,
-            'suppiles' => $supplies,
+            'supplies' => $supplies,
             'balance' => $treasury[0]['balance']
         ]);
     }
@@ -272,7 +272,7 @@ class SupplieController extends Controller {
                     'date'=>TreasuryLog::gerateDateNow()
                 ])->execute();
                 
-                Supplie::update()->set('active', 'N')->where('id', $check)->execute();
+                Supplie::update()->set('active', 'N')->set('id_status', 3)->where('id', $check)->execute();
             }
 
         }
@@ -331,7 +331,7 @@ class SupplieController extends Controller {
                                 'c_50'=>$valueForSupplie['50'],
                                 'd_100'=>$valueForSupplie['100'],
                                 'value_supplie'=> $value_balance,
-                                'id_status'=> 3,
+                                'id_status'=> 1,
                                 'active'=> 'Y'
                             ])->execute();
                             $valueForTreaury = [
@@ -357,11 +357,28 @@ class SupplieController extends Controller {
                                 'active'=>'Y'
                             ])->execute();
                     }
-                    
-                    
+
                     die();    
                 }    
             }
         }
+    }
+
+    public function screen($args){
+       // print_r($args);die();
+        if(!isset($args['date']) && $args['date'] !== ''){
+            $this->redirect('/supplie', ['error'=>'Precisamos de uma data para continuar!']);
+        }
+       // echo $args['date'];die();
+        $oss = Supplie::select()->where('date_supplie', $args['date'])
+        ->where('id_status', 1)->execute();
+        if(count($oss) == 0){
+            $oss = null;
+        }
+       // print_r($oss);die();
+        $this->render('/supplie/supplie_screen', [
+            'title_page' => "Tela de OS's para abastecimento",
+            'oss' => $oss
+        ]); 
     }
 }

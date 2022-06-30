@@ -125,7 +125,6 @@
     </form>
     <div>
         <?php if(isset($supplies) && $supplies !== null): ?>
-            <a class="btn btn-danger" href="#" onclick="cancelSupplieSelecteds('<?php echo $base; ?>')">Cancelar</a>
             <div id="msg"></div>
             <div class="table-responsive">
             <table class="table table-striped table-hover">
@@ -145,18 +144,46 @@
                     <?php foreach($supplies as $key => $supplie): ?>
                         <tr>
                             <td><input type="checkbox" name="setados[]" value="<?php echo $supplie['id']; ?>" /></td>
-                            <td><?php echo $supplie['id']; ?></td>
+                            <td><?php echo $supplie['id_atm']; ?></td>
                             <td><?php echo $supplie['name_atm']; ?></td>
                             <td><?php echo $supplie['a_10']; ?></td>
                             <td><?php echo $supplie['b_20']; ?></td>
                             <td><?php echo $supplie['c_50']; ?></td>
                             <td><?php echo $supplie['d_100']; ?></td>
-                            <td><?php echo  number_format($supplie['value_supplie'], 2, ',', '.'); ?></td>
+                            <td><?php echo 'R$ '.number_format($supplie['value_supplie'], 2, ',', '.'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <div class="mb-3 box-buttons">
+                <a class="btn btn-danger" href="#" onclick="cancelSupplieSelecteds('<?php echo $base; ?>')">
+                    <i class="fa-solid fa-ban f-s-b-20"></i>
+                    Cancelar
+                </a>
+                <a class="btn btn-success" onclick="generateSupplie('<?php echo $base; ?>')">
+                    <i class="fa-solid fa-boxes-packing fa-ban f-s-b-20"></i>
+                    Abastecer
+                </a>
+                <a class="btn btn-warning" onclick="goScreenOSs('<?php echo $base; ?>')">
+                    <i class="fa-solid fa-desktop f-s-b-20"></i>
+                    Tela de OS para envio
+                </a>
+            </div>
         <?php endif; ?>
     </div>
 </div>
+
+<div id="modalError" class="modalError" >
+    <div class="mb-3">
+        <a title="Fechar" class="fechar" attr-name="modalError" attr-name="modal" onclick="closeModal(this)">x</a>
+        <div class="box-for-messege">
+            <label class="form-label subtitle-pages">Erro</label>
+            <span class="badge badge-pill bg-danger">
+                <i class="fa-solid fa-circle-exclamation f-s-b-20 item-messege"></i>
+            </span>
+            <p class="text-messege">Precisamos que seja selecionado algum item para proseguir!</p>
+        </div>
+    </div>
+</div>
+
 <?php $render('footer'); ?>

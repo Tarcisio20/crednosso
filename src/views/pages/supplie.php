@@ -23,6 +23,10 @@
                 <button class="btn btn-primary" class="button-default">
                     <i class="fa-solid fa-brazilian-real-sign f-s-b-20"></i> Abastecer
                 </button>
+                <a class="btn btn-warning" onclick="goScreenOSs('<?php echo $base; ?>')">
+                    <i class="fa-solid fa-desktop f-s-b-20"></i>
+                    Tela de OS para envio
+                </a>
                 <a class="btn btn-info" href="<?php echo $base; ?>/" >
                     <i class="fa-solid fa-angles-left f-s-b-20"></i> Voltar
                 </a>

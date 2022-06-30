@@ -93,6 +93,7 @@ $router->get('/supplie/view/{id}', 'SupplieController@viewActionGet');
 $router->post('/supplie/view/{id}', 'SupplieController@viewActionPost');
 $router->post('/supplie/cancel', 'SupplieController@cancel');
 $router->post('/supplie/devide', 'SupplieController@devide');
+$router->get('/supplie/screen/{date}', 'SupplieController@screen');
 
 
 $router->get('/region', 'RegionController@index');

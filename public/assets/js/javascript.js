@@ -291,6 +291,30 @@ function cancelSupplieSelecteds(url) {
   }
 }
 
+function generateSupplie(url){
+  let checados = [];
+  $.each($("input[name='setados[]']:checked"), function () {
+    checados.push($(this).val());
+  });
+  let string = ''
+  checados.map((item, index) => {
+    if (index + 1 < checados.length) {
+      string += item + "-";
+    } else {
+      string += item;
+    }
+  });
+  if(checados.length > 0){
+    console.log(string)
+  }else{
+    let boxMsg = document.querySelector('.text-messege')
+    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    $("#modalError").css({ opacity: "1" });
+    $("#modalError").css({ display: "block" });
+    $("#modalError").css({ pointerEvents: "auto" });
+  }
+}
+
 function devideInAtms(url) {
   let atms = [],
     val;
@@ -335,6 +359,15 @@ function devideInAtms(url) {
         console.log("completou");
       });
   }
+}
+
+function goScreenOSs(url){
+  let date = new Date()
+  let dia = String(date.getDate()).padStart(2, '0')
+  let mes = String(date.getMonth()+1).padStart(2, '0')
+  let ano = date.getFullYear()
+
+  window.location.replace(url + "/supplie/screen/"+ano+'-'+mes+'-'+dia);
 }
 
 function openForSearch(event, url) {
@@ -448,7 +481,6 @@ function selectAll(element) {
     }
   }
 }
-
 
 function generateLaunch(url){
   let checados = [];

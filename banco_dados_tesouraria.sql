@@ -644,15 +644,15 @@ CREATE TABLE IF NOT EXISTS `request_pdfs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.request_pdfs: ~4 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.request_pdfs: ~6 rows (aproximadamente)
 /*!40000 ALTER TABLE `request_pdfs` DISABLE KEYS */;
 INSERT INTO `request_pdfs` (`id`, `name_company`, `name`, `integrity`, `date`, `status`) VALUES
-	(6, 'mateus', 'pedido-21-05-2022-mateus.pdf', '139425529562bb37896bad96.53728962', '2022-05-21', 'Y'),
-	(7, 'posterus', 'pedido-21-05-2022-posterus.pdf', '139425529562bb37896bad96.53728962', '2022-05-21', 'Y'),
-	(8, 'entre-tesourarias', 'entre-tesourarias-21-05-2022.pdf', '139425529562bb37896bad96.53728962', '2022-05-21', 'Y'),
+	(6, 'mateus', 'pedido-21-05-2022-mateus.pdf', '75473390362bda407c1ed24.70083548', '2022-05-21', 'Y'),
+	(7, 'posterus', 'pedido-21-05-2022-posterus.pdf', '75473390362bda407c1ed24.70083548', '2022-05-21', 'Y'),
+	(8, 'entre-tesourarias', 'entre-tesourarias-21-05-2022.pdf', '75473390362bda407c1ed24.70083548', '2022-05-21', 'Y'),
 	(9, 'mateus', 'pedido-05-04-2022-mateus.pdf', '74295288862b4c0f11b6df0.16454448', '2022-04-05', 'Y'),
-	(10, 'mateus_pg', 'pedido-21-05-2022-mateus-a.pdf', '37270577562bb7d38c215d7.28427808', '2022-05-21', 'Y'),
-	(11, 'posterus_pg', 'pedido-21-05-2022-posterus-a.pdf', '37270577562bb7d38c215d7.28427808', '2022-05-21', 'Y');
+	(10, 'mateus_pg', 'pedido-21-05-2022-mateus-a.pdf', '91548056362bdb70a99d543.10764877', '2022-05-21', 'Y'),
+	(11, 'posterus_pg', 'pedido-21-05-2022-posterus-a.pdf', '91548056362bdb70a99d543.10764877', '2022-05-21', 'Y');
 /*!40000 ALTER TABLE `request_pdfs` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.request_statuss
@@ -686,7 +686,7 @@ CREATE TABLE IF NOT EXISTS `shippings` (
   `active` enum('Y','N') DEFAULT 'Y',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_shipping` (`id_shipping`)
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8;
 
 -- Copiando dados para a tabela crednosso.shippings: ~81 rows (aproximadamente)
 /*!40000 ALTER TABLE `shippings` DISABLE KEYS */;
@@ -771,7 +771,11 @@ INSERT INTO `shippings` (`id`, `id_type`, `id_region`, `id_gmcore`, `id_shipping
 	(80, 2, 73, 280, 78, '685909', 'MIX ITAPIPOCA', '', 'Y'),
 	(81, 3, 0, 0, 444, NULL, 'SANTANDER', 'TARCISIO.SILVA@CREDNOSSO.COM.BR', 'Y'),
 	(82, 3, 0, 0, 555, NULL, 'SERET BB', 'DILLAN.SOUSA@CREDNOSSO.COM.BR', 'Y'),
-	(83, 2, 79, 0, 79, '704377', 'MIX ARACAJU', '', 'Y');
+	(83, 2, 79, 281, 79, '704377', 'MIX ARACAJU', 'JULIANA.MESSIAS@GRUPOMATEUS.COM.BR', 'Y'),
+	(84, 2, 78, 285, 80, NULL, 'SUPER CRATEUS', 'LUZIMEIRE.ALVES@GRUPOMATEUS.COM.BR', 'Y'),
+	(85, 2, 5, 7, 81, NULL, 'SUPER COHAMA', 'sm7.fechamento@grupomateus.com.br', 'Y'),
+	(86, 2, 5, 20, 82, NULL, 'CURVA DO 90', 'sm20.tesouraria@grupomateus.com.br', 'Y'),
+	(87, 2, 5, 17, 83, NULL, 'MIX GUAJAJARAS', 'Sm17.tesouraria@grupomateus.com.br;Harlidejane.anjos@grupomateus.com.br', 'Y');
 /*!40000 ALTER TABLE `shippings` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.shipping_gmcores
@@ -784,7 +788,7 @@ CREATE TABLE IF NOT EXISTS `shipping_gmcores` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   UNIQUE KEY `id_gmcore` (`id_gmcore`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
 
 -- Copiando dados para a tabela crednosso.shipping_gmcores: ~58 rows (aproximadamente)
 /*!40000 ALTER TABLE `shipping_gmcores` DISABLE KEYS */;
@@ -846,7 +850,12 @@ INSERT INTO `shipping_gmcores` (`id`, `id_gmcore`, `id_company`, `name`, `status
 	(55, 276, 2, 'MIX BENGUI', 'Y'),
 	(56, 282, 2, 'TEXEIRA DE FREITAS', 'Y'),
 	(57, 280, 2, 'MIX ITAPIPOCA', 'Y'),
-	(58, 0, 0, 'NAO APLICAVEL', 'Y');
+	(58, 0, 0, 'NAO APLICAVEL', 'Y'),
+	(59, 285, 2, 'SUPER CRATEUS', 'Y'),
+	(60, 7, 2, 'SUPER COHAMA', 'Y'),
+	(61, 20, 2, 'CURVA DO 90', 'Y'),
+	(62, 17, 2, 'MIX GUAJAJARAS', 'Y'),
+	(63, 281, 2, 'MIX ARACAJU', 'Y');
 /*!40000 ALTER TABLE `shipping_gmcores` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.shipping_gmcore_companys
@@ -987,18 +996,22 @@ CREATE TABLE IF NOT EXISTS `supplies` (
   `id_status` int(11) NOT NULL DEFAULT 1,
   `active` enum('Y','N') DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
 
 -- Copiando dados para a tabela crednosso.supplies: ~7 rows (aproximadamente)
 /*!40000 ALTER TABLE `supplies` DISABLE KEYS */;
 INSERT INTO `supplies` (`id`, `id_shipping`, `id_atm`, `integrity`, `date_supplie`, `a_10`, `b_20`, `c_50`, `d_100`, `value_supplie`, `id_status`, `active`) VALUES
-	(2, 2, 2, '002002628d2a9753e4b', '2022-05-24', 100, 200, 100, 200, 30000, 3, 'Y'),
-	(5, 1, 70, '001070628d42d3a0b6b', '2022-05-24', 100, 100, 100, 100, 18000, 3, 'Y'),
-	(6, 1, 70, '001070628d43ad297c4', '2022-05-24', 100, 100, 100, 100, 18000, 3, 'Y'),
-	(38, 21, 126, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 3, 'N'),
-	(39, 21, 127, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 3, 'N'),
-	(40, 21, 126, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 3, 'N'),
-	(41, 21, 127, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 3, 'N');
+	(2, 2, 2, '002002628d2a9753e4b', '2022-05-24', 100, 200, 100, 200, 30000, 1, 'Y'),
+	(5, 1, 70, '001070628d42d3a0b6b', '2022-05-24', 100, 100, 100, 100, 18000, 1, 'Y'),
+	(6, 1, 70, '001070628d43ad297c4', '2022-05-24', 100, 100, 100, 100, 18000, 1, 'Y'),
+	(38, 21, 126, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
+	(39, 21, 127, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
+	(40, 21, 126, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
+	(41, 21, 127, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
+	(46, 21, 126, '02112662bdf5b89b1f4', '2022-06-30', 100, 100, 100, 100, 18000, 1, 'Y'),
+	(47, 21, 127, '02112762bdfdb43a800', '2022-06-30', 100, 100, 100, 100, 18000, 1, 'Y'),
+	(48, 23, 173, '02317362be086c09b24', '2022-06-30', 50, 50, 50, 50, 9000, 1, 'Y'),
+	(49, 23, 174, '02317362be086c09b24', '2022-06-30', 50, 50, 50, 50, 9000, 1, 'Y');
 /*!40000 ALTER TABLE `supplies` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.supplie_statuss
@@ -1012,9 +1025,9 @@ CREATE TABLE IF NOT EXISTS `supplie_statuss` (
 -- Copiando dados para a tabela crednosso.supplie_statuss: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `supplie_statuss` DISABLE KEYS */;
 INSERT INTO `supplie_statuss` (`id`, `name`, `active`) VALUES
-	(1, 'Confirmado', 'Y'),
-	(2, 'Cancelado', 'Y'),
-	(3, 'Aberto', 'Y');
+	(1, 'Aberto', 'Y'),
+	(2, 'Usado', 'Y'),
+	(3, 'Cancelado', 'Y');
 /*!40000 ALTER TABLE `supplie_statuss` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.treasurys
@@ -1029,15 +1042,15 @@ CREATE TABLE IF NOT EXISTS `treasurys` (
   `status` enum('Y','N') DEFAULT 'Y',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_shipping` (`id_shipping`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8;
 
 -- Copiando dados para a tabela crednosso.treasurys: ~81 rows (aproximadamente)
 /*!40000 ALTER TABLE `treasurys` DISABLE KEYS */;
 INSERT INTO `treasurys` (`id`, `id_shipping`, `a_10`, `b_20`, `c_50`, `d_100`, `balance`, `status`) VALUES
 	(1, 1, 0, 0, 0, 0, 0, 'Y'),
 	(2, 2, 0, 0, 0, 0, 0, 'Y'),
-	(4, 21, 200, 200, 200, 200, 36000, 'Y'),
-	(5, 23, 100, 100, 100, 100, 18000, 'Y'),
+	(4, 21, 0, 0, 0, 0, 0, 'Y'),
+	(5, 23, 0, 0, 0, 0, 0, 'Y'),
 	(12, 8, 0, 0, 0, 0, 0, 'Y'),
 	(13, 17, 0, 0, 0, 0, 0, 'Y'),
 	(18, 3, 0, 0, 0, 0, 0, 'N'),
@@ -1114,7 +1127,11 @@ INSERT INTO `treasurys` (`id`, `id_shipping`, `a_10`, `b_20`, `c_50`, `d_100`, `
 	(89, 78, 0, 0, 0, 0, 0, 'Y'),
 	(90, 444, 0, 0, 0, 0, 0, 'Y'),
 	(91, 555, 0, 0, 0, 0, 0, 'Y'),
-	(92, 79, 0, 0, 0, 0, 0, 'Y');
+	(92, 79, 0, 0, 0, 0, 0, 'Y'),
+	(93, 80, 0, 0, 0, 0, 0, 'Y'),
+	(94, 81, 0, 0, 0, 0, 0, 'Y'),
+	(95, 82, 0, 0, 0, 0, 0, 'Y'),
+	(96, 83, 0, 0, 0, 0, 0, 'Y');
 /*!40000 ALTER TABLE `treasurys` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.treasury_logs
@@ -1128,7 +1145,7 @@ CREATE TABLE IF NOT EXISTS `treasury_logs` (
   `date` datetime DEFAULT NULL,
   `active` enum('Y','N') NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=351 DEFAULT CHARSET=utf8;
 
 -- Copiando dados para a tabela crednosso.treasury_logs: ~302 rows (aproximadamente)
 /*!40000 ALTER TABLE `treasury_logs` DISABLE KEYS */;
@@ -1434,7 +1451,20 @@ INSERT INTO `treasury_logs` (`id`, `id_shipping`, `id_log_type`, `value_process`
 	(334, 29, 5, 0, 0, 0, '2022-05-31 15:48:11', 'Y'),
 	(335, 6, 4, 0, 0, 0, '2022-06-03 13:52:54', 'Y'),
 	(336, 23, 4, 0, 18000, 18000, '2022-06-03 13:53:09', 'Y'),
-	(337, 23, 5, 0, 18000, 18000, '2022-06-03 13:53:21', 'Y');
+	(337, 23, 5, 0, 18000, 18000, '2022-06-03 13:53:21', 'Y'),
+	(338, 80, 1, 0, 0, 0, '2022-06-30 15:05:49', 'Y'),
+	(339, 81, 1, 0, 0, 0, '2022-06-30 15:07:16', 'Y'),
+	(340, 82, 1, 0, 0, 0, '2022-06-30 15:08:21', 'Y'),
+	(341, 83, 1, 0, 0, 0, '2022-06-30 15:09:20', 'Y'),
+	(342, 79, 5, 0, 0, 0, '2022-06-30 15:31:21', 'Y'),
+	(343, 21, 7, 18000, 36000, 18000, '2022-06-30 15:54:38', 'Y'),
+	(344, 21, 7, 18000, 18000, 0, '2022-06-30 16:05:08', 'Y'),
+	(345, 21, 7, 18000, 36000, 18000, '2022-06-30 16:07:12', 'Y'),
+	(346, 21, 7, 18000, 18000, 0, '2022-06-30 16:07:37', 'Y'),
+	(347, 21, 7, 18000, 36000, 18000, '2022-06-30 16:12:56', 'Y'),
+	(348, 21, 7, 18000, 18000, 0, '2022-06-30 16:47:00', 'Y'),
+	(349, 23, 7, 9000, 18000, 9000, '2022-06-30 17:32:44', 'Y'),
+	(350, 23, 7, 9000, 9000, 0, '2022-06-30 17:32:44', 'Y');
 /*!40000 ALTER TABLE `treasury_logs` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.treasury_log_types
