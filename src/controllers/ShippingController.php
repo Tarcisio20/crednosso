@@ -66,7 +66,8 @@ class ShippingController extends Controller {
         $emails_shipping = filter_input(INPUT_POST, 'emails_shipping');
         $active_shipping = filter_input(INPUT_POST, 'active_shipping');
         $region_shipping = filter_input(INPUT_POST, 'id_region');
-        $id_gmcore = filter_input(INPUT_POST, 'id_gmcore');
+        $id_gmcore = filter_input(INPUT_POST, 'gmcore_shipping');
+        $company_shipping = filter_input(INPUT_POST, 'company_shipping');
 
         if($id_shipping && $name_shipping  && $active_shipping && 
             $id_type && $region_shipping){
@@ -75,11 +76,11 @@ class ShippingController extends Controller {
              Shipping::insert([
                  "id_shipping" => $id_shipping,
                  "id_type" => $id_type,
-                 "name_shipping" => $name_shipping,
+                 "name_shipping" => strtoupper(trim($name_shipping)),
                  "emails" => $emails_shipping,
                  "active" => $active_shipping,
                  "id_region" => $region_shipping,
-                 "id_gmcore" => $id_gmcore
+                 "id_gmcore" => trim($id_gmcore)
              ])->execute();
 
              Treasury::insert([
@@ -102,8 +103,18 @@ class ShippingController extends Controller {
                  'active' => 'Y'
              ])->execute();
 
-
-
+            $gmcore = Gmcore::select()->where('name', strtoupper(trim($name_shipping)))->execute();
+            if(count($gmcore) == 0){
+                Gmcore::insert([
+                    'id_gmcore' => trim($id_gmcore),
+                    'id_company' => $company_shipping,
+                    'name' => strtoupper(trim($name_shipping)),
+                    'status' => 'Y'
+                ])->execute();
+            }else{
+                Gmcore::update()->set('id_gmcore', trim($id_gmcore))->set('id_company', $company_shipping)
+                ->set('name', strtoupper(trim($name_shipping)))->where('id', $gmcore[0]['id'])->execute();
+            }
              $this->redirect('/shipping', ["success" => "Transportadora inserida com sucesso!"]);
          }
     }
@@ -123,17 +134,19 @@ class ShippingController extends Controller {
             $regions = null;
         }
 
-        $gmcores = Gmcore::select()->where('status', 'Y')
+        $gmcore = Gmcore::select()->where('name', $shipping[0]['name_shipping'])
         ->orderBy('id_gmcore', 'asc')->execute();
-        if(count($gmcores) == 0){
-            $gmcores = null;
+        if(count($gmcore) == 0){
+            $gmcore[0]['id_company'] = null;
         }
+       // echo 'GMCORE';
+        // print_r($shipping);die();
         $this->render('/shipping/shipping_edit', [
             'title_page' => 'Editar Transportadora',
             'shipping'=> $shipping,
             'types' => $types,
             'regions' => $regions,
-            'gmcores' => $gmcores
+            'gmcore' => $gmcore
         ]);
     }
     
@@ -144,7 +157,8 @@ class ShippingController extends Controller {
         $emails_shipping = filter_input(INPUT_POST, 'emails_shipping');
         $active_shipping = filter_input(INPUT_POST, 'active_shipping');
         $region_shipping = filter_input(INPUT_POST, 'id_region');
-        $id_gmcore = filter_input(INPUT_POST, 'id_gmcore');
+        $id_gmcore = filter_input(INPUT_POST, 'gmcore_shipping');
+        $company_shipping = filter_input(INPUT_POST, 'company_shipping');
         
         if($id_shipping && $name_shipping && $active_shipping && 
         $id_type && $region_shipping && $id_gmcore){
@@ -152,11 +166,11 @@ class ShippingController extends Controller {
             Shipping::update()
             ->set('id_shipping', $id_shipping)
             ->set('id_type', $id_type)
-            ->set('name_shipping', $name_shipping)
+            ->set('name_shipping', strtoupper(trim($name_shipping)))
             ->set('emails', $emails_shipping)
             ->set('active', $active_shipping)
             ->set('id_region', $region_shipping)
-            ->set('id_gmcore', $id_gmcore)
+            ->set('id_gmcore', trim($id_gmcore))
             ->where('id_shipping', $args['id'])
             ->execute();
 
@@ -187,7 +201,19 @@ class ShippingController extends Controller {
                 ])->execute();
             }
             
-
+            $gmcore = Gmcore::select()->where('name', strtoupper(trim($name_shipping)))->execute();
+            if(count($gmcore) == 0){
+                Gmcore::insert([
+                    'id_gmcore' => trim($id_gmcore),
+                    'id_company' => $company_shipping,
+                    'name' => strtoupper(trim($name_shipping)),
+                    'status' => 'Y'
+                ])->execute();
+            }else{
+                Gmcore::update()->set('id_gmcore', trim($id_gmcore))->set('id_company', $company_shipping)
+                ->set('name', strtoupper(trim($name_shipping)))
+                ->where('name', strtoupper(trim($name_shipping)))->execute();
+            }
             $this->redirect('/shipping');
          }
 

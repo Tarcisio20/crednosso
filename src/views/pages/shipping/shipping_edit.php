@@ -38,22 +38,10 @@
             </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">GMCORE</label>
-            <div class="container-for-values">
-                <input class="form-control rotule-for-input" type="number" attr-value="gmcore" onchange="getShippingById(this)" />
-                <select class="form-select" name="id_gmcore" id="id_gmcore">
-                    <option value="0"></option>
-                    <?php foreach($gmcores as $gmcore): ?>
-                        <option value="<?php echo $gmcore['id_gmcore']; ?>"
-                            <?php if($gmcore['id_gmcore'] == $shipping[0]['id_gmcore']){ echo 'selected';} ?>
-                        >
-                            <?php echo $gmcore['id_gmcore'].' - '.$gmcore['name']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
+    <div class="mb-3">
+        <label class="form-label">GMCORE</label>
+        <input class="form-control" type="text" name="gmcore_shipping" id="gmcore_shipping" value="<?php echo $shipping[0]['id_gmcore']; ?>" />
+    </div>
     <div class="mb-3">
         <label class="form-label">STATUS</label>
         <select class="form-select" name="active_shipping" id="active_shipping">
@@ -61,8 +49,8 @@
             <option value="N" <?php if($shipping[0]['active'] === 'N'){echo 'selected';} ?>>INATIVO</option>
         </select>
     </div>
-     <div class="mb-3">
-            <label class="form-label">TIPO</label>
+    <div class="mb-3">
+        <label class="form-label">TIPO</label>
             <select class="form-select" name="type_shipping" id="type_shipping">
                 <?php foreach($types as $type): ?>
                     <option value="<?php echo $type['id']; ?>"
@@ -71,6 +59,13 @@
                         <?php echo $type['name']; ?>
                     </option>
                 <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">EMPRESA</label>
+            <select class="form-select" name="company_shipping" id="company_shipping">
+                    <option value="2" <?php if($gmcore[0]['id_company'] == 2 || $gmcore[0]['id_company'] == null){ echo 'selected';} ?> >MATEUS</option>
+                    <option value="15" <?php if($gmcore[0]['id_company'] == 15){ echo 'selected';} ?>>POSTERUS</option>
             </select>
         </div>
     <div class="mb-3 box-buttons">

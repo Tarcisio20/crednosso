@@ -17,7 +17,7 @@
         <div class="mb-3">
             <div class="container-for-text">
                 <label class="form-label">E-MAILS</label>
-                <small class="form-label text-small">Coloque todos os emails separados por ",".</small>
+                <small class="form-label text-small">Coloque todos os emails separados por ";".</small>
             </div>
             <textarea class="form-control" name="emails_shipping" id="emails_shipping" placeholder="email@email.com,email2@email.com" ></textarea>
         </div>
@@ -37,19 +37,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label">GMCORE</label>
-            <div class="container-for-values">
-                <input class="form-control rotule-for-input" type="number" attr-value="gmcore" onchange="getShippingById(this)" />
-                <select class="form-select" name="id_gmcore" id="id_gmcore">
-                    <option value="0"></option>
-                    <?php foreach($gmcores as $gmcore): ?>
-                        <option value="<?php echo $gmcore['id_gmcore']; ?>" 
-                            <?php if($gmcore['id_gmcore'] == '0'){echo 'selected';} ?>
-                        >
-                            <?php echo $gmcore['id_gmcore'].' - '.$gmcore['name']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <input class="form-control" type="text" name="gmcore_shipping" id="gmcore_shipping" />
         </div>
         <div class="mb-3">
             <label class="form-label">STATUS</label>
@@ -68,6 +56,13 @@
                         <?php echo $type['name']; ?>
                     </option>
                 <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">EMPRESA</label>
+            <select class="form-select" name="company_shipping" id="company_shipping">
+                    <option value="2">MATEUS</option>
+                    <option value="15">POSTERUS</option>
             </select>
         </div>
         <div class="mb-3" class="box-buttons">
