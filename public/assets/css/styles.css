@@ -1,0 +1,286 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+.f-s-b-20 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.d-f-a {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.d-f-a button {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.box-for-messege {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-danger .item-messege {
+  font-size: 40px;
+  text-align: center;
+}
+
+.text-messege {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.container-personal {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu {
+  margin: 0;
+  height: 100vh;
+  background-color: #1b6db0;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  flex: 1;
+  overflow: hidden;
+  width: 18%;
+}
+
+.menu h1 {
+  padding: 5px 10px;
+}
+
+.menu ul {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+}
+
+.menu ul li a {
+  width: 100%;
+  height: 30px;
+  display: inline-block;
+  color: #fff;
+  padding-right: 10px;
+  font-size: 18px;
+  padding: 20px 10px;
+  line-height: 15px;
+  font-weight: bold;
+}
+
+.menu ul li a:hover {
+  background-color: #fff;
+  color: #1b6db0;
+}
+
+.menu ul li a i {
+  font-size: 18px;
+}
+
+h1 .image-menu {
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+
+.image-home {
+  display: block;
+  margin: 0 auto;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+
+.main-personal {
+  padding: 2%;
+  padding-left: 20%;
+  width: 100%;
+}
+
+.title-pages {
+  font-size: 30px;
+  text-transform: uppercase;
+}
+
+.subtitle-pages {
+  font: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.box-buttons {
+  margin: 15px 0;
+}
+
+.container-config {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  text-align: center;
+}
+
+.container-for-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-small {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.container-for-values {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.rotule-values {
+  width: 8%;
+  margin: 0;
+  margin-right: 10px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.rotule-for-input .rotule-values-modal {
+  width: 10%;
+  margin: 0;
+  margin-right: 10px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.values-input {
+  width: 40%;
+  margin-right: 10px;
+}
+
+.rotule-for-input {
+  width: 15%;
+}
+
+.container-for-label-input {
+  display: flex;
+  flex-direction: row;
+}
+
+.for-label-input {
+  width: 40%;
+  margin-right: 10px;
+}
+
+.box-check {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal,
+.modalDate,
+.modalError {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 99999;
+  opacity: 0;
+  -webkit-transition: opacity 400ms ease-in;
+  -moz-transition: opacity 400ms ease-in;
+  transition: opacity 400ms ease-in;
+  pointer-events: none;
+}
+
+.modal:target,
+.modalDate:target,
+.modalError:target {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal > div,
+.modalDate > div,
+.modalError > div {
+  width: 40%;
+  position: relative;
+  margin: 10% auto;
+  padding: 15px 20px;
+  background: #fff;
+}
+
+.modalDate > div {
+  width: 20%;
+}
+
+.fechar {
+  position: absolute;
+  width: 30px;
+  right: -15px;
+  top: -20px;
+  text-align: center;
+  line-height: 30px;
+  margin-top: 5px;
+  background: #ff4545;
+  border-radius: 50%;
+  font-size: 16px;
+  color: #8d0000;
+  cursor: pointer;
+}
+
+.input_ {
+  max-width: 100px;
+}
+
+.box-for-search {
+  display: flex;
+  flex-direction: row;
+}
+
+.box-for-search input {
+  width: 90%;
+}
+
+.box-for-search button {
+  width: 10%;
+}
+
+.container-name-date{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#date {
+  font-size: 20px;
+}
+
+.row-value-total{
+  background-color: #CCC;
+}
+
+.row-value-total td {
+  color: #FFF;
+  font-weight: bold;
+}
