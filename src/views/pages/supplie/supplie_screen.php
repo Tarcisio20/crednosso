@@ -1,11 +1,28 @@
 <?php $render('header'); ?>
     <div>
-        <h1 class="title-pages"><?php echo $title_page; ?></h1>
-        <div class="mb-3">
-        <label class="form-label">DATA ABASTECIMENTO</label>
-            <input class="form-control" type="date" name="date_supplie" id="date_supplie"
-             value="<?php echo $oss[0]['date_supplie']; ?>" />
-        </div>
+        <form  method="POST" action="<?php echo $base; ?>/supplie/screen">
+            <h1 class="title-pages"><?php echo $title_page; ?></h1>
+            <div class="mb-3">
+            <label class="form-label">DATA ABASTECIMENTO</label>
+                <input class="form-control" type="date" name="date_supplie" id="date_supplie"
+                value="<?php echo $date; ?>" />
+            </div>
+            <div class="mb-3 box-buttons">
+                <button class="btn btn-warning">
+                    <i class="fa-solid fa-magnifying-glass f-s-b-20"></i>
+                    Pesquisar
+                </button>
+                <?php if(isset($oss) && $oss !== null): ?>
+                    <a class="btn btn-success" onclick="generateOSForExcel('<?php echo $base; ?>')">
+                        <i class="fa-solid fa-boxes-packing fa-ban f-s-b-20"></i>
+                        Gerar
+                    </a>
+                <?php endif; ?>
+                <a class="btn btn-info" href="<?php echo $base; ?>/supplie">
+                    <i class="fa-solid fa-angles-left f-s-b-20"></i> Voltar
+                </a>
+            </div>
+        </form>
     </div>
     <div>
     <?php if(isset($oss) && $oss !== null): ?>
@@ -45,17 +62,20 @@
                 </tbody>
             </table>
         </div>
-        <div class="mb-3 box-buttons">
-            <a class="btn btn-success">
-                <i class="fa-solid fa-boxes-packing fa-ban f-s-b-20"></i>
-                Gerar
-            </a>
-            <a class="btn btn-info" href="<?php echo $base; ?>/supplie">
-                    <i class="fa-solid fa-angles-left f-s-b-20"></i> Voltar
-                </a>
-        </div>
     <?php else: ?>
         <p>Nada a mostrar!</p>
     <?php endif; ?>
     </div>
+    <div id="modalError" class="modalError" >
+    <div class="mb-3">
+        <a title="Fechar" class="fechar" attr-name="modalError" attr-name="modal" onclick="closeModal(this)">x</a>
+        <div class="box-for-messege">
+            <label class="form-label subtitle-pages">Erro</label>
+            <span class="badge badge-pill bg-danger">
+                <i class="fa-solid fa-circle-exclamation f-s-b-20 item-messege"></i>
+            </span>
+            <p class="text-messege">Precisamos que seja selecionado algum item para proseguir!</p>
+        </div>
+    </div>
+</div>
 <?php $render('footer'); ?>

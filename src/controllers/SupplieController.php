@@ -2,8 +2,9 @@
 namespace src\controllers;
 
 use \core\Controller;
-use core\Request as CoreRequest;
+
 use DateTime;
+
 use \src\models\Atm;
 use \src\models\Supplie;
 use \src\models\Request;
@@ -133,7 +134,6 @@ class SupplieController extends Controller {
 
         $value_balance = ($qt_10 * 10)+($qt_20 * 20)+($qt_50 * 50)+($qt_100 * 100);
         
-      
         $valuesSupplie = [
             '10'=>$qt_10,
             '20'=>$qt_20,
@@ -377,7 +377,25 @@ class SupplieController extends Controller {
        // print_r($oss);die();
         $this->render('/supplie/supplie_screen', [
             'title_page' => "Tela de OS's para abastecimento",
-            'oss' => $oss
+            'oss' => $oss,
+            'date' => $args['date']
+        ]); 
+    }
+
+    public function screenPost($args){
+        $date_supplie = filter_input(INPUT_POST, 'date_supplie');
+        if(!isset($date_supplie) && $date_supplie !== ''){
+            $this->redirect('/supplie', ['error'=>'Precisamos de uma data para continuar!']);
+        }
+        $oss = Supplie::select()->where('date_supplie', $date_supplie)
+        ->where('id_status', 1)->execute();
+        if(count($oss) == 0){
+            $oss = null;
+        }
+        $this->render('/supplie/supplie_screen', [
+            'title_page' => "Tela de OS's para abastecimento",
+            'oss' => $oss,
+            'date' => $date_supplie
         ]); 
     }
 
@@ -423,6 +441,25 @@ class SupplieController extends Controller {
 
                 echo json_encode(['success' => 'Excluido com sucesso']);
             }
+        }
+    }
+
+    public function generateOS(){
+        //print_r($_POST);die();
+        $date_supplie = filter_input(INPUT_POST, 'date');
+ 
+        if(!isset($date_supplie) && $date_supplie !== ''){
+            $this->redirect('/supplie', ['error'=>'Precisamos de uma data para continuar!']);
+        }
+        $oss = Supplie::select()->where('date_supplie', $date_supplie)
+        ->where('id_status', 1)->execute();
+        if(count($oss) > 0){
+           $caminho = $_SERVER["DOCUMENT_ROOT"].'/crednosso/excel/abastecimento.xlsx';
+           if(!file_exists($caminho)){
+                mkdir($caminho, 0777, true);
+           }
+           print_r($oss);die();
+           Request::generateExcelOS($oss, $caminho);
         }
     }
 }

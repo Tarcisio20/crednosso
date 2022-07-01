@@ -93,9 +93,11 @@ $router->get('/supplie/view/{id}', 'SupplieController@viewActionGet');
 $router->post('/supplie/view/{id}', 'SupplieController@viewActionPost');
 $router->post('/supplie/cancel', 'SupplieController@cancel');
 $router->post('/supplie/devide', 'SupplieController@devide');
+$router->post('/supplie/screen', 'SupplieController@screenPost');
 $router->get('/supplie/screen/{date}', 'SupplieController@screen');
 
 $router->post('/supplie/screen/individual_cancel', 'SupplieController@cancelIndividual');
+$router->post('/supplie/generate/oss', 'SupplieController@generateOS');
 
 
 

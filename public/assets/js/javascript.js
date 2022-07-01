@@ -345,6 +345,40 @@ function generateSupplie(url) {
   }
 }
 
+function generateOSForExcel(url){
+  let date = document.getElementById('date_supplie').value
+  let string = {
+    date : date
+  }
+  if(date !== ''){
+    $.ajax({
+      url: url + "/supplie/generate/oss",
+      type: "POST",
+      data: string,
+    })
+      .done(function (response) {
+        console.log(response);
+       // window.location.replace(url + "/supplie/screen/" + dateInPage);
+        // $("#date_initial").val(dateInitial);
+        // $("#date_final").val(dateFinal);
+        // document.getElementById("pesquisar").click();
+      })
+      .fail(function (jqXHR, textStatus) {
+        console.log("Request failed: " + textStatus);
+      })
+      .always(function () {
+        console.log("completou");
+      });
+  }else{
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos de uma data para proseguir!";
+    $("#modalError").css({ opacity: "1" });
+    $("#modalError").css({ display: "block" });
+    $("#modalError").css({ pointerEvents: "auto" });
+  }
+}
+
 function devideInAtms(url) {
   let atms = [],
     val;
