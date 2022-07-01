@@ -96,10 +96,9 @@ class SupplieController extends Controller {
             $atms = null;
         }
 
-        $date = new DateTime();
 
-        $supplies = Supplie::select()->where('date_supplie', $date->format('Y-m-d'))
-        ->where('id_shipping', $id_shipping)->where('active', 'Y')->execute();
+        $supplies = Supplie::select()->where('id_shipping', $id_shipping)
+        ->where('active', 'Y')->where('id_status', 1)->execute();
         if(count($supplies) == 0){
             $supplies = null;
         }else{
@@ -380,5 +379,50 @@ class SupplieController extends Controller {
             'title_page' => "Tela de OS's para abastecimento",
             'oss' => $oss
         ]); 
+    }
+
+    public function cancelIndividual(){
+        // print_r($_POST);die();
+         $id = filter_input(INPUT_POST, 'id');
+         $supplie = Supplie::select()->where('id', $id)->execute();
+         //print_r($supplie);die();
+         if(count($supplie) > 0){
+            $valuesSupplie = [
+                '10' => $supplie[0]['a_10'],
+                '20' => $supplie[0]['b_20'],
+                '50' => $supplie[0]['c_50'],
+                '100' => $supplie[0]['d_100'],
+            ];
+            Supplie::update()->set('id_status', 3)->where('id', $id)->execute();
+            $treasury = Treasury::select()->where('id_shipping', $supplie[0]['id_shipping'])->execute();
+            //print_r($treasury);die();
+            if(count($treasury) > 0){
+                $valuesTreasury = [
+                    '10' => $treasury[0]['a_10'],
+                    '20' => $treasury[0]['b_20'],
+                    '50' => $treasury[0]['c_50'],
+                    '100' => $treasury[0]['d_100'],
+                ]; 
+                
+                $valueByTreasury = Supplie::generateValueForCassete('adc',$valuesTreasury, $valuesSupplie);
+                $valueTotalByTreasury = Supplie::gerateValueTotal($valueByTreasury);
+               // print_r($valueByTreasury['10']);die();
+                Treasury::update()->set('a_10', $valueByTreasury['10'])->set('b_20', $valueByTreasury['20'])
+                ->set('c_50', $valueByTreasury['50'])->set('d_100', $valueByTreasury['100'])
+                ->set('balance', $valueTotalByTreasury)
+                ->where('id_shipping', $supplie[0]['id_shipping'])->execute();
+
+                TreasuryLog::insert([
+                    'id_shipping' => $supplie[0]['id_shipping'],
+                    'id_log_type' => '2',
+                    'value_process' => Supplie::gerateValueTotal($valuesSupplie),
+                    'balance_previous' => Supplie::gerateValueTotal($valuesTreasury),
+                    'balance_current' => $valueTotalByTreasury,
+                    'date' => TreasuryLog::gerateDateNow()
+                ])->execute();
+
+                echo json_encode(['success' => 'Excluido com sucesso']);
+            }
+        }
     }
 }

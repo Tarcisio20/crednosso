@@ -133,10 +133,11 @@
                         <td scope="col">#</td>
                         <td scope="col">ID</td>
                         <td scope="col">ATM</td>
-                        <td scope="col">R$ 10,00</td>
-                        <td scope="col">R$ 20,00</td>
-                        <td scope="col">R$ 50,00</td>
-                        <td scope="col">R$ 100,00</td>
+                        <td scope="col">DATA</td>
+                        <td scope="col">CASS A</td>
+                        <td scope="col">CASS B</td>
+                        <td scope="col">CASS C</td>
+                        <td scope="col">CASS D</td>
                         <td scope="col">TOTAL</td>
                     </tr>
                 </thead>
@@ -146,6 +147,7 @@
                             <td><input type="checkbox" name="setados[]" value="<?php echo $supplie['id']; ?>" /></td>
                             <td><?php echo $supplie['id_atm']; ?></td>
                             <td><?php echo $supplie['name_atm']; ?></td>
+                            <td><?php echo date('d/m/Y', strtotime($supplie['date_supplie'])); ?></td>
                             <td><?php echo $supplie['a_10']; ?></td>
                             <td><?php echo $supplie['b_20']; ?></td>
                             <td><?php echo $supplie['c_50']; ?></td>

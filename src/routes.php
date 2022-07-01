@@ -95,6 +95,9 @@ $router->post('/supplie/cancel', 'SupplieController@cancel');
 $router->post('/supplie/devide', 'SupplieController@devide');
 $router->get('/supplie/screen/{date}', 'SupplieController@screen');
 
+$router->post('/supplie/screen/individual_cancel', 'SupplieController@cancelIndividual');
+
+
 
 $router->get('/region', 'RegionController@index');
 $router->get('/region/add', 'RegionController@add');

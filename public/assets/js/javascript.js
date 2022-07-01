@@ -165,8 +165,9 @@ function openModalConfirmParcial(url) {
     $("#modal").css({ display: "block" });
     $("#modal").css({ pointerEvents: "auto" });
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -185,8 +186,9 @@ function openModalRelaunch(url) {
     $("#modalDate").css({ display: "block" });
     $("#modalDate").css({ pointerEvents: "auto" });
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -204,24 +206,25 @@ function generateValueInModal(element) {
   toUpdateValueTotalInModal();
 }
 
-function viewRequest(url){
+function viewRequest(url) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
 
   if (checados.length > 1) {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Para essa função só pode ser selecionado 1 elemento!'
-    console.log(boxMsg.innerHTML)
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML = "Para essa função só pode ser selecionado 1 elemento!";
+    console.log(boxMsg.innerHTML);
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
-  }else if(checados.length == 1){
-    window.location.replace(url + "/request/view/"+checados[0]); 
+  } else if (checados.length == 1) {
+    window.location.replace(url + "/request/view/" + checados[0]);
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -252,8 +255,9 @@ function cancelSupplieSelecteds(url) {
     checados.push($(this).val());
   });
   if (checados.length == 0) {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -291,12 +295,37 @@ function cancelSupplieSelecteds(url) {
   }
 }
 
-function generateSupplie(url){
+function cancelSupplie(url, element) {
+  let dateInPage = document.getElementById("date_supplie").value;
+  let id = element.getAttribute("attr-id");
+
+  let string = { id: id };
+  $.ajax({
+    url: url + "/supplie/screen/individual_cancel",
+    type: "POST",
+    data: string,
+  })
+    .done(function (response) {
+      console.log(response);
+      window.location.replace(url + "/supplie/screen/" + dateInPage);
+      // $("#date_initial").val(dateInitial);
+      // $("#date_final").val(dateFinal);
+      // document.getElementById("pesquisar").click();
+    })
+    .fail(function (jqXHR, textStatus) {
+      console.log("Request failed: " + textStatus);
+    })
+    .always(function () {
+      console.log("completou");
+    });
+}
+
+function generateSupplie(url) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
-  let string = ''
+  let string = "";
   checados.map((item, index) => {
     if (index + 1 < checados.length) {
       string += item + "-";
@@ -304,11 +333,12 @@ function generateSupplie(url){
       string += item;
     }
   });
-  if(checados.length > 0){
-    console.log(string)
-  }else{
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+  if (checados.length > 0) {
+    console.log(string);
+  } else {
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -361,13 +391,15 @@ function devideInAtms(url) {
   }
 }
 
-function goScreenOSs(url){
-  let date = new Date()
-  let dia = String(date.getDate()).padStart(2, '0')
-  let mes = String(date.getMonth()+1).padStart(2, '0')
-  let ano = date.getFullYear()
+function goScreenOSs(url) {
+  let date = new Date();
+  let dia = String(date.getDate()).padStart(2, "0");
+  let mes = String(date.getMonth() + 1).padStart(2, "0");
+  let ano = date.getFullYear();
 
-  window.location.replace(url + "/supplie/screen/"+ano+'-'+mes+'-'+dia);
+  window.location.replace(
+    url + "/supplie/screen/" + ano + "-" + mes + "-" + dia
+  );
 }
 
 function openForSearch(event, url) {
@@ -433,8 +465,9 @@ function SearchContestation(event, url) {
   if (text != "") {
     window.location.replace(url + "/contestation/view/" + text);
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -447,8 +480,9 @@ function SearchGeneric(event, url) {
   if (batch != "") {
     window.location.replace(url + "/batch/search/" + batch);
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -461,8 +495,9 @@ function SearchTreasury(event, url) {
   if (treasury != "0") {
     window.location.replace(url + "/treasury/add/" + treasury);
   } else {
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
@@ -482,13 +517,13 @@ function selectAll(element) {
   }
 }
 
-function generateLaunch(url){
+function generateLaunch(url) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
 
-  if(checados.length > 0){
+  if (checados.length > 0) {
     let string = "";
     checados.map((item, index) => {
       if (index + 1 < checados.length) {
@@ -497,10 +532,10 @@ function generateLaunch(url){
         string += item;
       }
     });
-    
+
     check = {
-      checados : string
-    }
+      checados: string,
+    };
 
     $.ajax({
       url: url + "/request/functions/launch_action",
@@ -508,8 +543,8 @@ function generateLaunch(url){
       data: check,
     })
       .done(function (response) {
-        let res = JSON.parse(response)
-        res = res.integrity.replace('.', '-')
+        let res = JSON.parse(response);
+        res = res.integrity.replace(".", "-");
         window.location.replace(url + "/request/pdf/view/" + res);
       })
       .fail(function (jqXHR, textStatus) {
@@ -518,34 +553,36 @@ function generateLaunch(url){
       .always(function () {
         console.log("completou");
       });
-
-   
-  }else{
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+  } else {
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
   }
 }
 
-async function generatePDF(element, name){
+async function generatePDF(element, name) {
+  let opt = {
+    margin: 1,
+    filename: name,
+    pagebreak: { mode: "avoid" },
+    html2canvas: { scale: 2 },
+    jsPDF: {
+      unit: "in",
+      format: "a4",
+      orientation: "landscape", //landscape | portrait
+    },
+  };
 
-    let opt = {
-      margin: 1,
-      filename : name,
-      pagebreak: { mode: 'avoid' },
-      html2canvas : { scale : 2 },
-      jsPDF : {
-        unit : 'in',
-        format : 'a4',
-        orientation : 'landscape' //landscape | portrait 
-      }
-    }
-
-    await html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf){
-
-    /*const perBlob = pdf.output('blob');
+  await html2pdf()
+    .set(opt)
+    .from(element)
+    .toPdf()
+    .get("pdf")
+    .then(function (pdf) {
+      /*const perBlob = pdf.output('blob');
 
     var formData = new FormData();
     formData.append('file', perBlob, opt.filename);
@@ -564,38 +601,37 @@ async function generatePDF(element, name){
       .always(function () {
         console.log("completou");
       });*/
-  }).save();
-  await setTimeout(function(){
-
-  }, 3000)
+    })
+    .save();
+  await setTimeout(function () {}, 3000);
 }
 
-function downloadFileAll(url, integrity){
+function downloadFileAll(url, integrity) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
 
-  if(checados.length > 0){ 
-    let inte = integrity.replace('.', '-')
-    window.location.replace(url + "/request/pdf/download_all/"+inte);
-    
-  }else{
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+  if (checados.length > 0) {
+    let inte = integrity.replace(".", "-");
+    window.location.replace(url + "/request/pdf/download_all/" + inte);
+  } else {
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
   }
 }
 
-function gerateReport(url){
+function gerateReport(url) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
 
-  if(checados.length > 0){ 
+  if (checados.length > 0) {
     let string = "";
     checados.map((item, index) => {
       if (index + 1 < checados.length) {
@@ -604,25 +640,25 @@ function gerateReport(url){
         string += item;
       }
     });
-    
-    window.location.replace(url + "/request/pdf/report/"+string);
-    
-  }else{
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+
+    window.location.replace(url + "/request/pdf/report/" + string);
+  } else {
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
   }
 }
 
-function generatePaymment(url){
+function generatePaymment(url) {
   let checados = [];
   $.each($("input[name='setados[]']:checked"), function () {
     checados.push($(this).val());
   });
 
-  if(checados.length > 0){ 
+  if (checados.length > 0) {
     let string = "";
     checados.map((item, index) => {
       if (index + 1 < checados.length) {
@@ -631,15 +667,14 @@ function generatePaymment(url){
         string += item;
       }
     });
-    console.log(checados)
-    window.location.replace(url + "/request/pdf/paymment/"+string);
-    
-  }else{
-    let boxMsg = document.querySelector('.text-messege')
-    boxMsg.innerHTML = 'Precisamos que seja selecionado algum item para proseguir!'
+    console.log(checados);
+    window.location.replace(url + "/request/pdf/paymment/" + string);
+  } else {
+    let boxMsg = document.querySelector(".text-messege");
+    boxMsg.innerHTML =
+      "Precisamos que seja selecionado algum item para proseguir!";
     $("#modalError").css({ opacity: "1" });
     $("#modalError").css({ display: "block" });
     $("#modalError").css({ pointerEvents: "auto" });
   }
-
 }

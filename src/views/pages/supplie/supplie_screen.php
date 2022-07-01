@@ -47,13 +47,12 @@
         </div>
         <div class="mb-3 box-buttons">
             <a class="btn btn-success">
-                <i class="fa-solid fa-ban f-s-b-20"></i>
+                <i class="fa-solid fa-boxes-packing fa-ban f-s-b-20"></i>
                 Gerar
             </a>
-            <a class="btn btn-success" onclick="generateSupplie('<?php echo $base; ?>')">
-                <i class="fa-solid fa-boxes-packing fa-ban f-s-b-20"></i>
-                voltar
-            </a>
+            <a class="btn btn-info" href="<?php echo $base; ?>/supplie">
+                    <i class="fa-solid fa-angles-left f-s-b-20"></i> Voltar
+                </a>
         </div>
     <?php else: ?>
         <p>Nada a mostrar!</p>
