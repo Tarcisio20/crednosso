@@ -256,31 +256,28 @@ class Request extends Model {
     }
 
     public static function generateExcelOS($array, $path){
-        print_r($array);die();
         $line = 1;
-        if(file_exists($path)){
-            $spreadsheet = IOFactory::load($path);
-        }else{
-            $spreadsheet = new Spreadsheet();
-        }
-        $nameWorksheet = date('abastecimento');
+        
+        $spreadsheet = new Spreadsheet();
+        
+        $nameWorksheet = 'abastecimentos';
         $myWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, $nameWorksheet);
         $sheet =  $spreadsheet->addSheet($myWorkSheet, 0);
-
-        $cells =  [
-            ['n_terminal','troca_total', 'cassete_A', 'cassete_B', 'cassete_C',
-            'cassete_D', 'data_atendimento', 'Nr', 'total']
-        ];
+        $cells = [];
+        $title = ['n_terminal','troca_total', 'cassete_A', 'cassete_B', 'cassete_C',
+        'cassete_D', 'data_atendimento', 'Nr', 'total'];
+        array_push($cells, $title);
         foreach($array as $key => $a){
-            array_push($cells, [
+            $cells = [
                 [$a['id_atm'], $a['full_exchange'], $a['a_10'], $a['b_20'], $a['c_50'],
                 $a['d_100'], date('d/m/Y', strtotime($a['date_supplie'])) ,null, 
                 'R$ '.number_format($a['value_supplie'],2,',','.')]
-            ]);
+            ];
+            $sheet->fromArray($cells, null, 'A'.$line);
+            $line = $line + 1;
         }
-        $sheet->fromArray($cells, null, 'A'.$line);
         $writer = new Xlsx($spreadsheet);
-        $writer->save($path);
+        $writer->save($path.'abastecimento.xlsx');
 
     }
 }

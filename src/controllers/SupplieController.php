@@ -454,11 +454,10 @@ class SupplieController extends Controller {
         $oss = Supplie::select()->where('date_supplie', $date_supplie)
         ->where('id_status', 1)->execute();
         if(count($oss) > 0){
-           $caminho = $_SERVER["DOCUMENT_ROOT"].'/crednosso/excel/abastecimento.xlsx';
+           $caminho = $_SERVER["DOCUMENT_ROOT"].'/crednosso/excel/';
            if(!file_exists($caminho)){
                 mkdir($caminho, 0777, true);
            }
-           print_r($oss);die();
            Request::generateExcelOS($oss, $caminho);
         }
     }
