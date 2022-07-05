@@ -123,6 +123,7 @@ class SupplieController extends Controller {
         $integrity = filter_input(INPUT_POST, 'integrity');
         $id_atm = filter_input(INPUT_POST, 'id_atm');
         $date_supplie = filter_input(INPUT_POST, 'date_supplie');
+        $full_exchange = filter_input(INPUT_POST, 'full_exchange');
         $qt_10 = filter_input(INPUT_POST, 'qt_10');
         $qt_20 = filter_input(INPUT_POST, 'qt_20');
         $qt_50 = filter_input(INPUT_POST, 'qt_50');
@@ -155,6 +156,7 @@ class SupplieController extends Controller {
                 'id_atm'=> $id_atm,
                 'integrity'=>$integrity,
                 'date_supplie'=>$date_supplie,
+                'full_exchange'=>$full_exchange,
                 'a_10'=>$qt_10,
                 'b_20'=>$qt_20,
                 'c_50'=>$qt_50,

@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
--- Versão do servidor:           10.4.22-MariaDB - mariadb.org binary distribution
+-- Versão do servidor:           10.4.21-MariaDB - mariadb.org binary distribution
 -- OS do Servidor:               Win64
--- HeidiSQL Versão:              11.1.0.6116
+-- HeidiSQL Versão:              11.3.0.6295
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `atms` (
   UNIQUE KEY `id_atm` (`id_atm`)
 ) ENGINE=InnoDB AUTO_INCREMENT=254 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.atms: ~6 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.atms: ~244 rows (aproximadamente)
 /*!40000 ALTER TABLE `atms` DISABLE KEYS */;
 INSERT INTO `atms` (`id`, `id_atm`, `id_type`, `id_treasury`, `name_atm`, `shortened_name_atm`, `cass_A`, `cass_B`, `cass_C`, `cass_D`, `status`) VALUES
 	(1, 1, 1, 2, 'SUPER COHAMA 01', 'SUP COHAMA 01', 10, 20, 50, 100, 'Y'),
@@ -988,6 +988,7 @@ CREATE TABLE IF NOT EXISTS `supplies` (
   `id_atm` int(11) DEFAULT NULL,
   `integrity` varchar(250) DEFAULT NULL,
   `date_supplie` date DEFAULT NULL,
+  `full_exchange` enum('Y','N') DEFAULT 'N',
   `a_10` int(11) NOT NULL DEFAULT 0,
   `b_20` int(11) NOT NULL DEFAULT 0,
   `c_50` int(11) NOT NULL DEFAULT 0,
@@ -1000,18 +1001,18 @@ CREATE TABLE IF NOT EXISTS `supplies` (
 
 -- Copiando dados para a tabela crednosso.supplies: ~11 rows (aproximadamente)
 /*!40000 ALTER TABLE `supplies` DISABLE KEYS */;
-INSERT INTO `supplies` (`id`, `id_shipping`, `id_atm`, `integrity`, `date_supplie`, `a_10`, `b_20`, `c_50`, `d_100`, `value_supplie`, `id_status`, `active`) VALUES
-	(2, 2, 2, '002002628d2a9753e4b', '2022-05-24', 100, 200, 100, 200, 30000, 1, 'Y'),
-	(5, 1, 70, '001070628d42d3a0b6b', '2022-05-24', 100, 100, 100, 100, 18000, 1, 'Y'),
-	(6, 1, 70, '001070628d43ad297c4', '2022-05-24', 100, 100, 100, 100, 18000, 1, 'Y'),
-	(38, 21, 126, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
-	(39, 21, 127, '021126628f7f0a3b286', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
-	(40, 21, 126, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
-	(41, 21, 127, '021126628f906beb984', '2022-05-26', 100, 100, 100, 100, 18000, 1, 'N'),
-	(46, 21, 126, '02112662bdf5b89b1f4', '2022-06-30', 100, 100, 100, 100, 18000, 3, 'Y'),
-	(47, 21, 127, '02112762bdfdb43a800', '2022-06-30', 100, 100, 100, 100, 18000, 1, 'Y'),
-	(48, 23, 173, '02317362be086c09b24', '2022-06-30', 50, 50, 50, 50, 9000, 1, 'Y'),
-	(49, 23, 174, '02317362be086c09b24', '2022-06-30', 50, 50, 50, 50, 9000, 1, 'Y');
+INSERT INTO `supplies` (`id`, `id_shipping`, `id_atm`, `integrity`, `date_supplie`, `full_exchange`, `a_10`, `b_20`, `c_50`, `d_100`, `value_supplie`, `id_status`, `active`) VALUES
+	(2, 2, 2, '002002628d2a9753e4b', '2022-05-24', 'N', 100, 200, 100, 200, 30000, 1, 'Y'),
+	(5, 1, 70, '001070628d42d3a0b6b', '2022-05-24', 'N', 100, 100, 100, 100, 18000, 3, 'N'),
+	(6, 1, 70, '001070628d43ad297c4', '2022-05-24', 'N', 100, 100, 100, 100, 18000, 3, 'N'),
+	(38, 21, 126, '021126628f7f0a3b286', '2022-05-26', 'N', 100, 100, 100, 100, 18000, 1, 'N'),
+	(39, 21, 127, '021126628f7f0a3b286', '2022-05-26', 'N', 100, 100, 100, 100, 18000, 1, 'N'),
+	(40, 21, 126, '021126628f906beb984', '2022-05-26', 'N', 100, 100, 100, 100, 18000, 1, 'N'),
+	(41, 21, 127, '021126628f906beb984', '2022-05-26', 'N', 100, 100, 100, 100, 18000, 1, 'N'),
+	(46, 21, 126, '02112662bdf5b89b1f4', '2022-06-30', 'N', 100, 100, 100, 100, 18000, 3, 'Y'),
+	(47, 21, 127, '02112762bdfdb43a800', '2022-06-30', 'N', 100, 100, 100, 100, 18000, 1, 'Y'),
+	(48, 23, 173, '02317362be086c09b24', '2022-06-30', 'N', 50, 50, 50, 50, 9000, 1, 'Y'),
+	(49, 23, 174, '02317362be086c09b24', '2022-06-30', 'N', 50, 50, 50, 50, 9000, 1, 'Y');
 /*!40000 ALTER TABLE `supplies` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.supplie_statuss
@@ -1022,7 +1023,7 @@ CREATE TABLE IF NOT EXISTS `supplie_statuss` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.supplie_statuss: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.supplie_statuss: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `supplie_statuss` DISABLE KEYS */;
 INSERT INTO `supplie_statuss` (`id`, `name`, `active`) VALUES
 	(1, 'Aberto', 'Y'),
@@ -1044,10 +1045,10 @@ CREATE TABLE IF NOT EXISTS `treasurys` (
   UNIQUE KEY `id_shipping` (`id_shipping`)
 ) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.treasurys: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.treasurys: ~85 rows (aproximadamente)
 /*!40000 ALTER TABLE `treasurys` DISABLE KEYS */;
 INSERT INTO `treasurys` (`id`, `id_shipping`, `a_10`, `b_20`, `c_50`, `d_100`, `balance`, `status`) VALUES
-	(1, 1, 0, 0, 0, 0, 0, 'Y'),
+	(1, 1, 200, 200, 200, 200, 36000, 'Y'),
 	(2, 2, 0, 0, 0, 0, 0, 'Y'),
 	(4, 21, 100, 100, 100, 100, 18000, 'Y'),
 	(5, 23, 0, 0, 0, 0, 0, 'Y'),
@@ -1145,9 +1146,9 @@ CREATE TABLE IF NOT EXISTS `treasury_logs` (
   `date` datetime DEFAULT NULL,
   `active` enum('Y','N') NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=352 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=354 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.treasury_logs: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.treasury_logs: ~318 rows (aproximadamente)
 /*!40000 ALTER TABLE `treasury_logs` DISABLE KEYS */;
 INSERT INTO `treasury_logs` (`id`, `id_shipping`, `id_log_type`, `value_process`, `balance_previous`, `balance_current`, `date`, `active`) VALUES
 	(14, 1, 2, 18000, NULL, NULL, '2022-05-24 18:53:17', 'Y'),
@@ -1465,7 +1466,9 @@ INSERT INTO `treasury_logs` (`id`, `id_shipping`, `id_log_type`, `value_process`
 	(348, 21, 7, 18000, 18000, 0, '2022-06-30 16:47:00', 'Y'),
 	(349, 23, 7, 9000, 18000, 9000, '2022-06-30 17:32:44', 'Y'),
 	(350, 23, 7, 9000, 9000, 0, '2022-06-30 17:32:44', 'Y'),
-	(351, 21, 2, 18000, 0, 18000, '2022-06-30 22:28:30', 'Y');
+	(351, 21, 2, 18000, 0, 18000, '2022-06-30 22:28:30', 'Y'),
+	(352, 1, 8, 18000, 0, 18000, '2022-07-05 17:33:34', 'Y'),
+	(353, 1, 8, 18000, 18000, 36000, '2022-07-05 17:33:34', 'Y');
 /*!40000 ALTER TABLE `treasury_logs` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela crednosso.treasury_log_types
@@ -1476,7 +1479,7 @@ CREATE TABLE IF NOT EXISTS `treasury_log_types` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.treasury_log_types: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.treasury_log_types: ~8 rows (aproximadamente)
 /*!40000 ALTER TABLE `treasury_log_types` DISABLE KEYS */;
 INSERT INTO `treasury_log_types` (`id`, `name`, `active`) VALUES
 	(1, 'Criação', 'Y'),
@@ -1506,7 +1509,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
--- Copiando dados para a tabela crednosso.users: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela crednosso.users: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `name`, `username`, `email`, `password`, `nivel`, `token`, `date_login`, `change_date`, `active`) VALUES
 	(1, 'Tarcisio Silva', 'TARCISIOSILVA', 'tarcisio.silva@crednosso.com.br', '$2y$10$YW7P6YfkEzFg0asoolofV.J.CvvKl.jGVZyYpiZmrz0Ff/iM3JzNi', 'admin', '$2y$10$9.zqM2gmuDhxZJUINkDJf.0y3OZDkX9hBzC0S8Y2mzl26J/4B1NTC', NULL, NULL, 'Y'),
@@ -1515,6 +1518,6 @@ INSERT INTO `users` (`id`, `name`, `username`, `email`, `password`, `nivel`, `to
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

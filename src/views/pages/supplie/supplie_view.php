@@ -68,6 +68,13 @@
             <input class="form-control" type="date" name="date_supplie" id="date_supplie" value="<?php $date = new DateTime(); echo $date->format('Y-m-d'); ?>" />
         </div>
         <div class="mb-3">
+            <label class="form-label" >TROCA TOTAL</label>
+            <select class="form-select" name="full_exchange" id="full_exchange"  >
+                <option value="N">NÃO</option>
+                <option value="Y">SIM</option>
+            </select>
+            </div>
+        <div class="mb-3">
             <div class="mb-3">
                 <div class="container-for-values">
                     <label class="form-label rotule-values">R$ 10,00</label>
