@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/app/components/Button";
+import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";

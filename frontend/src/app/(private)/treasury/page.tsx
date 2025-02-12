@@ -5,7 +5,7 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { faSackDollar, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
-import { Button } from '@/app/components/Button';
+import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
 export default function Order() {

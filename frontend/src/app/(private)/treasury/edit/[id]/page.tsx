@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/app/components/Button";
+import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
@@ -13,6 +13,8 @@ export default function TreasuryEdit() {
     const [idSystemTreasury, setIdSystemTreasury] = useState('')
     const [nameTreasury, setNameTreasury] = useState('')
     const [nameRedTreasury, setNameRedTreasury] = useState('')
+    const [numContaTreasury, setNumContaTreasury] = useState('')
+    const [saldoTreasury, setSaldoTreasury] = useState('0')
     const [statusTreasury, setStatusTreasury] = useState('0')
 
   return (
@@ -32,12 +34,23 @@ export default function TreasuryEdit() {
                 <Input color="#DDDD" placeholder="Digite o nome reduzido da Transportadora" size="extra-large" value={nameRedTreasury} onChange={setNameRedTreasury} icon={faVault} />
            </div>
            <div className="flex flex-col gap-5">
+                <label className="uppercase leading-3 font-bold">N° Conta</label>
+                <Input color="#DDDD" placeholder="Digite o nome reduzido da Transportadora" size="extra-large" value={numContaTreasury} onChange={setNumContaTreasury} icon={faVault} />
+           </div>
+           <div className="flex flex-col gap-5">
                 <label className="uppercase leading-3 font-bold">Saldo</label>
                 <div className="flex flex-row gap-1">
-                    <Input readonly color="#DDDD" placeholder="R$ 00,00" size="extra-large" value={nameRedTreasury} onChange={setNameRedTreasury} icon={faDollarSign} />
+                    <Input readonly color="#DDDD" placeholder="R$ 00,00" size="extra-large" value={saldoTreasury} onChange={setSaldoTreasury} icon={faDollarSign} />
                     <Button color="" onClick={()=>{}} size="small" secondaryColor="" textColor="white">Add Saldo</Button>
                 </div>
            </div>
+           <div className="flex flex-col gap-5">
+                <label className="uppercase leading-3 font-bold">Contatos</label>
+               <textarea 
+                    className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-30 text-lg"
+                    placeholder="Todos os contatos da tesouraria"
+               ></textarea>
+          </div>
            <div className="flex flex-col gap-5">
                <label className="uppercase leading-3 font-bold">Status</label>
                <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
