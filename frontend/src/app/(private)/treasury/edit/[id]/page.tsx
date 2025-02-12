@@ -4,7 +4,7 @@ import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import {  faPenToSquare, faLandmark, faVault, faReceipt, faSquareCheck, faDollarSign } from '@fortawesome/free-solid-svg-icons';
+import {  faPenToSquare, faLandmark, faVault, faReceipt, faDollarSign, faListOl } from '@fortawesome/free-solid-svg-icons';
 import { useState } from "react";
 
 
@@ -35,7 +35,7 @@ export default function TreasuryEdit() {
            </div>
            <div className="flex flex-col gap-5">
                 <label className="uppercase leading-3 font-bold">N° Conta</label>
-                <Input color="#DDDD" placeholder="Digite o nome reduzido da Transportadora" size="extra-large" value={numContaTreasury} onChange={setNumContaTreasury} icon={faVault} />
+                <Input color="#DDDD" placeholder="Digite o numero da conta da  Transportadora" size="extra-large" value={numContaTreasury} onChange={setNumContaTreasury} icon={faListOl} />
            </div>
            <div className="flex flex-col gap-5">
                 <label className="uppercase leading-3 font-bold">Saldo</label>

@@ -3,21 +3,21 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faSackDollar, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faBoxOpen, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
-export default function Order() {
+export default function Atm() {
 
     const router = useRouter()
 
     const handleAdd = () => {
-        router.push('/treasury/add')
+        router.push('/atm/add')
     }
   return (
     <Page>
-        <TitlePages linkBack="/" icon={faSackDollar} >Tesouraria</TitlePages>
+        <TitlePages linkBack="/" icon={faBoxOpen} >Atm</TitlePages>
         <div className="flex flex-col gap-4 p-5 w-full">
             <div className='flex flex-col gap-3 items-center justify-center mb-4'>
                 <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
@@ -28,8 +28,8 @@ export default function Order() {
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Nome Reduzido</th>
-                        <th>N Conta</th>
-                        <th>Saldo</th>
+                        <th>Transportadora</th>
+                        <th>Config Cassetes</th>
                         <th>Ativo</th>
                         <th>Ações</th>
                     </tr>
@@ -39,14 +39,14 @@ export default function Order() {
                         <td>1</td>
                         <td>Nome</td>
                         <td>Nome Red.</td>
-                        <td>1234</td>
-                        <td>R$ 00,00</td>
+                        <td>Tranportadora 1</td>
+                        <td>Padrão</td>
                         <td>Ativo</td>
                         <td className='flex justify-center items-center gap-4 h-12'>
-                            <Link href={`/treasury/edit/1`}>
+                            <Link href={`/atm/edit/1`}>
                                 <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                             </Link>
-                            <Link href={`/treasury/del/1`}>
+                            <Link href={`/atm/del/1`}>
                                 <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                             </Link>
                         </td>
@@ -55,14 +55,14 @@ export default function Order() {
                         <td>2</td>
                         <td>Nome 1</td>
                         <td>Nome Red. 1</td>
-                        <td>5678</td>
-                        <td>R$ 00,00</td>
+                        <td>Tranportadora 2</td>
+                        <td>Cpnfig. CD</td>
                         <td>Inativo</td>
                         <td className='flex justify-center items-center gap-4 h-12'>
-                            <Link href={`/treasury/edit/2`}>
+                            <Link href={`/atm/edit/2`}>
                                 <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                             </Link>
-                            <Link href={`/treasury/del/2`}>
+                            <Link href={`/atm/del/2`}>
                                 <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                             </Link>
                         </td>
