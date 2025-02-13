@@ -1,16 +1,19 @@
 import "dotenv/config";
 import cors from "cors";
 import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import operatorCardRouter from './routers/operatorCardRouter'
+
 
 const app = express();
-const prisma = new PrismaClient();
+
 const port = process.env.PORT || 3000;
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
+
+app.use(operatorCardRouter)
 // Rota de exemplo
 app.get("/", async (req: Request, res: Response) => {
   res.json({ message: "API rodando" });
@@ -18,8 +21,8 @@ app.get("/", async (req: Request, res: Response) => {
 
 // Exemplo de rota para buscar usuários sem expor que usa Express
 app.get("/users", async (req: Request, res: Response) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
+ // const users = await prisma.user.findMany();
+  res.json({});
 });
 
 // Iniciar servidor sem expor Express

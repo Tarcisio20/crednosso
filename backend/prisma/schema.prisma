@@ -23,13 +23,56 @@ model User {
 model Treasury {
   id Int @id @default(autoincrement())
   id_system Int @unique
-  name String
-  short_name String
-  account_number String
-  gmcore_number String
+  name String @unique
+  short_name String @unique
+  account_number String @unique
+  gmcore_number String @unique
   bills_10 Int
   bills_20 Int
   bills_50 Int
   bills_100 Int
+  status Boolean
+
+  atms Atm[]
+  contacts Contacts[]
+}
+
+model Atm {
+  id Int @id @default(autoincrement())
+  id_system Int
+  name String @unique
+  short_name String @unique
+  id_treasury Int
+  status Boolean
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
+}
+
+model TypeOperation {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean
+}
+
+model TypeOrder {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean
+}
+
+model Contacts {
+  id Int @id @default(autoincrement())
+  id_treasury Int
+  name String
+  email String 
+  phone String
+  status Boolean
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
+}
+
+model OperatorCard {
+  id Int @id @default(autoincrement())
+  name String @unique
   status Boolean
 }
