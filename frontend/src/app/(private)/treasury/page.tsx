@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
-export default function Order() {
+export default function Treasury() {
 
     const router = useRouter()
 

@@ -8,7 +8,7 @@ import {  faAdd, faLandmark, faVault, faReceipt, faListOl } from '@fortawesome/f
 import { useState } from "react";
 
 
-export default function TypeOperationAdd() {
+export default function TypeOrderAdd() {
 
 
      const [idSystemTypeOrder, setIdSystemTypeOrder] = useState('')
