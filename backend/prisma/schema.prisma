@@ -19,3 +19,17 @@ model User {
   email String @unique
   status Boolean
 }
+
+model Treasury {
+  id Int @id @default(autoincrement())
+  id_system Int @unique
+  name String
+  short_name String
+  account_number String
+  gmcore_number String
+  bills_10 Int
+  bills_20 Int
+  bills_50 Int
+  bills_100 Int
+  status Boolean
+}
