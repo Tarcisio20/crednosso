@@ -2,7 +2,7 @@
 
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faCreditCard, faMobile, faIdBadge, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faIdBadge, faAdd } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ export default function OperationCardAdd() {
     }
   return (
     <Page>
-        <TitlePages linkBack="/operator-card" icon={faCreditCard} >Adicionar Cartão Operador</TitlePages>
+        <TitlePages linkBack="/operator-card" icon={faAdd} >Adicionar Cartão Operador</TitlePages>
         <div className="flex flex-col gap-4 p-5 w-full">
             <div className="flex flex-col gap-5">
                <label className="uppercase leading-3 font-bold">Transportadora</label>

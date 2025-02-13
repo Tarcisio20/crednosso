@@ -4,7 +4,7 @@ import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import {  faAdd, faLandmark, faVault, faReceipt, faListOl } from '@fortawesome/free-solid-svg-icons';
+import {  faLandmark, faReceipt, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { useState } from "react";
 
 
@@ -16,7 +16,7 @@ export default function TypeOperationEdit() {
 
   return (
     <Page>
-        <TitlePages linkBack="/type-operation" icon={faAdd} >Adicionar Tipo de Operação</TitlePages>
+        <TitlePages linkBack="/type-operation" icon={faPenToSquare} >Editar Tipo de Operação</TitlePages>
         <div className="flex flex-col gap-8 p-5 w-full">
           <div className="flex flex-col gap-5">
                 <label className="uppercase leading-3 font-bold">Id</label>

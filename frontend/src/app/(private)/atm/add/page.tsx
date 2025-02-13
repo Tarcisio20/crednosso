@@ -82,7 +82,7 @@ export default function AtmAdd() {
                                         value={casseteAAtm}
                                         onChange={e => setCasseteAAtm(e.target.value)}     
                                    >
-                                        <option   className="uppercase bg-slate-700 text-white" value="10" selected >R$ 10,00</option>
+                                        <option   className="uppercase bg-slate-700 text-white" value="10"  >R$ 10,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="20" >R$ 20,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="50" >R$ 50,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="100" >R$ 100,00</option>
@@ -98,7 +98,7 @@ export default function AtmAdd() {
                                         onChange={e => setCasseteBAtm(e.target.value)}     
                                    >
                                         <option   className="uppercase bg-slate-700 text-white" value="10"  >R$ 10,00</option>
-                                        <option   className="uppercase bg-slate-700 text-white" value="20"  selected >R$ 20,00</option>
+                                        <option   className="uppercase bg-slate-700 text-white" value="20"  >R$ 20,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="50"  >R$ 50,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="100"  >R$ 100,00</option>
                                    </select>
@@ -114,7 +114,7 @@ export default function AtmAdd() {
                                    >
                                         <option   className="uppercase bg-slate-700 text-white" value="10"  >R$ 10,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="20"  >R$ 20,00</option>
-                                        <option   className="uppercase bg-slate-700 text-white" value="50"  selected >R$ 50,00</option>
+                                        <option   className="uppercase bg-slate-700 text-white" value="50"   >R$ 50,00</option>
                                         <option   className="uppercase bg-slate-700 text-white" value="100"  >R$ 100,00</option>
                                    </select>
                               </div>
@@ -130,7 +130,7 @@ export default function AtmAdd() {
                                         <option   className="uppercase bg-slate-700 text-white"  value="10" >R$ 10,00</option>
                                         <option   className="uppercase bg-slate-700 text-white"  value="20" >R$ 20,00</option>
                                         <option   className="uppercase bg-slate-700 text-white"  value="50" >R$ 50,00</option>
-                                        <option   className="uppercase bg-slate-700 text-white"  value="100" selected >R$ 100,00</option>
+                                        <option   className="uppercase bg-slate-700 text-white"  value="100"  >R$ 100,00</option>
                                    </select>
                               </div>
                          </div>

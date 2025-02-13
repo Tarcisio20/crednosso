@@ -2,13 +2,13 @@
 
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faCreditCard, faIdBadge } from '@fortawesome/free-solid-svg-icons';
+import { faIdBadge, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Input } from '@/app/components/ui/Input';
 
-export default function OperationCardAdd() {
+export default function OperationCardEdit() {
 
     const router = useRouter()
 
@@ -21,7 +21,7 @@ export default function OperationCardAdd() {
     }
   return (
     <Page>
-        <TitlePages linkBack="/operator-card" icon={faCreditCard} >Adicionar Cartão Operador</TitlePages>
+        <TitlePages linkBack="/operator-card" icon={faPenToSquare} >Editar Cartão Operador</TitlePages>
         <div className="flex flex-col gap-4 p-5 w-full">
             <div className="flex flex-col gap-5">
                <label className="uppercase leading-3 font-bold">Transportadora</label>

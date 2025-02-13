@@ -19,7 +19,7 @@ export default function Order() {
 
     return (
         <Page>
-            <TitlePages linkBack="/order" icon={faCoins} >Pedidos</TitlePages>
+            <TitlePages linkBack="/" icon={faCoins} >Pedidos</TitlePages>
             <div className="flex flex-row gap-4 p-5 w-full">
                 <div className="flex flex-col gap-5 w-1/3">
                     <label className="uppercase leading-3 font-bold">Tipo de Operação</label>
@@ -253,9 +253,9 @@ export default function Order() {
                     <textarea className="bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 outline-none border-slate-600 h-5 flex-1 text-lg flex justify-center items-center" ></textarea>
                 </div>
             </div>
-            <div className="mt-5">
+            <div className="mt-5 flex flex-row gap-3">
                 <Button  color="#2E8B57" onClick={()=>{}} size="large"  textColor="white" secondaryColor="#81C784"  >Salvar</Button>
-                <Button  color="#2E8B57" onClick={()=>{}} size="large"  textColor="white" secondaryColor="#81C784"  >Salvar</Button>
+                <Button  color="#2E8B57" onClick={()=>{}} size="large"  textColor="white" secondaryColor="#81C784"  >Pesquisar</Button>
             </div>
         </Page>
     );

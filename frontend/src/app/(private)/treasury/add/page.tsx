@@ -17,7 +17,7 @@ export default function TreasuryAdd() {
 
   return (
     <Page>
-        <TitlePages linkBack="/" icon={faAdd} >Adicionar Tesouraria</TitlePages>
+        <TitlePages linkBack="/treasury" icon={faAdd} >Adicionar Tesouraria</TitlePages>
         <div className="flex flex-col gap-8 p-5 w-full">
         <div className="flex flex-col gap-5">
                 <label className="uppercase leading-3 font-bold">Id</label>

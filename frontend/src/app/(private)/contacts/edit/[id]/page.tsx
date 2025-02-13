@@ -3,7 +3,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faIdCardClip, faMobile, faIdBadge, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faMobile, faIdBadge, faEnvelope, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ export default function ContactsEdit() {
     }
   return (
     <Page>
-        <TitlePages linkBack="/contacts" icon={faIdCardClip} >Editar Contato</TitlePages>
+        <TitlePages linkBack="/contacts" icon={faPenToSquare} >Editar Contato</TitlePages>
         <div className="flex flex-col gap-4 p-5 w-full">
             <div className="flex flex-col gap-5">
                <label className="uppercase leading-3 font-bold">Transportadora</label>
