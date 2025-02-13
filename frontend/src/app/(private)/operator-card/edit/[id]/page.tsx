@@ -15,7 +15,6 @@ export default function OperationCardAdd() {
     const [treasury, setTreasury] = useState('')
     const [numOperatorCard, setNumOperatorCard] = useState('')
     const [statusOperatorCard, setStatusOperatorCard] = useState('')
-    const [emailContact, setEmailContact] = useState('')
 
     const handleAdd = () => {
         router.push('/contacts/add')
