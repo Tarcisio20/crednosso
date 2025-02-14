@@ -14,6 +14,6 @@ export const Button = ({ size, color, secondaryColor, textColor, children, onCli
         ${size === 'meddium' ? 'w-72 h-10 text-base' : ""}
         ${size === 'large' ? 'w-80 h-10 text-lg' : ""}
     `}  style={{ backgroundColor : color }} onClick={onClick} >
-        <button className="p-0 m-0 text-zinc-400 font-bold uppercase" style={{ color : textColor }} onClick={onClick}>{children}</button>
+        <button className="p-0 m-0 text-zinc-400 font-bold uppercase" style={{ color : textColor }} >{children}</button>
     </div>
 }

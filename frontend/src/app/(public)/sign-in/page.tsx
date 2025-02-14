@@ -5,6 +5,7 @@ import { Input } from "@/app/components/ui/Input";
 import { useState } from "react";
 import Cookies from 'js-cookie';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 export default function SignIn() {
@@ -33,8 +34,9 @@ export default function SignIn() {
           <label className="uppercase mb-2 font-bold">Senha :</label>
           <Input color="#DDD" placeholder="Digite a senha..." value={userPassword} password onChange={setUserPassword} size="large" />   
         </div>
-        <div className="flex flex-col">
-          <Button size="large" color="#999"  onClick={onLoading} secondaryColor="" textColor="" >Logar</Button>
+        <div className="flex flex-col gap-3">
+          <Button size="large" color="#ADD8E6"  onClick={onLoading} secondaryColor="" textColor="black" >Logar</Button>
+          <p className="">Não possui usuario? <Link href="/register" className="text-zinc-400">Registre-se</Link>!</p>
         </div>
     </div>
 

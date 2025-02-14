@@ -4,6 +4,6 @@ import * as OperatorCardController from '../controllers/operatorCardController'
 
 const router = Router();
 
-router.post('/operator-card', OperatorCardController.getAll)
+router.post('/operator-card', ()=>{})
 
 export default router;

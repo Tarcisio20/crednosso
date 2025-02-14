@@ -17,7 +17,8 @@ model User {
   id Int @id @default(autoincrement())
   name String
   email String @unique
-  status Boolean
+  password  String
+  status Boolean @default(true)
 }
 
 model Treasury {
@@ -31,7 +32,7 @@ model Treasury {
   bills_20 Int
   bills_50 Int
   bills_100 Int
-  status Boolean
+  status Boolean @default(true)
 
   atms Atm[]
   contacts Contacts[]
@@ -43,7 +44,7 @@ model Atm {
   name String @unique
   short_name String @unique
   id_treasury Int
-  status Boolean
+  status Boolean @default(true)
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
@@ -51,13 +52,13 @@ model Atm {
 model TypeOperation {
   id Int @id @default(autoincrement())
   name String @unique
-  status Boolean
+  status Boolean @default(true)
 }
 
 model TypeOrder {
   id Int @id @default(autoincrement())
   name String @unique
-  status Boolean
+  status Boolean @default(true)
 }
 
 model Contacts {
@@ -66,7 +67,7 @@ model Contacts {
   name String
   email String 
   phone String
-  status Boolean
+  status Boolean @default(true)
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
@@ -74,5 +75,5 @@ model Contacts {
 model OperatorCard {
   id Int @id @default(autoincrement())
   name String @unique
-  status Boolean
+  status Boolean @default(true)
 }
