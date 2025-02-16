@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isValidEmail } from "@/app/utils/emailValidator";
 import { passLoginValidator } from "@/app/utils/passLoginValidator";
+import { login } from "@/app/service/auth";
 
 export default function SignIn() {
   const router = useRouter();
@@ -28,12 +29,21 @@ export default function SignIn() {
       setError(pass);
       return;
     }
-    console.log(pass);
-    /*await Cookies.set("tokenSystemCredNosso", "valorDoToken", {
+    const data = {
+      email: userEmail,
+      password: userPassword,
+    };
+    const user = await login(data);
+    if (!user.success) {
+      setError(user.message);
+      return;
+    }
+
+    await Cookies.set("tokenSystemCredNosso", user?.data?.token, {
       expires: 7,
       path: "/",
     });
-    await router.push("/");*/
+    await router.push("/");
   };
 
   return (
