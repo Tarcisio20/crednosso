@@ -1,6 +1,14 @@
 import axios from "axios";
 import { userType } from "@/types/userType";
 
+// Definindo o tipo de resposta esperado
+interface LoginResponse {
+  success: boolean;
+  token?: string; // 'token' é opcional pois pode não existir em um erro
+  message: string;
+  data?: any; // Dados adicionais que podem ser retornados
+}
+
 export const register = async (data: userType) => {
   await axios
     .post(`${process.env.NEXT_PUBLIC_API_URL}/register`, data, {
@@ -26,7 +34,10 @@ export const register = async (data: userType) => {
       }
     });
 };
-export const login = async (data: { email: string; password: string }) => {
+export const login = async (data: {
+  email: string;
+  password: string;
+}): Promise<LoginResponse> => {
   try {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/login`,
@@ -39,6 +50,7 @@ export const login = async (data: { email: string; password: string }) => {
     return {
       success: true,
       data: response.data,
+      message: "Login bem-scedido",
     };
   } catch (error: any) {
     if (error.response) {
