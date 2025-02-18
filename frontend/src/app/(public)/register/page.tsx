@@ -43,7 +43,6 @@ export default function SignIn() {
       password : userPassword
     })
 
-    console.log("aaaaaaaaaaaaaaaaaaaa", user)
   }
 
   const onLoading = async () => {

@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
+import { Request, Response ,NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createUser, findUserByEmail } from "../services/userServices";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
-export const register = async (req: Request, res: Response) => {
+interface AuthRequest extends Request {
+  user?: any; // Para armazenar os dados do usuário decodificados
+}
+
+export const register = async (req: Request, res: Response ) => {
   const { name, email, password } = req.body;
 
   if (!email || !password) {
@@ -53,3 +57,26 @@ export const login = async (req: Request, res: Response) => {
   res.json({ message: "Login bem-sucedido", token });
   return;
 };
+
+export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  console.log("TOKEN CHEGANDO", token)
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Token não fornecido" });
+  }
+
+   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    
+    console.log(decoded);
+
+    // Adiciona os dados do usuário (decodificados) ao objeto request para uso posterior
+    req.user = decoded;
+
+    // Passa a requisição para o próximo middleware ou rota protegida
+    return next();
+  } catch (error) {
+    return res.status(403).json({ success: false, message: "Token inválido ou expirado" });
+  } 
+  
+}

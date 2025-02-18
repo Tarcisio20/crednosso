@@ -15,7 +15,8 @@ export const authenticate = (
   const token = req.header("Authorization")?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Token necessário" });
+    res.status(401).json({ message: "Token necessário" });
+    return 
   }
 
   try {
@@ -23,6 +24,7 @@ export const authenticate = (
     req.user = decoded.userId;
     next();
   } catch {
-    return res.status(403).json({ message: "Token inválido" });
+    res.status(403).json({ message: "Token inválido" });
+    return 
   }
 };

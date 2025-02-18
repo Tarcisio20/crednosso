@@ -1,15 +1,16 @@
 
 import { MiddlewareConfig, NextRequest, NextResponse } from "next/server"
+import { validateToken } from "./app/service/auth"
 
 const publicRoutes = [
     { path : '/sign-in', whenAuthenticated : 'redirect' },
     { path : '/register', whenAuthenticated : 'redirect' },
     { path : '/pricing', whenAuthenticated : 'next' },
-] as const
+]as const
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/sign-in"
 
-export function middleware(request : NextRequest){
+export async  function middleware(request : NextRequest){
     const path = request.nextUrl.pathname
     const publicRoute = publicRoutes.find(route => route.path === path)
 
@@ -35,8 +36,16 @@ export function middleware(request : NextRequest){
     }
 
     if(authToken && !publicRoute) {
-        // teste token
-        return NextResponse.next()
+        const tokenVerify = await validateToken(authToken)
+        console.log("AQUI vem a validação", tokenVerify.success)
+        //return NextResponse.next()
+        if(!tokenVerify.success){
+            const response = NextResponse.redirect(new URL("/", request.url))
+            response.cookies.delete('tokenSystemCredNosso')
+            return response
+           // return NextResponse.redirect(redirectUrl)
+        }
+        return NextResponse.next()    
     }
 
     return NextResponse.next()
