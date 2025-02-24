@@ -2,6 +2,7 @@
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -17,10 +18,10 @@ CREATE TABLE "Treasury" (
     "short_name" TEXT NOT NULL,
     "account_number" TEXT NOT NULL,
     "gmcore_number" TEXT NOT NULL,
-    "bills_10" INTEGER NOT NULL,
-    "bills_20" INTEGER NOT NULL,
-    "bills_50" INTEGER NOT NULL,
-    "bills_100" INTEGER NOT NULL,
+    "bills_10" INTEGER NOT NULL DEFAULT 0,
+    "bills_20" INTEGER NOT NULL DEFAULT 0,
+    "bills_50" INTEGER NOT NULL DEFAULT 0,
+    "bills_100" INTEGER NOT NULL DEFAULT 0,
     "status" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Treasury_pkey" PRIMARY KEY ("id")
@@ -57,7 +58,7 @@ CREATE TABLE "TypeOrder" (
 );
 
 -- CreateTable
-CREATE TABLE "Contacts" (
+CREATE TABLE "Contact" (
     "id" SERIAL NOT NULL,
     "id_treasury" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
@@ -65,7 +66,7 @@ CREATE TABLE "Contacts" (
     "phone" TEXT NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
 
-    CONSTRAINT "Contacts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Contact_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -114,4 +115,4 @@ CREATE UNIQUE INDEX "OperatorCard_name_key" ON "OperatorCard"("name");
 ALTER TABLE "Atm" ADD CONSTRAINT "Atm_id_treasury_fkey" FOREIGN KEY ("id_treasury") REFERENCES "Treasury"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Contacts" ADD CONSTRAINT "Contacts_id_treasury_fkey" FOREIGN KEY ("id_treasury") REFERENCES "Treasury"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_id_treasury_fkey" FOREIGN KEY ("id_treasury") REFERENCES "Treasury"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

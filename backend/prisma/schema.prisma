@@ -16,6 +16,7 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
   name String
+  slug  String @unique
   email String @unique
   password  String
   status Boolean @default(true)
@@ -28,14 +29,14 @@ model Treasury {
   short_name String @unique
   account_number String @unique
   gmcore_number String @unique
-  bills_10 Int
-  bills_20 Int
-  bills_50 Int
-  bills_100 Int
+  bills_10 Int @default(0)
+  bills_20 Int @default(0)
+  bills_50 Int @default(0)
+  bills_100 Int @default(0)
   status Boolean @default(true)
 
   atms Atm[]
-  contacts Contacts[]
+  contacts Contact[]
 }
 
 model Atm {
@@ -61,7 +62,7 @@ model TypeOrder {
   status Boolean @default(true)
 }
 
-model Contacts {
+model Contact {
   id Int @id @default(autoincrement())
   id_treasury Int
   name String

@@ -1,25 +1,17 @@
-import "dotenv/config";
-import cors from "cors";
-import express, { Request, Response } from "express";
-import operatorCardRouter from "./routers/operatorCardRouter";
-import authRouter from "./routers/auth";
-import treasuryRouter from "./routers/treasury";
-import cookieParser from "cookie-parser";
+import express, { urlencoded } from "express"
+import cors from "cors"
+import helmet from "helmet"
+import { mainRouter } from "./routers/main"
 
-const app = express();
+const server = express()
 
-const port = process.env.PORT || 3000;
+server.use(helmet())
+server.use(cors())
+server.use(urlencoded({ extended : true }))
+server.use(express.json())
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(cookieParser());
+server.use(mainRouter)
 
-app.use(authRouter);
-app.use("/treasury", treasuryRouter);
-app.use(operatorCardRouter);
-
-// Iniciar servidor sem expor Express
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
+server.listen(process.env.PORT || 3000, () => {
+    console.log(`Server run in ${process.env.BASE_URL}`)
+})

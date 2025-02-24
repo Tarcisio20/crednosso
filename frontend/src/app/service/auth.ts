@@ -1,6 +1,6 @@
 import axios from "axios";
 import { userType } from "@/types/userType";
-import Cookies from "js-cookie";
+import jwt from "jsonwebtoken"
 
 // Definindo o tipo de resposta esperado
 interface LoginResponse {
@@ -45,6 +45,7 @@ export const login = async (data: {
       data,
       {
         headers: { "Content-Type": "application/json" },
+        withCredentials: true
       }
     );
 
@@ -78,43 +79,17 @@ export const login = async (data: {
 };
 export const validateToken = async (token : any) => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/verify_token`, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Envia o token no header
-        withCredentials: true,
-      },
-    })
-    if (response.status === 200) {
-      return {
-        success: true,
-        message: 'Token válido',
-      }
-    }else{
-      return {
-        success: false,
-        message: 'Erro',
-      }
-    }
-  }catch(error : any){
-    if (error.response) {
-      // Erro retornado pela API (status 400, 500, etc.)
-      const { message } = error.response.data;
-      return {
-        success: false,
-        message: message, // Captura a mensagem de erro
-      };
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-      return {
-        success: false,
-        message: "Erro de conexão: sem resposta do servidor",
-      };
-    } else {
-      // Erro genérico (erro ao configurar a requisição)
-      return {
-        success: false,
-        message: error.message,
-      };
-    }
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await response.json();
+    return data; // { success: true/false, data: ... }
+} catch (error) {
+    return { success: false, message: "Erro ao validar o token" };
+}
 }

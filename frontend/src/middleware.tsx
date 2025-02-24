@@ -37,13 +37,11 @@ export async  function middleware(request : NextRequest){
 
     if(authToken && !publicRoute) {
         const tokenVerify = await validateToken(authToken)
-        console.log("AQUI vem a validação", tokenVerify.success)
-        //return NextResponse.next()
+
         if(!tokenVerify.success){
             const response = NextResponse.redirect(new URL("/", request.url))
             response.cookies.delete('tokenSystemCredNosso')
             return response
-           // return NextResponse.redirect(redirectUrl)
         }
         return NextResponse.next()    
     }
