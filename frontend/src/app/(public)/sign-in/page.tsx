@@ -9,6 +9,7 @@ import Link from "next/link";
 import { isValidEmail } from "@/app/utils/emailValidator";
 import { passLoginValidator } from "@/app/utils/passLoginValidator";
 import { login } from "@/app/service/auth";
+import { Loading } from "@/app/components/ux/Loading";
 
 export default function SignIn() {
   const router = useRouter();
@@ -16,9 +17,11 @@ export default function SignIn() {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
 
   const onLoading = async () => {
     setError("");
+    setLoading(false)
     const email = isValidEmail(userEmail);
     if (!email) {
       setError("Digitar um e-mail válido!");
@@ -33,17 +36,22 @@ export default function SignIn() {
       email: userEmail,
       password: userPassword,
     };
+    setLoading(true)
     const user = await login(data);
     if (!user.success) {
       setError(user.message);
+      setLoading(false)
       return;
     }
-
-    await Cookies.set("tokenSystemCredNosso", user?.data?.token, {
-      expires: 7,
-      path: "/",
-    });
-    await router.push("/");
+    setLoading(false)
+    if(user.data){
+      await Cookies.set("tokenSystemCredNosso", user?.data?.token, {
+        expires: 7,
+        path: "/",
+      });
+      router.push("/");
+    }
+    return false
   };
 
   return (
@@ -93,6 +101,9 @@ export default function SignIn() {
           !
         </p>
         {error && <p className="text-white text-center">{error}</p>}
+        {loading && (
+        <Loading />
+      )}
       </div>
     </div>
   );

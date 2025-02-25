@@ -1,6 +1,5 @@
 
 import { MiddlewareConfig, NextRequest, NextResponse } from "next/server"
-import { validateToken } from "./app/service/auth"
 
 const publicRoutes = [
     { path : '/sign-in', whenAuthenticated : 'redirect' },
@@ -36,9 +35,7 @@ export async  function middleware(request : NextRequest){
     }
 
     if(authToken && !publicRoute) {
-        const tokenVerify = await validateToken(authToken)
-
-        if(!tokenVerify.success){
+        if(!authToken){
             const response = NextResponse.redirect(new URL("/", request.url))
             response.cookies.delete('tokenSystemCredNosso')
             return response

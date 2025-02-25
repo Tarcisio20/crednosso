@@ -41,11 +41,10 @@ export const login = async (data: {
 }): Promise<LoginResponse> => {
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/login`,
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
       data,
       {
         headers: { "Content-Type": "application/json" },
-        withCredentials: true
       }
     );
 
@@ -77,19 +76,5 @@ export const login = async (data: {
     }
   }
 };
-export const validateToken = async (token : any) => {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
 
-    const data = await response.json();
-    return data; // { success: true/false, data: ... }
-} catch (error) {
-    return { success: false, message: "Erro ao validar o token" };
-}
-}
+
