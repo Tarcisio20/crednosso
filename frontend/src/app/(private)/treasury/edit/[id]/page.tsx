@@ -8,10 +8,12 @@ import { faPenToSquare, faLandmark, faVault, faReceipt, faDollarSign, faListOl }
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { treasuryType } from "@/types/treasuryType";
-import { addSaldoTreasury, getByIdSystem } from "@/app/service/treasury";
+import { addSaldoTreasury, getByIdSystem, update } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
+import { validateField } from "@/app/utils/validateField";
+import { Loading } from "@/app/components/ux/Loading";
 
 
 
@@ -29,6 +31,8 @@ export default function TreasuryEdit() {
      const [saldoTreasury, setSaldoTreasury] = useState('0')
      const [statusTreasury, setStatusTreasury] = useState('0')
      const [error, setError] = useState('')
+     const [loading, setLoading] = useState(false)
+
      const [modal, setModal] = useState(false)
      const [valueA, setValueA] = useState(0)
      const [valueB, setValueB] = useState(0)
@@ -88,20 +92,53 @@ export default function TreasuryEdit() {
 
      const saveSaldo = async () => {
           const data = {
-               id_system: parseInt(idSystemTreasury),
                bills_10: valueAddA,
                bills_20: valueAddB,
                bills_50: valueAddC,
                bills_100: valueAddD,
           }
-          const saldo = await addSaldoTreasury(data)
+          const saldo = await addSaldoTreasury(parseInt(id as string), data)
           if (!saldo.data.treasury) {
                setError("Erro ao salvar")
           }
           closeModal()
           await getTreasuryByIdSystem()
-          //router.push(`/treasury/edit/${id}`)
      }
+
+     const alterTreasury = async () => {
+          setError('')
+          setLoading(false)
+          if (
+               idSystemTreasury === "" || !validateField(nameTreasury) ||
+               !validateField(nameRedTreasury) || numContaTreasury === ""
+          ) {
+               setError('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.')
+               return
+          }
+
+          let data = {
+               id_system: parseInt(idSystemTreasury),
+               name: nameTreasury,
+               short_name: nameRedTreasury,
+               account_number: numContaTreasury,
+               gmcore_number: numGMCoreTreasury,
+               bills_10: valueA,
+               bills_20: valueB,
+               bills_50: valueC,
+               bills_100: valueD,
+               status: statusTreasury === "0" ? false : true
+          }
+
+          setLoading(true)
+          const editTreasury = await update(parseInt(id as string) , data)
+          setLoading(false)
+          if(editTreasury.data.lenght > 0){
+               await getTreasuryByIdSystem()
+          }else{
+               setError("Erro ao Editar")
+          }
+     }
+
      return (
           <Page>
                <TitlePages linkBack="/treasury" icon={faPenToSquare} >Editar Tesouraria</TitlePages>
@@ -162,7 +199,7 @@ export default function TreasuryEdit() {
                          </div>
                     </div>
                     <div>
-                         <Button color="#2E8B57" onClick={() => { }} size="meddium" textColor="white" secondaryColor="#81C784">Alterar</Button>
+                         <Button color="#2E8B57" onClick={alterTreasury} size="meddium" textColor="white" secondaryColor="#81C784">Alterar</Button>
                     </div>
                     {modal &&
                          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -170,10 +207,10 @@ export default function TreasuryEdit() {
                                    <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">Adicioanar saldo</h2>
                                    <p className="text-black text-center">{nameRedTreasury}</p>
                                    <p className="text-black text-xl text-center">Saldo Atual: {generateValueTotal(valueA, valueB, valueC, valueD)}</p>
-                                   <p className="w-full  flex justify-center items-center mt-2 mb-2">
+                                   <div className="w-full  flex justify-center items-center mt-2 mb-2">
                                         <div className="w-full h-1 bg-zinc-600 rounded"></div>
-                                   </p>
-                                   <p className="mb-4 flex flex-col w-full h-full gap-4 text-black">
+                                   </div>
+                                   <div className="mb-4 flex flex-col w-full h-full gap-4 text-black">
 
                                         <div className="w-full flex items-center justify-center gap-2 ">
                                              <div className="w-20 text-center">R$ 10,00</div>
@@ -233,15 +270,15 @@ export default function TreasuryEdit() {
                                         </div>
 
 
-                                   </p>
+                                   </div>
                                    <div className="text-black flex gap-2 justify-center items-center mb-2">
                                         <div className="w-80 border-2 border-zinc-700 rounded-lg h-14 flex justify-center items-center">
                                              {generateRealTotal(valueAddA, valueAddB, valueAddC, valueAddD)}
                                         </div>
                                    </div>
-                                   <p className="w-full  flex justify-center items-center mt-2 mb-2">
+                                   <div className="w-full  flex justify-center items-center mt-2 mb-2">
                                         <div className="w-full h-1 bg-zinc-600 rounded"></div>
-                                   </p>
+                                   </div>
                                    <div className="flex justify-center gap-4">
                                         <button
                                              onClick={saveSaldo}
@@ -261,6 +298,9 @@ export default function TreasuryEdit() {
                          <div>
                               <div className="text-white">{error}</div>
                          </div>
+                    }
+                    {loading &&
+                         <Loading />
                     }
                </div>
           </Page>

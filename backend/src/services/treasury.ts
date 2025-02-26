@@ -12,7 +12,7 @@ export const getAllTreasury = async () => {
 
 export const getForIdSystem = async (id : string) => {
     const treasury = await prisma.treasury.findFirst({
-        where : { id_system : parseInt(id) }
+        where : { id : parseInt(id) }
     })
     if(treasury){
         return treasury
@@ -28,15 +28,28 @@ export const addTreasury = async (data : Prisma.TreasuryCreateInput) => {
     return null
 }
 
-export const addBalanceInTreasuryByIdSystem = async (id_system : number, 
+export const addBalanceInTreasuryByIdSystem = async (id : number, 
     data : { bills_10 : number, bills_20 : number, bills_50 : number, bills_100 : number }
 ) => {
     const newBalance = await prisma.treasury.update({
-        where : { id_system },
+        where : { id },
         data
     })
     if(newBalance){
         return newBalance
+    }
+    return null
+}
+
+export const updateTreasury = async (id: number, data : Prisma.TreasuryUpdateInput) => {
+    const editTreasury = await prisma.treasury.update({
+        where : {
+            id
+        },
+        data
+    }) 
+    if(editTreasury){
+        return editTreasury
     }
     return null
 }

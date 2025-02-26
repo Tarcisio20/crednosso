@@ -71,10 +71,10 @@ export default function Treasury() {
                                 <td>{generateValueTotal(item?.bills_10, item.bills_20, item.bills_50, item.bills_100)}</td>
                                 <td>{generateStatus(item?.status)}</td>
                                 <td className='flex justify-center items-center gap-4 h-12'>
-                                    <Link href={`/treasury/edit/${item.id_system}`}>
+                                    <Link href={`/treasury/edit/${item.id}`}>
                                         <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                                     </Link>
-                                    <Link href={`/treasury/del/${item.id_system}`}>
+                                    <Link href={`/treasury/del/${item.id}`}>
                                         <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                                     </Link>
                                 </td>

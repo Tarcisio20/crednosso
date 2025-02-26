@@ -1,4 +1,5 @@
-export type treasuryType = { 
+export type treasuryType = {
+    id ?: number;
     id_system :  number;
     name : string;
     short_name : string;

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { treasuryAddSchema } from "../schemas/treasuryAdd";
-import { addBalanceInTreasuryByIdSystem, addTreasury, getAllTreasury, getForIdSystem } from "../services/treasury";
+import { addBalanceInTreasuryByIdSystem, addTreasury, getAllTreasury, getForIdSystem, updateTreasury } from "../services/treasury";
 import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
 
 export const getAll : RequestHandler = async (req, res) => {
@@ -45,13 +45,33 @@ export const add : RequestHandler = async (req, res) => {
     res.json({ treasury : newTreasury })
 }
 
+
+export const update : RequestHandler = async (req, res) => {
+    const treasuryId = req.params.id
+    console.log(treasuryId)
+    const safeData = treasuryAddSchema.safeParse(req.body)
+    if(!safeData.success){
+        res.json({ error : safeData.error.flatten().fieldErrors })
+        return 
+    }
+    const updateT = await updateTreasury(parseInt(treasuryId), safeData.data)
+    if(!updateT){
+        res.status(401).json({ error : 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ treasury : updateT })
+
+}
+
 export const addSaldo : RequestHandler = async (req, res) => {
+    const treasuryId = req.params.id
     const safeData = treasuryAddBalanceSchema.safeParse(req.body)
     if(!safeData.success){
         res.json({ error : safeData.error.flatten().fieldErrors })
         return 
     }
-    const treasury = await getForIdSystem(safeData.data.id_system.toString())
+    const treasury = await getForIdSystem(treasuryId)
     if(!treasury){
         res.json({ error : 'Transportadora não localizada!'})
         return 
@@ -63,7 +83,7 @@ export const addSaldo : RequestHandler = async (req, res) => {
         bills_100 : treasury?.bills_100 + safeData.data.bills_100,
     }
     console.log(data)
-    const newBalance = await addBalanceInTreasuryByIdSystem(safeData.data.id_system, data)
+    const newBalance = await addBalanceInTreasuryByIdSystem(parseInt(treasuryId), data)
     if(!newBalance?.id){
         res.json({ error : 'Falha ao atualizar saldo!'})
         return 
