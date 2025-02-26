@@ -115,7 +115,7 @@ export default function TreasuryEdit() {
                setError('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.')
                return
           }
-
+          console.log("Inicio")
           let data = {
                id_system: parseInt(idSystemTreasury),
                name: nameTreasury,
@@ -132,8 +132,9 @@ export default function TreasuryEdit() {
           setLoading(true)
           const editTreasury = await update(parseInt(id as string) , data)
           setLoading(false)
-          if(editTreasury.data.lenght > 0){
+          if(editTreasury.data.treasury.id){
                await getTreasuryByIdSystem()
+               return
           }else{
                setError("Erro ao Editar")
           }
