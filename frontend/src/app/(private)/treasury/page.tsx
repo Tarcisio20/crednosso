@@ -7,14 +7,39 @@ import { faSackDollar, faPenToSquare, faTrash } from '@fortawesome/free-solid-sv
 import Link from "next/link";
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { treasuryType } from '@/types/treasuryType';
+import { getAll } from '@/app/service/treasury';
+import { generateValueTotal } from '@/app/utils/generateValueTotal';
+import { generateStatus } from '@/app/utils/generateStatus';
 
 export default function Treasury() {
 
     const router = useRouter()
 
+    const [treasuries, setTreasuries] = useState<treasuryType[]>()
+    const [error, setError] = useState('')
+
+    useEffect(()=>{
+         getAllTreasury()
+    },[])
+
     const handleAdd = () => {
         router.push('/treasury/add')
     }
+
+    const getAllTreasury =  async () => {
+        const treasury =  await getAll()
+        console.log(treasury.data.treasury.length)
+       if(treasury.data.treasury.length > 0){
+        setTreasuries(treasury.data.treasury)
+        return
+       }else{
+        setError("Sem dados a mostrar")
+       }
+       return
+    }
+
     return (
         <Page>
             <TitlePages linkBack="/" icon={faSackDollar} >Tesouraria</TitlePages>
@@ -36,42 +61,32 @@ export default function Treasury() {
                         </tr>
                     </thead>
                     <tbody className=" text-xl">
-                        <tr className="h-12">
-                            <td>1</td>
-                            <td>Nome</td>
-                            <td>Nome Red.</td>
-                            <td>1234</td>
-                            <td>1359</td>
-                            <td>R$ 00,00</td>
-                            <td>Ativo</td>
-                            <td className='flex justify-center items-center gap-4 h-12'>
-                                <Link href={`/treasury/edit/1`}>
-                                    <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
-                                </Link>
-                                <Link href={`/treasury/del/1`}>
-                                    <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                                </Link>
-                            </td>
-                        </tr>
-                        <tr className="bg-zinc-700 h-12">
-                            <td>2</td>
-                            <td>Nome 1</td>
-                            <td>Nome Red. 1</td>
-                            <td>5678</td>
-                            <td>2468</td>
-                            <td>R$ 00,00</td>
-                            <td>Inativo</td>
-                            <td className='flex justify-center items-center gap-4 h-12'>
-                                <Link href={`/treasury/edit/2`}>
-                                    <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
-                                </Link>
-                                <Link href={`/treasury/del/2`}>
-                                    <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                                </Link>
-                            </td>
-                        </tr>
+                        {treasuries?.map((item, key) => (
+                             <tr key={key} className="h-12">
+                                <td>{item.id_system}</td>
+                                <td>{item.name}</td>
+                                <td>{item.short_name}</td>
+                                <td>{item.account_number}</td>
+                                <td>{item.gmcore_number}</td>
+                                <td>{generateValueTotal(item?.bills_10, item.bills_20, item.bills_50, item.bills_100)}</td>
+                                <td>{generateStatus(item?.status)}</td>
+                                <td className='flex justify-center items-center gap-4 h-12'>
+                                    <Link href={`/treasury/edit/${item.id_system}`}>
+                                        <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
+                                    </Link>
+                                    <Link href={`/treasury/del/${item.id_system}`}>
+                                        <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
+                                    </Link>
+                                </td>
+                             </tr>
+                        ))}
                     </tbody>
                 </table>
+                {error &&
+                    <div>
+                        <p className='text-white'>Sem dados a mostrar</p>
+                    </div>
+                }
             </div>
         </Page>
     );

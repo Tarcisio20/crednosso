@@ -1,10 +1,28 @@
 import { RequestHandler } from "express";
 import { treasuryAddSchema } from "../schemas/treasuryAdd";
-import { addTreasury } from "../services/treasury";
+import { addBalanceInTreasuryByIdSystem, addTreasury, getAllTreasury, getForIdSystem } from "../services/treasury";
+import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
 
 export const getAll : RequestHandler = async (req, res) => {
-    
-} 
+   const treasury = await getAllTreasury()
+   if(!treasury) {
+    res.status(401).json({ error : 'Erro ao carregar!' })
+    return
+   }
+   res.json({ treasury })
+
+}
+
+export const getByIdSystem : RequestHandler = async (req, res) => {
+    const treasuryId = req.params.id
+    const treasury = await getForIdSystem(treasuryId)
+    if(!treasury){
+        res.status(401).json({ error : 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ treasury  })
+}
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = treasuryAddSchema.safeParse(req.body)
@@ -25,4 +43,30 @@ export const add : RequestHandler = async (req, res) => {
     }
 
     res.json({ treasury : newTreasury })
+}
+
+export const addSaldo : RequestHandler = async (req, res) => {
+    const safeData = treasuryAddBalanceSchema.safeParse(req.body)
+    if(!safeData.success){
+        res.json({ error : safeData.error.flatten().fieldErrors })
+        return 
+    }
+    const treasury = await getForIdSystem(safeData.data.id_system.toString())
+    if(!treasury){
+        res.json({ error : 'Transportadora não localizada!'})
+        return 
+    }
+    const data = {
+        bills_10 : treasury?.bills_10 + safeData.data.bills_10,
+        bills_20 : treasury?.bills_20 + safeData.data.bills_20,
+        bills_50 : treasury?.bills_50 + safeData.data.bills_50,
+        bills_100 : treasury?.bills_100 + safeData.data.bills_100,
+    }
+    console.log(data)
+    const newBalance = await addBalanceInTreasuryByIdSystem(safeData.data.id_system, data)
+    if(!newBalance?.id){
+        res.json({ error : 'Falha ao atualizar saldo!'})
+        return 
+    }
+    res.json({ treasury : newBalance })
 }

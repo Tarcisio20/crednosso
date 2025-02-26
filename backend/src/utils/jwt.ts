@@ -23,10 +23,12 @@ export const verifyJWT =  (req : ExtendedRequest, res : Response, next : NextFun
                 return 
             }
             const user = await findUserBySlug(decoded.slug)
+            console.log("CONSULTA DO USER", user)
             if(!user){
                 res.status(401).json({ error : 'Acesso negado!' })
                 return   
             }
+            console.log("User", user)
             req.userSlug = user.slug
             next()
     })

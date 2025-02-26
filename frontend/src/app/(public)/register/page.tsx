@@ -19,9 +19,12 @@ export default function SignIn() {
   const [userPassword, setUserPassword] = useState('')
   const [userConfirmPassword, setUserConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
 
   const registerUser = async () => {
     setError('')
+    setLoading(false)
     const pass = passValidator(userPassword, userConfirmPassword)
     if(pass !== null) {
       setError(pass)
@@ -37,11 +40,18 @@ export default function SignIn() {
       return
     }
 
-    const user = register({
+    const user = await register({
       name : userIdentification,
       email : userEmail,
       password : userPassword
     })
+
+    if(user?.user){
+      router.push('/login')
+    }else {
+      setError('Erro ao cadastroar')
+      return
+    }
 
   }
 

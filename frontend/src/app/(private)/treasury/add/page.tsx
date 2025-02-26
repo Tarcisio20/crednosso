@@ -8,10 +8,13 @@ import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/treasury";
 import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark, faVault, faReceipt, faListOl } from '@fortawesome/free-solid-svg-icons';
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 
 export default function TreasuryAdd() {
+
+     const router = useRouter()
 
      const [idSystemTreasury, setIdSystemTreasury] = useState('')
      const [nameTreasury, setNameTreasury] = useState('')
@@ -41,7 +44,11 @@ export default function TreasuryAdd() {
           setLoading(true)
           const treasury = await add(data)
           setLoading(false)
-          console.log(treasury)
+          if(treasury.data.lenght > 0){
+               router.push('/treasury')
+          }else{
+               setError("Sem dados a mostrar")
+          }
      }
 
      return (
