@@ -10,7 +10,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { atmType } from '@/types/atmType';
 import { getAll } from '@/app/service/atm';
+import { getAll as gtTreasury } from '@/app/service/treasury';
 import { Loading } from '@/app/components/ux/Loading';
+import { treasuryType } from '@/types/treasuryType';
+import { returnNameTreasury } from '@/app/utils/returnNameTreasury';
+import { returnDefault } from '@/app/utils/returnDefault';
 
 export default function Atm() {
 
@@ -21,6 +25,7 @@ export default function Atm() {
     }, [])
 
     const [atms, setAtms] = useState<atmType[]>()
+    const [treasuries, setTreasuries] = useState<treasuryType[]>()
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -34,12 +39,15 @@ export default function Atm() {
         setLoading(false)
         setLoading(true)
         const allAtms = await getAll()
+        const allTreasury= await gtTreasury()
         setLoading(false)
         if (allAtms.data.atm[0].id) {
             setAtms(allAtms.data.atm)
-            return
+            setTreasuries(allTreasury.data.treasury)
+            
         } else {
             setError('Sem dados a carregar!')
+            
         }
     }
 
@@ -68,8 +76,8 @@ export default function Atm() {
                                 <td>{item.id_system}</td>
                                 <td>{item.name}</td>
                                 <td>{item.short_name}</td>
-                                <td>{item.id_treasury}</td>
-                                <td>Padrao 1</td>
+                                <td>{ returnNameTreasury(treasuries, item.id_treasury)}</td>
+                                <td>{returnDefault({ cassete_A : item.cassete_A, cassete_B : item.cassete_B, cassete_C : item.cassete_C, cassete_D : item.cassete_D })}</td>
                                 <td>Ativo</td>
                                 <td className='flex justify-center items-center gap-4 h-12'>
                                 <Link href={`/atm/edit/${item.id}`}>
