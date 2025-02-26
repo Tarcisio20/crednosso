@@ -2,6 +2,7 @@ import { Router } from 'express'
 import * as pingController from '../controllers/ping'
 import * as authController from '../controllers/auth'
 import * as treasuryController from '../controllers/treasury'
+import * as atmController from '../controllers/atm'
 import { verifyJWT } from '../utils/jwt'
 
 
@@ -20,3 +21,7 @@ mainRouter.get('/treasury/:id',verifyJWT, treasuryController.getByIdSystem)
 mainRouter.post('/treasury/add',verifyJWT, treasuryController.add)
 mainRouter.post('/treasury/add_saldo/:id',verifyJWT, treasuryController.addSaldo)
 mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
+
+
+// ATM
+mainRouter.post('/atm/add',verifyJWT, atmController.add)

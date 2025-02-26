@@ -45,6 +45,10 @@ model Atm {
   name String @unique
   short_name String @unique
   id_treasury Int
+  cassete_A Int
+  cassete_B Int
+  cassete_C Int
+  cassete_D Int
   status Boolean @default(true)
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
