@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { atmAddSchema } from "../schemas/atmAdd"
-import { addAtm, getAllAtm } from "../services/atm"
+import { addAtm, getAllAtm, getForId } from "../services/atm"
 
 export const getAll : RequestHandler = async (req, res) => {
    const atm = await getAllAtm()
@@ -12,16 +12,16 @@ export const getAll : RequestHandler = async (req, res) => {
 
 }
 
-/*export const getByIdSystem : RequestHandler = async (req, res) => {
-    const treasuryId = req.params.id
-    const treasury = await getForIdSystem(treasuryId)
-    if(!treasury){
+export const getById : RequestHandler = async (req, res) => {
+    const atmsId = req.params.id
+    const atm = await getForId(parseInt(atmsId))
+    if(!atm){
         res.status(401).json({ error : 'Erro ao salvar!' })
         return
     }
 
-    res.json({ treasury  })
-}*/
+    res.json({ atm  })
+}
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = atmAddSchema.safeParse(req.body)

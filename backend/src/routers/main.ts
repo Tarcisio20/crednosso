@@ -25,4 +25,5 @@ mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
 
 // ATM
 mainRouter.get('/atm',verifyJWT, atmController.getAll)
+mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)

@@ -12,6 +12,17 @@ export const getAllAtm = async () => {
 }
 
 
+export const getForId = async (id : number ) => {
+    const treasury = await prisma.atm.findFirst({
+        where : { id  }
+    })
+    if(treasury){
+        return treasury
+    }
+    return null
+}
+
+
 export const addAtm = async (data : Prisma.AtmCreateInput) => {
     const atm = await prisma.atm.create({ data })
     if(atm){
