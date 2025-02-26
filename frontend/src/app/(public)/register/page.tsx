@@ -30,22 +30,21 @@ export default function SignIn() {
       setError(pass)
       return;
     }
-
     if(userIdentification === ''){
       setError('Preencher campo name')
       return
     }
+ 
     if(userEmail === ''){
       setError('Preencher campo e-mail')
       return
     }
-
     const user = await register({
       name : userIdentification,
       email : userEmail,
       password : userPassword
     })
-
+    
     if(user?.user){
       router.push('/login')
     }else {

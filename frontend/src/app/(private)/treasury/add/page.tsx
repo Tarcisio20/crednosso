@@ -44,8 +44,9 @@ export default function TreasuryAdd() {
           setLoading(true)
           const treasury = await add(data)
           setLoading(false)
-          if(treasury.data.lenght > 0){
+          if(treasury.data.treasury.id_system){
                router.push('/treasury')
+               return
           }else{
                setError("Sem dados a mostrar")
           }

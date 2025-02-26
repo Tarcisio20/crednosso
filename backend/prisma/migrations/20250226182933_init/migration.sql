@@ -30,7 +30,6 @@ CREATE TABLE `Treasury` (
     UNIQUE INDEX `Treasury_name_key`(`name`),
     UNIQUE INDEX `Treasury_short_name_key`(`short_name`),
     UNIQUE INDEX `Treasury_account_number_key`(`account_number`),
-    UNIQUE INDEX `Treasury_gmcore_number_key`(`gmcore_number`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
