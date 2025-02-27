@@ -46,4 +46,5 @@ mainRouter.post('/type-order/add',verifyJWT, typeOrderController.add)
 mainRouter.post('/type-order/update/:id',verifyJWT, typeOrderController.update)
 
 //contact
+mainRouter.get('/contact/treasury/:id',verifyJWT, contactController.getByIdTreasury)
 mainRouter.post('/contact/add',verifyJWT, contactController.add)
