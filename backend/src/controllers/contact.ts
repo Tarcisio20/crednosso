@@ -1,6 +1,19 @@
 import { RequestHandler } from "express"
 import { contactAddSchema } from "../schemas/contactAddSchema"
-import { addContact, getForIdTreasury } from "../services/contact"
+import { addContact, getContactForId, getForIdTreasury, updateContact } from "../services/contact"
+
+export const getById : RequestHandler = async (req, res) => {
+    const contactId = req.params.id
+    const contact = await getContactForId(contactId)
+    if(!contact){
+        res.status(401).json({ error : 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ contact  })
+}
+
+
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = contactAddSchema.safeParse(req.body)
@@ -34,3 +47,21 @@ export const getByIdTreasury : RequestHandler = async (req, res) => {
 
     res.json({ contact  })
 }
+
+export const update : RequestHandler = async (req, res) => {
+    const contactId = req.params.id
+    const safeData = contactAddSchema.safeParse(req.body)
+    if(!safeData.success){
+        res.json({ error : safeData.error.flatten().fieldErrors })
+        return 
+    }
+    const updateCOntact = await updateContact(parseInt(contactId), safeData.data)
+    if(!updateCOntact){
+        res.status(401).json({ error : 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ contact : updateCOntact })
+
+}
+
