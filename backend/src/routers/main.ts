@@ -4,6 +4,7 @@ import * as authController from '../controllers/auth'
 import * as treasuryController from '../controllers/treasury'
 import * as atmController from '../controllers/atm'
 import * as typeOperationController from '../controllers/type-operation'
+import * as typeOrderController from '../controllers/type-order'
 import { verifyJWT } from '../utils/jwt'
 
 
@@ -35,3 +36,6 @@ mainRouter.get('/type-operation',verifyJWT, typeOperationController.getAll)
 mainRouter.get('/type-operation/:id',verifyJWT, typeOperationController.getById)
 mainRouter.post('/type-operation/add',verifyJWT, typeOperationController.add)
 mainRouter.post('/type-operation/update/:id',verifyJWT, typeOperationController.update)
+
+// type-order
+mainRouter.post('/type-order/add',verifyJWT, typeOrderController.add)
