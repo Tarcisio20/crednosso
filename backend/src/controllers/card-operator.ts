@@ -1,6 +1,17 @@
 import { RequestHandler } from "express"
 import { cardOperatorAddSchema } from "../schemas/cardOperatorAddSchema"
-import { addCardOperator } from "../services/cardOperator"
+import { addCardOperator, getForIdTreasury } from "../services/cardOperator"
+
+export const getByIdTreasury : RequestHandler = async (req, res) => {
+    const cardOperatorId = req.params.id
+    const cardOperator = await getForIdTreasury(parseInt(cardOperatorId))
+    if(!cardOperator){
+        res.status(401).json({ error : 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ cardOperator  })
+}
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = cardOperatorAddSchema.safeParse(req.body)
