@@ -11,7 +11,7 @@ import { Input } from '@/app/components/ui/Input';
 import { Loading } from '@/app/components/ux/Loading';
 import { getAll } from '@/app/service/treasury';
 import { treasuryType } from '@/types/treasuryType';
-import { getByIdTreasury, getContactById, update } from '@/app/service/contact';
+import { getContactById, update } from '@/app/service/contact';
 import { ContactType } from '@/types/contactType';
 import { validateField } from '@/app/utils/validateField';
 
@@ -27,6 +27,7 @@ export default function ContactsEdit() {
      const [emailContact, setEmailContact] = useState('')
      const [statusContact, setStatusContact] = useState('')
      const [contact, setContact] = useState<ContactType>()
+     
      const [error, setError] = useState('')
      const [loading, setLoading] = useState(false)
 

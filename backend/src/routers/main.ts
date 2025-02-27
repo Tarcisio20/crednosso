@@ -54,4 +54,6 @@ mainRouter.post('/contact/update/:id',verifyJWT, contactController.update)
 
 // card-operator
 mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
+mainRouter.get('/card-operator/:id',verifyJWT, cardOperatorController.getById)
 mainRouter.get('/card-operator/treasury/:id',verifyJWT, cardOperatorController.getByIdTreasury)
+mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.update)
