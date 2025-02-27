@@ -5,8 +5,9 @@ import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getAtmFronId } from "@/app/service/atm";
+import { getAtmFronId, update } from "@/app/service/atm";
 import { getAll } from "@/app/service/treasury";
+import { validateField } from "@/app/utils/validateField";
 import { atmType } from "@/types/atmType";
 import { treasuryType } from "@/types/treasuryType";
 import { faPenToSquare, faLandmark, faVault, faReceipt, faDollarSign, faListOl } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +25,7 @@ export default function AtmEdit() {
      }, [id])
 
      const [atms, setAtms] = useState<atmType>()
-     const [treasuries, setTreasuries] = useState<treasuryType>()
+     const [treasuries, setTreasuries] = useState<treasuryType[]>()
      const [idSystemAtm, setIdSystemAtm] = useState('')
      const [nameAtm, setNameAtm] = useState('')
      const [nameRedAtm, setNameRedAtm] = useState('')
@@ -59,10 +60,35 @@ export default function AtmEdit() {
                setCasseteDAtm(atmOne.data.atm.cassete_D)
                setTreasuries(t.data.treasury)
                return
-          }else{
+          } else {
                setError('Nada a mostrar')
                return
           }
+     }
+
+     const updateAtm = async () => {
+          setError('')
+          setLoading(false)
+          if (idSystemAtm === '' || !validateField(nameAtm) || !validateField(nameRedAtm) || idTreasutyAtm === '0') {
+               console.log("Dentro do erro")
+               setError('Prencher todos os campos')
+               return
+          }
+
+          let data = {
+               id_system: parseInt(idSystemAtm),
+               name: nameAtm,
+               short_name: nameRedAtm,
+               id_treasury: parseInt(idTreasutyAtm),
+               status : statusAtm === "0" ? false : true,
+               cassete_A: parseInt(casseteAAtm),
+               cassete_B: parseInt(casseteBAtm),
+               cassete_C: parseInt(casseteCAtm),
+               cassete_D: parseInt(casseteDAtm),
+          }
+          setLoading(true)
+          const editedAtm = await update(parseInt(id as string), data)
+          setLoading(false)
      }
 
 
@@ -91,11 +117,11 @@ export default function AtmEdit() {
                                    onChange={e => setIdTreasutyAtm(e.target.value)}
                               >
                                    {treasuries && treasuries?.map((item, index) => (
-                                         <option
-                                         className="uppercase bg-slate-700 text-white"
-                                         value={item.id} key={index} >
-                                         {item.name}
-                                    </option>
+                                        <option
+                                             className="uppercase bg-slate-700 text-white"
+                                             value={item.id} key={index} >
+                                             {item.name}
+                                        </option>
                                    ))}
                               </select>
                          </div>
@@ -187,7 +213,7 @@ export default function AtmEdit() {
                          </div>
                     </div>
                     <div>
-                         <Button color="#2E8B57" onClick={() => { }} size="meddium" textColor="white" secondaryColor="#81C784">Alterar</Button>
+                         <Button color="#2E8B57" onClick={updateAtm} size="meddium" textColor="white" secondaryColor="#81C784">Alterar</Button>
                     </div>
                     {error &&
                          <div>

@@ -56,12 +56,14 @@ model Atm {
 
 model TypeOperation {
   id Int @id @default(autoincrement())
+  id_system Int
   name String @unique
   status Boolean @default(true)
 }
 
 model TypeOrder {
   id Int @id @default(autoincrement())
+  id_system Int
   name String @unique
   status Boolean @default(true)
 }

@@ -3,6 +3,7 @@ import * as pingController from '../controllers/ping'
 import * as authController from '../controllers/auth'
 import * as treasuryController from '../controllers/treasury'
 import * as atmController from '../controllers/atm'
+import * as typeOperationController from '../controllers/type-operation'
 import { verifyJWT } from '../utils/jwt'
 
 
@@ -27,3 +28,7 @@ mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
 mainRouter.get('/atm',verifyJWT, atmController.getAll)
 mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)
+mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
+
+// type-operation
+mainRouter.post('/type-operation/add',verifyJWT, typeOperationController.add)

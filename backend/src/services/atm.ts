@@ -30,3 +30,17 @@ export const addAtm = async (data : Prisma.AtmCreateInput) => {
     }
     return null
 }
+
+
+export const updateAtm = async (id : number , data : Prisma.AtmUpdateInput) => {
+    const editAtm = await prisma.atm.update({
+        where : {
+            id
+        },
+        data
+    }) 
+    if(editAtm){
+        return editAtm
+    }
+    return null
+}
