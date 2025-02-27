@@ -1,6 +1,17 @@
 import { RequestHandler } from "express"
 import { typeOperationdAddSchema } from "../schemas/typeOperationAddSchema"
-import { addTypeOperation } from "../services/typeOperation"
+import { addTypeOperation, getAllTypeOperation } from "../services/typeOperation"
+
+
+export const getAll : RequestHandler = async (req, res) => {
+   const typeOperation = await getAllTypeOperation()
+   if(!typeOperation) {
+    res.status(401).json({ error : 'Erro ao carregar!' })
+    return
+   }
+   res.json({ typeOperation })
+
+}
 
 export const add :RequestHandler = async (req, res) => {
     console.log("Cheguei aqui server")

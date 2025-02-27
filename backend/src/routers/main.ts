@@ -31,4 +31,5 @@ mainRouter.post('/atm/add',verifyJWT, atmController.add)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
 
 // type-operation
+mainRouter.get('/type-operation',verifyJWT, typeOperationController.getAll)
 mainRouter.post('/type-operation/add',verifyJWT, typeOperationController.add)
