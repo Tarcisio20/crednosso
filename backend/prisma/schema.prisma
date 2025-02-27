@@ -37,6 +37,7 @@ model Treasury {
 
   atms Atm[]
   contacts Contact[]
+  operatorCards OperatorCard[]
 }
 
 model Atm {
@@ -81,6 +82,11 @@ model Contact {
 
 model OperatorCard {
   id Int @id @default(autoincrement())
+  id_treasury Int
   name String @unique
+  number_card String @unique
   status Boolean @default(true)
+
+
+   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }

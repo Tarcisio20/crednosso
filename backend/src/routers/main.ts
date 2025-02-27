@@ -6,6 +6,7 @@ import * as atmController from '../controllers/atm'
 import * as typeOperationController from '../controllers/type-operation'
 import * as typeOrderController from '../controllers/type-order'
 import * as contactController from '../controllers/contact'
+import * as cardOperatorController from '../controllers/card-operator'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -50,3 +51,6 @@ mainRouter.get('/contact/treasury/:id',verifyJWT, contactController.getByIdTreas
 mainRouter.get('/contact/:id',verifyJWT, contactController.getById)
 mainRouter.post('/contact/add',verifyJWT, contactController.add)
 mainRouter.post('/contact/update/:id',verifyJWT, contactController.update)
+
+// card-operator
+mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
