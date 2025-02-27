@@ -38,4 +38,7 @@ mainRouter.post('/type-operation/add',verifyJWT, typeOperationController.add)
 mainRouter.post('/type-operation/update/:id',verifyJWT, typeOperationController.update)
 
 // type-order
+mainRouter.get('/type-order',verifyJWT, typeOrderController.getAll)
+mainRouter.get('/type-order/:id',verifyJWT, typeOrderController.getById)
 mainRouter.post('/type-order/add',verifyJWT, typeOrderController.add)
+mainRouter.post('/type-order/update/:id',verifyJWT, typeOrderController.update)
