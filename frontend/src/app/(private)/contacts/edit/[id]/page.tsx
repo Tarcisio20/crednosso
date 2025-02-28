@@ -58,7 +58,8 @@ export default function ContactsEdit() {
           setLoading(false)
           setLoading(true)
           const cont = await getContactById(id as string)
-          if (cont.data.contact.id) {
+          console.log(cont.data.contact.name)
+          if (cont.data.contact && cont.data.contact.id) {
                setContact(cont.data.contact)
                setNameContact(cont.data.contact.name)
                setPhoneContact(cont.data.contact.phone)
@@ -139,15 +140,18 @@ export default function ContactsEdit() {
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Nome</label>
-                         <Input color="#DDDD" placeholder="Digite o nome do Contato" size="extra-large" value={nameContact} onChange={setNameContact} icon={faIdBadge} />
+                         <Input color="#DDDD" placeholder="Digite o nome do Contato" size="extra-large" value={nameContact} 
+                         onChange={(e)=>setNameContact(e.target.value)} icon={faIdBadge} />
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Telefone</label>
-                         <Input color="#DDDD" placeholder="Digite o telefone do Contato" size="extra-large" value={phoneContact} onChange={setPhoneContact} icon={faMobile} />
+                         <Input color="#DDDD" placeholder="Digite o telefone do Contato" size="extra-large"
+                         value={phoneContact} onChange={(e)=>setPhoneContact(e.target.value)} icon={faMobile} />
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">E-mail</label>
-                         <Input color="#DDDD" placeholder="Digite o telefone do Contato" size="extra-large" value={emailContact} onChange={setEmailContact} icon={faEnvelope} />
+                         <Input color="#DDDD" placeholder="Digite o telefone do Contato" size="extra-large"
+                          value={emailContact} onChange={(e)=>setEmailContact(e.target.value)} icon={faEnvelope} />
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Status</label>
