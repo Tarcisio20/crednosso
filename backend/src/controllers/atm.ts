@@ -37,6 +37,7 @@ export const add : RequestHandler = async (req, res) => {
             connect : { id : safeData.data.id_treasury}
 
         },
+        number_store : safeData.data.number_store,
         cassete_A : safeData.data.cassete_A,
         cassete_B : safeData.data.cassete_B,
         cassete_C : safeData.data.cassete_C,

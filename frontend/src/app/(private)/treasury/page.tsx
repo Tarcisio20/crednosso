@@ -30,7 +30,6 @@ export default function Treasury() {
 
   const getAllTreasury = async () => {
     const treasury = await getAll()
-    console.log(treasury.data.treasury.length)
     if (treasury.data.treasury.length > 0) {
       setTreasuries(treasury.data.treasury)
       return
