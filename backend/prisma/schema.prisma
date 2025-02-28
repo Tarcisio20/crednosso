@@ -29,6 +29,8 @@ model Treasury {
   short_name String @unique
   account_number String @unique
   gmcore_number String 
+  store String @unique
+  region Int
   bills_10 Int @default(0)
   bills_20 Int @default(0)
   bills_50 Int @default(0)
@@ -69,6 +71,18 @@ model TypeOrder {
   status Boolean @default(true)
 }
 
+model TypeSupply {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean @default(true)
+}
+
+model typeStore {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean @default(true)
+}
+
 model Contact {
   id Int @id @default(autoincrement())
   id_treasury Int
@@ -86,7 +100,6 @@ model OperatorCard {
   name String @unique
   number_card String @unique
   status Boolean @default(true)
-
 
    treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
