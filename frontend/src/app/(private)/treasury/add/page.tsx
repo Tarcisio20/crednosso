@@ -14,80 +14,87 @@ import { useState } from "react";
 
 export default function TreasuryAdd() {
 
-     const router = useRouter()
+  const router = useRouter()
 
-     const [idSystemTreasury, setIdSystemTreasury] = useState('')
-     const [nameTreasury, setNameTreasury] = useState('')
-     const [nameRedTreasury, setNameRedTreasury] = useState('')
-     const [numContaTreasury, setNumContaTreasury] = useState('')
-     const [numGMCoreTreasury, setNumGMCoreTreasury] = useState('')
-     const [error, setError] = useState('')
-     const [loading, setLoading] = useState(false)
+  const [idSystemTreasury, setIdSystemTreasury] = useState('')
+  const [nameTreasury, setNameTreasury] = useState('')
+  const [nameRedTreasury, setNameRedTreasury] = useState('')
+  const [numContaTreasury, setNumContaTreasury] = useState('')
+  const [numGMCoreTreasury, setNumGMCoreTreasury] = useState('')
+  const [regionTreasury, setRegionTreasury] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-     const cadTeasury = async () => {
-          setError('')
-          setLoading(false)
-          if(
-               idSystemTreasury === "" || !validateField(nameTreasury)  || 
-               !validateField(nameRedTreasury)  || numContaTreasury === ""
-          ){
-               setError('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.')
-               return
-          }
-          let data = {
-               id_system :  parseInt(idSystemTreasury),
-               name : nameTreasury.toUpperCase(),
-               short_name : nameRedTreasury.toUpperCase(),
-               account_number : numContaTreasury,
-               gmcore_number : (numGMCoreTreasury === "" ? "0" : numGMCoreTreasury ),
-          }
-          setLoading(true)
-          const treasury = await add(data)
-          setLoading(false)
-          if(treasury.data.treasury.id_system){
-               router.push('/treasury')
-               return
-          }else{
-               setError("Sem dados a mostrar")
-          }
-     }
+  const cadTeasury = async () => {
+    setError('')
+    setLoading(false) 
+    if (
+      idSystemTreasury === "" || !validateField(nameTreasury) ||
+      !validateField(nameRedTreasury) || numContaTreasury === "" ||
+      !validateField(regionTreasury) 
+    ) {
+      setError('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.')
+      return
+    }
+    let data = {
+      id_system: parseInt(idSystemTreasury),
+      name: nameTreasury.toUpperCase(),
+      short_name: nameRedTreasury.toUpperCase(),
+      region : regionTreasury.toString(),
+      account_number: numContaTreasury,
+      gmcore_number: (numGMCoreTreasury === "" ? "0" : numGMCoreTreasury),
+    }
+    setLoading(true)
+    const treasury = await add(data)
+    setLoading(false)
+    if (treasury.data.treasury.id_system) {
+      router.push('/treasury')
+      return
+    } else {
+      setError("Sem dados a mostrar")
+    }
+  }
 
-     return (
-          <Page>
-               <TitlePages linkBack="/treasury" icon={faAdd} >Adicionar Tesouraria</TitlePages>
-               <div className="flex flex-col gap-8 p-5 w-full">
-                    <div className="flex flex-col gap-5">
-                         <label className="uppercase leading-3 font-bold">Id</label>
-                         <Input color="#DDDD" placeholder="Digite o nome Id no sistema" size="extra-large" value={idSystemTreasury} onChange={setIdSystemTreasury} icon={faReceipt} />
-                    </div>
-                    <div className="flex flex-col gap-5">
-                         <label className="uppercase leading-3 font-bold">Nome</label>
-                         <Input color="#DDDD" placeholder="Digite o nome da Transportadora" size="extra-large" value={nameTreasury} onChange={setNameTreasury} icon={faLandmark} />
-                    </div>
-                    <div className="flex flex-col gap-5">
-                         <label className="uppercase leading-3 font-bold">Nome Reduzido</label>
-                         <Input color="#DDDD" placeholder="Digite o nome reduzido da Transportadora" size="extra-large" value={nameRedTreasury} onChange={setNameRedTreasury} icon={faVault} />
-                    </div>
-                    <div className="flex flex-col gap-5">
-                         <label className="uppercase leading-3 font-bold">N° Conta</label>
-                         <Input color="#DDDD" placeholder="Digite o numero da conta da  Transportadora" size="extra-large" value={numContaTreasury} onChange={setNumContaTreasury} icon={faListOl} />
-                    </div>
-                    <div className="flex flex-col gap-5">
-                         <label className="uppercase leading-3 font-bold">N° GMCore</label>
-                         <Input color="#DDDD" placeholder="Digite o numero do GMCore da  Transportadora" size="extra-large" value={numGMCoreTreasury} onChange={setNumGMCoreTreasury} icon={faListOl} />
-                    </div>
-                    <div>
-                         <Button color="#2E8B57" onClick={cadTeasury} size="meddium" textColor="white" secondaryColor="#81C784">Cadastrar</Button>
-                    </div>
-                    {error &&
-                         <div>
-                              <p className="text-white">{error}</p>
-                         </div>
-                    }
-                    {loading &&
-                         <Loading />
-                    }
-               </div>
-          </Page>
-     );
+  return (
+    <Page>
+      <TitlePages linkBack="/treasury" icon={faAdd} >Adicionar Tesouraria</TitlePages>
+      <div className="flex flex-col gap-8 p-5 w-full">
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">Id</label>
+          <Input color="#DDDD" placeholder="Digite o nome Id no sistema" size="extra-large" value={idSystemTreasury} onChange={(e)=>setIdSystemTreasury(e.target.value)} icon={faReceipt} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">Nome</label>
+          <Input color="#DDDD" placeholder="Digite o nome da Transportadora" size="extra-large" value={nameTreasury} onChange={(e)=>setNameTreasury(e.target.value)} icon={faLandmark} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">Nome Reduzido</label>
+          <Input color="#DDDD" placeholder="Digite o nome reduzido da Transportadora" size="extra-large" value={nameRedTreasury} onChange={(e)=>setNameRedTreasury(e.target.value)} icon={faVault} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">N° Conta</label>
+          <Input color="#DDDD" placeholder="Digite o numero da conta da  Transportadora" size="extra-large" value={numContaTreasury} onChange={(e)=>setNumContaTreasury(e.target.value)} icon={faListOl} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">N° GMCore</label>
+          <Input color="#DDDD" placeholder="Digite o numero do GMCore da  Transportadora" size="extra-large" value={numGMCoreTreasury} onChange={(e)=>setNumGMCoreTreasury(e.target.value)} icon={faListOl} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <label className="uppercase leading-3 font-bold">Região</label>
+          <Input color="#DDDD" placeholder="Digite o numero do GMCore da  Transportadora" size="extra-large" value={regionTreasury} onChange={(e)=>setRegionTreasury(e.target.value)} icon={faListOl} />
+        </div>
+        <div>
+          <Button color="#2E8B57" onClick={cadTeasury} size="meddium" textColor="white" secondaryColor="#81C784">Cadastrar</Button>
+        </div>
+        {error &&
+          <div>
+            <p className="text-white">{error}</p>
+          </div>
+        }
+        {loading &&
+          <Loading />
+        }
+      </div>
+    </Page>
+  );
 }

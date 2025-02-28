@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
   <html lang="pt-BR">
-    <body  className={`${geistSans.variable} ${geistMono.variable} antialiased`} >
+    <body  className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning >
       <div className="flex w-screen h-screen ">
         <div className="w-56 flex flex-col gap-9">
           <div className="w-full p-2 justify-center items-center mt-4">
@@ -55,6 +55,9 @@ export default function RootLayout({
               </li>
               <li className="pb-3 pt-3 text-center bg-zinc-600 uppercase hover:bg-zinc-700 cursor-pointer">
                 <Link href="/operator-card">Cartão Operador</Link>
+              </li>
+              <li className="pb-3 pt-3 text-center bg-zinc-600 uppercase hover:bg-zinc-700 cursor-pointer">
+                <Link href="/type-supply">Tipo de Abastecimento</Link>
               </li>
               <li className="pb-3 pt-3 text-center bg-red-600 uppercase hover:bg-red-700 cursor-pointer">Sair</li>
             </ul>

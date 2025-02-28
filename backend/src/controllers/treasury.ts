@@ -34,6 +34,7 @@ export const add : RequestHandler = async (req, res) => {
         id_system : safeData.data.id_system,
         name : safeData.data.name,
         short_name : safeData.data.short_name,
+        region : safeData.data.region,
         account_number : safeData.data.account_number,
         gmcore_number : safeData.data.gmcore_number,
     })

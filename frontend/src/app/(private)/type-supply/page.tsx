@@ -13,7 +13,7 @@ import { getAll } from '@/app/service/treasury';
 import { generateValueTotal } from '@/app/utils/generateValueTotal';
 import { generateStatus } from '@/app/utils/generateStatus';
 
-export default function Treasury() {
+export default function TypeSupply() {
 
     const router = useRouter()
 
@@ -25,7 +25,7 @@ export default function Treasury() {
     },[])
 
     const handleAdd = () => {
-        router.push('/treasury/add')
+        router.push('/type-supply/add')
     }
 
     const getAllTreasury =  async () => {
@@ -42,7 +42,7 @@ export default function Treasury() {
 
     return (
         <Page>
-            <TitlePages linkBack="/" icon={faSackDollar} >Tesouraria</TitlePages>
+            <TitlePages linkBack="/" icon={faSackDollar} >Tipo de Abastecimento</TitlePages>
             <div className="flex flex-col gap-4 p-5 w-full">
                 <div className='flex flex-col gap-3 items-center justify-center mb-4'>
                     <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
@@ -52,29 +52,21 @@ export default function Treasury() {
                         <tr >
                             <th>ID</th>
                             <th>Nome</th>
-                            <th>Nome Reduzido</th>
-                            <th>N Conta</th>
-                            <th>GMCore</th>
-                            <th>Saldo</th>
-                            <th>Ativo</th>
+                            <th>Status</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody className=" text-xl">
                         {treasuries?.map((item, key) => (
                              <tr key={key} className="h-12">
-                                <td>{item.id_system}</td>
-                                <td>{item.name}</td>
-                                <td>{item.short_name}</td>
-                                <td>{item.account_number}</td>
-                                <td>{item.gmcore_number}</td>
-                                <td>{generateValueTotal(item?.bills_10 as number , item.bills_20 as number, item.bills_50 as number, item.bills_100 as number)}</td>
-                                <td>{generateStatus(item?.status as Boolean)}</td>
+                                <td>1</td>
+                                <td>Nome 1</td>
+                                <td>Ativo</td>
                                 <td className='flex justify-center items-center gap-4 h-12'>
-                                    <Link href={`/treasury/edit/${item.id}`}>
+                                    <Link href={`/type-supply/edit/${item.id}`}>
                                         <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                                     </Link>
-                                    <Link href={`/treasury/del/${item.id}`}>
+                                    <Link href={`/type-supply/del/${item.id}`}>
                                         <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                                     </Link>
                                 </td>

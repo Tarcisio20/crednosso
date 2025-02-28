@@ -25,17 +25,19 @@ model User {
 model Treasury {
   id Int @id @default(autoincrement())
   id_system Int @unique
+  id_type_supply Int
   name String @unique
   short_name String @unique
   account_number String @unique
   gmcore_number String 
-  store String @unique
   region Int
   bills_10 Int @default(0)
   bills_20 Int @default(0)
   bills_50 Int @default(0)
   bills_100 Int @default(0)
   status Boolean @default(true)
+
+  typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
 
   atms Atm[]
   contacts Contact[]
@@ -48,10 +50,12 @@ model Atm {
   name String @unique
   short_name String @unique
   id_treasury Int
+  number_store Int
   cassete_A Int
   cassete_B Int
   cassete_C Int
   cassete_D Int
+  enabled_gmcore Boolean @default(true)
   status Boolean @default(true)
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
@@ -75,12 +79,8 @@ model TypeSupply {
   id Int @id @default(autoincrement())
   name String @unique
   status Boolean @default(true)
-}
 
-model typeStore {
-  id Int @id @default(autoincrement())
-  name String @unique
-  status Boolean @default(true)
+  treasuries Treasury[]
 }
 
 model Contact {

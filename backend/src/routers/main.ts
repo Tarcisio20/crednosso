@@ -7,6 +7,7 @@ import * as typeOperationController from '../controllers/type-operation'
 import * as typeOrderController from '../controllers/type-order'
 import * as contactController from '../controllers/contact'
 import * as cardOperatorController from '../controllers/card-operator'
+import * as typeSupplyController from '../controllers/type-supply'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -57,3 +58,7 @@ mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
 mainRouter.get('/card-operator/:id',verifyJWT, cardOperatorController.getById)
 mainRouter.get('/card-operator/treasury/:id',verifyJWT, cardOperatorController.getByIdTreasury)
 mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.update)
+
+
+// type-supply
+mainRouter.post('/type-supply/add',verifyJWT, typeSupplyController.add)

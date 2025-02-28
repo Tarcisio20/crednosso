@@ -3,40 +3,43 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { useState } from "react";
-import Cookies from 'js-cookie';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { passValidator } from "@/app/utils/passValidator";
 import { register } from "@/app/service/auth";
+import { Loading } from "@/app/components/ux/Loading";
 
 
-export default function SignIn() {
+export default function SignInComponent() {
 
   const router = useRouter()
 
-  const [userIdentification, setUserIdentification] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const [userPassword, setUserPassword] = useState('')
-  const [userConfirmPassword, setUserConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-
+  const [userIdentification, setUserIdentification] = useState<string>('')
+  const [userEmail, setUserEmail] = useState<string>('')
+  const [userPassword, setUserPassword] = useState<string>('')
+  const [userConfirmPassword, setUserConfirmPassword] = useState<string>('')
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  
   const registerUser = async () => {
     setError('')
     setLoading(false)
+    setLoading(true)
     const pass = passValidator(userPassword, userConfirmPassword)
     if(pass !== null) {
       setError(pass)
+      setLoading(false)
       return;
     }
     if(userIdentification === ''){
       setError('Preencher campo name')
+      setLoading(false)
       return
     }
  
     if(userEmail === ''){
       setError('Preencher campo e-mail')
+      setLoading(false)
       return
     }
     const user = await register({
@@ -46,17 +49,15 @@ export default function SignIn() {
     })
     
     if(user?.user){
-      router.push('/login')
+      setLoading(false)
+        router.push('/login')
+      return
     }else {
+      setLoading(false)
       setError('Erro ao cadastroar')
       return
     }
 
-  }
-
-  const onLoading = async () => {
-    await Cookies.set('tokenSystemCredNosso', 'valorDoToken', { expires: 7, path: '/' });
-    await router.push('/')
   }
 
   return (
@@ -67,19 +68,19 @@ export default function SignIn() {
         </div>
         <div className="flex flex-col">
           <label className="uppercase mb-2 font-bold">Usuario :</label>
-          <Input color="#DDD" placeholder="Digite o usuário..." value={userIdentification} onChange={setUserIdentification} size="large" />   
+          <Input color="#DDD" placeholder="Digite o usuário..." value={userIdentification} onChange={(e) =>setUserIdentification(e.target.value)} size="large" />   
         </div>
         <div className="flex flex-col">
           <label className="uppercase mb-2 font-bold">E-mail :</label>
-          <Input color="#DDD" placeholder="Digite o e-mail..." value={userEmail} onChange={setUserEmail} size="large" />   
+          <Input color="#DDD" placeholder="Digite o e-mail..." value={userEmail} onChange={(e)=>setUserEmail(e.target.value)} size="large" />   
         </div>
         <div className="flex flex-col">
           <label className="uppercase mb-2 font-bold">Senha :</label>
-          <Input color="#DDD" placeholder="Digite a senha..." value={userPassword} password onChange={setUserPassword} size="large" />   
+          <Input color="#DDD" placeholder="Digite a senha..." value={userPassword} password onChange={(e)=>setUserPassword(e.target.value)} size="large" />   
         </div>
         <div className="flex flex-col">
           <label className="uppercase mb-2 font-bold">Confirmar Senha :</label>
-          <Input color="#DDD" placeholder="Digite a senha novamente..." value={userConfirmPassword} password onChange={setUserConfirmPassword} size="large" />   
+          <Input color="#DDD" placeholder="Digite a senha novamente..." value={userConfirmPassword} password onChange={(e)=>setUserConfirmPassword(e.target.value)} size="large" />   
         </div>
         <div className="flex flex-col gap-3">
           <Button size="large" color="#ADD8E6"  onClick={registerUser} secondaryColor="" textColor="black" >Logar</Button>
@@ -87,6 +88,9 @@ export default function SignIn() {
         </div>
         {error &&
             <div>{error}</div>
+        }
+        {loading &&
+          <Loading />
         }
     </div>
 
