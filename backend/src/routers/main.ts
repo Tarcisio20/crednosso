@@ -61,4 +61,7 @@ mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.up
 
 
 // type-supply
+mainRouter.get('/type-supply',verifyJWT, typeSupplyController.getAll)
+mainRouter.get('/type-supply/:id',verifyJWT, typeSupplyController.getById)
 mainRouter.post('/type-supply/add',verifyJWT, typeSupplyController.add)
+mainRouter.post('/type-supply/update/:id',verifyJWT, typeSupplyController.update)

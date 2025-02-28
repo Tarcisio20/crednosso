@@ -3,7 +3,7 @@ import { prisma } from "../utils/prisma"
 
 
 export const getForIdTreasury = async (id : number ) => {
-    const contact = await prisma.contact.findFirst({
+    const contact = await prisma.contact.findMany({
         where : { id_treasury : id  }
     })
     if(contact){

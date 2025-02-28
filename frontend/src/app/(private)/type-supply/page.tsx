@@ -8,31 +8,31 @@ import Link from "next/link";
 import { Button } from '@/app/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { treasuryType } from '@/types/treasuryType';
-import { getAll } from '@/app/service/treasury';
+import { getAll } from '@/app/service/type-supply';
 import { generateValueTotal } from '@/app/utils/generateValueTotal';
 import { generateStatus } from '@/app/utils/generateStatus';
+import { typeSupplyType } from '@/types/typeSupplyType';
+import { faSupple } from '@fortawesome/free-brands-svg-icons';
 
 export default function TypeSupply() {
 
     const router = useRouter()
 
-    const [treasuries, setTreasuries] = useState<treasuryType[]>()
+    const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>()
     const [error, setError] = useState('')
 
     useEffect(()=>{
-         getAllTreasury()
+        getAllTypeSupply()
     },[])
 
     const handleAdd = () => {
         router.push('/type-supply/add')
     }
 
-    const getAllTreasury =  async () => {
-        const treasury =  await getAll()
-        console.log(treasury.data.treasury.length)
-       if(treasury.data.treasury.length > 0){
-        setTreasuries(treasury.data.treasury)
+    const getAllTypeSupply =  async () => {
+        const typeSupplies =  await getAll()
+       if(typeSupplies.data.typeSupply.length > 0){
+        setTypeSupplies(typeSupplies.data.typeSupply)
         return
        }else{
         setError("Sem dados a mostrar")
@@ -42,7 +42,7 @@ export default function TypeSupply() {
 
     return (
         <Page>
-            <TitlePages linkBack="/" icon={faSackDollar} >Tipo de Abastecimento</TitlePages>
+            <TitlePages linkBack="/" icon={faSupple} >Tipo de Abastecimento</TitlePages>
             <div className="flex flex-col gap-4 p-5 w-full">
                 <div className='flex flex-col gap-3 items-center justify-center mb-4'>
                     <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
@@ -57,11 +57,11 @@ export default function TypeSupply() {
                         </tr>
                     </thead>
                     <tbody className=" text-xl">
-                        {treasuries?.map((item, key) => (
+                        {typeSupplies?.map((item, key) => (
                              <tr key={key} className="h-12">
-                                <td>1</td>
-                                <td>Nome 1</td>
-                                <td>Ativo</td>
+                                <td>{item.id}</td>
+                                <td>{item.name}</td>
+                                <td>{generateStatus(item.status as Boolean)}</td>
                                 <td className='flex justify-center items-center gap-4 h-12'>
                                     <Link href={`/type-supply/edit/${item.id}`}>
                                         <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />

@@ -26,12 +26,19 @@ export const getByIdSystem : RequestHandler = async (req, res) => {
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = treasuryAddSchema.safeParse(req.body)
+     console.log(req.body)
      if(!safeData.success){
         res.json({ error : safeData.error.flatten().fieldErrors })
         return 
     }
     const newTreasury = await addTreasury({
         id_system : safeData.data.id_system,
+        typeSupply : {
+            connect : { 
+                id : safeData.data.id_type_supply 
+            }
+        },
+        enabled_gmcore : safeData.data.enabled_gmcore as boolean,
         name : safeData.data.name,
         short_name : safeData.data.short_name,
         region : safeData.data.region,

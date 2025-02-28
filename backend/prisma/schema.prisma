@@ -29,7 +29,8 @@ model Treasury {
   name String @unique
   short_name String @unique
   account_number String @unique
-  gmcore_number String 
+  gmcore_number String
+  enabled_gmcore Boolean @default(true)
   region Int
   bills_10 Int @default(0)
   bills_20 Int @default(0)
@@ -55,7 +56,6 @@ model Atm {
   cassete_B Int
   cassete_C Int
   cassete_D Int
-  enabled_gmcore Boolean @default(true)
   status Boolean @default(true)
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])

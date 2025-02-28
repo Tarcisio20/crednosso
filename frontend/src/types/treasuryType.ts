@@ -1,6 +1,7 @@
 export type treasuryType = {
     id ?: number;
     id_system :  number;
+    id_type_supply : number;
     name : string;
     short_name : string;
     account_number : string;
