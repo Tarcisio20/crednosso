@@ -1,18 +1,20 @@
-import { typeSupplyType } from '@/types/typeSupplyType'
-import axios from 'axios'
-import Cookies from "js-cookie"
-
+import { typeSupplyType } from "@/types/typeSupplyType";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export const getAll = async () => {
-  const token = Cookies.get('tokenSystemCredNosso')
+  const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/type-supply`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/type-supply`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
-    return response
+    );
+    return response;
   } catch (error: any) {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
@@ -29,19 +31,21 @@ export const getAll = async () => {
       return error.message;
     }
   }
-}
-
+};
 
 export const getTypeSupplyForId = async (id: string) => {
-  const token = Cookies.get('tokenSystemCredNosso')
+  const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/type-supply/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/type-supply/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
-    return response
+    );
+    return response;
   } catch (error: any) {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
@@ -58,19 +62,22 @@ export const getTypeSupplyForId = async (id: string) => {
       return error.message;
     }
   }
-}
+};
 
 export const add = async (data: typeSupplyType) => {
   try {
-    const token = Cookies.get('tokenSystemCredNosso')
-    const response = await axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/type-supply/add`, data, {
+    const token = Cookies.get("tokenSystemCredNosso");
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/type-supply/add`,
+      data,
+      {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-      })
-    return response
+      }
+    );
+    return response;
   } catch (error: any) {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
@@ -87,20 +94,22 @@ export const add = async (data: typeSupplyType) => {
       return error.message;
     }
   }
-}
-
+};
 
 export const update = async (id: number, data: typeSupplyType) => {
   try {
-    const token = Cookies.get('tokenSystemCredNosso')
-    const response = await axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/type-supply/update/${id}`, data, {
+    const token = Cookies.get("tokenSystemCredNosso");
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/type-supply/update/${id}`,
+      data,
+      {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-      })
-    return response
+      }
+    );
+    return response;
   } catch (error: any) {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
@@ -117,4 +126,4 @@ export const update = async (id: number, data: typeSupplyType) => {
       return error.message;
     }
   }
-}
+};
