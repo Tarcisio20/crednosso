@@ -8,14 +8,15 @@ import {
 } from "../services/cardOperator";
 
 export const getByIdTreasury: RequestHandler = async (req, res) => {
-  const cardOperatorId = req.params.id;
-  if (!cardOperatorId) {
+  const treasuryId = req.params.id;
+  if (!treasuryId) {
     res.status(401).json({ error: "Requisição sem ID!" });
     return;
   }
-  const cardOperator = await getForIdTreasury(parseInt(cardOperatorId));
+  const cardOperator = await getForIdTreasury(parseInt(treasuryId));
+  console.log(cardOperator);
   if (!cardOperator) {
-    res.status(401).json({ error: "Erro ao salvar!" });
+    res.status(401).json({ error: "Erro ao retornar dados!" });
     return;
   }
 
@@ -57,6 +58,7 @@ export const add: RequestHandler = async (req, res) => {
 export const update: RequestHandler = async (req, res) => {
   const cardOperatorId = req.params.id;
   const safeData = cardOperatorAddSchema.safeParse(req.body);
+  console.log(safeData.data);
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors });
     return;

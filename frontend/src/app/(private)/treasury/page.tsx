@@ -115,7 +115,7 @@ export default function Treasury() {
         </table>
         {error && (
           <div>
-            <p className="text-white">Sem dados a mostrar</p>
+            <p className="text-white">{error}</p>
           </div>
         )}
         {loading && <Loading />}

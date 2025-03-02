@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 export default function TreasuryAdd() {
   const router = useRouter();
 
-  const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>();
+  const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>([]);
   const [idTypeSupply, setIdTypeSupply] = useState("0");
 
   const [idSystemTreasury, setIdSystemTreasury] = useState("");
@@ -44,6 +44,18 @@ export default function TreasuryAdd() {
     setLoading(false);
     setLoading(true);
     const tSupplies = await getAll();
+    console.log(tSupplies);
+
+    if (
+      tSupplies.status === 300 &&
+      tSupplies.status === 400 &&
+      tSupplies.status === 500
+    ) {
+      setError("Sem dados a mostrar, tente novamente!");
+      setLoading(false);
+      return;
+    }
+
     if (tSupplies.data.typeSupply && tSupplies.data.typeSupply.length > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
       setIdTypeSupply(tSupplies.data.typeSupply[0].id);
@@ -51,8 +63,6 @@ export default function TreasuryAdd() {
       return;
     }
     setError("Erro ao retornar dados");
-    typeSupplies;
-    [];
     setLoading(false);
     return;
   };

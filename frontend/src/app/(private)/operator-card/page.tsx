@@ -37,6 +37,7 @@ export default function OperatorCard() {
 
   const handleAdd = () => {
     router.push("/operator-card/add");
+    return;
   };
 
   const getAllTreasuries = async () => {
@@ -44,7 +45,7 @@ export default function OperatorCard() {
     setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
-    if (allTreasury.data.treasury[0].id) {
+    if (allTreasury.data.treasury && allTreasury.data.treasury[0]?.id) {
       setIdTreasury(allTreasury.data.treasury[0]?.id);
       setTreasuries(allTreasury.data.treasury);
       setLoading(false);
@@ -66,10 +67,20 @@ export default function OperatorCard() {
       return;
     }
     const allCardOperator = await getByIdTreasury(parseInt(idTreasury));
-    const cardOperatortArry = [allCardOperator.data.cardOperator];
-    console.log("AQQQQUUUUUUUIII", allCardOperator);
-    console.log(cardOperatortArry);
-    if (cardOperatortArry[0]?.id) {
+    if (
+      allCardOperator?.status === 400 ||
+      allCardOperator?.status === 500 ||
+      allCardOperator?.status === 300
+    ) {
+      setError("Sem dados a mostrar no nomento!");
+      setLoading(false);
+    }
+    if (
+      allCardOperator?.data.cardOperator ||
+      allCardOperator?.data.cardOperator?.id > 0
+    ) {
+      const cardOperatortArry = [allCardOperator.data.cardOperator];
+
       setCardOperators(cardOperatortArry);
       setLoading(false);
       return;
@@ -151,7 +162,7 @@ export default function OperatorCard() {
           <tbody className=" text-xl">
             {cardOperators &&
               cardOperators.map((item, index) => (
-                <tr className="h-12">
+                <tr className="h-12" key={index}>
                   <td>{item.id}</td>
                   <td>{returnNameTreasury(treasuries, item.id_treasury)}</td>
                   <td>{item.name}</td>
