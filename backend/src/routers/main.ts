@@ -9,6 +9,7 @@ import * as contactController from '../controllers/contact'
 import * as cardOperatorController from '../controllers/card-operator'
 import * as typeSupplyController from '../controllers/type-supply'
 import * as statusOrderController from '../controllers/status-order'
+import * as orderController from '../controllers/order'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -70,4 +71,9 @@ mainRouter.post('/type-supply/update/:id',verifyJWT, typeSupplyController.update
 
 // status order
 mainRouter.get('/status-order',verifyJWT, statusOrderController.getAll)
+mainRouter.get('/status-order/:id',verifyJWT, statusOrderController.getById)
 mainRouter.post('/status-order/add',verifyJWT, statusOrderController.add)
+mainRouter.post('/status-order/update/:id',verifyJWT, statusOrderController.update)
+
+// order
+mainRouter.post('/order/add',verifyJWT, orderController.add)

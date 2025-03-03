@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { statusOrderAddSchema } from "../schemas/statusOrderAddSchema"
-import { addStatusOrder, getAllStatusOrder } from "../services/statusOrder"
+import { addStatusOrder, getAllStatusOrder, getStatusOrderForId, updateStatusOrder } from "../services/statusOrder"
 
 
 export const getAll : RequestHandler = async (req, res) => {
@@ -11,6 +11,17 @@ export const getAll : RequestHandler = async (req, res) => {
    }
    res.json({ statusOrder })
 
+}
+
+export const getById : RequestHandler = async (req, res) => {
+    const statusOrderId = req.params.id
+    const statusOrder = await getStatusOrderForId(statusOrderId)
+    if(!statusOrder){
+        res.status(401).json({ error : 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ statusOrder  })
 }
 
 
@@ -29,4 +40,21 @@ export const add :RequestHandler = async (req, res) => {
         }
     
         res.json({ statusOrder : newStatusOrder })
+}
+
+export const update : RequestHandler = async (req, res) => {
+    const typeStatusOrderId = req.params.id
+    const safeData = statusOrderAddSchema.safeParse(req.body)
+    if(!safeData.success){
+        res.json({ error : safeData.error.flatten().fieldErrors })
+        return 
+    }
+    const updateSOrder = await updateStatusOrder(parseInt(typeStatusOrderId), safeData.data)
+    if(!updateSOrder){
+        res.status(401).json({ error : 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ statusOrder : updateSOrder })
+
 }
