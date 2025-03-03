@@ -100,7 +100,7 @@ export default function TreasuryEdit() {
         )
       );
       setEnanbledGMcoreTreasury(
-        treasuryOne.data.treasury.enabled_gmcore === false ? "0" : "1"
+        treasuryOne.data.treasury.enabled_gmcore
       );
       setStatusTreasury(treasuryOne.data.treasury.status);
       setValueA(treasuryOne.data.treasury.bills_10);
@@ -171,9 +171,11 @@ export default function TreasuryEdit() {
     const saldo = await addSaldoTreasury(parseInt(id as string), data);
     if (!saldo.data.treasury) {
       setError("Erro ao salvar");
+      return
     }
     closeModal();
     await getTreasuryByIdSystem();
+    return
   };
 
   const alterTreasury = async () => {
