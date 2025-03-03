@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faIdBadge, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@/app/components/ui/Button';
-import { useParams, useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
-import { Input } from '@/app/components/ui/Input';
+import { faIdBadge, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "@/app/components/ui/Button";
+import { useParams, useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/treasury";
 import { treasuryType } from "@/types/treasuryType";

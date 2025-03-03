@@ -1,35 +1,37 @@
-"use client"
+"use client";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faThumbTack, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faThumbTack,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { Button } from '@/app/components/ui/Button';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { typeOperationType } from '@/types/typeOperationType';
-import { Loading } from '@/app/components/ux/Loading';
-import { getAll } from '@/app/service/type-order';
-import { generateStatus } from '@/app/utils/generateStatus';
+import { Button } from "@/app/components/ui/Button";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { typeOperationType } from "@/types/typeOperationType";
+import { Loading } from "@/app/components/ux/Loading";
+import { getAll } from "@/app/service/type-order";
+import { generateStatus } from "@/app/utils/generateStatus";
 
 export default function TypeOrder() {
+  const router = useRouter();
 
-    const router = useRouter()
+  const [typeOrders, settypeOrders] = useState<typeOperationType[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const [typeOrders, settypeOrders] = useState<typeOperationType[]>()
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    typeOrder();
+  }, []);
 
-
-    useEffect(() => {
-        typeOrder()
-    }, [])
-
-    const handleAdd = () => {
-        router.push('/type-order/add')
-        return
-    }
+  const handleAdd = () => {
+    router.push("/type-order/add");
+    return;
+  };
 
     const typeOrder = async () => {
         setError('')

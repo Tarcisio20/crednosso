@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
@@ -8,10 +8,13 @@ import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getTypeOrderForId, update } from "@/app/service/type-order";
 import { validateField } from "@/app/utils/validateField";
 import { typeOrderType } from "@/types/typeOrderType";
-import { faAdd, faLandmark, faReceipt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAdd,
+  faLandmark,
+  faReceipt,
+} from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 
 export default function TypeOrderEdit() {
 

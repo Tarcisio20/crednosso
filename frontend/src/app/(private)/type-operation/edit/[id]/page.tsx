@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
@@ -8,11 +8,13 @@ import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getTypeOperationForId, update } from "@/app/service/type-operation";
 import { validateField } from "@/app/utils/validateField";
 import { typeOperationType } from "@/types/typeOperationType";
-import { faLandmark, faReceipt, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-
+import {
+  faLandmark,
+  faReceipt,
+  faPenToSquare,
+} from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 
 export default function TypeOperationEdit() {
 
@@ -26,28 +28,30 @@ export default function TypeOperationEdit() {
      const [error, setError] = useState('')
      const [loading, setLoading] = useState(false)
 
-     useEffect(() => {
-          getTypeOperation()
-     }, [id])
+  useEffect(() => {
+    getTypeOperation();
+  }, [id]);
 
-     const getTypeOperation = async () => {
-          setError('')
-          setLoading(false)
-          setLoading(true)
-          const getTypeOperationOne = await getTypeOperationForId(id as string)
-          if (getTypeOperationOne.data.typeOperation.id) {
-               setTypeOperation(getTypeOperationOne.data.typeOperation)
-               setIdSystemTypeOperation(getTypeOperationOne.data.typeOperation.id_system)
-               setNameTypeOperation(getTypeOperationOne.data.typeOperation.name)
-               setStatusTypeOperation(getTypeOperationOne.data.typeOperation.status)
-               setLoading(false)
-               return
-          } else {
-               setError('Nada a mostrar!')
-               setLoading(false)
-               return
-          }
-     }
+  const getTypeOperation = async () => {
+    setError("");
+    setLoading(false);
+    setLoading(true);
+    const getTypeOperationOne = await getTypeOperationForId(id as string);
+    if (getTypeOperationOne.data.typeOperation.id) {
+      setTypeOperation(getTypeOperationOne.data.typeOperation);
+      setIdSystemTypeOperation(
+        getTypeOperationOne.data.typeOperation.id_system
+      );
+      setNameTypeOperation(getTypeOperationOne.data.typeOperation.name);
+      setStatusTypeOperation(getTypeOperationOne.data.typeOperation.status);
+      setLoading(false);
+      return;
+    } else {
+      setError("Nada a mostrar!");
+      setLoading(false);
+      return;
+    }
+  };
 
      const editTypeOperation = async () => {
           setError('')
