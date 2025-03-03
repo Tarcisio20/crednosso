@@ -21,9 +21,9 @@ export default function Contacts() {
 
     const router = useRouter()
 
-    const [treasuries, setTreasuries] = useState<treasuryType[]>()
+    const [treasuries, setTreasuries] = useState<treasuryType[]>([])
     const [idTreasury, setIdTreasury] = useState('1')
-    const [contacts, setContacts] = useState<ContactType[]>()
+    const [contacts, setContacts] = useState<ContactType[]>([])
 
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -41,7 +41,7 @@ export default function Contacts() {
         setLoading(false)
         setLoading(true)
         const allTreasuries = await getAll()
-        if(allTreasuries.data.treasury && allTreasuries.data.treasury[0].id){
+        if(allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id){
             setIdTreasury(allTreasuries.data.treasury[0].id)
             setTreasuries(allTreasuries.data.treasury)
             setLoading(false)
@@ -54,7 +54,7 @@ export default function Contacts() {
     }
 
     const search = async () => {
-
+        setContacts([])
         setError('')
         setLoading(false)
         setLoading(true)
@@ -66,7 +66,7 @@ export default function Contacts() {
         const allContacts = await getByIdTreasury(parseInt(idTreasury))
         const conctactArry = [allContacts.data.contact]
 
-        if(allContacts.data.contact && allContacts.data.contact[0].id){
+        if(allContacts.data.contact && allContacts.data.contact[0]?.id){
             setContacts(allContacts.data.contact)
             setLoading(false)
             return

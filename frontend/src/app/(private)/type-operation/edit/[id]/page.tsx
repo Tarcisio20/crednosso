@@ -22,7 +22,7 @@ export default function TypeOperationEdit() {
      const [typeOperation, setTypeOperation] = useState<typeOperationType>()
      const [idSystemTypeOperation, setIdSystemTypeOperation] = useState('')
      const [nameTypeOperation, setNameTypeOperation] = useState('')
-     const [statusTypeOperation, setStatusTypeOperation] = useState('')
+     const [statusTypeOperation, setStatusTypeOperation] = useState(true)
      const [error, setError] = useState('')
      const [loading, setLoading] = useState(false)
 
@@ -60,8 +60,8 @@ export default function TypeOperationEdit() {
           }
           let data = {
                id_system : parseInt(idSystemTypeOperation),
-               name : nameTypeOperation,
-               status : statusTypeOperation === '0' ? false : true 
+               name : nameTypeOperation.toUpperCase(),
+               status : statusTypeOperation 
           }
           const editedTypeOperation = await update(parseInt(id as string), data) 
           if(editedTypeOperation.data.typeOperation.id){
@@ -81,28 +81,30 @@ export default function TypeOperationEdit() {
                <div className="flex flex-col gap-8 p-5 w-full">
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Id</label>
-                         <Input color="#DDDD" placeholder="Digite o nome Id no sistema" size="extra-large" value={idSystemTypeOperation} onChange={setIdSystemTypeOperation} icon={faReceipt} />
+                         <Input color="#DDDD" placeholder="Digite o nome Id no sistema" size="extra-large" 
+                         value={idSystemTypeOperation} onChange={(e)=>setIdSystemTypeOperation(e.target.value)} icon={faReceipt} />
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Nome</label>
-                         <Input color="#DDDD" placeholder="Digite o nome do Tipo de Operação" size="extra-large" value={nameTypeOperation} onChange={setNameTypeOperation} icon={faLandmark} />
+                         <Input color="#DDDD" placeholder="Digite o nome do Tipo de Operação" size="extra-large"
+                         value={nameTypeOperation} onChange={(e)=>setNameTypeOperation(e.target.value)} icon={faLandmark} />
                     </div>
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Status</label>
                          <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
                               <select
-                                   className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                                   value={statusTypeOperation}
-                                   onChange={e => setStatusTypeOperation(e.target.value)}
+                                   className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+                                   value={statusTypeOperation ? "true" : "false"}
+                                   onChange={e => setStatusTypeOperation(e.target.value === "true")}
                               >
                                    <option
                                         className="uppercase bg-slate-700 text-white"
-                                        value="0" >
+                                        value="true" >
                                         Ativo
                                    </option>
                                    <option
                                         className="uppercase bg-slate-700 text-white"
-                                        value="1" >
+                                        value="false" >
                                         Inativo
                                    </option>
                               </select>

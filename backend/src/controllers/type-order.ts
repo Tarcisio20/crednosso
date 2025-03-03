@@ -45,6 +45,7 @@ export const add :RequestHandler = async (req, res) => {
 export const update : RequestHandler = async (req, res) => {
     const typeOrderId = req.params.id
     const safeData = typeOrderAddSchema.safeParse(req.body)
+
     if(!safeData.success){
         res.json({ error : safeData.error.flatten().fieldErrors })
         return 
@@ -54,7 +55,6 @@ export const update : RequestHandler = async (req, res) => {
         res.status(401).json({ error : 'Erro ao Editar!' })
         return
     }
-
     res.json({ typeOrder : updateType })
 
 }

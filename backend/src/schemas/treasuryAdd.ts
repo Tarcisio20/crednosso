@@ -8,5 +8,6 @@ export const treasuryAddSchema = z.object({
     short_name : z.string({ message : 'Nome reduzido é obrigatódio' }).min(2, 'Minimo de 2 caracteres'),
     region : z.number({ message : 'Região é obrigatódio' }),
     account_number : z.string({ message : 'Numero da conta é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
-    gmcore_number : z.string({ message : 'Numero do GMCore é obrigatódio' }).min(1, 'Minimo de 1 caracteres')
+    gmcore_number : z.string({ message : 'Numero do GMCore é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
+    status : z.boolean({ message : 'Status é obrigatódio' }).optional()
 })

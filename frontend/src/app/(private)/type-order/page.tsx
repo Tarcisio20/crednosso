@@ -36,7 +36,7 @@ export default function TypeOrder() {
         setLoading(false)
         setLoading(true)
         const tOrders = await getAll()
-        if (tOrders.data.typeOrder[0].id) {
+        if (tOrders.data.typeOrder && tOrders.data.typeOrder[0]?.id) {
             settypeOrders(tOrders.data.typeOrder)
             setError('')
             setLoading(false)
@@ -65,7 +65,7 @@ export default function TypeOrder() {
                     </thead>
                     <tbody className=" text-xl">
                         {typeOrders && typeOrders.map((item, index) => (
-                            <tr className="h-12">
+                            <tr className="h-12" key={index}>
                                 <td>{item.id_system}</td>
                                 <td>{item.name}</td>
                                 <td>{generateStatus(item?.status as Boolean)}</td>

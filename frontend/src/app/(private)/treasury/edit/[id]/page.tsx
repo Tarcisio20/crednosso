@@ -40,9 +40,9 @@ export default function TreasuryEdit() {
   const [numContaTreasury, setNumContaTreasury] = useState('')
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState('')
   const [regionTreasury, setRegionTreasury] = useState('0')
-  const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState('1')
+  const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState(true)
   const [saldoTreasury, setSaldoTreasury] = useState('0')
-  const [statusTreasury, setStatusTreasury] = useState('0')
+  const [statusTreasury, setStatusTreasury] = useState(false)
 
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -83,6 +83,7 @@ export default function TreasuryEdit() {
       setNameRedTreasury(treasuryOne.data.treasury.short_name)
       setNumContaTreasury(treasuryOne.data.treasury.account_number)
       setNumGMCoreTreasury(treasuryOne.data.treasury.gmcore_number)
+      setEnanbledGMcoreTreasury(treasuryOne.data.treasury.enabled_gmcore)
       setSaldoTreasury(
         generateValueTotal(treasuryOne.data.treasury.bills_10, treasuryOne.data.treasury.bills_20,
           treasuryOne.data.treasury.bills_50, treasuryOne.data.treasury.bills_100)
@@ -169,7 +170,7 @@ export default function TreasuryEdit() {
     if (
       idSystemTreasury === "" || !validateField(nameTreasury) ||
       !validateField(nameRedTreasury) || numContaTreasury === "" ||
-      regionTreasury === '' || enanbledGMcoreTreasury === ''
+      regionTreasury === ''
     ) {
       setError('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.')
       return
@@ -182,16 +183,14 @@ export default function TreasuryEdit() {
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury,
       region: parseInt(regionTreasury),
-      enabled_gmcore: enanbledGMcoreTreasury === "0" ? false : true,
+      enabled_gmcore: enanbledGMcoreTreasury ,
       bills_10: valueA,
       bills_20: valueB,
       bills_50: valueC,
       bills_100: valueD,
-      status: statusTreasury === "0" ? false : true
+      status: statusTreasury
     }
     const editTreasury = await update(parseInt(id as string), data)
-
-    console.log(editTreasury)
     if (editTreasury.data.treasury && editTreasury.data.treasury.id > 0) {
       await getTreasuryByIdSystem()
       setLoading(false)
@@ -264,17 +263,17 @@ export default function TreasuryEdit() {
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={enanbledGMcoreTreasury}
-                onChange={e => setEnanbledGMcoreTreasury(e.target.value)}
+                value={enanbledGMcoreTreasury ? "true" : "false"}
+                onChange={e => setEnanbledGMcoreTreasury(e.target.value === "true")}
               >
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="1" >
+                  value="true" >
                   SIM
                 </option>
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="0" >
+                  value="false" >
                   NÃO
                 </option>
               </select>
@@ -302,18 +301,18 @@ export default function TreasuryEdit() {
             <label className="uppercase leading-3 font-bold">Status</label>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={statusTreasury}
-                onChange={e => setStatusTreasury(e.target.value)}
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+                value={statusTreasury ? "true" : "false"}
+                onChange={e => setStatusTreasury(e.target.value === "true")}
               >
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="0" >
+                  value="true" >
                   Ativo
                 </option>
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="1" >
+                  value="false" >
                   Inativo
                 </option>
               </select>

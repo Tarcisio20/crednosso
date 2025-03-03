@@ -9,5 +9,6 @@ export const atmAddSchema = z.object({
     cassete_A : z.number({ message : 'Numero Cassete A é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
     cassete_B : z.number({ message : 'Numero Cassete B é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
     cassete_C : z.number({ message : 'Numero Cassete C é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
-    cassete_D : z.number({ message : 'Numero Cassete D é obrigatódio' }).min(1, 'Minimo de 1 caracteres')
+    cassete_D : z.number({ message : 'Numero Cassete D é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
+    status : z.boolean({ message : 'Status é obrigatódio' }).optional()
 })

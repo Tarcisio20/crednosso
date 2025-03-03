@@ -30,8 +30,8 @@ export default function AtmEdit() {
   const [nameAtm, setNameAtm] = useState('')
   const [nameRedAtm, setNameRedAtm] = useState('')
   const [numStoreAtm, setNumStoreAtm] = useState('')
-  const [idTreasutyAtm, setIdTreasutyAtm] = useState('')
-  const [statusAtm, setStatusAtm] = useState('0')
+  const [idTreasuryAtm, setIdTreasuryAtm] = useState('')
+  const [statusAtm, setStatusAtm] = useState(true)
   const [casseteAAtm, setCasseteAAtm] = useState('10')
   const [casseteBAtm, setCasseteBAtm] = useState('20')
   const [casseteCAtm, setCasseteCAtm] = useState('50')
@@ -47,16 +47,15 @@ export default function AtmEdit() {
 
     const atmOne = await getAtmFronId(id as string)
     const t = await getAll()
-
+    console.log(atmOne.data)
     if (atmOne.data.atm && atmOne.data.atm.id) {
       setAtms(atmOne.data.atm)
       setIdSystemAtm(atmOne.data.atm.id_system)
       setNameAtm(atmOne.data.atm.name)
       setNameRedAtm(atmOne.data.atm.short_name)
-      setIdTreasutyAtm(atmOne.data.atm.id_treasury)
-      setStatusAtm(atmOne.data.atm.Status)
+      setStatusAtm(atmOne.data.atm.status)
       setNumStoreAtm(atmOne.data.atm.number_store)
-      setIdTreasutyAtm(atmOne.data.atm.id_treasury)
+      setIdTreasuryAtm(atmOne.data.atm.id_treasury)
       setCasseteAAtm(atmOne.data.atm.cassete_A)
       setCasseteBAtm(atmOne.data.atm.cassete_B)
       setCasseteCAtm(atmOne.data.atm.cassete_C)
@@ -76,7 +75,7 @@ export default function AtmEdit() {
     setLoading(false)
     setLoading(true)
     if (
-      idSystemAtm === '' || !validateField(nameAtm) || !validateField(nameRedAtm) || idTreasutyAtm === '0' ||
+      idSystemAtm === '' || !validateField(nameAtm) || !validateField(nameRedAtm) || idTreasuryAtm === '0' ||
       numStoreAtm === ''
     ) {
       setError('Prencher todos os campos')
@@ -88,8 +87,8 @@ export default function AtmEdit() {
       id_system: parseInt(idSystemAtm),
       name: nameAtm,
       short_name: nameRedAtm,
-      id_treasury: parseInt(idTreasutyAtm),
-      status: statusAtm === "0" ? false : true,
+      id_treasury: parseInt(idTreasuryAtm),
+      status: statusAtm,
       number_store : parseInt(numStoreAtm),
       cassete_A: parseInt(casseteAAtm),
       cassete_B: parseInt(casseteBAtm),
@@ -140,8 +139,8 @@ export default function AtmEdit() {
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={idTreasutyAtm}
-                onChange={e => setIdTreasutyAtm(e.target.value)}
+                value={idTreasuryAtm}
+                onChange={e => setIdTreasuryAtm(e.target.value)}
               >
                 {treasuries && treasuries?.map((item, index) => (
                   <option
@@ -157,18 +156,18 @@ export default function AtmEdit() {
             <label className="uppercase leading-3 font-bold">Status</label>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={statusAtm}
-                onChange={e => setStatusAtm(e.target.value)}
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+                value={statusAtm ? "true" : "false"}
+                onChange={e => setStatusAtm(e.target.value === "true")}
               >
                 <option
-                  className="uppercase bg-slate-700 text-white"
-                  value="0" >
+                  className=" bg-slate-700 text-white uppercase"
+                  value="true" >
                   Ativo
                 </option>
                 <option
-                  className="uppercase bg-slate-700 text-white"
-                  value="1" >
+                  className=" bg-slate-700 text-white uppercase"
+                  value="false" >
                   Inativo
                 </option>
               </select>
@@ -188,7 +187,7 @@ export default function AtmEdit() {
                     value={casseteAAtm}
                     onChange={e => setCasseteAAtm(e.target.value)}
                   >
-                    <option className="uppercase bg-slate-700 text-white" value="10" selected >R$ 10,00</option>
+                    <option className="uppercase bg-slate-700 text-white" value="10" >R$ 10,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="20" >R$ 20,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="50" >R$ 50,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="100" >R$ 100,00</option>
@@ -204,7 +203,7 @@ export default function AtmEdit() {
                     onChange={e => setCasseteBAtm(e.target.value)}
                   >
                     <option className="uppercase bg-slate-700 text-white" value="10"  >R$ 10,00</option>
-                    <option className="uppercase bg-slate-700 text-white" value="20" selected >R$ 20,00</option>
+                    <option className="uppercase bg-slate-700 text-white" value="20" >R$ 20,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="50"  >R$ 50,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="100"  >R$ 100,00</option>
                   </select>
@@ -220,7 +219,7 @@ export default function AtmEdit() {
                   >
                     <option className="uppercase bg-slate-700 text-white" value="10"  >R$ 10,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="20"  >R$ 20,00</option>
-                    <option className="uppercase bg-slate-700 text-white" value="50" selected >R$ 50,00</option>
+                    <option className="uppercase bg-slate-700 text-white" value="50" >R$ 50,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="100"  >R$ 100,00</option>
                   </select>
                 </div>
@@ -236,7 +235,7 @@ export default function AtmEdit() {
                     <option className="uppercase bg-slate-700 text-white" value="10" >R$ 10,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="20" >R$ 20,00</option>
                     <option className="uppercase bg-slate-700 text-white" value="50" >R$ 50,00</option>
-                    <option className="uppercase bg-slate-700 text-white" value="100" selected >R$ 100,00</option>
+                    <option className="uppercase bg-slate-700 text-white" value="100" >R$ 100,00</option>
                   </select>
                 </div>
               </div>

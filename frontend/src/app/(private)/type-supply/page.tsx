@@ -13,6 +13,7 @@ import { generateValueTotal } from '@/app/utils/generateValueTotal';
 import { generateStatus } from '@/app/utils/generateStatus';
 import { typeSupplyType } from '@/types/typeSupplyType';
 import { faSupple } from '@fortawesome/free-brands-svg-icons';
+import { Loading } from '@/app/components/ux/Loading';
 
 export default function TypeSupply() {
 
@@ -20,6 +21,7 @@ export default function TypeSupply() {
 
     const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>()
     const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     useEffect(()=>{
         getAllTypeSupply()
@@ -27,17 +29,24 @@ export default function TypeSupply() {
 
     const handleAdd = () => {
         router.push('/type-supply/add')
+        return
     }
 
     const getAllTypeSupply =  async () => {
+        setError('')
+        setLoading(false)
+        setLoading(true)
         const typeSupplies =  await getAll()
        if(typeSupplies.data.typeSupply.length > 0){
         setTypeSupplies(typeSupplies.data.typeSupply)
+        setLoading(false)
         return
        }else{
         setError("Sem dados a mostrar")
+        setLoading(false)
+        return
        }
-       return
+
     }
 
     return (
@@ -78,6 +87,9 @@ export default function TypeSupply() {
                     <div>
                         <p className='text-white'>Sem dados a mostrar</p>
                     </div>
+                }
+                {loading &&
+                    <Loading />
                 }
             </div>
         </Page>

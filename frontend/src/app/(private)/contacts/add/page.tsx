@@ -62,8 +62,8 @@ export default function ContactsAdd() {
     }
     let data = {
       id_treasury: parseInt(idTreasury),
-      name: nameContact,
-      email: emailContact,
+      name: nameContact.toUpperCase(),
+      email: emailContact.toUpperCase(),
       phone: phoneContact
     }
 

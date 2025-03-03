@@ -18,9 +18,13 @@ export default function TypeSupplyEdit() {
   const { id } = useParams()
   const router = useRouter()
 
+  if(!id){
+    router.push('/type-supply')
+    return
+  }
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType>()
   const [nameTypeSupply, setNameTypeSupply] = useState('')
-  const [statusTypeSupply, setStatusTypeSupply] = useState('0')
+  const [statusTypeSupply, setStatusTypeSupply] = useState(true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -58,7 +62,7 @@ export default function TypeSupplyEdit() {
     }
     let data = {
       name: nameTypeSupply.toUpperCase(),
-      status : statusTypeSupply === '0' ? false : true
+      status : statusTypeSupply
     }
     const newTypeSupply = await update(parseInt(id as string), data)
     if (newTypeSupply.data.typeSupply.id > 0) {
@@ -85,18 +89,18 @@ export default function TypeSupplyEdit() {
           <label className="uppercase leading-3 font-bold">Status</label>
           <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
             <select
-              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-              value={statusTypeSupply}
-              onChange={e => setStatusTypeSupply(e.target.value)}
+              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+              value={statusTypeSupply ? "true" : "false"}
+              onChange={e => setStatusTypeSupply(e.target.value === "true")}
             >
               <option
                 className="uppercase bg-slate-700 text-white"
-                value="1" >
+                value="true" >
                 Ativo
               </option>
               <option
                 className="uppercase bg-slate-700 text-white"
-                value="0" >
+                value="false" >
                 Inativo
               </option>
             </select>

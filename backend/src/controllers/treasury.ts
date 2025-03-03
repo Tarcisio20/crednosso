@@ -26,7 +26,6 @@ export const getByIdSystem : RequestHandler = async (req, res) => {
 
 export const add : RequestHandler = async (req, res) => {
      const safeData = treasuryAddSchema.safeParse(req.body)
-     console.log(req.body)
      if(!safeData.success){
         res.json({ error : safeData.error.flatten().fieldErrors })
         return 
@@ -56,7 +55,6 @@ export const add : RequestHandler = async (req, res) => {
 
 export const update : RequestHandler = async (req, res) => {
     const treasuryId = req.params.id
-    console.log(treasuryId)
     const safeData = treasuryAddSchema.safeParse(req.body)
     if(!safeData.success){
         res.json({ error : safeData.error.flatten().fieldErrors })

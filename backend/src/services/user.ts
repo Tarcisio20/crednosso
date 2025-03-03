@@ -21,7 +21,6 @@ export const findUserBySlug = async (slug : string) => {
         },
         where : { slug }
     })
-    console.log("USUARIO SERVICE", user)
     if(user){
         return user;
     }

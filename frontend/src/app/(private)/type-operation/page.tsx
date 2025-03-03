@@ -29,7 +29,7 @@ export default function TypeOperation() {
         setError('')
         setLoading(true)
         const tOperations = await getAll()
-        if(tOperations.data.typeOperation[0].id){
+        if(tOperations.data.typeOperation && tOperations.data.typeOperation[0]?.id){
             setTypeOperations(tOperations.data.typeOperation)
             setLoading(false)
             return
@@ -43,6 +43,7 @@ export default function TypeOperation() {
 
     const handleAdd = () => {
         router.push('/type-operation/add')
+        return
     }
     return (
         <Page>
