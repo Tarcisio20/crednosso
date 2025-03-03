@@ -43,6 +43,49 @@ model Treasury {
   atms Atm[]
   contacts Contact[]
   operatorCards OperatorCard[]
+  OrdersOrigin Order[] @relation("TreasuryOrigin")
+  OrdersDestin Order[] @relation("TreasuryDestin")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  id_type_operation Int
+  id_treasury_origin Int
+  id_treasury_destin Int
+  date_order DateTime
+  id_type_order Int
+  value_A Int
+  value_B Int
+  value_C Int
+  value_D Int
+  requested_value_A Int
+  requested_value_B Int
+  requested_value_C Int
+  requested_value_D Int
+  composition_change Boolean @default(false)
+  confirmed_value_A Int @default(0)
+  confirmed_value_B Int @default(0)
+  confirmed_value_C Int @default(0)
+  confirmed_value_D Int @default(0)
+  observation String
+  status_order Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  typeOperation TypeOperation @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin Treasury @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
+  treasuryDestin Treasury @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id])
+  typeOrder TypeOrder @relation(fields: [id_type_order], references: [id])
+  statusOrder StatusOrder @relation(fields: [status_order], references: [id])
+}
+
+model StatusOrder {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean @default(true)
+
+  orders Order[]
 }
 
 model Atm {
@@ -66,6 +109,8 @@ model TypeOperation {
   id_system Int
   name String @unique
   status Boolean @default(true)
+
+  orders Order[]
 }
 
 model TypeOrder {
@@ -73,6 +118,8 @@ model TypeOrder {
   id_system Int
   name String @unique
   status Boolean @default(true)
+
+  orders Order[]
 }
 
 model TypeSupply {
