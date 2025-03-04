@@ -12,11 +12,12 @@ import { getAll as getAllTreasury } from "@/app/service/treasury";
 import { typeOperationType } from "@/types/typeOperationType";
 import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
-import { generateReal } from "@/app/utils/generateReal";
-import { generateRealTotal } from "@/app/utils/generateRealTotal";
-import { add } from "@/app/service/order";
 import { useRouter } from "next/navigation";
-import { Input } from "@/app/components/ui/Input";
+import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
+import { searchOrdersForDate } from "@/app/service/order";
+import { orderType } from "@/types/orderType";
+import { formatDateToString } from "@/app/utils/formatDateToString";
+import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 
 
 export default function Order() {
@@ -26,13 +27,18 @@ export default function Order() {
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [typeOrders, setTypeOrders] = useState<typeOrderType[]>([])
+  const [orders, setOrders] = useState<orderType[]>([])
+
+  const [items, setItems] = useState<{id : number, status : boolean}[]>([])
+  const [toggleChecks, setToggleChecks] = useState(false)
 
   const [idTypeOperation, setIdTypeOperation] = useState('')
   const [idTreasuryOrigin, setIdTreasuryOrigin] = useState('')
   const [idTreasuryDestin, setIdTreasuryDestin] = useState('')
   const [idTypeOrder, setIdTypeOrder] = useState('')
 
-  const [dateOrder, setDateOrder] = useState('')
+  const [dateInitial, setDateInitial] = useState('')
+  const [dateFinal, setDateFinal] = useState('')
   const [valueA, setValueA] = useState(0)
   const [valueB, setValueB] = useState(0)
   const [valueC, setValueC] = useState(0)
@@ -121,7 +127,7 @@ export default function Order() {
     }
   }
 
-  const saveOrder = async () => {
+  /*const saveOrder = async () => {
     setError('')
     setLoading(false)
     setLoading(true)
@@ -172,33 +178,111 @@ export default function Order() {
       setLoading(false)
       return
     }
+  }*/
+
+  const handleSearch = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    if (dateInitial === '') {
+      setError('Preencher ao menos o campo de Data Inicial')
+      setLoading(false)
+      return
+    }
+
+    let data = {
+      date_initial: dateInitial,
+      date_final: dateFinal === '' ? dateInitial : dateFinal
+    }
+    console.log()
+    const orderSarch = await searchOrdersForDate(data)
+    if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
+      setError("Erro de requisição")
+      setLoading(false)
+      return
+    }
+    if (orderSarch.data.order && orderSarch.data.order[0]?.id) {
+      setOrders(orderSarch.data.order)
+      let elements : any = []
+      orderSarch.data.order.forEach((item : any) => (
+        elements.push({
+          id : item.id,
+          status : false
+        })
+      ))
+      setItems(elements)
+      setError('')
+      setLoading(false)
+      return
+    } else {
+      setError('Sem dados a mostrar!')
+      setLoading(false)
+      return
+    }
   }
+
+  const view = () => {
+    console.log(items)
+  }
+
+  const handleToggleSelect = () => {
+    const newState = !toggleChecks
+    setToggleChecks(newState)
+  }
+
+  const newCheckedItems: any = [];
+    items.forEach((item) => {
+      newCheckedItems.push({
+        item.status = toggleChecks
+      })
+    });
+    setItems(newCheckedItems);
 
   return (
     <Page>
       <TitlePages linkBack="/order" icon={faMagnifyingGlass} >Pesquisar Pedidos</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div className="flex flex-col gap-2">
-          <label className="uppercase">Pesquisa por data</label>
-          <div className="flex gap-2 items-center">
-            <Input color="" onChange={()=>{}} placeholder="" size="large" value="" />
-            <div>até</div> 
-            <Input color="" onChange={()=>{}} placeholder="" size="large" value="" />
-            <Button color="" onClick={()=>{}} size="meddium" textColor="" secondaryColor="">Pesquisar</Button>
+          <label className="uppercase font-bold text-2xl">Pesquisa por data</label>
+          <div className="flex gap-4 items-center">
+            <input
+              type="date"
+              value={dateInitial}
+              onChange={(e) => setDateInitial(e.target.value)}
+              className="w-72 h-10 outline-none rounded-md text-black text-center uppercase"
+            />
+            <div className="uppercase text-lg font-bold">até</div>
+            <input
+              type="date"
+              value={dateFinal}
+              onChange={(e) => setDateFinal(e.target.value)}
+              className="w-72 h-10 outline-none rounded-md text-black text-center uppercase"
+            />
+            <ButtonScreenOrder
+              color="#32c015"
+              onClick={handleSearch}
+              size="btn-icon"
+              textColor="white"
+              icon={faMagnifyingGlass}
+              secondaryColor="#318c1e"></ButtonScreenOrder>
           </div>
         </div>
         <div className="h-1 bg-zinc-500 w-full"></div>
         <div className="flex flex-row gap-2 flex-wrap">
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
-          <Button color="" onClick={()=>{}} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={view} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={() => { }} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={() => { }} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={() => { }} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={() => { }} size="small" textColor="" secondaryColor="" >Confirmar</Button>
+          <Button color="" onClick={() => { }} size="small" textColor="" secondaryColor="" >Confirmar</Button>
         </div>
         <div className="h-1 bg-zinc-500 w-full"></div>
+        <div className="flex gap-2 items-center" >
+        <input type="checkbox" className="w-4 h-4 outline-none" value={toggleChecks} onChange={handleToggleSelect }  />
+        <label>Selecionar tudo</label>
+        </div>
         <table className="flex-1 text-center p-3" width="100%">
-        <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl">
+          <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">
             <tr>
               <th>#</th>
               <th>T. Operação</th>
@@ -214,22 +298,24 @@ export default function Order() {
             </tr>
           </thead>
           <tbody className=" text-xl">
-            <tr className="h-12" >
-              <td>
-                <input type="checkbox" className="w-4 h-4 outline-none" value="" onChange={()=>{}} />
-              </td>
-              <td>Treansação entre tesourarias</td>
-              <td>1</td>
-              <td>Mateus</td>
-              <td>2</td>
-              <td>Prosegur São Luis</td>
-              <td>03/03/2025</td>
-              <td>R$ 20.000,00</td>
-              <td>Recebido</td>
-              <td>R$ 00,00</td>
-              <td></td>
-            </tr>
-          </tbody>
+            {orders && orders.map((item, index) => (
+              <tr className="h-12" key={index} >
+                <td>
+                  <input type="checkbox" className="w-4 h-4 outline-none" id={item.id?.toString()} value="" onChange={() => { }} />
+                </td>
+                <td>{item.id_type_operation}</td>
+                <td>{ returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
+                <td>{item.id_treasury_origin}</td>
+                <td>{ returnNameTreasury(treasuries, item.id_treasury_destin)}</td>
+                <td>{item.id_treasury_destin}</td>
+                <td>{ formatDateToString(item.date_order)}</td>
+                <td>R$ 18.000,00</td>
+                <td>{item.status_order}</td>
+                <td>R$ 00,00</td>
+                <td>{item?.observation}</td>
+              </tr>
+            ))}
+            </tbody>
         </table>
         {error &&
           <p className="text-white">{error}</p>

@@ -63,7 +63,7 @@ model Order {
   confirmed_value_B Int @default(0)
   confirmed_value_C Int @default(0)
   confirmed_value_D Int @default(0)
-  observation String 
+  observation String @default("")
   status_order Int
 
   createdAt DateTime @default(now())

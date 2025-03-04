@@ -8,3 +8,18 @@ export const addOrder = async (data : Prisma.OrderCreateInput) => {
     }
     return null
 }
+
+export const searchByOrderDate = async  (data : { date_initial : Date, date_final : Date }) => {
+    const order = await prisma.order.findMany({
+        where : {
+            date_order : {
+                gte : data.date_initial,
+                lte : data.date_final
+            }
+        }
+    })
+    if(order){
+        return order
+    }
+    return null
+}

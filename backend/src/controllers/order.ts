@@ -1,7 +1,8 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder } from "../services/order"
+import { addOrder, searchByOrderDate } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
+import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 
 export const add: RequestHandler = async (req, res) => {
     const safeData = orderAddSchema.safeParse(req.body)
@@ -49,4 +50,22 @@ export const add: RequestHandler = async (req, res) => {
     }
 
     res.json({ order: newOrder })
+}
+
+export const searchByDate: RequestHandler = async (req, res) => {
+    const safeData = orderSearchDateSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const searchOrder = await searchByOrderDate({
+       date_initial : returnDateFormatted(safeData.data.date_initial),
+       date_final : returnDateFormatted(safeData.data.date_final),
+    })
+    if (!searchOrder) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order: searchOrder })
 }
