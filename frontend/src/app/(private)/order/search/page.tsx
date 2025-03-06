@@ -13,13 +13,16 @@ import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterValueOrder, getOrderById, searchOrdersForDate } from "@/app/service/order";
+import { alterValueOrder, ConfirmOrderById, delOrderById, searchOrdersForDate } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
+import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
+import { statusOrderType } from "@/types/statusOrder";
+import { returnNameStatus } from "@/app/utils/returnNameStatus";
 
 
 export default function Order() {
@@ -29,6 +32,7 @@ export default function Order() {
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [typeOrders, setTypeOrders] = useState<typeOrderType[]>([])
+  const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
   const [orders, setOrders] = useState<orderType[]>([])
 
   const [itemsChecks, setItemsChecks] = useState<{ id: number, status: boolean }[]>([])
@@ -62,6 +66,7 @@ export default function Order() {
     await typeOperationFunction()
     await treasuriesFunction()
     await typeOrderFunction()
+    await statusOderFunction()
   }
 
   const typeOperationFunction = async () => {
@@ -131,6 +136,26 @@ export default function Order() {
     }
   }
 
+  const statusOderFunction = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const sOrder = await getAllStatusOrder()
+    if(sOrder.status === 300 || sOrder === 400 || sOrder === 500){
+      setError("Erro de requisição")
+      setLoading(false)
+      return
+    }
+    if(sOrder.data.statusOrder && sOrder.data.statusOrder[0].id){
+      setStatusOrder(sOrder.data.statusOrder)
+      setLoading(false)
+      return
+    }
+    setError("Sem dados!")
+    setLoading(false)
+    return
+  }
+
 
   const handleSearch = async () => {
     setError('')
@@ -192,7 +217,6 @@ export default function Order() {
     )
   }
 
-
   const viewOrder = async () => {
     setError('')
     setLoading(false)
@@ -208,11 +232,8 @@ export default function Order() {
       setLoading(false)
       return
     }
-
-
     const itemsSelected = itemsChecks.filter(item => item.status === true)
     const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
-    console.log(orderSelectedOne[0])
 
     if (orderSelectedOne[0] && orderSelectedOne[0]?.id) {
       setOrderIndividual(orderSelectedOne[0])
@@ -229,10 +250,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-
-
   }
-
 
   const closeModalViewOrder = () => {
     setValueAddA(0)
@@ -241,7 +259,6 @@ export default function Order() {
     setValueAddD(0)
     setModalViewOrder(false)
   }
-
 
   const saveOneOrder = async () => {
     setError('')
@@ -267,6 +284,90 @@ export default function Order() {
       return
     }
   }
+
+  const handleDelOrders = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    const confirmDelete = window.confirm(`Tem certeza que deseja excluir este(s) item(ns)?
+        ${ itemsChecks
+          .filter(item => item.status === true) 
+          .map(item => item.id)
+          .join(',')}
+      `);
+    if (!confirmDelete) {
+     setError("Cancelado a exclusão")
+     setLoading(false)
+     return
+    }
+    const itemsSelected = itemsChecks.filter(item => item.status === true)
+    for(let x = 0; itemsSelected.length > x; x++){
+      let chech = false
+      let count = 0
+      while(chech === false || count < 8){
+        ++count
+       const iSelectedAlter = await delOrderById(itemsSelected[x].id)
+       if(iSelectedAlter.status === 300 || iSelectedAlter.status === 400 || iSelectedAlter.status === 500){
+        if(!iSelectedAlter[0] || !iSelectedAlter[0].id){
+          return
+         }
+       }else{
+        chech = true
+       }
+      }
+    }
+    handleSearch()
+    setError('')
+    setLoading(false)
+    return
+
+  }
+
+  const handleConfirmTotal = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
+        ${ itemsChecks
+          .filter(item => item.status === true) 
+          .map(item => item.id)
+          .join(',')}
+      `);
+    if (!confirmAlter) {
+     setError("Cancelado a operção")
+     setLoading(false)
+     return
+    }
+    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
+  
+    const iSelectedAlter = await ConfirmOrderById(idsSelected)
+    if(iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500){
+      setError('Erro na requisição!')
+      setLoading(false)
+      return
+    }
+    handleSearch()
+    setError('')
+    setLoading(false)
+    return
+  }
+
+  const handleConfirmPartial = async () => {
+
+  }
+
   return (
     <Page>
       <TitlePages linkBack="/order" icon={faMagnifyingGlass} >Pesquisar Pedidos</TitlePages>
@@ -298,10 +399,10 @@ export default function Order() {
         </div>
         <div className="h-1 bg-zinc-500 w-full"></div>
         <div className="flex flex-row gap-2 flex-wrap">
-          <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#415eff" onClick={handleConfirmTotal} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faCheckDouble}
           >Confirmar Total</ButtonScreenOrder>
-          <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#415eff" onClick={handleConfirmPartial} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faCheck}
           >Confirmar Parcial</ButtonScreenOrder>
           <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
@@ -322,7 +423,7 @@ export default function Order() {
           <ButtonScreenOrder color="#415eff" onClick={viewOrder} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faEye}
           >Visualizar</ButtonScreenOrder>
-          <ButtonScreenOrder color="#a62a12" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#a62a12" onClick={handleDelOrders} size="btn-icon-text"
             textColor="white" secondaryColor="#ff0000" icon={faTrashCan}
           >Excluir</ButtonScreenOrder>
         </div>
@@ -377,7 +478,7 @@ export default function Order() {
                   item.requested_value_A as number, item.requested_value_B as number,
                   item.requested_value_C as number, item.requested_value_D as number
                 )}</td>
-                <td>{item.status_order}</td>
+                <td>{returnNameStatus(statusOrder, item.status_order)}</td>
                 <td>{generateValueTotal(
                   item.confirmed_value_A as number, item.confirmed_value_B as number,
                   item.confirmed_value_C as number, item.confirmed_value_D as number

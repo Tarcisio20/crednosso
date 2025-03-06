@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterRequestsOrderForID, getOrderById, searchByOrderDate } from "../services/order"
+import { addOrder, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, searchByOrderDate } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -109,4 +109,36 @@ export const searchByDate: RequestHandler = async (req, res) => {
     }
 
     res.json({ order: searchOrder })
+}
+
+export const delById: RequestHandler = async (req, res) => {
+    const orderId = req.params.id
+    if(!orderId){
+        res.status(401).json({ error: 'Preciso de um ID para continuar!' })
+        return
+    }
+    const order = await delOrderById(parseInt(orderId))
+    if (!order) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order })
+}
+
+export const confirmTotal: RequestHandler = async (req, res) => {
+    const safeData = req.body
+
+    if(safeData.length === 0){
+        res.status(401).json({ error: 'Preciso de um ID para continuar!' })
+        return
+    }
+
+    const order = await confirmTotalByIds(safeData)
+    if (!order) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order })
 }
