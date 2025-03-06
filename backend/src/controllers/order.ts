@@ -1,8 +1,24 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, searchByOrderDate } from "../services/order"
+import { addOrder, alterRequestsOrderForID, getOrderById, searchByOrderDate } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
+import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
+
+export const getById: RequestHandler = async (req, res) => {
+    const orderId = req.params.id
+    if(!orderId){
+        res.status(401).json({ error: 'Preciso de um ID para continuar!' })
+        return
+    }
+    const order = await getOrderById(parseInt(orderId))
+    if (!order) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order })
+}
 
 export const add: RequestHandler = async (req, res) => {
     const safeData = orderAddSchema.safeParse(req.body)
@@ -43,6 +59,31 @@ export const add: RequestHandler = async (req, res) => {
             }
         },
         observation : safeData.data.observation === undefined ? '' : safeData.data.observation
+    })
+    if (!newOrder) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order: newOrder })
+}
+
+export const alterRequestsById: RequestHandler = async (req, res) => {
+    const orderId = req.params.id
+    if(!orderId){
+        res.status(401).json({ error: 'Preciso de um ID para continuar!' })
+        return
+    }
+    const safeData = alterRequestsOrderSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const newOrder = await alterRequestsOrderForID(parseInt(orderId), {
+        requested_value_A : safeData.data.requested_value_A,
+        requested_value_B : safeData.data.requested_value_B,
+        requested_value_C : safeData.data.requested_value_C,
+        requested_value_D : safeData.data.requested_value_D,
     })
     if (!newOrder) {
         res.status(401).json({ error: 'Erro ao salvar!' })

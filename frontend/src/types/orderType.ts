@@ -15,4 +15,5 @@ export type orderType = {
     confirmed_value_C ?: number;
     confirmed_value_D ?: number;
     status_order : number;
+    observation : string;
 }

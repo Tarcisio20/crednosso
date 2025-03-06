@@ -76,5 +76,7 @@ mainRouter.post('/status-order/add',verifyJWT, statusOrderController.add)
 mainRouter.post('/status-order/update/:id',verifyJWT, statusOrderController.update)
 
 // order
+mainRouter.get('/order/:id',verifyJWT, orderController.getById)
+mainRouter.post('/order/alter-order-requests/:id',verifyJWT, orderController.alterRequestsById)
 mainRouter.post('/order/search-by-date',verifyJWT, orderController.searchByDate)
 mainRouter.post('/order/add',verifyJWT, orderController.add)
