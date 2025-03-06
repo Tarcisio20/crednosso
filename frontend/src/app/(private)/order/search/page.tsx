@@ -13,7 +13,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterValueOrder, ConfirmOrderById, delOrderById, searchOrdersForDate } from "@/app/service/order";
+import { alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, searchOrdersForDate } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -23,6 +23,7 @@ import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { statusOrderType } from "@/types/statusOrder";
 import { returnNameStatus } from "@/app/utils/returnNameStatus";
+import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
 
 
 export default function Order() {
@@ -50,6 +51,7 @@ export default function Order() {
   const [loading, setLoading] = useState(false)
 
   const [modalViewOrder, setModalViewOrder] = useState(false)
+  const [modalOrderConfirmPartial, setModalOrderConfirmPartial] = useState(false)
 
   const [orderIndivudual, setOrderIndividual] = useState<orderType>()
 
@@ -260,6 +262,14 @@ export default function Order() {
     setModalViewOrder(false)
   }
 
+  const closeModalConfirmPartial = () => {
+    setValueAddA(0)
+    setValueAddB(0)
+    setValueAddC(0)
+    setValueAddD(0)
+    setModalOrderConfirmPartial(false)
+  }
+
   const saveOneOrder = async () => {
     setError('')
     setLoading(false)
@@ -283,6 +293,40 @@ export default function Order() {
       setModalViewOrder(false)
       return
     }
+  }
+
+  const saveConfirmPartialOneOrder = async () => {
+    setError("")
+    setLoading(false)
+    setLoading(true)
+    if(valueAddA === 0 && valueAddB === 0 && valueAddC === 0 && valueAddD === 0){
+      setError("Se quer cancelar a requisição clique no botão Excluir na tela principal")
+      return
+    }
+    closeModalConfirmPartial()
+    let data = {
+      confirmed_value_A : valueAddA,
+      confirmed_value_B : valueAddB,
+      confirmed_value_C : valueAddC,
+      confirmed_value_D : valueAddD,
+      status_order : 3,
+      composition_change : true
+    }
+
+   const orderConfirmPartialReturn = await confirmPartialOrderById(orderIndivudual?.id, data)
+    if(orderConfirmPartialReturn.status === 300 || orderConfirmPartialReturn.status === 400 || orderConfirmPartialReturn.status === 500){
+      setError("Erro na requisição!")
+      setLoading(false)
+      return
+    }
+    if(orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0){
+      setError('')
+      setLoading(false)
+      handleSearch()
+      return
+    }
+    setError('Erro ao editar')
+    return
   }
 
   const handleDelOrders = async () => {
@@ -365,7 +409,32 @@ export default function Order() {
   }
 
   const handleConfirmPartial = async () => {
-
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    if (countTrue > 1) {
+      setError("Para essa ação só pode haver 1 item selecionado")
+      setLoading(false)
+      return
+    }
+    const itemsSelected = itemsChecks.filter(item => item.status === true)
+    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
+    if (orderSelectedOne[0]?.id && orderSelectedOne[0]?.id > 0) {
+      setOrderIndividual(orderSelectedOne[0])
+      setModalOrderConfirmPartial(true)
+      setLoading(false)
+      return
+    }
+    setError("Erro ao gerar tela, tentar novamente!")
+    setLoading(false)
+    return
+    
   }
 
   return (
@@ -603,6 +672,24 @@ export default function Order() {
           </div>
         </div>
       )}
+      {modalOrderConfirmPartial &&
+       <ModalConfirmPartial 
+        oIndividual={orderIndivudual as orderType} 
+        valueAdd={{
+          a : valueAddA,
+          b : valueAddB,
+          c : valueAddC,
+          d : valueAddD,
+        }}
+        setValueAddA={setValueAddA}
+        setValueAddB={setValueAddB}
+        setValueAddC={setValueAddC}
+        setValueAddD={setValueAddD}
+        onClose={closeModalConfirmPartial}
+        onSave={saveConfirmPartialOneOrder}
+        error={error}
+      />
+      }
     </Page>
 
   )

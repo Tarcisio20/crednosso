@@ -1,9 +1,10 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, searchByOrderDate } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, searchByOrderDate } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
+import { orderAlterPartialSchema } from "../schemas/orderAlterPartialSchema"
 
 export const getById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
@@ -137,6 +138,27 @@ export const confirmTotal: RequestHandler = async (req, res) => {
     const order = await confirmTotalByIds(safeData)
     if (!order) {
         res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order })
+}
+
+export const alterPartialByID: RequestHandler = async (req, res) => {
+    const orderId = req.params.id
+    if(!orderId){
+        res.status(401).json({ error: 'Preciso de um ID para continuar!' })
+        return
+    }
+    const safeData = orderAlterPartialSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const order = await alterConfirmPatialById(parseInt(orderId), safeData.data)
+    
+   if (!order) {
+        res.status(401).json({ error: 'Erro ao alterar!' })
         return
     }
 

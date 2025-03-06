@@ -127,3 +127,24 @@ export const confirmTotalByIds = async (ids: number[]) => {
     }
 
 }
+
+type alterConfirmPartialOrderType = {
+    confirmed_value_A : number,
+    confirmed_value_B : number,
+    confirmed_value_C : number,
+    confirmed_value_D : number,
+    status_order : number;
+}
+export const alterConfirmPatialById = async (id : number, data: alterConfirmPartialOrderType) => {
+    const order = await prisma.order.update({
+        where: {
+            id
+        },
+        data
+    })
+    if (order) {
+        return order
+    }
+    return null
+
+}
