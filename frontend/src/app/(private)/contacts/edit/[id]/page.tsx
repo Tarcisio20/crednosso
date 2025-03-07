@@ -36,7 +36,7 @@ export default function ContactsEdit() {
   const [loading, setLoading] = useState(false)
 
 
-  
+
   useEffect(() => {
     AllLoadings()
   }, [id])
@@ -46,6 +46,11 @@ export default function ContactsEdit() {
     setLoading(false);
     setLoading(true);
     const allTreasuries = await getAll();
+    if (allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500) {
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
     if (allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id) {
       setTreasuries(allTreasuries.data.treasury);
       setLoading(false);
@@ -62,7 +67,12 @@ export default function ContactsEdit() {
     setLoading(false);
     setLoading(true);
     const cont = await getContactById(id as string);
-    if (cont.data.contact && cont.data.contact?.id) {
+    if (cont.status === 300 || cont.status === 400 || cont.status === 500) {
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
+    if (cont.data.contact && cont.data.contact?.id > 0) {
       setContact(cont.data.contact);
       setNameContact(cont.data.contact.name);
       setPhoneContact(cont.data.contact.phone);
@@ -108,6 +118,11 @@ export default function ContactsEdit() {
     };
 
     const editedContact = await update(parseInt(id as string), data);
+    if (editedContact.status === 300 || editedContact.status === 400 || editedContact.status === 500) {
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
     if (editedContact.data.contact?.id) {
       setLoading(false);
       AllLoadings();
@@ -190,13 +205,13 @@ export default function ContactsEdit() {
           >
             <select
               className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
-              value={statusContact ? "true" : "false" }
+              value={statusContact ? "true" : "false"}
               onChange={(e) => setStatusContact(e.target.value === "true")}
             >
-              <option className="uppercase bg-slate-700 text-white" value="0">
+              <option className="uppercase bg-slate-700 text-white" value="true">
                 Ativo
               </option>
-              <option className="uppercase bg-slate-700 text-white" value="1">
+              <option className="uppercase bg-slate-700 text-white" value="false">
                 Inativo
               </option>
             </select>

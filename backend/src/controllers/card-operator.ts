@@ -14,7 +14,6 @@ export const getByIdTreasury: RequestHandler = async (req, res) => {
     return;
   }
   const cardOperator = await getForIdTreasury(parseInt(treasuryId));
-  console.log(cardOperator);
   if (!cardOperator) {
     res.status(401).json({ error: "Erro ao retornar dados!" });
     return;
@@ -52,7 +51,7 @@ export const add: RequestHandler = async (req, res) => {
     return;
   }
 
-  res.json({ operatorCard: newCardOperator });
+  res.json({ cardOperator: newCardOperator });
 };
 
 export const update: RequestHandler = async (req, res) => {

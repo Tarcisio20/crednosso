@@ -1,6 +1,5 @@
 "use client"
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { faMobile, faIdBadge, faEnvelope, faAdd } from '@fortawesome/free-solid-svg-icons';
@@ -36,7 +35,12 @@ export default function ContactsAdd() {
     setLoading(false)
     setLoading(true)
     const allTreasury = await getAll()
-    if (allTreasury.data.treasury[0].id) {
+    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
+      setError("Erro na requisição!")
+      setLoading(false)
+      return
+    }
+    if (allTreasury.data.treasury[0] && allTreasury.data.treasury[0].id > 0) {
       setIdTreasury(allTreasury.data.treasury[0].id)
       setTreasuries(allTreasury.data.treasury)
       setLoading(false)
@@ -68,7 +72,12 @@ export default function ContactsAdd() {
     }
 
     const newContact = await add(data)
-    if (newContact.data.contact.id) {
+    if(newContact.status === 300 || newContact.status === 400 || newContact.status === 500){
+      setError("Erro na requisição!")
+      setLoading(false)
+      return
+    }
+    if (newContact.data.contact && newContact.data.contact.id > 0) {
       setLoading(false)
       router.push('/contacts')
       return
@@ -103,8 +112,8 @@ export default function ContactsAdd() {
           </div>
         </div>
         <div className="flex flex-col gap-5">
-          <label className="uppercase leading-3 font-bold">Nome Reduzido</label>
-          <Input color="#DDDD" placeholder="Digite o nome do Contato" size="extra-large" 
+          <label className="uppercase leading-3 font-bold">Nome Completo</label>
+          <Input color="#DDDD" placeholder="Digite o nome completo do Contato" size="extra-large" 
           value={nameContact} onChange={(e)=>setNameContact(e.target.value)} icon={faIdBadge} />
         </div>
         <div className="flex flex-col gap-5">

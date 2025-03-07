@@ -43,6 +43,11 @@ export default function Contacts() {
     setLoading(false);
     setLoading(true);
     const allTreasuries = await getAll();
+    if(allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500){
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
     if (allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id) {
       setIdTreasury(allTreasuries.data.treasury[0].id);
       setTreasuries(allTreasuries.data.treasury);
@@ -56,8 +61,8 @@ export default function Contacts() {
   };
 
   const search = async () => {
-        setContacts([])   
-        setError("");
+    setContacts([])   
+    setError("");
     setLoading(false);
     setLoading(true);
     if (idTreasury === "" || idTreasury === "0") {
@@ -66,8 +71,11 @@ export default function Contacts() {
       return;
     }
     const allContacts = await getByIdTreasury(parseInt(idTreasury));
-    const conctactArry = [allContacts.data.contact];
-
+    if(allContacts.status === 300 || allContacts.status === 400 || allContacts.status === 500){
+      setError("Erro ma requisição");
+      setLoading(false);
+      return;
+    }
     if (allContacts.data.contact && allContacts.data.contact[0]?.id) {
       setContacts(allContacts.data.contact);
       setLoading(false);

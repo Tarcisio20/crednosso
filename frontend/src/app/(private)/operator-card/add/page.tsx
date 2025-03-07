@@ -33,7 +33,12 @@ export default function OperationCardAdd() {
     setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
-    if (allTreasury.data.treasury[0].id) {
+    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
+      setError("Erro na requisição!");
+      setLoading(false);
+      return;
+    }
+    if (allTreasury.data.treasury && allTreasury.data.treasury[0].id > 0) {
       setIdTreasury(allTreasury.data.treasury[0].id);
       setTreasuries(allTreasury.data.treasury);
       setLoading(false);
@@ -67,8 +72,13 @@ export default function OperationCardAdd() {
     };
 
     const newCardOperator = await add(data);
-    console.log(newCardOperator.data.operatorCard.id);
-    if (newCardOperator.data.operatorCard.id) {
+    console.log(newCardOperator)
+    if(newCardOperator.status === 300 || newCardOperator.status === 400 || newCardOperator.status === 500){
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
+    if (newCardOperator.data.cardOperator && newCardOperator.data.cardOperator.id > 0) {
       setLoading(false);
       router.push("/operator-card");
       return;

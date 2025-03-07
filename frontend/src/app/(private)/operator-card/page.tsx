@@ -45,7 +45,12 @@ export default function OperatorCard() {
     setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
-    if (allTreasury.data.treasury && allTreasury.data.treasury[0]?.id) {
+    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
+      setError("Erro na requisição!");
+      setLoading(false);
+      return;
+    }
+    if (allTreasury.data.treasury && allTreasury.data.treasury[0]?.id > 0) {
       setIdTreasury(allTreasury.data.treasury[0]?.id);
       setTreasuries(allTreasury.data.treasury);
       setLoading(false);
@@ -75,13 +80,8 @@ export default function OperatorCard() {
       setError("Sem dados a mostrar no nomento!");
       setLoading(false);
     }
-    if (
-      allCardOperator?.data.cardOperator ||
-      allCardOperator?.data.cardOperator?.id > 0
-    ) {
-      const cardOperatortArry = [allCardOperator.data.cardOperator];
-
-      setCardOperators(cardOperatortArry);
+    if (allCardOperator?.data.cardOperator || allCardOperator?.data.cardOperator?.id > 0) {
+      setCardOperators(allCardOperator.data.cardOperator);
       setLoading(false);
       return;
     } else {
