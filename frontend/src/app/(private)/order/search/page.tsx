@@ -13,7 +13,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, searchOrdersForDate } from "@/app/service/order";
+import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, searchOrdersForDate } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -24,6 +24,7 @@ import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { statusOrderType } from "@/types/statusOrder";
 import { returnNameStatus } from "@/app/utils/returnNameStatus";
 import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
+import { ModalRelaunchOrder } from "@/app/components/ux/ModalRelaunchOrder";
 
 
 export default function Order() {
@@ -52,6 +53,9 @@ export default function Order() {
 
   const [modalViewOrder, setModalViewOrder] = useState(false)
   const [modalOrderConfirmPartial, setModalOrderConfirmPartial] = useState(false)
+  const [modalRelauchOrder, setModalRelaunchOrder] = useState(false)
+
+  const [relauchOrderDate, setRelaunchOrderDate] = useState('')
 
   const [orderIndivudual, setOrderIndividual] = useState<orderType>()
 
@@ -60,9 +64,11 @@ export default function Order() {
   const [valueAddC, setValueAddC] = useState(0)
   const [valueAddD, setValueAddD] = useState(0)
 
+  const [dateAlter, setDateAlter] = useState('')
+
   useEffect(() => {
     allLoading()
-  }, [])
+  }, [orders])
 
   const allLoading = async () => {
     await typeOperationFunction()
@@ -143,12 +149,12 @@ export default function Order() {
     setLoading(false)
     setLoading(true)
     const sOrder = await getAllStatusOrder()
-    if(sOrder.status === 300 || sOrder === 400 || sOrder === 500){
+    if (sOrder.status === 300 || sOrder === 400 || sOrder === 500) {
       setError("Erro de requisição")
       setLoading(false)
       return
     }
-    if(sOrder.data.statusOrder && sOrder.data.statusOrder[0].id){
+    if (sOrder.data.statusOrder && sOrder.data.statusOrder[0].id) {
       setStatusOrder(sOrder.data.statusOrder)
       setLoading(false)
       return
@@ -168,7 +174,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-
+    setOrders([])
     let data = {
       date_initial: dateInitial,
       date_final: dateFinal === '' ? dateInitial : dateFinal
@@ -179,7 +185,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (orderSarch.data.order && orderSarch.data.order[0]?.id) {
+    if (orderSarch.data.order.length  > 0) {
       setOrders(orderSarch.data.order)
       let elements: any = []
       orderSarch.data.order.forEach((item: any) => (
@@ -192,11 +198,11 @@ export default function Order() {
       setError('')
       setLoading(false)
       return
-    } else {
+    }
       setError('Sem dados a mostrar!')
       setLoading(false)
       return
-    }
+    
   }
 
   const view = () => {
@@ -270,23 +276,30 @@ export default function Order() {
     setModalOrderConfirmPartial(false)
   }
 
+  const closeModalRelauchOrder = () => {
+    setError('')
+    setLoading(false)
+    setDateAlter('')
+    setModalRelaunchOrder(false)
+  }
+
   const saveOneOrder = async () => {
     setError('')
     setLoading(false)
     setLoading(true)
     let data = {
-      requested_value_A : valueAddA,
-      requested_value_B : valueAddB,
-      requested_value_C : valueAddC,
-      requested_value_D : valueAddD,
+      requested_value_A: valueAddA,
+      requested_value_B: valueAddB,
+      requested_value_C: valueAddC,
+      requested_value_D: valueAddD,
     }
-    const orderSave = await alterValueOrder(orderIndivudual?.id as number, data) 
-    if(orderSave.status === 300 || orderSave.status === 400 || orderSave === 500){
+    const orderSave = await alterValueOrder(orderIndivudual?.id as number, data)
+    if (orderSave.status === 300 || orderSave.status === 400 || orderSave === 500) {
       setError('Erro na requisição')
       setLoading(false)
       return
     }
-    if(orderSave.data.order && orderSave.data.order?.id){
+    if (orderSave.data.order && orderSave.data.order?.id) {
       handleSearch()
       setError('')
       setLoading(false)
@@ -299,27 +312,27 @@ export default function Order() {
     setError("")
     setLoading(false)
     setLoading(true)
-    if(valueAddA === 0 && valueAddB === 0 && valueAddC === 0 && valueAddD === 0){
+    if (valueAddA === 0 && valueAddB === 0 && valueAddC === 0 && valueAddD === 0) {
       setError("Se quer cancelar a requisição clique no botão Excluir na tela principal")
       return
     }
     closeModalConfirmPartial()
     let data = {
-      confirmed_value_A : valueAddA,
-      confirmed_value_B : valueAddB,
-      confirmed_value_C : valueAddC,
-      confirmed_value_D : valueAddD,
-      status_order : 3,
-      composition_change : true
+      confirmed_value_A: valueAddA,
+      confirmed_value_B: valueAddB,
+      confirmed_value_C: valueAddC,
+      confirmed_value_D: valueAddD,
+      status_order: 3,
+      composition_change: true
     }
 
-   const orderConfirmPartialReturn = await confirmPartialOrderById(orderIndivudual?.id, data)
-    if(orderConfirmPartialReturn.status === 300 || orderConfirmPartialReturn.status === 400 || orderConfirmPartialReturn.status === 500){
+    const orderConfirmPartialReturn = await confirmPartialOrderById(orderIndivudual?.id as number, data)
+    if (orderConfirmPartialReturn.status === 300 || orderConfirmPartialReturn.status === 400 || orderConfirmPartialReturn.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
       return
     }
-    if(orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0){
+    if (orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0) {
       setError('')
       setLoading(false)
       handleSearch()
@@ -340,30 +353,30 @@ export default function Order() {
       return
     }
     const confirmDelete = window.confirm(`Tem certeza que deseja excluir este(s) item(ns)?
-        ${ itemsChecks
-          .filter(item => item.status === true) 
-          .map(item => item.id)
-          .join(',')}
+        ${itemsChecks
+        .filter(item => item.status === true)
+        .map(item => item.id)
+        .join(',')}
       `);
     if (!confirmDelete) {
-     setError("Cancelado a exclusão")
-     setLoading(false)
-     return
+      setError("Cancelado a exclusão")
+      setLoading(false)
+      return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
-    for(let x = 0; itemsSelected.length > x; x++){
+    for (let x = 0; itemsSelected.length > x; x++) {
       let chech = false
       let count = 0
-      while(chech === false || count < 8){
+      while (chech === false || count < 8) {
         ++count
-       const iSelectedAlter = await delOrderById(itemsSelected[x].id)
-       if(iSelectedAlter.status === 300 || iSelectedAlter.status === 400 || iSelectedAlter.status === 500){
-        if(!iSelectedAlter[0] || !iSelectedAlter[0].id){
-          return
-         }
-       }else{
-        chech = true
-       }
+        const iSelectedAlter = await delOrderById(itemsSelected[x].id)
+        if (iSelectedAlter.status === 300 || iSelectedAlter.status === 400 || iSelectedAlter.status === 500) {
+          if (!iSelectedAlter[0] || !iSelectedAlter[0].id) {
+            return
+          }
+        } else {
+          chech = true
+        }
       }
     }
     handleSearch()
@@ -384,20 +397,20 @@ export default function Order() {
       return
     }
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
-        ${ itemsChecks
-          .filter(item => item.status === true) 
-          .map(item => item.id)
-          .join(',')}
+        ${itemsChecks
+        .filter(item => item.status === true)
+        .map(item => item.id)
+        .join(',')}
       `);
     if (!confirmAlter) {
-     setError("Cancelado a operção")
-     setLoading(false)
-     return
+      setError("Cancelado a operção")
+      setLoading(false)
+      return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
-  
+
     const iSelectedAlter = await ConfirmOrderById(idsSelected)
-    if(iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500){
+    if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {
       setError('Erro na requisição!')
       setLoading(false)
       return
@@ -434,7 +447,78 @@ export default function Order() {
     setError("Erro ao gerar tela, tentar novamente!")
     setLoading(false)
     return
-    
+
+  }
+
+  const relaunchOrder = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    if (countTrue > 1) {
+      setError("Para essa ação só pode haver 1 item selecionado")
+      setLoading(false)
+      return
+    }
+    const confirmRelauchDate = window.confirm(`Tem certeza que deseja mudar a data do pedido?
+      ${itemsChecks
+        .filter(item => item.status === true)
+        .map(item => item.id)
+        .join(',')}
+    `);
+    if (!confirmRelauchDate) {
+      setError("Cancelado o relançamento")
+      setLoading(false)
+      return
+    }
+    const itemsSelected = itemsChecks.filter(item => item.status === true)
+    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
+    setOrderIndividual(orderSelectedOne[0])
+    setModalRelaunchOrder(true)
+    setError('')
+    setLoading(false)
+  }
+
+  const handleSaveRelaunchValue = (e :  React.ChangeEvent<HTMLInputElement>) => {
+    setDateAlter(e.target.value);
+  }
+
+  const handleDateAlter = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    if(dateAlter === ''){
+      setError('Prrencha o campo de data')
+      setLoading(false)
+      return
+    }
+    let data = {
+      date_order  : dateAlter
+    }
+    const orderAlterForDate = await alterDateInOrder(orderIndivudual?.id as number, data)
+    if(orderAlterForDate.status === 300 || orderAlterForDate === 400 || orderAlterForDate === 500){
+      setError("Erro de Requisição, tente novamente")
+      setLoading(false)
+      return
+    }
+    if(orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0){
+      setDateAlter('')
+      setError('')
+      setModalRelaunchOrder(false)
+      setLoading(false)
+      handleSearch()
+      return
+    }else{
+      setError('Erro ao alterar a data')
+      setLoading(false)
+      return
+    }
+
   }
 
   return (
@@ -483,7 +567,7 @@ export default function Order() {
           <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faFileExport}
           >Gerar Relatório</ButtonScreenOrder>
-          <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#415eff" onClick={relaunchOrder} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faCodeCompare}
           >Relançar Pedido</ButtonScreenOrder>
           <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
@@ -673,22 +757,32 @@ export default function Order() {
         </div>
       )}
       {modalOrderConfirmPartial &&
-       <ModalConfirmPartial 
-        oIndividual={orderIndivudual as orderType} 
-        valueAdd={{
-          a : valueAddA,
-          b : valueAddB,
-          c : valueAddC,
-          d : valueAddD,
-        }}
-        setValueAddA={setValueAddA}
-        setValueAddB={setValueAddB}
-        setValueAddC={setValueAddC}
-        setValueAddD={setValueAddD}
-        onClose={closeModalConfirmPartial}
-        onSave={saveConfirmPartialOneOrder}
-        error={error}
-      />
+        <ModalConfirmPartial
+          oIndividual={orderIndivudual as orderType}
+          valueAdd={{
+            a: valueAddA,
+            b: valueAddB,
+            c: valueAddC,
+            d: valueAddD,
+          }}
+          setValueAddA={setValueAddA}
+          setValueAddB={setValueAddB}
+          setValueAddC={setValueAddC}
+          setValueAddD={setValueAddD}
+          onClose={closeModalConfirmPartial}
+          onSave={saveConfirmPartialOneOrder}
+          error={error}
+        />
+      }
+      {modalRelauchOrder &&
+        <ModalRelaunchOrder 
+          id={orderIndivudual?.id as number}
+          value={dateAlter}
+          onSetValue={handleSaveRelaunchValue}
+          onConfirm={handleDateAlter}
+          onClose={closeModalRelauchOrder}
+          error={error}
+        />
       }
     </Page>
 

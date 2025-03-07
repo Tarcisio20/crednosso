@@ -148,3 +148,17 @@ export const alterConfirmPatialById = async (id : number, data: alterConfirmPart
     return null
 
 }
+
+export const alterDateOrderById = async (id : number, data: { date_order : Date }) => {
+    const order = await prisma.order.update({
+        where: {
+            id
+        },
+        data
+    })
+    if (order) {
+        return order
+    }
+    return null
+
+}
