@@ -26,6 +26,7 @@ model Treasury {
   id Int @id @default(autoincrement())
   id_system Int @unique
   id_type_supply Int
+  id_type_store Int
   name String @unique
   short_name String @unique
   account_number String @unique
@@ -39,6 +40,7 @@ model Treasury {
   status Boolean @default(true)
 
   typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
+  typeStore typeStore @relation(fields: [id_type_store], references: [id])
 
   atms Atm[]
   contacts Contact[]
@@ -82,6 +84,14 @@ model StatusOrder {
   status Boolean @default(true)
 
   orders Order[]
+}
+
+model typeStore {
+  id Int @id @default(autoincrement())
+  name String @unique
+  status Boolean @default(true)
+
+ treasury Treasury[]
 }
 
 model Atm {

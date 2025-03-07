@@ -10,6 +10,7 @@ import * as cardOperatorController from '../controllers/card-operator'
 import * as typeSupplyController from '../controllers/type-supply'
 import * as statusOrderController from '../controllers/status-order'
 import * as orderController from '../controllers/order'
+import * as typeStoreController from '../controllers/type-store'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -84,3 +85,10 @@ mainRouter.post('/order/alter-date-order/:id',verifyJWT, orderController.alterDa
 mainRouter.post('/order/search-by-date',verifyJWT, orderController.searchByDate)
 mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
+
+
+// type store
+mainRouter.get('/type-store',verifyJWT, typeStoreController.getAll)
+mainRouter.get('/type-store/:id',verifyJWT, typeStoreController.getById)
+mainRouter.post('/type-store/add',verifyJWT, typeStoreController.add)
+mainRouter.post('/type-store/update/:id',verifyJWT, typeStoreController.update)

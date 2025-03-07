@@ -62,6 +62,9 @@ export default function RootLayout({
               <li className="pb-3 pt-3 text-center bg-zinc-600 uppercase hover:bg-zinc-700 cursor-pointer">
                 <Link href="/status-order">Status do Pedido</Link>
               </li>
+              <li className="pb-3 pt-3 text-center bg-zinc-600 uppercase hover:bg-zinc-700 cursor-pointer">
+                <Link href="/type-store">Tipo de Loja</Link>
+              </li>
               <li className="pb-3 pt-3 text-center bg-red-600 uppercase hover:bg-red-700 cursor-pointer">Sair</li>
             </ul>
           </div>
