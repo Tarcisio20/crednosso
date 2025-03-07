@@ -86,6 +86,13 @@ export default function AtmAdd() {
     setLoading(false);
     setLoading(true);
     const t = await getAll();
+    if(t.status === 300 || t.status === 400 || t.status === 500){
+      setError(
+        "Erro na requisição!"
+      );
+      setLoading(false);
+      return;
+    }
     if (t.data.treasury && t.data.treasury.length === 0) {
       setError(
         "Sem tesourarias para ser vinculada, favor adicionar uma tesouraria primeiro!"

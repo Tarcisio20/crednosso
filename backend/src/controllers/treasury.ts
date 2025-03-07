@@ -37,6 +37,11 @@ export const add : RequestHandler = async (req, res) => {
                 id : safeData.data.id_type_supply 
             }
         },
+        typeStore : {
+            connect : { 
+                id : safeData.data.id_type_store 
+            }
+        },
         enabled_gmcore : safeData.data.enabled_gmcore as boolean,
         name : safeData.data.name,
         short_name : safeData.data.short_name,

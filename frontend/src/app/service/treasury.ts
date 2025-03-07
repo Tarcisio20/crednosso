@@ -17,16 +17,16 @@ export const getAll = async () => {
     if (error.response) {
         // Erro retornado pela API (ex: status 400, 500, etc.)
         const { message } = error.response.data; // Captura a mensagem de erro
-        console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-        return message;
+       // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+        return {error :message, status : 400, data : undefined} as any;
       } else if (error.request) {
         // Erro de conexão (não houve resposta do servidor)
-        console.error("Erro de conexão:", error.request);
-        return error.request;
+        //console.error("Erro de conexão:", error.request);
+        return {error : error.request, status : 500, data : undefined}as any;
       } else {
         // Erro genérico (ex: erro ao configurar a requisição)
-        console.error("Erro:", error.message);
-        return error.message;
+        //console.error("Erro:", error.message);
+        return {error : error.message, status : 300, data : undefined} as any;
       }
   }
 }
@@ -45,16 +45,16 @@ export const getByIdSystem = async (id : string) => {
     if (error.response) {
         // Erro retornado pela API (ex: status 400, 500, etc.)
         const { message } = error.response.data; // Captura a mensagem de erro
-        console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-        return message;
+       // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+        return {error : message, status : 400, data :undefined} as any;
       } else if (error.request) {
         // Erro de conexão (não houve resposta do servidor)
-        console.error("Erro de conexão:", error.request);
-        return error.request;
+        //console.error("Erro de conexão:", error.request);
+        return {error : error.request, status : 500, data : undefined} as any;
       } else {
         // Erro genérico (ex: erro ao configurar a requisição)
-        console.error("Erro:", error.message);
-        return error.message;
+        //console.error("Erro:", error.message);
+        return {error : error.message, status : 300, data : undefined} as any;
       }
   }
 
@@ -75,16 +75,16 @@ export const add = async (data : treasuryType) => {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
       const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return message;
+      //console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return {error : message, status : 400, data : undefined} as any;
     } else if (error.request) {
       // Erro de conexão (não houve resposta do servidor)
-      console.error("Erro de conexão:", error.request);
-      return error.request;
+     // console.error("Erro de conexão:", error.request);
+      return {error : error.request, status : 500, data : undefined} as any;
     } else {
       // Erro genérico (ex: erro ao configurar a requisição)
-      console.error("Erro:", error.message);
-      return error.message;
+     // console.error("Erro:", error.message);
+      return {error : error.message, status : 300, data : undefined} as any;
     }
   }
 }
@@ -104,16 +104,16 @@ export const update = async (id : number , data : treasuryType) => {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
       const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return message;
+     // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return {error : message, status : 400, data : undefined} as any;
     } else if (error.request) {
       // Erro de conexão (não houve resposta do servidor)
-      console.error("Erro de conexão:", error.request);
-      return error.request;
+      // console.error("Erro de conexão:", error.request);
+      return {error : error.request, status : 500, data : undefined} as any;
     } else {
       // Erro genérico (ex: erro ao configurar a requisição)
-      console.error("Erro:", error.message);
-      return error.message;
+     // console.error("Erro:", error.message);
+      return {error : error.message, status : 300, data : undefined} as any;
     }
   }
 }
@@ -134,16 +134,16 @@ export const addSaldoTreasury = async (id : number, data : { bills_10 : number, 
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
       const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return message;
+     // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return {error : message, status : 400, data : undefined} as any;
     } else if (error.request) {
       // Erro de conexão (não houve resposta do servidor)
-      console.error("Erro de conexão:", error.request);
-      return error.request;
+     // console.error("Erro de conexão:", error.request);
+      return {error : error.request, status : 500, data : undefined} as any;
     } else {
       // Erro genérico (ex: erro ao configurar a requisição)
-      console.error("Erro:", error.message);
-      return error.message;
+      //console.error("Erro:", error.message);
+      return {error : error.message, status : 300, data : undefined} as any;
     }
   }
 }

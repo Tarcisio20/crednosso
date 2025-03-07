@@ -6,8 +6,10 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/treasury";
-import { getAll } from "@/app/service/type-supply";
+import { getAll as getAllSuppy } from "@/app/service/type-supply";
+import { getAll as getAllStores } from "@/app/service/type-store";
 import { validateField } from "@/app/utils/validateField";
+import { typeStoreType } from "@/types/typeStoreType";
 import { typeSupplyType } from "@/types/typeSupplyType";
 import {
   faAdd,
@@ -25,6 +27,9 @@ export default function TreasuryAdd() {
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>([]);
   const [idTypeSupply, setIdTypeSupply] = useState("0");
 
+  const [typeStores, setTypeStores] = useState<typeStoreType[]>([])
+  const [idTypeStore, setIdTypeStore] = useState("0");
+
   const [idSystemTreasury, setIdSystemTreasury] = useState("");
   const [nameTreasury, setNameTreasury] = useState("");
   const [nameRedTreasury, setNameRedTreasury] = useState("");
@@ -36,15 +41,19 @@ export default function TreasuryAdd() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getTypeSuplies();
+    allLoadings();
   }, []);
+
+  const allLoadings = async () => {
+    await getTypeSuplies()
+    await getTypeStore()
+  }
 
   const getTypeSuplies = async () => {
     setError("");
     setLoading(false);
     setLoading(true);
-    const tSupplies = await getAll();
-    console.log(tSupplies);
+    const tSupplies = await getAllSuppy();
 
     if (
       tSupplies.status === 300 &&
@@ -67,6 +76,33 @@ export default function TreasuryAdd() {
     return;
   };
 
+  const getTypeStore = async () => {
+    setError("");
+    setLoading(false);
+    setLoading(true);
+    const tStore = await getAllStores()
+    console.log(tStore.data.typeStore)
+    if (
+      tStore.status === 300 &&
+      tStore.status === 400 &&
+      tStore.status === 500
+    ) {
+      setError("Sem dados a mostrar, tente novamente!");
+      setLoading(false);
+      return;
+    }
+
+    if (tStore.data.typeStore && tStore.data.typeStore.length > 0) {
+      setTypeStores(tStore.data.typeStore);
+      setIdTypeStore(tStore.data.typeStore[0].id);
+      setLoading(false);
+      return;
+    }
+    setError("Erro ao retornar dados");
+    setLoading(false);
+    return;
+  }
+
   const cadTeasury = async () => {
     setError("");
     setLoading(false);
@@ -79,7 +115,8 @@ export default function TreasuryAdd() {
       numContaTreasury === "" ||
       regionTreasury === "0" ||
       idTypeSupply === "0" ||
-      idTypeSupply === ""
+      idTypeSupply === "" ||
+      idTypeStore === ""
     ) {
       setError(
         "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
@@ -91,6 +128,7 @@ export default function TreasuryAdd() {
     let data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
+      id_type_store : idTypeStore,
       enabled_gmcore: enanbledGMcoreTreasury === "0" ? false : true,
       name: nameTreasury.toUpperCase(),
       short_name: nameRedTreasury.toUpperCase(),
@@ -117,6 +155,7 @@ export default function TreasuryAdd() {
       </TitlePages>
       <div className="flex flex-row gap-8 p-5 w-full">
         <div className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Id</label>
             <Input
@@ -128,6 +167,7 @@ export default function TreasuryAdd() {
               icon={faReceipt}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Nome</label>
             <Input
@@ -139,6 +179,7 @@ export default function TreasuryAdd() {
               icon={faLandmark}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Nome Reduzido
@@ -152,6 +193,7 @@ export default function TreasuryAdd() {
               icon={faVault}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">N° Conta</label>
             <Input
@@ -163,6 +205,7 @@ export default function TreasuryAdd() {
               icon={faListOl}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">N° GMCore</label>
             <Input
@@ -174,9 +217,11 @@ export default function TreasuryAdd() {
               icon={faListOl}
             />
           </div>
+
         </div>
 
         <div className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Região</label>
             <Input
@@ -188,6 +233,7 @@ export default function TreasuryAdd() {
               icon={faListOl}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Tipo de Abastecimento
@@ -218,6 +264,38 @@ export default function TreasuryAdd() {
               )}
             </div>
           </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">
+              Tipo de Pagamento
+            </label>
+            <div
+              className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+            >
+              {typeStores && typeStores.length > 0 && (
+                <select
+                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                  value={idTypeStore}
+                  onChange={(e) => setIdTypeStore(e.target.value)}
+                >
+                  {typeStores &&
+                    typeStores.map((item, index) => (
+                      <option
+                        className="uppercase bg-slate-700 text-white"
+                        value={item.id}
+                        key={index}
+                      >
+                        {item.name}
+                      </option>
+                    ))}
+                </select>
+              )}
+              {typeStores?.length === 0 && (
+                <p className="text-white">Sem dados a mostrar</p>
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Ativo GMCORE

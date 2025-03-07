@@ -27,9 +27,11 @@ import { validateField } from "@/app/utils/validateField";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeSupplyType } from "@/types/typeSupplyType";
 import { getAll } from "@/app/service/type-supply";
+import { getAll as getllTypeStore } from "@/app/service/type-store";
 import { ContactType } from "@/types/contactType";
 import { getByIdTreasury } from "@/app/service/contact";
 import { returnArraytoString } from "@/app/utils/returnArraytoString";
+import { typeStoreType } from "@/types/typeStoreType";
 
 export default function TreasuryEdit() {
 
@@ -38,6 +40,9 @@ export default function TreasuryEdit() {
 
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>()
   const [idTypeSupply, setIdTypeSupply] = useState('0')
+
+  const [typeStores, setTypeStores] = useState<typeStoreType[]>([])
+  const [idTypeStore, setIdTypeStore] = useState('0')
 
   const [contacts, setContacts] = useState<ContactType[]>()
 
@@ -79,6 +84,7 @@ export default function TreasuryEdit() {
     await getTreasuryByIdSystem();
     await getTypeSuplies();
     await getAllContactsByIdTreasury();
+    await getTypeStore()
   };
 
   const getTreasuryByIdSystem = async () => {
@@ -91,6 +97,8 @@ export default function TreasuryEdit() {
       setNumContaTreasury(treasuryOne.data.treasury.account_number)
       setNumGMCoreTreasury(treasuryOne.data.treasury.gmcore_number)
       setEnanbledGMcoreTreasury(treasuryOne.data.treasury.enabled_gmcore)
+      setIdTypeStore(treasuryOne.data.treasury.id_type_store)
+      setIdTypeSupply(treasuryOne.data.treasury.id_type_supply)
       setSaldoTreasury(
         generateValueTotal(
           treasuryOne.data.treasury.bills_10,
@@ -118,9 +126,13 @@ export default function TreasuryEdit() {
     setLoading(false);
     setLoading(true);
     const tSupplies = await getAll();
-    if (tSupplies.data.typeSupply[0].id > 0) {
+    if(tSupplies.status === 300 || tSupplies.status === 400 || tSupplies.status === 500){
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
+    if (tSupplies.data.typeSupply && tSupplies.data.typeSupply[0].id > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
-      setIdTypeSupply(tSupplies.data.typeSupply[0].id);
       setLoading(false);
       return;
     }
@@ -143,6 +155,27 @@ export default function TreasuryEdit() {
     setLoading(false);
     return;
   };
+
+  const getTypeStore = async () => {
+    setError("");
+    setLoading(false);
+    setLoading(true);
+
+    const tStore = await getllTypeStore()
+    if(tStore.status === 300 || tStore.status === 400 || tStore.status === 500){
+      setError("Erro na requisição");
+      setLoading(false);
+      return;
+    }
+    if (tStore.data.typeStore && tStore.data.typeStore[0].id > 0) {
+      setTypeStores(tStore.data.typeStore);
+      setLoading(false);
+      return;
+    }
+    setError("Erro ao retornar dados");
+    setLoading(false);
+    return;
+  }
 
   const addSaldo = () => {
     setModal(true);
@@ -185,7 +218,7 @@ export default function TreasuryEdit() {
     if (
       idSystemTreasury === "" || !validateField(nameTreasury) ||
       !validateField(nameRedTreasury) || numContaTreasury === "" ||
-      regionTreasury === ''
+      regionTreasury === '' || idTypeStore === "" || idTypeSupply === ""
     ) {
       setError(
         "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
@@ -195,6 +228,7 @@ export default function TreasuryEdit() {
     let data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
+      id_type_store : parseInt(idTypeStore),
       name: nameTreasury,
       short_name: nameRedTreasury,
       account_number: numContaTreasury,
@@ -226,6 +260,7 @@ export default function TreasuryEdit() {
       </TitlePages>
       <div className="flex flex-row gap-20 p-5 w-full">
         <div className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Id</label>
             <Input
@@ -237,6 +272,7 @@ export default function TreasuryEdit() {
               icon={faReceipt}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Nome</label>
             <Input
@@ -248,6 +284,7 @@ export default function TreasuryEdit() {
               icon={faLandmark}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Nome Reduzido
@@ -261,6 +298,7 @@ export default function TreasuryEdit() {
               icon={faVault}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">N° Conta</label>
             <Input
@@ -272,6 +310,7 @@ export default function TreasuryEdit() {
               icon={faListOl}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">N° GMCore</label>
             <Input
@@ -283,6 +322,7 @@ export default function TreasuryEdit() {
               icon={faListOl}
             />
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Região</label>
             <Input
@@ -294,9 +334,37 @@ export default function TreasuryEdit() {
               icon={faListOl}
             />
           </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">
+              Tipo de Pagamento
+            </label>
+            <div
+              className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+            >
+              <select
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                value={idTypeStore}
+                onChange={(e) => setIdTypeStore(e.target.value)}
+              >
+                {typeStores &&
+                  typeStores.map((item, index) => (
+                    <option
+                      className="uppercase bg-slate-700 text-white"
+                      value={item.id}
+                      key={index}
+                    >
+                      {item.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+
         </div>
 
         <div className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Tipo de Abastecimento

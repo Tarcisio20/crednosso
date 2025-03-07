@@ -42,7 +42,11 @@ export default function Atm() {
     setLoading(true);
     const allAtms = await getAll();
     const allTreasury = await gtTreasury();
-
+    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
+      setError("Erro na requisição!");
+      setLoading(false);
+      return;
+    }
     if (allAtms.data.atm && allAtms.data.atm[0]?.id > 0) {
       setAtms(allAtms.data.atm);
       setTreasuries(allTreasury.data.treasury);
