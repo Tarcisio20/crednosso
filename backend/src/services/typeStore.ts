@@ -2,7 +2,9 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
 export const getAllTypeStores = async () => {
-    const typeSupply = await prisma.typeStore.findMany()
+    const typeSupply = await prisma.typeStore.findMany({
+        where : { status : true }
+    })
     if(typeSupply){
         return typeSupply
     }
@@ -37,6 +39,21 @@ export const updateTypeStore = async (id: number, data : Prisma.typeStoreUpdateI
     }) 
     if(editStore){
         return editStore
+    }
+    return null
+}
+
+export const deleteTypeStore = async (id: number) => {
+    const deleteStore = await prisma.typeStore.update({
+        where : {
+            id
+        },
+        data : {
+            status : false
+        }
+    }) 
+    if(deleteStore){
+        return deleteStore
     }
     return null
 }

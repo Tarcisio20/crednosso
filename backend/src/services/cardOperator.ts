@@ -3,7 +3,7 @@ import { prisma } from "../utils/prisma"
 
 export const getForIdTreasury = async (id : number ) => {
     const cardOperator = await prisma.operatorCard.findMany({
-        where : { id_treasury : id  }
+        where : { id_treasury : id, status : true  }
     })
     if(cardOperator){
         return cardOperator

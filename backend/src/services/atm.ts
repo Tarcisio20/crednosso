@@ -4,7 +4,9 @@ import { prisma } from "../utils/prisma";
 
 
 export const getAllAtm = async () => {
-    const atm = await prisma.atm.findMany()
+    const atm = await prisma.atm.findMany({
+        where : {  status : true}
+    })
     if(atm){
         return atm
     }

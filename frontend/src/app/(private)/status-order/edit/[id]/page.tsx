@@ -6,10 +6,8 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getStatusOrderForId, update } from "@/app/service/status-order";
-import { getTypeOperationForId } from "@/app/service/type-operation";
 import { validateField } from "@/app/utils/validateField";
 import { statusOrderType } from "@/types/statusOrder";
-import { typeOperationType } from "@/types/typeOperationType";
 import {
      faLandmark,
      faPenToSquare,
@@ -17,7 +15,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function TypeOperationEdit() {
+export default function StatusOrderEdit() {
 
      const { id } = useParams()
      const router = useRouter()
@@ -93,7 +91,7 @@ export default function TypeOperationEdit() {
 
      return (
           <Page>
-               <TitlePages linkBack="/type-operation" icon={faPenToSquare} >Editar Status do Pedido</TitlePages>
+               <TitlePages linkBack="/status-order" icon={faPenToSquare} >Editar Status do Pedido</TitlePages>
                <div className="flex flex-col gap-8 p-5 w-full">
                     <div className="flex flex-col gap-5">
                          <label className="uppercase leading-3 font-bold">Nome</label>

@@ -2,7 +2,9 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
 export const getAllStatusOrder = async () => {
-    const statusOrder = await prisma.statusOrder.findMany()
+    const statusOrder = await prisma.statusOrder.findMany({
+        where : { status : true }
+    })
     if(statusOrder){
         return statusOrder
     }

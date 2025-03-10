@@ -4,7 +4,7 @@ import { prisma } from "../utils/prisma"
 
 export const getForIdTreasury = async (id : number ) => {
     const contact = await prisma.contact.findMany({
-        where : { id_treasury : id  }
+        where : { id_treasury : id, status : true  }
     })
     if(contact){
         return contact
@@ -22,7 +22,6 @@ export const getContactForId = async (id : string) => {
     return null
 }
 
-
 export const addContact = async (data : Prisma.ContactCreateInput) => {
     const contact = await prisma.contact.create({ data })
     if(contact){
@@ -30,7 +29,6 @@ export const addContact = async (data : Prisma.ContactCreateInput) => {
     }
     return null
 }
-
 
 export const updateContact = async (id: number, data : Prisma.ContactUpdateInput) => {
     const contact = await prisma.contact.update({

@@ -3,7 +3,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { faPenToSquare, faStore, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faBan, faPenToSquare, faStore, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeStoreType } from "@/types/typeStoreType";
-import { getAll } from "@/app/service/type-store";
+import { del, getAll } from "@/app/service/type-store";
 
 export default function TypeStore() {
 
@@ -21,8 +21,6 @@ export default function TypeStore() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-
-
   useEffect(() => {
     getAllTypeStore();
   }, []);
@@ -31,7 +29,6 @@ export default function TypeStore() {
     router.push('/type-store/add')
     return
   }
-
 
   const getAllTypeStore = async () => {
     setError("");
@@ -44,7 +41,7 @@ export default function TypeStore() {
       setLoading(false);
       return;
     }
-    if (tStores.data.typeStore.length > 0) {
+    if (tStores.data.typeStore && tStores.data.typeStore.length > 0) {
       setTypeStores(tStores.data.typeStore);
       setLoading(false);
       return;
@@ -54,6 +51,13 @@ export default function TypeStore() {
       return;
     }
   };
+
+  const handleDelTypeStoreById = async (id : number) => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const delTSore = await del(id)
+  }
 
   return (
     <Page>
@@ -82,7 +86,11 @@ export default function TypeStore() {
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                   </Link>
                   <Link href={`/type-store/del/${item.id}`}>
-                    <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
+                    {item.status === true ?
+                      <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
+                    :
+                      <FontAwesomeIcon icon={faBan} size="1x" color="#BF6C6C" />
+                    }
                   </Link>
                 </td>
               </tr>

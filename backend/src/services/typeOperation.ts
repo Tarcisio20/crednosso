@@ -3,7 +3,9 @@ import { prisma } from "../utils/prisma";
 
 
 export const getAllTypeOperation = async () => {
-    const typeOperation = await prisma.typeOperation.findMany()
+    const typeOperation = await prisma.typeOperation.findMany({
+        where : { status : true }
+    })
     if(typeOperation){
         return typeOperation
     }
@@ -20,7 +22,6 @@ export const getTypeOperationForId = async (id : string) => {
     return null
 }
 
-
 export const addTypeOperation = async (data : Prisma.TypeOperationCreateInput) => {
     const typeOperation = await prisma.typeOperation.create({ data })
     if(typeOperation){
@@ -28,8 +29,6 @@ export const addTypeOperation = async (data : Prisma.TypeOperationCreateInput) =
     }
     return null
 }
-
-
 
 export const updateTypeOperation = async (id: number, data : Prisma.TypeOperationUpdateInput) => {
     const editTreasury = await prisma.typeOperation.update({

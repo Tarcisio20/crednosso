@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
-
 export const getAllTypeOrder = async () => {
-    const typeOrder = await prisma.typeOrder.findMany()
+    const typeOrder = await prisma.typeOrder.findMany({
+        where : { status : true }
+    })
     if(typeOrder){
         return typeOrder
     }
@@ -19,7 +20,6 @@ export const getTypeOrderForId = async (id : string) => {
     }
     return null
 }
-
 
 export const addTypeOrder = async (data : Prisma.TypeOrderCreateInput) => {
     const typeOrder = await prisma.typeOrder.create({ data })

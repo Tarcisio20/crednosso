@@ -17,6 +17,23 @@ export const getOrderById = async (id: number) => {
     return null
 }
 
+export const getOrderByIds = async (ids: number[]) => {
+    const order = await prisma.order.findMany({
+        where: {
+            id : {
+                in : ids,
+            },
+            status_order: {
+                not: 5
+            }
+        }
+    })
+    if (order) {
+        return order
+    }
+    return null
+}
+
 export const addOrder = async (data: Prisma.OrderCreateInput) => {
     const order = await prisma.order.create({ data })
     if (order) {
@@ -43,7 +60,6 @@ export const alterRequestsOrderForID = async (id: number, data: alterRequestsOrd
     }
     return null
 }
-
 
 export const searchByOrderDate = async (data: { date_initial: Date, date_final: Date }) => {
     const order = await prisma.order.findMany({
@@ -162,3 +178,4 @@ export const alterDateOrderById = async (id : number, data: { date_order : Date 
     return null
 
 }
+

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { addTypeStore, getAllTypeStores, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
+import { addTypeStore, deleteTypeStore, getAllTypeStores, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
 import { typeStoreAddSchema } from "../schemas/typeStoreAddSchema";
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -57,3 +57,20 @@ export const update: RequestHandler = async (req, res) => {
 
   res.json({ typeStore: updateType });
 };
+
+export const del : RequestHandler = async (req, res) => {
+  const typeStoreId = req.params.id;
+  const safeData = typeStoreAddSchema.safeParse(req.body);
+  if (!safeData.success) {
+    res.json({ error: safeData.error.flatten().fieldErrors });
+    return;
+  }
+  const deleteType = await deleteTypeStore(parseInt(typeStoreId));
+  if (!deleteType) {
+    res.status(401).json({ error: "Erro ao Excluir!" });
+    return;
+  }
+
+  res.json({ typeStore: deleteType });
+};
+

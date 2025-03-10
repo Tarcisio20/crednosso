@@ -10,7 +10,6 @@ import { validateField } from "@/app/utils/validateField";
 import {
   faAdd,
   faLandmark,
-  faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -53,7 +52,7 @@ export default function TypeOperationAdd() {
 
   return (
     <Page>
-      <TitlePages linkBack="/type-operation" icon={faAdd}>
+      <TitlePages linkBack="/status-order" icon={faAdd}>
         Adicionar Status de Pedido
       </TitlePages>
       <div className="flex flex-col gap-8 p-5 w-full">

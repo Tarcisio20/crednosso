@@ -85,6 +85,7 @@ mainRouter.post('/order/alter-date-order/:id',verifyJWT, orderController.alterDa
 mainRouter.post('/order/search-by-date',verifyJWT, orderController.searchByDate)
 mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
+mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRelease)
 
 
 // type store
@@ -92,3 +93,4 @@ mainRouter.get('/type-store',verifyJWT, typeStoreController.getAll)
 mainRouter.get('/type-store/:id',verifyJWT, typeStoreController.getById)
 mainRouter.post('/type-store/add',verifyJWT, typeStoreController.add)
 mainRouter.post('/type-store/update/:id',verifyJWT, typeStoreController.update)
+mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)

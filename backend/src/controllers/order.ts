@@ -1,15 +1,18 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, searchByOrderDate } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, getOrderByIds, searchByOrderDate } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
 import { orderAlterPartialSchema } from "../schemas/orderAlterPartialSchema"
 import { alterDateOrderSchema } from "../schemas/alterDataOrderSchema"
+import { orderGenerateReleaseSchema } from "../schemas/orderGenerateReleaseSchema"
+import { returnValueTotal } from "../utils/returnValueTotal"
+import { getForIds } from "../services/treasury"
 
 export const getById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
-    if(!orderId){
+    if (!orderId) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -30,37 +33,37 @@ export const add: RequestHandler = async (req, res) => {
         return
     }
     const newOrder = await addOrder({
-        typeOperation : {
-            connect : {
-                id : safeData.data.id_type_operation
+        typeOperation: {
+            connect: {
+                id: safeData.data.id_type_operation
             }
         },
-        treasuryOrigin : {
-            connect : {
-                id : safeData.data.id_treasury_origin
+        treasuryOrigin: {
+            connect: {
+                id: safeData.data.id_treasury_origin
             }
         },
-        treasuryDestin : {
-            connect : {
-                id : safeData.data.id_treasury_destin
+        treasuryDestin: {
+            connect: {
+                id: safeData.data.id_treasury_destin
             }
         },
-        date_order:  returnDateFormatted(safeData.data.date_order),
-        typeOrder : {
-            connect : {
-                id : safeData.data.id_type_order
+        date_order: returnDateFormatted(safeData.data.date_order),
+        typeOrder: {
+            connect: {
+                id: safeData.data.id_type_order
             }
         },
         requested_value_A: safeData.data.requested_value_A,
         requested_value_B: safeData.data.requested_value_B,
         requested_value_C: safeData.data.requested_value_C,
         requested_value_D: safeData.data.requested_value_D,
-        statusOrder : {
-            connect : {
-                id :  safeData.data.status_order
+        statusOrder: {
+            connect: {
+                id: safeData.data.status_order
             }
         },
-        observation : safeData.data.observation === undefined ? '' : safeData.data.observation
+        observation: safeData.data.observation === undefined ? '' : safeData.data.observation
     })
     if (!newOrder) {
         res.status(401).json({ error: 'Erro ao salvar!' })
@@ -72,7 +75,7 @@ export const add: RequestHandler = async (req, res) => {
 
 export const alterRequestsById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
-    if(!orderId){
+    if (!orderId) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -82,10 +85,10 @@ export const alterRequestsById: RequestHandler = async (req, res) => {
         return
     }
     const newOrder = await alterRequestsOrderForID(parseInt(orderId), {
-        requested_value_A : safeData.data.requested_value_A,
-        requested_value_B : safeData.data.requested_value_B,
-        requested_value_C : safeData.data.requested_value_C,
-        requested_value_D : safeData.data.requested_value_D,
+        requested_value_A: safeData.data.requested_value_A,
+        requested_value_B: safeData.data.requested_value_B,
+        requested_value_C: safeData.data.requested_value_C,
+        requested_value_D: safeData.data.requested_value_D,
     })
     if (!newOrder) {
         res.status(401).json({ error: 'Erro ao salvar!' })
@@ -102,8 +105,8 @@ export const searchByDate: RequestHandler = async (req, res) => {
         return
     }
     const searchOrder = await searchByOrderDate({
-       date_initial : returnDateFormatted(safeData.data.date_initial),
-       date_final : returnDateFormatted(safeData.data.date_final),
+        date_initial: returnDateFormatted(safeData.data.date_initial),
+        date_final: returnDateFormatted(safeData.data.date_final),
     })
     if (!searchOrder) {
         res.status(401).json({ error: 'Erro ao salvar!' })
@@ -115,7 +118,7 @@ export const searchByDate: RequestHandler = async (req, res) => {
 
 export const delById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
-    if(!orderId){
+    if (!orderId) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -131,7 +134,7 @@ export const delById: RequestHandler = async (req, res) => {
 export const confirmTotal: RequestHandler = async (req, res) => {
     const safeData = req.body
 
-    if(safeData.length === 0){
+    if (safeData.length === 0) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -147,7 +150,7 @@ export const confirmTotal: RequestHandler = async (req, res) => {
 
 export const alterPartialByID: RequestHandler = async (req, res) => {
     const orderId = req.params.id
-    if(!orderId){
+    if (!orderId) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -157,8 +160,8 @@ export const alterPartialByID: RequestHandler = async (req, res) => {
         return
     }
     const order = await alterConfirmPatialById(parseInt(orderId), safeData.data)
-    
-   if (!order) {
+
+    if (!order) {
         res.status(401).json({ error: 'Erro ao alterar!' })
         return
     }
@@ -168,7 +171,7 @@ export const alterPartialByID: RequestHandler = async (req, res) => {
 
 export const alterDateOrder: RequestHandler = async (req, res) => {
     const orderId = req.params.id
-    if(!orderId){
+    if (!orderId) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
@@ -178,14 +181,68 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
         return
     }
     let data = {
-        date_order : returnDateFormatted(safeData.data.date_order)
+        date_order: returnDateFormatted(safeData.data.date_order)
     }
-    const order = await alterDateOrderById(parseInt(orderId), data )
-    
-   if (!order) {
+    const order = await alterDateOrderById(parseInt(orderId), data)
+
+    if (!order) {
         res.status(401).json({ error: 'Erro ao alterar!' })
         return
     }
 
     res.json({ order })
+}
+
+export const generateRelease: RequestHandler = async (req, res) => {
+
+    const safeData = orderGenerateReleaseSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+
+    const allOrders : any = await getOrderByIds(safeData.data)
+
+    const orders = []
+    const ids_treasuties = []
+    interface Treasury {
+        id: number;
+        name: string;
+        id_type_store: number;
+        account_number: string;
+        region: number;
+        bills_10: number;
+        bills_20: number;
+        bills_50: number;
+        bills_100: number;
+    }
+    for (let x = 0; (allOrders || []).length > x; x++) {
+        ids_treasuties.push(allOrders[x].id_treasury_origin)
+    }
+    const treasuries = await getForIds(ids_treasuties)
+    const treasuryMap = (treasuries || []).reduce((map, treasury) => {
+        map[treasury.id] = treasury; 
+        return map;
+    }, {} as Record<number, Treasury> )
+
+    const mergedData = allOrders?.map((order : any) => {
+        const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
+
+        return {
+            codigo: order.id_treasury_origin,
+            conta: treasury?.account_number,
+            tesouraria: treasury?.name,
+            regiao: treasury?.region,
+            valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
+            id_type_store: treasury?.id_type_store
+        };
+    });
+
+    console.log(mergedData);
+    if (!allOrders) {
+        res.status(401).json({ error: 'Erro ao alterar!' })
+        return
+    }
+
+    res.json({ order: allOrders })
 }

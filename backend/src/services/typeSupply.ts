@@ -2,7 +2,9 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
 export const getAllTypeSupply = async () => {
-    const typeSupply = await prisma.typeSupply.findMany()
+    const typeSupply = await prisma.typeSupply.findMany({  
+        where : { status : true }
+    })
     if(typeSupply){
         return typeSupply
     }

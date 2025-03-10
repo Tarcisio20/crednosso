@@ -9,20 +9,17 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
-import { typeSupplyType } from "@/types/typeSupplyType";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/status-order";
 import { statusOrderType } from "@/types/statusOrder";
 
-export default function TypeSupply() {
+export default function StatusOrder() {
 
   const router = useRouter()
 
   const [statusOrders, setStatusOrders] = useState<statusOrderType[]>()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-
 
   useEffect(() => {
     getAllStatusOrder();
@@ -32,7 +29,6 @@ export default function TypeSupply() {
     router.push('/status-order/add')
     return
   }
-
 
   const getAllStatusOrder = async () => {
     setError("");

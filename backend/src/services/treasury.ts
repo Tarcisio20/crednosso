@@ -3,12 +3,15 @@ import { prisma } from "../utils/prisma";
 
 
 export const getAllTreasury = async () => {
-    const treasury = await prisma.treasury.findMany()
+    const treasury = await prisma.treasury.findMany({
+        where : { status : true }
+    })
     if(treasury){
         return treasury
     }
     return null
 }
+
 
 export const getForIdSystem = async (id : string) => {
     const treasury = await prisma.treasury.findFirst({
@@ -19,6 +22,30 @@ export const getForIdSystem = async (id : string) => {
     }
     return null
 }
+
+export const getForIds = async (ids : number[]) => {
+    const treasury = await prisma.treasury.findMany({
+        where : { id : {
+            in : ids
+        } },
+        select : {
+            id : true,
+            name : true,
+            account_number : true,
+            region : true,
+            bills_10 : true,
+            bills_20 : true,
+            bills_50 : true,
+            bills_100 : true,
+            id_type_store : true
+        }
+    })
+    if(treasury){
+        return treasury
+    }
+    return null
+}
+
 
 export const addTreasury = async (data : Prisma.TreasuryCreateInput) => {
     const treasury = await prisma.treasury.create({ data })
