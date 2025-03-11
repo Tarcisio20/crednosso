@@ -26,6 +26,7 @@ mainRouter.get('/privateping',verifyJWT, pingController.privatePing)
 
 // TREASURY
 mainRouter.get('/treasury',verifyJWT, treasuryController.getAll)
+mainRouter.get('/treasury-pagination',verifyJWT, treasuryController.getAllPagination)
 mainRouter.get('/treasury/:id',verifyJWT, treasuryController.getByIdSystem)
 mainRouter.post('/treasury/add',verifyJWT, treasuryController.add)
 mainRouter.post('/treasury/add_saldo/:id',verifyJWT, treasuryController.addSaldo)

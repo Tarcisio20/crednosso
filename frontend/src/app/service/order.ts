@@ -257,6 +257,7 @@ export const genrerateRelaseById = async (data : number[],) => {
           Authorization: `Bearer ${token}`,
         },
       })
+
     return response
   } catch (error: any) {
     if (error.response) {

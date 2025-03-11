@@ -40,9 +40,13 @@ export default function TreasuryAdd() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+
+
+
   useEffect(() => {
     allLoadings();
   }, []);
+  
 
   const allLoadings = async () => {
     await getTypeSuplies()
@@ -128,7 +132,7 @@ export default function TreasuryAdd() {
     let data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
-      id_type_store : idTypeStore,
+      id_type_store : parseInt(idTypeStore),
       enabled_gmcore: enanbledGMcoreTreasury === "0" ? false : true,
       name: nameTreasury.toUpperCase(),
       short_name: nameRedTreasury.toUpperCase(),
@@ -137,7 +141,8 @@ export default function TreasuryAdd() {
       gmcore_number: numGMCoreTreasury === "" ? "0" : numGMCoreTreasury,
     };
     const treasury = await add(data);
-    if (treasury && treasury.data.treasury.id > 0) {
+    console.log(treasury)
+    if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
       setLoading(false);
       router.push("/treasury");
       return;

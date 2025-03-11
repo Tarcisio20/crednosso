@@ -25,6 +25,8 @@ import { statusOrderType } from "@/types/statusOrder";
 import { returnNameStatus } from "@/app/utils/returnNameStatus";
 import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
 import { ModalRelaunchOrder } from "@/app/components/ux/ModalRelaunchOrder";
+import { PdfGenerator } from "@/app/components/ux/PdfGenerator ";
+import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
 
 
 export default function Order() {
@@ -65,6 +67,9 @@ export default function Order() {
   const [valueAddD, setValueAddD] = useState(0)
 
   const [dateAlter, setDateAlter] = useState('')
+
+  const [elementRelaease, setElementRelease] = useState<pdfGeneratorReleaseType[]>([])
+  const [modalGenerateRealse, setModalGenerateRelease] = useState(false)
 
   useEffect(() => {
     allLoading()
@@ -532,9 +537,20 @@ export default function Order() {
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
-
+    
     const gRelease = await genrerateRelaseById(idsSelected)
+    if(gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500){
+      setError("Erro na requisição!")
+      setLoading(false)
+      return
+    }
 
+    console.log(gRelease.data.order)
+
+    setElementRelease(gRelease.data.order)
+    setModalGenerateRelease(true)
+    setError('')
+    setLoading(false)
   }
 
   return (
@@ -800,6 +816,9 @@ export default function Order() {
           error={error}
         />
       }
+      {modalGenerateRealse && 
+        <PdfGenerator data={elementRelaease} onClose={()=>setModalGenerateRelease(!modalGenerateRealse)} />
+        }
     </Page>
 
   )

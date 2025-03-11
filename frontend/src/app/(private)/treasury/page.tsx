@@ -13,41 +13,53 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
-import { getAll } from "@/app/service/treasury";
+import { getAll, getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
+import { Pagination } from "@/app/components/ux/Pagination";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function Treasury() {
   const router = useRouter();
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>();
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type : '', title : '', messege : '' });
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 15;
+
   useEffect(() => {
-    getAllTreasury();
-  }, []);
+    loadTreasuries();
+  }, [currentPage]);
+
+
+  const loadTreasuries = async () => {
+    setError({
+      type : '',
+      title : '',
+      messege : ''
+    });
+    setLoading(false);
+    setLoading(true);
+    const treasury = await getAllTreasuryPagination(currentPage, pageSize);
+    if (treasury) {
+      setTreasuries(treasury.data);
+      setTotalPages(treasury.meta.totalPages);
+      setLoading(false);
+      setError({ type : '', title : '', messege : '' });
+      return;
+    }
+    setError({ type : 'error', title : 'Error', messege : 'Sem dados a mostrar' })
+    setLoading(false);
+    return;
+  };
 
   const handleAdd = () => {
     router.push("/treasury/add");
-  };
-
-  const getAllTreasury = async () => {
-    setError("");
-    setLoading(false);
-    setLoading(true);
-    const treasury = await getAll();
-    if (treasury.data.treasury.length > 0) {
-      setTreasuries(treasury.data.treasury);
-      setLoading(false);
-      return;
-    } else {
-      setError("Sem dados a mostrar");
-      setLoading(false);
-      return;
-    }
   };
 
   return (
@@ -113,10 +125,16 @@ export default function Treasury() {
             ))}
           </tbody>
         </table>
-        {error && (
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
+        {treasuries &&
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
+        }
+
+        {error.messege && (
+          <Messeger type={error?.type} title={error. title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

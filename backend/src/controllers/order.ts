@@ -234,15 +234,15 @@ export const generateRelease: RequestHandler = async (req, res) => {
             tesouraria: treasury?.name,
             regiao: treasury?.region,
             valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
-            id_type_store: treasury?.id_type_store
+            id_type_store: treasury?.id_type_store,
+            date : order.date_order
         };
     });
 
-    console.log(mergedData);
-    if (!allOrders) {
+    if (!mergedData) {
         res.status(401).json({ error: 'Erro ao alterar!' })
         return
     }
 
-    res.json({ order: allOrders })
+    res.json({ order: mergedData })
 }

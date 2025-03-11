@@ -1,4 +1,4 @@
-export const formatDateToString = (dateString: string): string => {
+export const formatDateToStringForTitle = (dateString: string): string => {
     const date = new Date(dateString);
   
     // Extrai dia, mês e ano
@@ -6,6 +6,5 @@ export const formatDateToString = (dateString: string): string => {
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Mês com 2 dígitos (janeiro é 0)
     const year = date.getUTCFullYear(); // Ano com 4 dígitos
   
-    // Retorna no formato "DD/MM/YYYY"
-    return `${day}/${month}/${year}`;
+    return `${day}-${month}-${year}`;
   }
