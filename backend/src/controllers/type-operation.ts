@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { typeOperationdAddSchema } from "../schemas/typeOperationAddSchema"
-import { addTypeOperation, getAllTypeOperation, getTypeOperationForId, updateTypeOperation } from "../services/typeOperation"
+import { addTypeOperation, getAllTypeOperation, getAllTypeOperationPagination, getTypeOperationForId, updateTypeOperation } from "../services/typeOperation"
 
 
 export const getAll : RequestHandler = async (req, res) => {
@@ -12,6 +12,20 @@ export const getAll : RequestHandler = async (req, res) => {
    res.json({ typeOperation })
 
 }
+
+export const getAllPagination : RequestHandler = async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 15;
+    const skip = (page - 1) * pageSize;
+
+    const typeOperation = await getAllTypeOperationPagination(page, pageSize)
+    if(!typeOperation) {
+     res.status(401).json({ error : 'Erro ao carregar!' })
+     return
+    }
+    res.json({ typeOperation })
+ 
+ }
 
 export const getById : RequestHandler = async (req, res) => {
     const typeOperationId = req.params.id

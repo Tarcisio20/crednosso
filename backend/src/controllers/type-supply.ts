@@ -3,6 +3,7 @@ import { typeSupplyAddSchema } from "../schemas/typeSupplyAddSchema";
 import {
   addTypeSupply,
   getAllTypeSupply,
+  getAllTypeSupplyPagination,
   getTypeSupplyForId,
   updateTypeSupply,
 } from "../services/typeSupply";
@@ -15,6 +16,20 @@ export const getAll: RequestHandler = async (req, res) => {
   }
   res.json({ typeSupply });
 };
+
+export const getAllPagination : RequestHandler = async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const pageSize = parseInt(req.query.pageSize as string) || 15;
+  const skip = (page - 1) * pageSize;
+
+  const typeSupply = await getAllTypeSupplyPagination(page, pageSize);
+  if (!typeSupply) {
+    res.status(401).json({ error: "Erro ao carregar!" });
+    return;
+  }
+  res.json({ typeSupply });
+};
+
 
 export const getById: RequestHandler = async (req, res) => {
   const typeSupplyId = req.params.id;

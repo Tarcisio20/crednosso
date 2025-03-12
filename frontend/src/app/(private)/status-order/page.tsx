@@ -10,46 +10,53 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
-import { getAll } from "@/app/service/status-order";
+import { getAll, getAllPagination } from "@/app/service/status-order";
 import { statusOrderType } from "@/types/statusOrder";
+import { Messeger } from "@/app/components/ux/Messeger";
+import { Pagination } from "@/app/components/ux/Pagination";
 
 export default function StatusOrder() {
 
   const router = useRouter()
 
   const [statusOrders, setStatusOrders] = useState<statusOrderType[]>()
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 15;
+
   useEffect(() => {
-    getAllStatusOrder();
-  }, []);
+    loadStatusOrderPagination();
+  }, [currentPage]);
 
   const handleAdd = () => {
     router.push('/status-order/add')
     return
   }
 
-  const getAllStatusOrder = async () => {
-    setError("");
+  const loadStatusOrderPagination = async () => {
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
-    const statusOrder = await getAll();
-    if(statusOrder.status === 300 || statusOrder.status === 400 || statusOrder.status === 500){
-      setError("Erro de requisição");
+    const statusOrder = await getAllPagination(currentPage, pageSize);
+    if (statusOrder.status === 300 || statusOrder.status === 400 || statusOrder.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
       return;
     }
-    if (statusOrder.data.statusOrder && statusOrder.data.statusOrder[0]?.id) {
-      setStatusOrders(statusOrder.data.statusOrder);
+    if (statusOrder.data && statusOrder.data[0].id > 0) {
+      setStatusOrders(statusOrder.data);
+      setTotalPages(statusOrder.meta.totalPages);
       setLoading(false);
       return;
     } else {
-      setError("Sem dados a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
       return;
     }
-  };
+  }
 
   return (
     <Page>
@@ -85,16 +92,21 @@ export default function StatusOrder() {
             ))}
           </tbody>
         </table>
-        {error &&
-          <div>
-            <p className='text-white'>Sem dados a mostrar</p>
-          </div>
+        {statusOrders && totalPages > 1 &&
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
         }
+        {error.messege && (
+          <Messeger type={error?.type} title={error.title} messege={error.messege} />
+        )}
         {loading &&
           <Loading />
         }
       </div>
     </Page>
   );
- 
+
 }

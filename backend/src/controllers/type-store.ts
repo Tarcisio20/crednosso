@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { addTypeStore, deleteTypeStore, getAllTypeStores, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
+import { addTypeStore, deleteTypeStore, getAllTypeStores, getAllTypeStoresPagination, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
 import { typeStoreAddSchema } from "../schemas/typeStoreAddSchema";
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -10,6 +10,20 @@ export const getAll: RequestHandler = async (req, res) => {
   }
   res.json({ typeStore });
 };
+
+export const getAllPagination : RequestHandler = async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const pageSize = parseInt(req.query.pageSize as string) || 15;
+  const skip = (page - 1) * pageSize;
+
+  const typeStore = await getAllTypeStoresPagination(page, pageSize);
+  if (!typeStore) {
+    res.status(401).json({ error: "Erro ao carregar!" });
+    return;
+  }
+  res.json({ typeStore });
+};
+
 
 export const add: RequestHandler = async (req, res) => {
   const safeData = typeStoreAddSchema.safeParse(req.body);

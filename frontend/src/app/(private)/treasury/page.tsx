@@ -13,7 +13,7 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
-import { getAll, getAllTreasuryPagination } from "@/app/service/treasury";
+import { getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
@@ -125,7 +125,7 @@ export default function Treasury() {
             ))}
           </tbody>
         </table>
-        {treasuries &&
+        {treasuries && totalPages > 1 && 
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

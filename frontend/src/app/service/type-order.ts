@@ -31,6 +31,45 @@ export const getAll = async () => {
   }
 }
 
+export const getAllPagination = async (page: number, pageSize: number) => {
+  const token = Cookies.get('tokenSystemCredNosso')
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/type-order-pagination`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        page: page,
+        pageSize: pageSize
+      }
+    })
+    return {
+      data : response.data.typeOrder.data,
+      meta: {
+        totalItems :  response.data.typeOrder.totalItems,
+        totalPages : response.data.typeOrder.totalPages
+      }
+    }
+  } catch (error: any) {
+    if (error.response) {
+      // Erro retornado pela API (ex: status 400, 500, etc.)
+      const { message } = error.response.data; // Captura a mensagem de erro
+      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return message;
+    } else if (error.request) {
+      // Erro de conexão (não houve resposta do servidor)
+      console.error("Erro de conexão:", error.request);
+      return error.request;
+    } else {
+      // Erro genérico (ex: erro ao configurar a requisição)
+      console.error("Erro:", error.message);
+      return error.message;
+    }
+  }
+}
+
+
 export const getTypeOrderForId = async (id: string) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {

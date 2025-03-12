@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, getOrderByIds, searchByOrderDate } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -116,6 +116,31 @@ export const searchByDate: RequestHandler = async (req, res) => {
     res.json({ order: searchOrder })
 }
 
+export const searchByDatePagination : RequestHandler = async (req, res) => {
+    const safeData = orderSearchDateSchema.safeParse(req.body)
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const pageSize = parseInt(req.query.pageSize as string, 10) || 13;
+    const skip = (page - 1) * pageSize;
+
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const searchOrder = await searchByOrderDatePagination({
+        date_initial: returnDateFormatted(safeData.data.date_initial),
+        date_final: returnDateFormatted(safeData.data.date_final),
+        page,
+        pageSize
+    })
+    if (!searchOrder) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ order: searchOrder })
+}
+
+
 export const delById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
     if (!orderId) {
@@ -202,11 +227,10 @@ export const generateRelease: RequestHandler = async (req, res) => {
     }
 
     const allOrders : any = await getOrderByIds(safeData.data)
-
     const orders = []
-    const ids_treasuties = []
+    const ids_treasuries = []
     interface Treasury {
-        id: number;
+        id_system: number;
         name: string;
         id_type_store: number;
         account_number: string;
@@ -217,11 +241,12 @@ export const generateRelease: RequestHandler = async (req, res) => {
         bills_100: number;
     }
     for (let x = 0; (allOrders || []).length > x; x++) {
-        ids_treasuties.push(allOrders[x].id_treasury_origin)
+        ids_treasuries.push(allOrders[x].id_treasury_origin)
     }
-    const treasuries = await getForIds(ids_treasuties)
+    const treasuries = await getForIds(ids_treasuries)
+    console.log("Tesrouarias", treasuries)
     const treasuryMap = (treasuries || []).reduce((map, treasury) => {
-        map[treasury.id] = treasury; 
+        map[treasury.id_system] = treasury; 
         return map;
     }, {} as Record<number, Treasury> )
 

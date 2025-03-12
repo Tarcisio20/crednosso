@@ -13,7 +13,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genrerateRelaseById, searchOrdersForDate } from "@/app/service/order";
+import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genrerateRelaseById, searchOrdersForDate, searchOrdersForDatePagination } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -27,6 +27,9 @@ import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
 import { ModalRelaunchOrder } from "@/app/components/ux/ModalRelaunchOrder";
 import { PdfGenerator } from "@/app/components/ux/PdfGenerator ";
 import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
+import { returnNameTypeOperation } from "@/app/utils/returnNameTypeOperation";
+import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
+import { returnIfMateus } from "@/app/utils/returnIfMateus";
 
 
 export default function Order() {
@@ -70,6 +73,15 @@ export default function Order() {
 
   const [elementRelaease, setElementRelease] = useState<pdfGeneratorReleaseType[]>([])
   const [modalGenerateRealse, setModalGenerateRelease] = useState(false)
+
+  const [totalOrder, setTotalOrder] = useState(0)
+  const [totalOrderMateus, setTotalOrderMateus] = useState(0)
+  const [totalOrderPosterus, setTotalOrderPOsterus] = useState(0)
+  const [totalOrderConfirmmed, setTotalOrderConfirmmed] = useState(0)
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 12;
 
   useEffect(() => {
     allLoading()
@@ -182,23 +194,44 @@ export default function Order() {
     setOrders([])
     let data = {
       date_initial: dateInitial,
-      date_final: dateFinal === '' ? dateInitial : dateFinal
+      date_final: dateFinal === '' ? dateInitial : dateFinal,
     }
+    // const orderSarch = await searchOrdersForDatePagination(data, currentPage, pageSize)
     const orderSarch = await searchOrdersForDate(data)
     if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
       setError("Erro de requisição")
       setLoading(false)
       return
     }
-    if (orderSarch.data.order.length  > 0) {
+    console.log(orderSarch.data.order)
+    if (orderSarch.data.order && orderSarch.data.order.length > 0) {
       setOrders(orderSarch.data.order)
       let elements: any = []
-      orderSarch.data.order.forEach((item: any) => (
+      let sum = 0
+      let sumConfirmmed = 0
+      let sumMateus = 0
+      let sumPosterus = 0
+      orderSarch.data.order.forEach((item: orderType) => {
+        let value = 0
+        let valueConfirmmed = 0
         elements.push({
-          id: item.id,
+          id: item.id_treasury_origin,
           status: false
         })
-      ))
+        value = (item.requested_value_A * 10) + (item.requested_value_B * 20) + (item.requested_value_C * 50) + (item.requested_value_D * 100)
+        valueConfirmmed = (item?.confirmed_value_A || 0 * 10) + (item.confirmed_value_B || 0 * 20) + (item.confirmed_value_C || 0 * 50) + (item.confirmed_value_D || 0 * 100)
+        sumConfirmmed = sumConfirmmed + valueConfirmmed
+        sum = sum + value
+        if(returnIfMateus(treasuries, item.id_treasury_origin)){
+          sumMateus = sumMateus + value
+          setTotalOrderMateus(sumMateus)
+        }else{
+          sumPosterus = sumPosterus + value
+          setTotalOrderPOsterus(sumPosterus)
+        }
+        setTotalOrderConfirmmed(sumConfirmmed)
+        setTotalOrder(sum)
+    })
       setItemsChecks(elements)
       setError('')
       setLoading(false)
@@ -537,15 +570,12 @@ export default function Order() {
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
-    
     const gRelease = await genrerateRelaseById(idsSelected)
     if(gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500){
       setError("Erro na requisição!")
       setLoading(false)
       return
     }
-
-    console.log(gRelease.data.order)
 
     setElementRelease(gRelease.data.order)
     setModalGenerateRelease(true)
@@ -613,7 +643,8 @@ export default function Order() {
           >Excluir</ButtonScreenOrder>
         </div>
         <div className="h-1 bg-zinc-500 w-full"></div>
-        <div className="flex gap-2 items-center" >
+        <div className="flex flex-row gap-2 items-center justify-between pr-6" >
+          <div >
           <input
             type="checkbox"
             className="w-4 h-4 outline-none"
@@ -621,6 +652,23 @@ export default function Order() {
             onChange={handleToggleSelect}
           />
           <label>{toggleChecks ? 'Desmarcar' : 'Selecionar'} tudo</label>
+          </div>
+          
+          <div className="flex flex-row gap-3">
+            <div className="bg-[#c3d2ea] p-1 text-black font-bold rounded-md">
+              <label>TOTAL PEDIDO: {generateTotalInReal(totalOrder)}</label>
+            </div>
+            <div className="bg-[#c3d2ea] p-1 text-black font-bold rounded-md">
+              <label>PEDIDO MATEUS: {generateTotalInReal(totalOrderMateus)}</label>
+            </div>
+            <div className="bg-[#c3d2ea] p-1 text-black font-bold rounded-md">
+              <label>PEDIDO POSTEUS: {generateTotalInReal(totalOrderPosterus)}</label>
+            </div>
+            <div className="bg-[#c3d2ea] p-1 text-black font-bold rounded-md">
+              <label>TOTAL REALIZADO: {generateTotalInReal(totalOrderConfirmmed)}</label>
+            </div>
+          </div>
+
         </div>
         <table className="flex-1 text-center p-3" width="100%">
           <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">
@@ -647,17 +695,17 @@ export default function Order() {
                     className="w-4 h-4 outline-none"
                     id={item.id?.toString()}
                     value=""
-                    onChange={() => handleIndividualCheck(item.id as number)}
+                    onChange={() => handleIndividualCheck(item.id_treasury_origin as number)}
                     checked={
-                      itemsChecks.find(i => i.id === item.id)?.status || false
+                      itemsChecks.find(i => i.id === item.id_treasury_origin)?.status || false
                     }
                   />
                 </td>
-                <td>{item.id_type_operation}</td>
-                <td>{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
+                <td>{returnNameTypeOperation(typeOperations, item.id_type_operation)}</td>
                 <td>{item.id_treasury_origin}</td>
-                <td>{returnNameTreasury(treasuries, item.id_treasury_destin)}</td>
+                <td>{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
                 <td>{item.id_treasury_destin}</td>
+                <td>{returnNameTreasury(treasuries, item.id_treasury_destin)}</td>
                 <td>{formatDateToString(item.date_order)}</td>
                 <td>{generateValueTotal(
                   item.requested_value_A as number, item.requested_value_B as number,

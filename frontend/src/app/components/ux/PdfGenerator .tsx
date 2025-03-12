@@ -17,6 +17,8 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const dadosMateus = data.filter(item => item.id_type_store === 1);
   const dadosPosterus = data.filter(item => item.id_type_store === 2);
 
+  console.log(data)
+
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
     const valorLimpo = valorString
@@ -27,8 +29,6 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
     const numero = parseFloat(valorLimpo);
     return isNaN(numero) ? 0 : numero;
   };
-
-
 
   const calcularTotal = (dados: typeof data) => {
     return dados.reduce((acc, item) => {

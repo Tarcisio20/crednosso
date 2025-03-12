@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
+import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/status-order";
@@ -18,15 +19,15 @@ export default function TypeOperationAdd() {
   const router = useRouter();
 
   const [nameStatusOrder, setNameStatusOrder] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const addStatusOrder = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
-    if (!validateField(nameStatusOrder) ) {
-      setError("Favor preencher todos os campos corretamente!");
+    if (!validateField(nameStatusOrder)) {
+      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencha todos os campos corretamente!' });
       setLoading(false);
       return;
     }
@@ -34,18 +35,18 @@ export default function TypeOperationAdd() {
       name: nameStatusOrder.toUpperCase(),
     };
     const newStatusOrder = await add(data);
-    if(newStatusOrder.status === 300 || newStatusOrder.status === 400 || newStatusOrder.status === 500){
+    if (newStatusOrder.status === 300 || newStatusOrder.status === 400 || newStatusOrder.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
-      setError("Erro de requisição!");
       return;
     }
     if (newStatusOrder.data.statusOrder && newStatusOrder.data.statusOrder?.id) {
+      setError({ type: 'success', title: 'Success', messege: 'Status do Pedido salvo com sucesso!' });
       setLoading(false);
-      router.push("/status-order");
       return;
     } else {
       setLoading(false);
-      setError("Erro ao salvar!");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
       return;
     }
   };
@@ -58,8 +59,8 @@ export default function TypeOperationAdd() {
       <div className="flex flex-col gap-8 p-5 w-full">
         <div className="flex flex-col gap-5">
           <label className="uppercase leading-3 font-bold">Nome</label>
-          <Input color="#DDDD" placeholder="Digite o nome do Status do Pedido" size="extra-large" 
-          value={nameStatusOrder} onChange={(e)=>setNameStatusOrder(e.target.value)} icon={faLandmark} />
+          <Input color="#DDDD" placeholder="Digite o nome do Status do Pedido" size="extra-large"
+            value={nameStatusOrder} onChange={(e) => setNameStatusOrder(e.target.value)} icon={faLandmark} />
         </div>
         <div className="flex flex-col gap-5">
           <Button
@@ -72,7 +73,9 @@ export default function TypeOperationAdd() {
             Cadastrar
           </Button>
         </div>
-        {error && <div className="text-white">{error}</div>}
+        {error.messege && (
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
+        )}
         {loading && <Loading />}
       </div>
     </Page>

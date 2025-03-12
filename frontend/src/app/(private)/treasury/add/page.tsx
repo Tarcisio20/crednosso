@@ -20,6 +20,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function TreasuryAdd() {
   const router = useRouter();
@@ -37,16 +38,13 @@ export default function TreasuryAdd() {
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState("");
   const [regionTreasury, setRegionTreasury] = useState("");
   const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState("1");
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
-
-
-
 
   useEffect(() => {
     allLoadings();
   }, []);
-  
+
 
   const allLoadings = async () => {
     await getTypeSuplies()
@@ -54,17 +52,12 @@ export default function TreasuryAdd() {
   }
 
   const getTypeSuplies = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const tSupplies = await getAllSuppy();
-
-    if (
-      tSupplies.status === 300 &&
-      tSupplies.status === 400 &&
-      tSupplies.status === 500
-    ) {
-      setError("Sem dados a mostrar, tente novamente!");
+    if (tSupplies.status === 300 && tSupplies.status === 400 && tSupplies.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -75,23 +68,18 @@ export default function TreasuryAdd() {
       setLoading(false);
       return;
     }
-    setError("Erro ao retornar dados");
+    setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados' });
     setLoading(false);
     return;
   };
 
   const getTypeStore = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const tStore = await getAllStores()
-    console.log(tStore.data.typeStore)
-    if (
-      tStore.status === 300 &&
-      tStore.status === 400 &&
-      tStore.status === 500
-    ) {
-      setError("Sem dados a mostrar, tente novamente!");
+    if (tStore.status === 300 && tStore.status === 400 && tStore.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -102,13 +90,13 @@ export default function TreasuryAdd() {
       setLoading(false);
       return;
     }
-    setError("Erro ao retornar dados");
+    setError({ type: 'error', title: 'Error', messege: "Erro ao retornar dados" });
     setLoading(false);
     return;
   }
 
   const cadTeasury = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
 
@@ -122,9 +110,11 @@ export default function TreasuryAdd() {
       idTypeSupply === "" ||
       idTypeStore === ""
     ) {
-      setError(
-        "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
-      );
+      setError({
+        type: 'error',
+        title: 'Error',
+        messege: "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
+      });
       setLoading(false);
       return;
     }
@@ -132,7 +122,7 @@ export default function TreasuryAdd() {
     let data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
-      id_type_store : parseInt(idTypeStore),
+      id_type_store: parseInt(idTypeStore),
       enabled_gmcore: enanbledGMcoreTreasury === "0" ? false : true,
       name: nameTreasury.toUpperCase(),
       short_name: nameRedTreasury.toUpperCase(),
@@ -141,13 +131,21 @@ export default function TreasuryAdd() {
       gmcore_number: numGMCoreTreasury === "" ? "0" : numGMCoreTreasury,
     };
     const treasury = await add(data);
-    console.log(treasury)
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
+      setIdTypeSupply("1");
+      setIdTypeStore("1");
+      setIdSystemTreasury("");
+      setNameTreasury("");
+      setNameRedTreasury("");
+      setNumContaTreasury("");
+      setNumGMCoreTreasury("");
+      setRegionTreasury("");
+      setEnanbledGMcoreTreasury("1");
+      setError({ type: 'success', title: 'Success', messege: 'Item salvo' });
       setLoading(false);
-      router.push("/treasury");
       return;
     } else {
-      setError("Sem dados a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar' });
       setLoading(false);
       return;
     }
@@ -334,14 +332,15 @@ export default function TreasuryAdd() {
               Cadastrar
             </Button>
           </div>
-          {error && (
-            <div>
-              <p className="text-white">{error}</p>
-            </div>
+         
+        </div>
+        
+        {error.messege && (
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
           )}
           {loading && <Loading />}
-        </div>
       </div>
+     
     </Page>
   );
 }

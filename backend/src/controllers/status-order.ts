@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { statusOrderAddSchema } from "../schemas/statusOrderAddSchema"
-import { addStatusOrder, getAllStatusOrder, getStatusOrderForId, updateStatusOrder } from "../services/statusOrder"
+import { addStatusOrder, getAllStatusOrder, getAllStatusOrderPagination, getStatusOrderForId, updateStatusOrder } from "../services/statusOrder"
 
 
 export const getAll : RequestHandler = async (req, res) => {
@@ -12,6 +12,21 @@ export const getAll : RequestHandler = async (req, res) => {
    res.json({ statusOrder })
 
 }
+
+export const getAllPagination : RequestHandler = async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 15;
+    const skip = (page - 1) * pageSize;
+
+    const statusOrder = await getAllStatusOrderPagination(page, pageSize)
+    if(!statusOrder) {
+     res.status(401).json({ error : 'Erro ao carregar!' })
+     return
+    }
+    res.json({ statusOrder })
+ 
+ }
+ 
 
 export const getById : RequestHandler = async (req, res) => {
     const statusOrderId = req.params.id

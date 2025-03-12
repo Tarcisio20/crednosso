@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { typeOrderAddSchema } from "../schemas/typeOrderAddSchema"
-import { addTypeOrder, getAllTypeOrder, getTypeOrderForId, updateTypeOrder } from "../services/typeOrder"
+import { addTypeOrder, getAllTypeOrder, getAllTypeOrderPagination, getTypeOrderForId, updateTypeOrder } from "../services/typeOrder"
 
 export const getAll : RequestHandler = async (req, res) => {
    const typeOrder = await getAllTypeOrder()
@@ -11,6 +11,20 @@ export const getAll : RequestHandler = async (req, res) => {
    res.json({ typeOrder })
 
 }
+
+export const getAllPagination : RequestHandler = async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 15;
+    const skip = (page - 1) * pageSize;
+
+    const typeOrder = await getAllTypeOrderPagination(page, pageSize)
+    if(!typeOrder) {
+     res.status(401).json({ error : 'Erro ao carregar!' })
+     return
+    }
+    res.json({ typeOrder })
+ 
+ }
 
 export const getById : RequestHandler = async (req, res) => {
     const typeOrderId = req.params.id

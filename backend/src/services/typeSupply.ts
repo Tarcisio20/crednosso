@@ -11,6 +11,33 @@ export const getAllTypeSupply = async () => {
     return null
 }
 
+export const getAllTypeSupplyPagination = async (page: number, pageSize: number) => {
+    try {
+        const skip = (page - 1) * pageSize;
+        const [data, totalItems] = await prisma.$transaction([
+            prisma.typeSupply.findMany({
+                skip: skip,
+                take: pageSize,
+                where: { status: true },
+                orderBy: { id: 'asc' }
+            }),
+            prisma.typeSupply.count({
+                where: { status: true }
+            })
+        ])
+
+        return {
+            data,
+            totalItems,
+            totalPages: Math.ceil(totalItems / pageSize)
+        };
+    } catch (error) {
+        console.error('Erro no service:', error);
+        return null;
+    }
+}
+
+
 export const getTypeSupplyForId = async (id : string) => {
     const typeSupply = await prisma.typeSupply.findFirst({
         where : { id : parseInt(id) }

@@ -11,49 +11,57 @@ import { useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeStoreType } from "@/types/typeStoreType";
-import { del, getAll } from "@/app/service/type-store";
+import { del, getAllTypeStorePagination } from "@/app/service/type-store";
+import { Pagination } from "@/app/components/ux/Pagination";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function TypeStore() {
 
   const router = useRouter()
 
   const [typeStores, setTypeStores] = useState<typeStoreType[]>()
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 15;
+
+
   useEffect(() => {
-    getAllTypeStore();
-  }, []);
+    loadTypeStorePagination();
+  }, [currentPage]);
+
 
   const handleAdd = () => {
     router.push('/type-store/add')
     return
   }
 
-  const getAllTypeStore = async () => {
-    setError("");
+  const loadTypeStorePagination = async () => {
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
-    const tStores = await getAll();
-    console.log(tStores)
-    if(tStores.status === 300 || tStores.status === 400 || tStores.status === 500 ){
-      setError("Erro na requisição");
+    const tStores = await getAllTypeStorePagination(currentPage, pageSize)
+    if (tStores.status === 300 || tStores.status === 400 || tStores.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' });
       setLoading(false);
       return;
     }
-    if (tStores.data.typeStore && tStores.data.typeStore.length > 0) {
-      setTypeStores(tStores.data.typeStore);
+    if (tStores.data && tStores.data.length > 0) {
+      setTypeStores(tStores.data);
+      setTotalPages(tStores.meta.totalPages);
       setLoading(false);
       return;
     } else {
-      setError("Sem dados a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar' });
       setLoading(false);
       return;
     }
-  };
+  }
 
-  const handleDelTypeStoreById = async (id : number) => {
-    setError('')
+  const handleDelTypeStoreById = async (id: number) => {
+    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     const delTSore = await del(id)
@@ -88,7 +96,7 @@ export default function TypeStore() {
                   <Link href={`/type-store/del/${item.id}`}>
                     {item.status === true ?
                       <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                    :
+                      :
                       <FontAwesomeIcon icon={faBan} size="1x" color="#BF6C6C" />
                     }
                   </Link>
@@ -97,16 +105,21 @@ export default function TypeStore() {
             ))}
           </tbody>
         </table>
-        {error &&
-          <div>
-            <p className='text-white'>Sem dados a mostrar</p>
-          </div>
+        {typeStores && totalPages > 1 &&
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
         }
+        {error.messege && (
+          <Messeger type={error?.type} title={error.title} messege={error.messege} />
+        )}
         {loading &&
           <Loading />
         }
       </div>
     </Page>
   );
- 
+
 }

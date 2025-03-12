@@ -11,6 +11,32 @@ export const getAllStatusOrder = async () => {
     return null
 }
 
+export const getAllStatusOrderPagination = async (page: number, pageSize: number) => {
+    try {
+        const skip = (page - 1) * pageSize;
+        const [data, totalItems] = await prisma.$transaction([
+            prisma.statusOrder.findMany({
+                skip: skip,
+                take: pageSize,
+                where: { status: true },
+                orderBy: { id: 'asc' }
+            }),
+            prisma.statusOrder.count({
+                where: { status: true }
+            })
+        ])
+
+        return {
+            data,
+            totalItems,
+            totalPages: Math.ceil(totalItems / pageSize)
+        };
+    } catch (error) {
+        console.error('Erro no service:', error);
+        return null;
+    }
+}
+
 export const getStatusOrderForId = async (id : string) => {
     const statusOrder = await prisma.statusOrder.findFirst({
         where : { id : parseInt(id) }

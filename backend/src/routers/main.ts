@@ -41,12 +41,14 @@ mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
 
 // type-operation
 mainRouter.get('/type-operation',verifyJWT, typeOperationController.getAll)
+mainRouter.get('/type-operation-pagination',verifyJWT, typeOperationController.getAllPagination)
 mainRouter.get('/type-operation/:id',verifyJWT, typeOperationController.getById)
 mainRouter.post('/type-operation/add',verifyJWT, typeOperationController.add)
 mainRouter.post('/type-operation/update/:id',verifyJWT, typeOperationController.update)
 
 // type-order
 mainRouter.get('/type-order',verifyJWT, typeOrderController.getAll)
+mainRouter.get('/type-order-pagination',verifyJWT, typeOrderController.getAllPagination)
 mainRouter.get('/type-order/:id',verifyJWT, typeOrderController.getById)
 mainRouter.post('/type-order/add',verifyJWT, typeOrderController.add)
 mainRouter.post('/type-order/update/:id',verifyJWT, typeOrderController.update)
@@ -66,6 +68,7 @@ mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.up
 
 // type-supply
 mainRouter.get('/type-supply',verifyJWT, typeSupplyController.getAll)
+mainRouter.get('/type-supply-pagination',verifyJWT, typeSupplyController.getAllPagination)
 mainRouter.get('/type-supply/:id',verifyJWT, typeSupplyController.getById)
 mainRouter.post('/type-supply/add',verifyJWT, typeSupplyController.add)
 mainRouter.post('/type-supply/update/:id',verifyJWT, typeSupplyController.update)
@@ -73,6 +76,7 @@ mainRouter.post('/type-supply/update/:id',verifyJWT, typeSupplyController.update
 
 // status order
 mainRouter.get('/status-order',verifyJWT, statusOrderController.getAll)
+mainRouter.get('/status-order-pagination',verifyJWT, statusOrderController.getAllPagination)
 mainRouter.get('/status-order/:id',verifyJWT, statusOrderController.getById)
 mainRouter.post('/status-order/add',verifyJWT, statusOrderController.add)
 mainRouter.post('/status-order/update/:id',verifyJWT, statusOrderController.update)
@@ -84,6 +88,7 @@ mainRouter.post('/order/confirm-partial/:id',verifyJWT, orderController.alterPar
 mainRouter.post('/order/alter-order-requests/:id',verifyJWT, orderController.alterRequestsById)
 mainRouter.post('/order/alter-date-order/:id',verifyJWT, orderController.alterDateOrder)
 mainRouter.post('/order/search-by-date',verifyJWT, orderController.searchByDate)
+mainRouter.post('/order/search-by-date-pagination',verifyJWT, orderController.searchByDatePagination)
 mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
 mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRelease)
@@ -91,6 +96,7 @@ mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRel
 
 // type store
 mainRouter.get('/type-store',verifyJWT, typeStoreController.getAll)
+mainRouter.get('/type-store-pagination',verifyJWT, typeStoreController.getAllPagination)
 mainRouter.get('/type-store/:id',verifyJWT, typeStoreController.getById)
 mainRouter.post('/type-store/add',verifyJWT, typeStoreController.add)
 mainRouter.post('/type-store/update/:id',verifyJWT, typeStoreController.update)

@@ -53,12 +53,12 @@ export const getForIdSystem = async (id: string) => {
 export const getForIds = async (ids: number[]) => {
     const treasury = await prisma.treasury.findMany({
         where: {
-            id: {
+            id_system: {
                 in: ids
             }
         },
         select: {
-            id: true,
+            id_system: true,
             name: true,
             account_number: true,
             region: true,

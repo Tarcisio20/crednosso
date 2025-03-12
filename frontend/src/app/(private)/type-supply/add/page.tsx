@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
+import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/type-supply";
@@ -15,15 +16,15 @@ export default function TypeSupplyAdd() {
   const router = useRouter();
 
   const [nameTypeSupply, setNameTypeSupply] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const addTypeSupply = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     if (!validateField(nameTypeSupply)) {
-      setError("Preencher todos os dados!");
+      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencher todos os dados!' });
       setLoading(false);
       return;
     }
@@ -33,11 +34,11 @@ export default function TypeSupplyAdd() {
     const newTypeSupply = await add(data);
     if (newTypeSupply.data.typeSupply.id > 0) {
       setLoading(false);
-      setError("");
+      setError({ type: 'success', title: 'Success', messege: 'Tipo de abastecimento salvo com sucesso!' });
       router.push("/type-supply");
       return;
     }
-    setError("Erro ao salvar!");
+    setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
     setLoading(false);
     return;
   };
@@ -70,10 +71,8 @@ export default function TypeSupplyAdd() {
             Cadastrar
           </Button>
         </div>
-        {error && (
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
+        {error.messege && (
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

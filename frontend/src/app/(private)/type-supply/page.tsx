@@ -8,47 +8,58 @@ import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getAll } from "@/app/service/type-supply";
+import { getAllPagination } from "@/app/service/type-supply";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { typeSupplyType } from "@/types/typeSupplyType";
 import { faSupple } from "@fortawesome/free-brands-svg-icons";
 import { Loading } from "@/app/components/ux/Loading";
+import { Messeger } from "@/app/components/ux/Messeger";
+import { Pagination } from "@/app/components/ux/Pagination";
 
 export default function TypeSupply() {
 
   const router = useRouter()
 
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>()
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 15;
 
   useEffect(() => {
-    getAllTypeSupply();
-  }, []);
+    loadTypeSupplyPagination();
+  }, [currentPage]);
 
   const handleAdd = () => {
     router.push('/type-supply/add')
     return
   }
 
-
-  const getAllTypeSupply = async () => {
-    setError("");
+  const loadTypeSupplyPagination = async () => {
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
-    const typeSupplies = await getAll();
-    if (typeSupplies.data.typeSupply.length > 0) {
-      setTypeSupplies(typeSupplies.data.typeSupply);
+    const typeSupplies = await getAllPagination(currentPage, pageSize);
+    console.log(typeSupplies.data[0].id)
+    if (typeSupplies.status === 300 || typeSupplies.status === 400 || typeSupplies.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' })
+      setLoading(false);
+      return
+    }
+
+    if (typeSupplies.data[0].id && typeSupplies.data[0].id > 0) {
+      setTypeSupplies(typeSupplies.data);
+      setTotalPages(typeSupplies.meta.totalPages);
       setLoading(false);
       return;
     } else {
-      setError("Sem dados a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' })
       setLoading(false);
       return;
     }
-  };
+  }
 
   return (
     <Page>
@@ -84,16 +95,21 @@ export default function TypeSupply() {
             ))}
           </tbody>
         </table>
-        {error &&
-          <div>
-            <p className='text-white'>Sem dados a mostrar</p>
-          </div>
+        {typeSupplies && totalPages > 1 &&
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
         }
+        {error.messege && (
+          <Messeger type={error?.type} title={error.title} messege={error.messege} />
+        )}
         {loading &&
           <Loading />
         }
       </div>
     </Page>
   );
- 
+
 }

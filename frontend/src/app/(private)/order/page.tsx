@@ -3,7 +3,7 @@
 import { Page } from "@/app/components/ux/Page";
 import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/Button";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/type-operation";
@@ -23,6 +23,7 @@ export default function Order() {
 
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
+  const [treasuriesFormatted, setTreasuriesFormatted] = useState([])
   const [typeOrders, setTypeOrders] = useState<typeOrderType[]>([])
 
   const [idTypeOperation, setIdTypeOperation] = useState('')
@@ -82,10 +83,11 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (t.data.treasury && t.data.treasury[0]?.id) {
+    console.log(t.data.treasury[0].id_system)
+    if (t.data.treasury && t.data.treasury[0]?.id > 0) {
       setTreasuries(t.data.treasury)
-      setIdTreasuryOrigin(t.data.treasury[0].id)
-      setIdTreasuryDestin(t.data.treasury[0].id)
+      setIdTreasuryOrigin(t.data.treasury[0].id_system)
+      setIdTreasuryDestin(t.data.treasury[0].id_system)
       setLoading(false)
       return
     } else {
@@ -177,6 +179,32 @@ export default function Order() {
     return
   }
 
+  const handleFilterByIdSystemOrigin = () => {
+    const searchId = parseInt(idTreasuryOrigin);
+
+
+    return treasuries.filter(treasury =>
+      !isNaN(searchId) && treasury.id_system === searchId
+    );
+  }
+
+  const handleFilterByIdSystemDestin = () => {
+    const searchId = parseInt(idTreasuryDestin);
+
+
+    return treasuries.filter(treasury =>
+      !isNaN(searchId) && treasury.id_system === searchId
+    );
+  }
+
+  const handleInputChangeOrigin = (e: ChangeEvent<HTMLInputElement>) => {
+    setIdTreasuryOrigin(e.target.value);
+  };
+
+  const handleInputChangeDestin = (e: ChangeEvent<HTMLInputElement>) => {
+    setIdTreasuryDestin(e.target.value);
+  };
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faCoins} >Pedidos</TitlePages>
@@ -213,7 +241,7 @@ export default function Order() {
             <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
               <input
                 value={idTreasuryOrigin}
-                onChange={e => setIdTreasuryOrigin(e.target.value)}
+                onChange={handleInputChangeOrigin}
                 className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
               />
             </div>
@@ -223,13 +251,16 @@ export default function Order() {
                 value={idTreasuryOrigin}
                 onChange={e => setIdTreasuryOrigin(e.target.value)}
               >
-                {treasuries && treasuries.map((item, index) => (
-                  <option
-                    className="uppercase bg-slate-700 text-white"
-                    value={item.id} key={index} >
-                    {item.name}
-                  </option>
-                ))}
+                {handleFilterByIdSystemOrigin().length > 0 ? (
+                  handleFilterByIdSystemOrigin().map(treasury => (
+                    <option key={treasury.id} value={treasury.id} className="uppercase bg-slate-700 text-white">
+                      {treasury.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">Nenhum tesouro encontrado</option>
+                )}
+
               </select>
             </div>
           </div>
@@ -240,7 +271,7 @@ export default function Order() {
                 <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
                   <input
                     value={idTreasuryDestin}
-                    onChange={e => setIdTreasuryDestin(e.target.value)}
+                    onChange={handleInputChangeDestin}
                     className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
                   />
                 </div>
@@ -250,13 +281,16 @@ export default function Order() {
                     value={idTreasuryDestin}
                     onChange={e => setIdTreasuryDestin(e.target.value)}
                   >
-                    {treasuries && treasuries.map((item, index) => (
-                      <option
-                        className="uppercase bg-slate-700 text-white"
-                        value={item.id} key={index} >
-                        {item.name}
-                      </option>
-                    ))}
+                    {handleFilterByIdSystemDestin().length > 0 ? (
+                      handleFilterByIdSystemDestin().map(treasury => (
+                        <option key={treasury.id} value={treasury.id} className="uppercase bg-slate-700 text-white">
+                          {treasury.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">Nenhum tesouro encontrado</option>
+                    )}
+
                   </select>
                 </div>
               </div>
