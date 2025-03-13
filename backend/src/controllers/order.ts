@@ -9,6 +9,7 @@ import { alterDateOrderSchema } from "../schemas/alterDataOrderSchema"
 import { orderGenerateReleaseSchema } from "../schemas/orderGenerateReleaseSchema"
 import { returnValueTotal } from "../utils/returnValueTotal"
 import { getForIds } from "../services/treasury"
+import { calcularEstornoBRL } from "../utils/calcularEstorno"
 
 export const getById: RequestHandler = async (req, res) => {
     const orderId = req.params.id
@@ -158,12 +159,11 @@ export const delById: RequestHandler = async (req, res) => {
 
 export const confirmTotal: RequestHandler = async (req, res) => {
     const safeData = req.body
-
     if (safeData.length === 0) {
         res.status(401).json({ error: 'Preciso de um ID para continuar!' })
         return
     }
-
+    console.log("Passei da validação", safeData)
     const order = await confirmTotalByIds(safeData)
     if (!order) {
         res.status(401).json({ error: 'Erro ao salvar!' })
@@ -271,3 +271,57 @@ export const generateRelease: RequestHandler = async (req, res) => {
 
     res.json({ order: mergedData })
 }
+
+export const generatePayment: RequestHandler = async (req, res) => {
+
+    const safeData = orderGenerateReleaseSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+
+    const allOrders : any = await getOrderByIds(safeData.data)
+    const orders = []
+    const ids_treasuries = []
+    interface Treasury {
+        id_system: number;
+        name: string;
+        id_type_store: number;
+        account_number: string;
+        region: number;
+    }
+    for (let x = 0; (allOrders || []).length > x; x++) {
+        ids_treasuries.push(allOrders[x].id_treasury_origin)
+    }
+    const treasuries = await getForIds(ids_treasuries)
+    const treasuryMap = (treasuries || []).reduce((map, treasury) => {
+        map[treasury.id_system] = treasury; 
+        return map;
+    }, {} as Record<number, Treasury> )
+    const mergedData = allOrders?.map((order : any) => {
+        const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
+            console.log(order)
+        return {
+            codigo: order.id_treasury_origin,
+            conta: treasury?.account_number,
+            tesouraria: treasury?.name,
+            regiao: treasury?.region,
+            valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
+            id_type_store: treasury?.id_type_store,
+            date : order.date_order,
+            valorRealizado : returnValueTotal(order.confirmed_value_A, order.confirmed_value_B, order.confirmed_value_C, order.confirmed_value_D),
+            estorno : calcularEstornoBRL(
+                returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
+                returnValueTotal(order.confirmed_value_A, order.confirmed_value_B, order.confirmed_value_C, order.confirmed_value_D)
+            ) 
+        };
+    });
+
+    if (!mergedData) {
+        res.status(401).json({ error: 'Erro ao alterar!' })
+        return
+    }
+
+    res.json({ order: mergedData })
+}
+

@@ -13,7 +13,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genrerateRelaseById, searchOrdersForDate, searchOrdersForDatePagination } from "@/app/service/order";
+import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genreratePaymmentById, genrerateRelaseById, searchOrdersForDate, searchOrdersForDatePagination } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -26,10 +26,12 @@ import { returnNameStatus } from "@/app/utils/returnNameStatus";
 import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
 import { ModalRelaunchOrder } from "@/app/components/ux/ModalRelaunchOrder";
 import { PdfGenerator } from "@/app/components/ux/PdfGenerator ";
+import { PdfGeneratorPayment } from "@/app/components/ux/PdfGeneratorPayment";
 import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
 import { returnNameTypeOperation } from "@/app/utils/returnNameTypeOperation";
 import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
 import { returnIfMateus } from "@/app/utils/returnIfMateus";
+import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
 
 
 export default function Order() {
@@ -42,7 +44,7 @@ export default function Order() {
   const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
   const [orders, setOrders] = useState<orderType[]>([])
 
-  const [itemsChecks, setItemsChecks] = useState<{ id: number, status: boolean }[]>([])
+  const [itemsChecks, setItemsChecks] = useState<{id_order : number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
 
   const [idTypeOperation, setIdTypeOperation] = useState('')
@@ -72,7 +74,9 @@ export default function Order() {
   const [dateAlter, setDateAlter] = useState('')
 
   const [elementRelaease, setElementRelease] = useState<pdfGeneratorReleaseType[]>([])
+  const [elementPayment, setElementPayment] = useState<pdfGeneratorPaymentType[]>([])
   const [modalGenerateRealse, setModalGenerateRelease] = useState(false)
+  const [modalGeneratePayment, setModalGeneratePayment] = useState(false)
 
   const [totalOrder, setTotalOrder] = useState(0)
   const [totalOrderMateus, setTotalOrderMateus] = useState(0)
@@ -203,7 +207,6 @@ export default function Order() {
       setLoading(false)
       return
     }
-    console.log(orderSarch.data.order)
     if (orderSarch.data.order && orderSarch.data.order.length > 0) {
       setOrders(orderSarch.data.order)
       let elements: any = []
@@ -215,6 +218,7 @@ export default function Order() {
         let value = 0
         let valueConfirmmed = 0
         elements.push({
+          id_order : item.id,
           id: item.id_treasury_origin,
           status: false
         })
@@ -222,25 +226,25 @@ export default function Order() {
         valueConfirmmed = (item?.confirmed_value_A || 0 * 10) + (item.confirmed_value_B || 0 * 20) + (item.confirmed_value_C || 0 * 50) + (item.confirmed_value_D || 0 * 100)
         sumConfirmmed = sumConfirmmed + valueConfirmmed
         sum = sum + value
-        if(returnIfMateus(treasuries, item.id_treasury_origin)){
+        if (returnIfMateus(treasuries, item.id_treasury_origin)) {
           sumMateus = sumMateus + value
           setTotalOrderMateus(sumMateus)
-        }else{
+        } else {
           sumPosterus = sumPosterus + value
           setTotalOrderPOsterus(sumPosterus)
         }
         setTotalOrderConfirmmed(sumConfirmmed)
         setTotalOrder(sum)
-    })
+      })
       setItemsChecks(elements)
       setError('')
       setLoading(false)
       return
     }
-      setError('Sem dados a mostrar!')
-      setLoading(false)
-      return
-    
+    setError('Sem dados a mostrar!')
+    setLoading(false)
+    return
+
   }
 
   const view = () => {
@@ -350,8 +354,15 @@ export default function Order() {
     setError("")
     setLoading(false)
     setLoading(true)
-    if (valueAddA === 0 && valueAddB === 0 && valueAddC === 0 && valueAddD === 0) {
-      setError("Se quer cancelar a requisição clique no botão Excluir na tela principal")
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    if (countTrue > 1) {
+      setError("Para essa ação só pode haver 1 item selecionado")
+      setLoading(false)
       return
     }
     closeModalConfirmPartial()
@@ -407,7 +418,7 @@ export default function Order() {
       let count = 0
       while (chech === false || count < 8) {
         ++count
-        const iSelectedAlter = await delOrderById(itemsSelected[x].id)
+        const iSelectedAlter = await delOrderById(itemsSelected[x].id_order)
         if (iSelectedAlter.status === 300 || iSelectedAlter.status === 400 || iSelectedAlter.status === 500) {
           if (!iSelectedAlter[0] || !iSelectedAlter[0].id) {
             return
@@ -445,8 +456,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
-
+    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const iSelectedAlter = await ConfirmOrderById(idsSelected)
     if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {
       setError('Erro na requisição!')
@@ -475,7 +485,7 @@ export default function Order() {
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
-    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
+    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id_order)
     if (orderSelectedOne[0]?.id && orderSelectedOne[0]?.id > 0) {
       setOrderIndividual(orderSelectedOne[0])
       setModalOrderConfirmPartial(true)
@@ -522,7 +532,7 @@ export default function Order() {
     setLoading(false)
   }
 
-  const handleSaveRelaunchValue = (e :  React.ChangeEvent<HTMLInputElement>) => {
+  const handleSaveRelaunchValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDateAlter(e.target.value);
   }
 
@@ -530,28 +540,28 @@ export default function Order() {
     setError('')
     setLoading(false)
     setLoading(true)
-    if(dateAlter === ''){
+    if (dateAlter === '') {
       setError('Prrencha o campo de data')
       setLoading(false)
       return
     }
     let data = {
-      date_order  : dateAlter
+      date_order: dateAlter
     }
     const orderAlterForDate = await alterDateInOrder(orderIndivudual?.id as number, data)
-    if(orderAlterForDate.status === 300 || orderAlterForDate === 400 || orderAlterForDate === 500){
+    if (orderAlterForDate.status === 300 || orderAlterForDate === 400 || orderAlterForDate === 500) {
       setError("Erro de Requisição, tente novamente")
       setLoading(false)
       return
     }
-    if(orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0){
+    if (orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0) {
       setDateAlter('')
       setError('')
       setModalRelaunchOrder(false)
       setLoading(false)
       handleSearch()
       return
-    }else{
+    } else {
       setError('Erro ao alterar a data')
       setLoading(false)
       return
@@ -571,7 +581,7 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
     const gRelease = await genrerateRelaseById(idsSelected)
-    if(gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500){
+    if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
       return
@@ -579,6 +589,31 @@ export default function Order() {
 
     setElementRelease(gRelease.data.order)
     setModalGenerateRelease(true)
+    setError('')
+    setLoading(false)
+  }
+
+  const generatePayment = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione ao menos um item para continuar")
+      setLoading(false)
+      return
+    }
+    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
+    const gPayment = await genreratePaymmentById(idsSelected)
+    console.log("gPay", gPayment)
+    if (gPayment.status === 300 || gPayment.status === 400 || gPayment.status === 500) {
+      setError("Erro na requisição!")
+      setLoading(false)
+      return
+    }
+
+    setElementPayment(gPayment.data.order)
+    setModalGeneratePayment(true)
     setError('')
     setLoading(false)
   }
@@ -623,7 +658,7 @@ export default function Order() {
           <ButtonScreenOrder color="#415eff" onClick={generateRelease} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faFileExport}
           >Gerar Lançamento</ButtonScreenOrder>
-          <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#415eff" onClick={generatePayment} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faFileExport}
           >Gerar Pagamento</ButtonScreenOrder>
           <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
@@ -645,15 +680,15 @@ export default function Order() {
         <div className="h-1 bg-zinc-500 w-full"></div>
         <div className="flex flex-row gap-2 items-center justify-between pr-6" >
           <div >
-          <input
-            type="checkbox"
-            className="w-4 h-4 outline-none"
-            checked={toggleChecks}
-            onChange={handleToggleSelect}
-          />
-          <label>{toggleChecks ? 'Desmarcar' : 'Selecionar'} tudo</label>
+            <input
+              type="checkbox"
+              className="w-4 h-4 outline-none"
+              checked={toggleChecks}
+              onChange={handleToggleSelect}
+            />
+            <label>{toggleChecks ? 'Desmarcar' : 'Selecionar'} tudo</label>
           </div>
-          
+
           <div className="flex flex-row gap-3">
             <div className="bg-[#c3d2ea] p-1 text-black font-bold rounded-md">
               <label>TOTAL PEDIDO: {generateTotalInReal(totalOrder)}</label>
@@ -855,7 +890,7 @@ export default function Order() {
         />
       }
       {modalRelauchOrder &&
-        <ModalRelaunchOrder 
+        <ModalRelaunchOrder
           id={orderIndivudual?.id as number}
           value={dateAlter}
           onSetValue={handleSaveRelaunchValue}
@@ -864,9 +899,12 @@ export default function Order() {
           error={error}
         />
       }
-      {modalGenerateRealse && 
-        <PdfGenerator data={elementRelaease} onClose={()=>setModalGenerateRelease(!modalGenerateRealse)} />
-        }
+      {modalGenerateRealse &&
+        <PdfGenerator data={elementRelaease} onClose={() => setModalGenerateRelease(!modalGenerateRealse)} />
+      }
+      {modalGeneratePayment &&
+        <PdfGeneratorPayment data={elementPayment} onClose={() => setModalGeneratePayment(!modalGeneratePayment)} />
+      }
     </Page>
 
   )

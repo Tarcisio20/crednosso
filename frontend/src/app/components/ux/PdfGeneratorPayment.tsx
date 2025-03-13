@@ -1,18 +1,18 @@
 "use client"
 
 import { formatDateToString } from "@/app/utils/formatDateToString";
-import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
+import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
 import jsPDF from "jspdf";
 import { useState } from "react";
 import autoTable from "jspdf-autotable";
 import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTitle";
 
 type pdfProps = {
-  data: pdfGeneratorReleaseType[];
+  data: pdfGeneratorPaymentType[];
   onClose: () => void;
 }
 
-export const PdfGenerator = ({ data, onClose }: pdfProps) => {
+export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1);
   const dadosPosterus = data.filter(item => item.id_type_store === 2);
@@ -30,7 +30,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
   const calcularTotal = (dados: typeof data) => {
     return dados.reduce((acc, item) => {
-      return acc + converterParaNumero(item.valor);
+      return acc + converterParaNumero(item.valorRealizado);
     }, 0);
   };
 
@@ -50,119 +50,76 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
     }
   };
 
+
   const gerarPDF = (titulo: string, dados: typeof data) => {
     const doc = new jsPDF({
       orientation: 'landscape',
     });
-    const dataOriginal = data[0]?.date;
+    const dataOriginal = dados[0]?.date;
     const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
 
-    // Configurações comuns para todas as tabelas
-    const commonColumnStyles = {
-      0: { cellWidth: 'auto' }, // CONTA
-      1: { cellWidth: 'auto' }, // CÓDIGO
-      2: { cellWidth: 'auto' }, // TESOURARIA (irá expandir)
-      3: { cellWidth: 'auto' }, // REGIÃO
-      4: { cellWidth: 'auto' }, // VALOR
+    // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
+    const columnStyles = {
+      0: { cellWidth: 30 },  // CONTA
+      //1: { cellWidth: 30 },  // CÓDIGO
+      1: { cellWidth: 120 }, // TESOURARIA (ajustado para evitar overflow)
+      2: { cellWidth: 30 },  // REGIÃO
+      3: { cellWidth: 40 },  // VALOR
+      4: { cellWidth: 50 },  // VALOR
     };
 
-    // 1. Cabeçalho (já está ocupando a largura total)
     (autoTable as any)(doc, {
-      startY: 10,
+      startY: 15, // Início com margem superior para não cortar
       head: [
         [
           {
             content: `DATA: ${dataFormatada}`,
             colSpan: 4,
-            styles: {
-              fillColor: [41, 128, 185],
-              textColor: 255,
-              fontStyle: 'bold',
-            }
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
           },
           {
-            content: "SOLICITADO",
-            styles: {
-              fillColor: [41, 128, 185],
-              textColor: 255,
-              fontStyle: 'bold',
-            }
+            content: "TRANSF. BANCO",
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
           }
         ],
         [
           { content: "CONTA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "CÓDIGO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
           { content: "TESOURARIA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
           { content: "REGIÃO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "VALOR", styles: { fillColor: [41, 128, 185], textColor: 255 } }
+          { content: "VALOR ESTORNO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "VALOR REALIZADO", styles: { fillColor: [41, 128, 185], textColor: 255 } }
         ]
       ],
-      body: [],
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-      },
-      theme: 'grid',
-      showHead: 'firstPage',
-      tableWidth: '100%', // Forçar largura total
-      margin: { left: 10, right: 10 }, // Margens laterais reduzidas
-      columnStyles: commonColumnStyles,
-    });
-
-    // 2. Corpo da tabela (com largura total)
-    (autoTable as any)(doc, {
-      startY: (doc as any).lastAutoTable.finalY,
       body: dados.map((item) => [
         item.conta.toString(),
-        item.codigo.toString(),
         `TESOURARIA - ${item.tesouraria}`,
         item.regiao.toString(),
-        item.valor,
+        item.estorno.toString(),
+        item.valorRealizado.toString(),
       ]),
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-        halign: 'left'
-      },
-      theme: 'grid',
-      tableWidth: '100%', // Largura total
-      columnStyles: commonColumnStyles,
-      margin: { left: 10, right: 10 }, // Mesmas margens do cabeçalho
-    });
-
-    // 3. Rodapé (largura total)
-    const finalY = (doc as any).lastAutoTable.finalY || 0;
-
-    (autoTable as any)(doc, {
-      startY: finalY,
-      body: [[
+      foot: [[
         {
           content: "TOTAL RETIRADO",
-          colSpan: 4, // Ocupa 4 colunas
-          styles: {
-            fillColor: [41, 128, 185],
-            textColor: 255,
-            fontStyle: 'bold',
-          }
+          colSpan: 4,
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         },
         {
           content: formatarMoeda(calcularTotal(dados)),
-          colSpan: 1, 
-          styles: {
-            fillColor: [41, 128, 185],
-            textColor: 255,
-            fontStyle: 'bold',
-          }
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         }
       ]],
       styles: {
         fontSize: 10,
-        cellPadding: 2
+        cellPadding: 2,
+        halign: 'left',
+        overflow: 'linebreak'
       },
+      columnStyles: columnStyles,
       theme: 'grid',
-      tableWidth: '100%', // Largura total
-      columnStyles: commonColumnStyles,
-      margin: { left: 10, right: 10 }, // Mesmas margens
+      margin: { left: 15, right: 15 },
+      tableWidth: 250, // Largura total fixa (280mm - margens)
+      showHead: 'firstPage',
+      showFoot: 'lastPage'
     });
 
     doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);
@@ -217,28 +174,28 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         <tr className="bg-blue-600 text-white font-bold">
           <td className="p-2 border border-black">DATA: {formatDateToString(data[0]?.date)}</td>
           <td className="p-2 border border-black" colSpan={3}></td>
-          <td className="p-2 border border-black">SOLICITADO</td>
+          <td className="p-2 border border-black">REALIZADO</td>
         </tr>
         <tr className="bg-blue-600 text-white font-bold">
           <th className="p-2 border border-black text-left">CONTA</th>
-          <th className="p-2 border border-black text-left">CODIGO</th>
           <th className="p-2 border border-black text-left">TESOURARIA</th>
           <th className="p-2 border border-black text-left">REGIÃO</th>
-          <th className="p-2 border border-black text-left">VALOR</th>
+          <th className="p-2 border border-black text-left">VALOR ESTORNADO</th>
+          <th className="p-2 border border-black text-left">VALOR REALIZADO</th>
         </tr>
       </thead>
       <tbody>
         {dados.map((item, index) => (
           <tr key={index} className={index % 2 === 0 ? 'bg-blue-50' : ''}>
             <td className="p-2 border border-black">{item.conta}</td>
-            <td className="p-2 border border-black">{item.codigo}</td>
             <td className="p-2 border border-black">TESOURARIA - {item.tesouraria}</td>
             <td className="p-2 border border-black">{item.regiao}</td>
-            <td className="p-2 border border-black">{item.valor}</td>
+            <td className="p-2 border border-black">{item.estorno}</td>
+            <td className="p-2 border border-black">{item.valorRealizado}</td>
           </tr>
         ))}
         <tr className="bg-blue-200 font-bold">
-          <td className="p-2 border border-black" colSpan={4}>TOTAL</td>
+          <td className="p-2 border border-black" colSpan={4}>TOTAL RETIRADO</td>
           <td className="p-2 border border-black">
             {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </td>

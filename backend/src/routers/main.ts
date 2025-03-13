@@ -92,6 +92,7 @@ mainRouter.post('/order/search-by-date-pagination',verifyJWT, orderController.se
 mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
 mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRelease)
+mainRouter.post('/order/generate-payment',verifyJWT, orderController.generatePayment)
 
 
 // type store

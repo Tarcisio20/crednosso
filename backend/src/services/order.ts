@@ -20,7 +20,7 @@ export const getOrderById = async (id: number) => {
 export const getOrderByIds = async (ids: number[]) => {
   const order = await prisma.order.findMany({
     where: {
-      id_treasury_origin: {
+      id: {
         in: ids,
       },
     }
