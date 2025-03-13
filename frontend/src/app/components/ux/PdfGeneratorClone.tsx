@@ -50,35 +50,43 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
     }
   };
 
-
   const gerarPDF = (titulo: string, dados: typeof data) => {
     const doc = new jsPDF({
       orientation: 'landscape',
     });
-    const dataOriginal = dados[0]?.date;
+    const dataOriginal = data[0]?.date;
     const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
 
-    // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
-    const columnStyles = {
-      0: { cellWidth: 40 },  // CONTA
-      1: { cellWidth: 30 },  // CÓDIGO
-      2: { cellWidth: 130 }, // TESOURARIA (ajustado para evitar overflow)
-      3: { cellWidth: 30 },  // REGIÃO
-      4: { cellWidth: 40 },  // VALOR
+    // Configurações comuns para todas as tabelas
+    const commonColumnStyles = {
+      0: { cellWidth: 'auto' }, // CONTA
+      1: { cellWidth: 'auto' }, // CÓDIGO
+      2: { cellWidth: 'auto' }, // TESOURARIA (irá expandir)
+      3: { cellWidth: 'auto' }, // REGIÃO
+      4: { cellWidth: 'auto' }, // VALOR
     };
 
+    // 1. Cabeçalho (já está ocupando a largura total)
     (autoTable as any)(doc, {
-      startY: 15, // Início com margem superior para não cortar
+      startY: 10,
       head: [
         [
           {
             content: `DATA: ${dataFormatada}`,
             colSpan: 4,
-            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+            styles: {
+              fillColor: [41, 128, 185],
+              textColor: 255,
+              fontStyle: 'bold',
+            }
           },
           {
             content: "SOLICITADO",
-            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+            styles: {
+              fillColor: [41, 128, 185],
+              textColor: 255,
+              fontStyle: 'bold',
+            }
           }
         ],
         [
@@ -89,6 +97,21 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
           { content: "VALOR", styles: { fillColor: [41, 128, 185], textColor: 255 } }
         ]
       ],
+      body: [],
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+      },
+      theme: 'grid',
+      showHead: 'firstPage',
+      tableWidth: '100%', // Forçar largura total
+      margin: { left: 10, right: 10 }, // Margens laterais reduzidas
+      columnStyles: commonColumnStyles,
+    });
+
+    // 2. Corpo da tabela (com largura total)
+    (autoTable as any)(doc, {
+      startY: (doc as any).lastAutoTable.finalY,
       body: dados.map((item) => [
         item.conta.toString(),
         item.codigo.toString(),
@@ -96,29 +119,50 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         item.regiao.toString(),
         item.valor,
       ]),
-      foot: [[
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+        halign: 'left'
+      },
+      theme: 'grid',
+      tableWidth: '100%', // Largura total
+      columnStyles: commonColumnStyles,
+      margin: { left: 10, right: 10 }, // Mesmas margens do cabeçalho
+    });
+
+    // 3. Rodapé (largura total)
+    const finalY = (doc as any).lastAutoTable.finalY || 0;
+
+    (autoTable as any)(doc, {
+      startY: finalY,
+      body: [[
         {
           content: "TOTAL RETIRADO",
-          colSpan: 4,
-          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+          colSpan: 4, // Ocupa 4 colunas
+          styles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: 'bold',
+          }
         },
         {
           content: formatarMoeda(calcularTotal(dados)),
-          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+          colSpan: 1, 
+          styles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: 'bold',
+          }
         }
       ]],
       styles: {
         fontSize: 10,
-        cellPadding: 2,
-        halign: 'left',
-        overflow: 'linebreak'
+        cellPadding: 2
       },
-      columnStyles: columnStyles,
       theme: 'grid',
-      margin: { left: 15, right: 15 },
-      tableWidth: 250, // Largura total fixa (280mm - margens)
-      showHead: 'firstPage',
-      showFoot: 'lastPage'
+      tableWidth: '100%', // Largura total
+      columnStyles: commonColumnStyles,
+      margin: { left: 10, right: 10 }, // Mesmas margens
     });
 
     doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);
