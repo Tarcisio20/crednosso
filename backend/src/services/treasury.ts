@@ -38,11 +38,11 @@ export const getAllTreasuryPagination = async (page: number, pageSize: number) =
     }
 }
 
-
-
 export const getForIdSystem = async (id: string) => {
     const treasury = await prisma.treasury.findFirst({
-        where: { id: parseInt(id) }
+        where: { 
+            id_system : parseInt(id)
+         }
     })
     if (treasury) {
         return treasury

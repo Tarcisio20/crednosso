@@ -142,7 +142,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
               onClick={() => setAbaAtiva(1)}
               className={`px-4 py-2 text-md font-medium ${abaAtiva === 1
                 ? 'bg-blue-600 text-white  border-b-2 border-blue-600'
-                : 'text-black-500 hover:text-gray-700'
+                : 'text-black hover:text-gray-700'
                 }`}
             >
               Mateus
@@ -153,7 +153,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
               onClick={() => setAbaAtiva(2)}
               className={`px-4 py-2 text-md font-medium ${abaAtiva === 2
                 ? 'bg-blue-600 text-white border-b-2 border-blue-600'
-                : 'text-black-500 hover:text-gray-700'
+                : 'text-black hover:text-gray-700'
                 }`}
             >
               Posterus
@@ -194,7 +194,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
           </tr>
         ))}
         <tr className="bg-blue-200 font-bold">
-          <td className="p-2 border border-black" colSpan={4}>TOTAL</td>
+          <td className="p-2 border border-black" colSpan={4}>TOTAL SOLICITADO</td>
           <td className="p-2 border border-black">
             {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </td>
@@ -205,7 +205,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-zinc-500 p-6 rounded-lg shadow-lg w-[90vw] h-[90vh] flex flex-col relative">
+      <div className="bg-[#dfe0e7] p-6 rounded-lg shadow-lg w-[90vw] h-[90vh] flex flex-col relative">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-2xl font-bold text-red-600 hover:text-red-700"
@@ -214,7 +214,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
-          Solicitação {abaAtiva === 1 ? 'Mateus' : 'Posterus'}
+          LANÇAMENTO {abaAtiva === 1 ? ' MATEUS' : 'POSTERUS'}
         </h2>
 
         <Tabs />

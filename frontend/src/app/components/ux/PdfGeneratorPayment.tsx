@@ -34,6 +34,12 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
     }, 0);
   };
 
+  const calcularTotalEstorno = (dados: typeof data) => {
+    return dados.reduce((acc, item) => {
+      return acc + converterParaNumero(item.estorno);
+    }, 0);
+  };
+
   const totalMateus = calcularTotal(dadosMateus);
   const totalPosterus = calcularTotal(dadosPosterus);
 
@@ -64,7 +70,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
       //1: { cellWidth: 30 },  // CÓDIGO
       1: { cellWidth: 120 }, // TESOURARIA (ajustado para evitar overflow)
       2: { cellWidth: 30 },  // REGIÃO
-      3: { cellWidth: 40 },  // VALOR
+      3: { cellWidth: 40 },  // VALOR 
       4: { cellWidth: 50 },  // VALOR
     };
 
@@ -99,8 +105,12 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
       ]),
       foot: [[
         {
-          content: "TOTAL RETIRADO",
-          colSpan: 4,
+          content: "TOTAIS",
+          colSpan: 3,
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+        },
+        {
+          content: formatarMoeda(calcularTotalEstorno(dados)),
           styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         },
         {
@@ -143,7 +153,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
               onClick={() => setAbaAtiva(1)}
               className={`px-4 py-2 text-md font-medium ${abaAtiva === 1
                 ? 'bg-blue-600 text-white  border-b-2 border-blue-600'
-                : 'text-black-500 hover:text-gray-700'
+                : 'text-black hover:text-gray-700'
                 }`}
             >
               Mateus
@@ -154,7 +164,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
               onClick={() => setAbaAtiva(2)}
               className={`px-4 py-2 text-md font-medium ${abaAtiva === 2
                 ? 'bg-blue-600 text-white border-b-2 border-blue-600'
-                : 'text-black-500 hover:text-gray-700'
+                : 'text-black hover:text-gray-700'
                 }`}
             >
               Posterus
@@ -168,7 +178,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
   );
 
   // Componente de Tabela Reutilizável
-  const Tabela = ({ dados, total }: { dados: typeof data; total: number }) => (
+  const Tabela = ({ dados, total, totalEstorno }: { dados: typeof data; total: number, totalEstorno : number }) => (
     <table className="w-full border-collapse border border-black font-sans text-black">
       <thead>
         <tr className="bg-blue-600 text-white font-bold">
@@ -195,7 +205,10 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
           </tr>
         ))}
         <tr className="bg-blue-200 font-bold">
-          <td className="p-2 border border-black" colSpan={4}>TOTAL RETIRADO</td>
+          <td className="p-2 border border-black" colSpan={3}>TOTAIS</td>
+          <td className="p-2 border border-black">
+            {totalEstorno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          </td>
           <td className="p-2 border border-black">
             {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </td>
@@ -206,7 +219,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-zinc-500 p-6 rounded-lg shadow-lg w-[90vw] h-[90vh] flex flex-col relative">
+      <div className="bg-[#dfe0e7] p-6 rounded-lg shadow-lg w-[90vw] h-[90vh] flex flex-col relative">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-2xl font-bold text-red-600 hover:text-red-700"
@@ -215,18 +228,18 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
-          Solicitação {abaAtiva === 1 ? 'Mateus' : 'Posterus'}
+          PAGAMENTO {abaAtiva === 1 ? 'MATEUS' : 'POSTERUS'}
         </h2>
 
         <Tabs />
 
         <div className="flex-1 overflow-auto">
           {abaAtiva === 1 && dadosMateus.length > 0 && (
-            <Tabela dados={dadosMateus} total={calcularTotal(dadosMateus)} />
+            <Tabela dados={dadosMateus} total={calcularTotal(dadosMateus)} totalEstorno={calcularTotalEstorno(dadosMateus)} />
           )}
 
           {abaAtiva === 2 && dadosPosterus.length > 0 && (
-            <Tabela dados={dadosPosterus} total={calcularTotal(dadosPosterus)} />
+            <Tabela dados={dadosPosterus} total={calcularTotal(dadosPosterus)} totalEstorno={calcularTotalEstorno(dadosPosterus)} />
           )}
         </div>
       </div>

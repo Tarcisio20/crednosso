@@ -32,6 +32,7 @@ import { returnNameTypeOperation } from "@/app/utils/returnNameTypeOperation";
 import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
 import { returnIfMateus } from "@/app/utils/returnIfMateus";
 import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
+import { sendEmailToOrder } from "@/app/service/email";
 
 
 export default function Order() {
@@ -44,7 +45,7 @@ export default function Order() {
   const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
   const [orders, setOrders] = useState<orderType[]>([])
 
-  const [itemsChecks, setItemsChecks] = useState<{id_order : number, id: number, status: boolean }[]>([])
+  const [itemsChecks, setItemsChecks] = useState<{ id_order: number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
 
   const [idTypeOperation, setIdTypeOperation] = useState('')
@@ -82,6 +83,7 @@ export default function Order() {
   const [totalOrderMateus, setTotalOrderMateus] = useState(0)
   const [totalOrderPosterus, setTotalOrderPOsterus] = useState(0)
   const [totalOrderConfirmmed, setTotalOrderConfirmmed] = useState(0)
+  const [totalOrderEstornado, setTotalOrderEstornado] = useState(0)
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -218,12 +220,14 @@ export default function Order() {
         let value = 0
         let valueConfirmmed = 0
         elements.push({
-          id_order : item.id,
+          id_order: item.id,
           id: item.id_treasury_origin,
           status: false
         })
         value = (item.requested_value_A * 10) + (item.requested_value_B * 20) + (item.requested_value_C * 50) + (item.requested_value_D * 100)
-        valueConfirmmed = (item?.confirmed_value_A || 0 * 10) + (item.confirmed_value_B || 0 * 20) + (item.confirmed_value_C || 0 * 50) + (item.confirmed_value_D || 0 * 100)
+        valueConfirmmed = (
+          (item?.confirmed_value_A as number) * 10) + ((item.confirmed_value_B as number) * 20) +
+          ((item.confirmed_value_C as number) * 50) + ((item.confirmed_value_D as number) * 100)
         sumConfirmmed = sumConfirmmed + valueConfirmmed
         sum = sum + value
         if (returnIfMateus(treasuries, item.id_treasury_origin)) {
@@ -579,7 +583,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
+    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gRelease = await genrerateRelaseById(idsSelected)
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setError("Erro na requisição!")
@@ -605,7 +609,6 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gPayment = await genreratePaymmentById(idsSelected)
-    console.log("gPay", gPayment)
     if (gPayment.status === 300 || gPayment.status === 400 || gPayment.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
@@ -616,6 +619,32 @@ export default function Order() {
     setModalGeneratePayment(true)
     setError('')
     setLoading(false)
+  }
+
+  const sendEmail = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const countTrue = itemsChecks.filter(item => item.status === true).length
+    if (countTrue === 0) {
+      setError("Selecione um item para continuar")
+      setLoading(false)
+      return
+    }
+    const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
+        ${itemsChecks
+        .filter(item => item.status === true)
+        .map(item => item.id)
+        .join(',')}
+      `);
+    if (!confirmAlter) {
+      setError("Cancelado a operção")
+      setLoading(false)
+      return
+    }
+    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
+    const emails = await sendEmailToOrder(idsSelected)
+    console.log(emails)
   }
 
   return (
@@ -667,7 +696,7 @@ export default function Order() {
           <ButtonScreenOrder color="#415eff" onClick={relaunchOrder} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faCodeCompare}
           >Relançar Pedido</ButtonScreenOrder>
-          <ButtonScreenOrder color="#415eff" onClick={view} size="btn-icon-text"
+          <ButtonScreenOrder color="#415eff" onClick={sendEmail} size="btn-icon-text"
             textColor="white" secondaryColor="#546bec" icon={faEnvelope}
           >Enviar E-mail</ButtonScreenOrder>
           <ButtonScreenOrder color="#415eff" onClick={viewOrder} size="btn-icon-text"

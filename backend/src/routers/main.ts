@@ -11,6 +11,7 @@ import * as typeSupplyController from '../controllers/type-supply'
 import * as statusOrderController from '../controllers/status-order'
 import * as orderController from '../controllers/order'
 import * as typeStoreController from '../controllers/type-store'
+import * as emailController from '../controllers/email'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -102,3 +103,6 @@ mainRouter.get('/type-store/:id',verifyJWT, typeStoreController.getById)
 mainRouter.post('/type-store/add',verifyJWT, typeStoreController.add)
 mainRouter.post('/type-store/update/:id',verifyJWT, typeStoreController.update)
 mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
+
+// e-mail
+mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
