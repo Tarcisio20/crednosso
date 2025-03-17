@@ -20,6 +20,10 @@ model User {
   email String @unique
   password  String
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 }
 
 model Treasury {
@@ -38,6 +42,10 @@ model Treasury {
   bills_50 Int @default(0)
   bills_100 Int @default(0)
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 
   typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
   typeStore typeStore @relation(fields: [id_type_store], references: [id])
@@ -69,7 +77,8 @@ model Order {
   status_order Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
+
 
   typeOperation TypeOperation @relation(fields: [id_type_operation], references: [id])
   treasuryOrigin Treasury @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
@@ -78,10 +87,31 @@ model Order {
   statusOrder StatusOrder @relation(fields: [status_order], references: [id])
 }
 
+model Supply {
+  id Int @id @default(autoincrement())
+  id_atm Int
+  cassete_A Int
+  cassete_B Int
+  cassete_C Int
+  cassete_D Int
+  total_exchange Boolean @default(false)
+  status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+
+  atm Atm @relation(fields: [id_atm], references: [id])
+}
+
 model StatusOrder {
   id Int @id @default(autoincrement())
   name String @unique
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 
   orders Order[]
 }
@@ -90,6 +120,10 @@ model typeStore {
   id Int @id @default(autoincrement())
   name String @unique
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 
  treasury Treasury[]
 }
@@ -107,7 +141,12 @@ model Atm {
   cassete_D Int
   status Boolean @default(true)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+
   treasury Treasury @relation(fields: [id_treasury], references: [id])
+  supplies Supply[]
 }
 
 model TypeOperation {
@@ -115,6 +154,10 @@ model TypeOperation {
   id_system Int
   name String @unique
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 
   orders Order[]
 }
@@ -125,6 +168,10 @@ model TypeOrder {
   name String @unique
   status Boolean @default(true)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+
   orders Order[]
 }
 
@@ -132,6 +179,10 @@ model TypeSupply {
   id Int @id @default(autoincrement())
   name String @unique
   status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
 
   treasuries Treasury[]
 }
@@ -144,6 +195,10 @@ model Contact {
   phone String
   status Boolean @default(true)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+
   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
 
@@ -154,5 +209,9 @@ model OperatorCard {
   number_card String @unique
   status Boolean @default(true)
 
-   treasury Treasury @relation(fields: [id_treasury], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
 }

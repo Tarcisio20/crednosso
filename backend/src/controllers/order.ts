@@ -348,3 +348,48 @@ export const generatePayment: RequestHandler = async (req, res) => {
   res.json({ order: mergedData })
 }
 
+export const generateReports: RequestHandler = async (req, res) => {
+
+  const safeData = orderGenerateReleaseSchema.safeParse(req.body)
+  if (!safeData.success) {
+    res.json({ error: safeData.error.flatten().fieldErrors })
+    return
+  }
+
+  const allOrders: any = await getOrderByIds(safeData.data)
+  const orders = []
+  const ids_treasuries = []
+  interface Treasury {
+    id_system: number;
+    name: string;
+  }
+  for (let x = 0; (allOrders || []).length > x; x++) {
+    ids_treasuries.push(allOrders[x].id_treasury_origin)
+  }
+  const treasuries = await getForIds(ids_treasuries)
+  const treasuryMap = (treasuries || []).reduce((map, treasury) => {
+    map[treasury.id_system] = treasury;
+    return map;
+  }, {} as Record<number, Treasury>)
+  const mergedData = allOrders?.map((order: any) => {
+    const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
+
+    return {
+      id : order.id,
+      treasury: treasury?.name,
+      value_A : order.requested_value_A,
+      value_B : order.requested_value_B,
+      value_C : order.requested_value_C,
+      value_D : order.requested_value_D,
+      date: order.date_order,
+    }
+  
+  });
+
+  if (!mergedData) {
+    res.status(401).json({ error: 'Erro ao alterar!' })
+    return
+  }
+
+  res.json({ order: mergedData })
+}

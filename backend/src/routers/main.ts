@@ -94,6 +94,7 @@ mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
 mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRelease)
 mainRouter.post('/order/generate-payment',verifyJWT, orderController.generatePayment)
+mainRouter.post('/order/order-for-report',verifyJWT, orderController.generateReports)
 
 
 // type store
@@ -106,3 +107,6 @@ mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
 
 // e-mail
 mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
+
+// Supply
+mainRouter.post('/supply/:day',verifyJWT, emailController.sendEmailToOrder)

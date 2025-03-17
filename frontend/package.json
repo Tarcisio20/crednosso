@@ -17,6 +17,7 @@
     "@types/axios": "^0.9.36",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.0",
