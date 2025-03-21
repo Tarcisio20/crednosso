@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
+import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/atm";
@@ -14,7 +15,6 @@ import {
   faLandmark,
   faVault,
   faReceipt,
-  faListOl,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export default function AtmAdd() {
   const [casseteCAtm, setCasseteCAtm] = useState("50");
   const [casseteDAtm, setCasseteDAtm] = useState("100");
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function AtmAdd() {
   }, []);
 
   const addAtm = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
     if (
@@ -51,8 +51,7 @@ export default function AtmAdd() {
       !validateField(nameRedAtm) ||
       idTreasury === "0"
     ) {
-      console.log("Dentro do erro");
-      setError("Prencher todos os campos");
+      setError({ type: 'error', title: 'Error', messege: 'Para continuar, Prencher todos os campos' })
       setLoading(false);
       return;
     }
@@ -72,11 +71,19 @@ export default function AtmAdd() {
     const addNewAtm = await add(data);
 
     if (addNewAtm.data.atm && addNewAtm.data.atm.id > 0) {
-      router.push("/atm");
+      setError({ type: 'success', title: 'Success', messege: 'Atm Salvo com sucesso!' })
+      setIdSystemAtm("");
+      setNameAtm("");
+      setNameRedAtm("");
+      setNumStoreAtm("");
+      setCasseteAAtm("10");
+      setCasseteBAtm("20");
+      setCasseteCAtm("50");
+      setCasseteDAtm("100");
       setLoading(false);
       return;
     } else {
-      setError("Erro ao salvar");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, atualize e tente novamente' })
       setLoading(false);
       return;
     }
@@ -86,17 +93,13 @@ export default function AtmAdd() {
     setLoading(false);
     setLoading(true);
     const t = await getAll();
-    if(t.status === 300 || t.status === 400 || t.status === 500){
-      setError(
-        "Erro na requisição!"
-      );
+    if (t.status === 300 || t.status === 400 || t.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
       setLoading(false);
       return;
     }
     if (t.data.treasury && t.data.treasury.length === 0) {
-      setError(
-        "Sem tesourarias para ser vinculada, favor adicionar uma tesouraria primeiro!"
-      );
+      setError({ type: 'error', title: 'Error', messege: 'Sem tesourarias para ser vinculada, favor adicionar uma tesouraria primeiro!' })
       setLoading(false);
       return;
     }
@@ -105,6 +108,17 @@ export default function AtmAdd() {
     setLoading(false);
     return;
   };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value) || "";
+    setIdTreasury(value.toString());
+  };
+
+  // Atualiza o estado ao selecionar no select
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasury(event.target.value.toString());
+  };
+
 
   return (
     <Page>
@@ -159,31 +173,36 @@ export default function AtmAdd() {
               icon={faVault}
             />
           </div>
+
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Transportadora
             </label>
-            <div
-              className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
-            >
-              <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={idTreasury}
-                onChange={(e) => setIdTreasury(e.target.value)}
-              >
-                {treasuries &&
-                  treasuries?.map((item, index) => (
-                    <option
-                      key={index}
-                      className="uppercase bg-slate-700 text-white"
-                      value={item.id}
-                    >
-                      {item.short_name}
+            <div className="flex gap-2">
+              <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+                <input
+                  value={idTreasury}
+                  onChange={handleInputChange}
+                  className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+                />
+              </div>
+              <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
+                <select
+                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                  value={idTreasury}
+                  onChange={handleSelectChange}
+                >
+                  {treasuries.map((treasury) => (
+                    <option key={treasury.id} value={treasury.id_system} className="uppercase bg-slate-700 text-white">
+                      {treasury.name}
                     </option>
                   ))}
-              </select>
+                </select>
+              </div>
             </div>
           </div>
+
         </div>
 
         <div className="flex flex-col gap-4">
@@ -353,7 +372,9 @@ export default function AtmAdd() {
               Cadastrar
             </Button>
           </div>
-          {error && <div className="text-white">{error}</div>}
+          {error.messege && 
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
+          }
           {loading && <Loading />}
         </div>
       </div>

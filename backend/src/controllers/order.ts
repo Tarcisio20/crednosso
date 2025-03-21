@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -8,8 +8,9 @@ import { orderAlterPartialSchema } from "../schemas/orderAlterPartialSchema"
 import { alterDateOrderSchema } from "../schemas/alterDataOrderSchema"
 import { orderGenerateReleaseSchema } from "../schemas/orderGenerateReleaseSchema"
 import { returnValueTotal } from "../utils/returnValueTotal"
-import { getForIds, getForIdSystem, updateTreasury } from "../services/treasury"
+import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, updateTreasury } from "../services/treasury"
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
+import { OrderType } from "../types/OrderType"
 
 export const getById: RequestHandler = async (req, res) => {
   const orderId = req.params.id
@@ -26,9 +27,25 @@ export const getById: RequestHandler = async (req, res) => {
   res.json({ order })
 }
 
+export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
+  const date = req.params.date
+  if (!date) {
+    res.status(401).json({ error: 'Preciso de um data para continuar!' })
+    return
+  }
+  const order = await getIdTreasuriesOrderByDate(date)
+
+  if (!order) {
+    res.status(401).json({ error: 'Erro ao salvar!' })
+    return
+  }
+
+  res.json({ order })
+}
+
 export const add: RequestHandler = async (req, res) => {
   const safeData = orderAddSchema.safeParse(req.body)
-  console.log(safeData.error)
+  console.log("no add", safeData.data)
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
@@ -66,6 +83,45 @@ export const add: RequestHandler = async (req, res) => {
     },
     observation: safeData.data.observation === undefined ? '' : safeData.data.observation
   })
+
+  if (
+    safeData.data.id_type_operation === 1 || safeData.data.id_type_operation === 2 ||
+    safeData.data.id_type_operation === 4 || safeData.data.id_type_operation === 5
+  ) {
+    const treasury = await getForIdSystem(safeData.data.id_treasury_destin.toString())
+
+    let data = {
+      bills_10: safeData.data.requested_value_A + (treasury?.bills_10 || 0),
+      bills_20: safeData.data.requested_value_B + (treasury?.bills_20 || 0) ,
+      bills_50: safeData.data.requested_value_C + (treasury?.bills_50 || 0),
+      bills_100: safeData.data.requested_value_D + (treasury?.bills_100 || 0),
+    }
+    console.log("Data", data)
+    await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_destin, data)
+  }
+
+  if (safeData.data.id_type_operation === 3) {
+    const treasuryAdd = await getForIdSystem(safeData.data.id_treasury_destin.toString())
+    const treasuryRemove = await getForIdSystem(safeData.data.id_treasury_origin.toString())
+
+    let dataAdd = {
+      bills_10: treasuryAdd?.bills_10 as number + safeData.data.requested_value_A,
+      bills_20: treasuryAdd?.bills_20 as number + safeData.data.requested_value_B,
+      bills_50: treasuryAdd?.bills_50 as number + safeData.data.requested_value_C,
+      bills_100: treasuryAdd?.bills_100 as number + safeData.data.requested_value_D,
+    }
+    await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_destin, dataAdd)
+
+    let dataRemove = {
+      bills_10: treasuryRemove?.bills_10 as number - safeData.data.requested_value_A,
+      bills_20: treasuryRemove?.bills_20 as number - safeData.data.requested_value_B,
+      bills_50: treasuryRemove?.bills_50 as number - safeData.data.requested_value_C,
+      bills_100: treasuryRemove?.bills_100 as number - safeData.data.requested_value_D,
+    }
+
+    await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_origin, dataRemove)
+  }
+
   if (!newOrder) {
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
@@ -85,6 +141,9 @@ export const alterRequestsById: RequestHandler = async (req, res) => {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
+
+  const oldOrder = await getOrderById(parseInt(orderId))
+
   const newOrder = await alterRequestsOrderForID(parseInt(orderId), {
     requested_value_A: safeData.data.requested_value_A,
     requested_value_B: safeData.data.requested_value_B,
@@ -94,6 +153,19 @@ export const alterRequestsById: RequestHandler = async (req, res) => {
   if (!newOrder) {
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
+  }
+
+ const treasury = await getForIdSystem(newOrder.id_treasury_destin.toString())
+
+  let data = {
+    bills_10: safeData.data.requested_value_A ,
+    bills_20: safeData.data.requested_value_B  ,
+    bills_50: safeData.data.requested_value_C ,
+    bills_100: safeData.data.requested_value_D ,
+  }
+
+  if(treasury){
+    await addBalanceInTreasuryByIdSystem(treasury?.id_system, data )
   }
 
   res.json({ order: newOrder })
@@ -147,11 +219,21 @@ export const delById: RequestHandler = async (req, res) => {
     res.status(401).json({ error: 'Preciso de um ID para continuar!' })
     return
   }
-  const order = await delOrderById(parseInt(orderId))
+  const order : OrderType | null = await delOrderById(parseInt(orderId))
   if (!order) {
-    res.status(401).json({ error: 'Erro ao salvar!' })
+    res.status(401).json({ error: 'Erro ao Deletar!' })
     return
   }
+  const treasury = await getForIdSystem(order?.id_treasury_destin.toString() as string)
+
+  let data = {
+    bills_10: treasury?.bills_10 as number  - order.requested_value_A,
+    bills_20: treasury?.bills_20 as number - order.requested_value_B,
+    bills_50: treasury?.bills_50 as number - order.requested_value_C,
+    bills_100: treasury?.bills_100 as number - order.requested_value_D,
+  }
+  await addBalanceInTreasuryByIdSystem(treasury?.id_system as number, data)
+
 
   res.json({ order })
 }
@@ -163,21 +245,7 @@ export const confirmTotal: RequestHandler = async (req, res) => {
     return
   }
   const order = await confirmTotalByIds(safeData)
-  for (let x = 0; safeData.length > x; x++) {
-    let ord = await getOrderById(safeData[x])
-    if (ord !== null && ord.length > 0) {
-      {
-        let t = await getForIdSystem(ord[0]?.id_treasury_origin.toString())
-        let data: any = {
-          bills_10: t?.bills_10 as number + ord[0]?.confirmed_value_A,
-          bills_20: t?.bills_20 as number + ord[0]?.confirmed_value_B,
-          bills_50: t?.bills_50 as number + ord[0]?.confirmed_value_C,
-          bills_100: t?.bills_100 as number + ord[0]?.confirmed_value_D,
-        }
-        await updateTreasury(ord[0]?.id_treasury_origin, data)
-      }
-    }
-  }
+
   if (!order) {
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
@@ -198,16 +266,6 @@ export const alterPartialByID: RequestHandler = async (req, res) => {
     return
   }
   const order = await alterConfirmPatialById(parseInt(orderId), safeData.data)
-  const t = await getForIdSystem(order?.id_treasury_origin.toString() as string)
-  if (order !== null) {
-    let data = {
-      bills_10: t?.bills_10 as number + order?.confirmed_value_A as number,
-      bills_20: t?.bills_20 as number + order?.confirmed_value_B as number,
-      bills_50: t?.bills_50 as number + order?.confirmed_value_C as number,
-      bills_100: t?.bills_100 as number + order?.confirmed_value_D as number,
-    }
-    await updateTreasury(order?.id_treasury_origin as number, data)
-  }
 
   if (!order) {
     res.status(401).json({ error: 'Erro ao alterar!' })
@@ -375,15 +433,15 @@ export const generateReports: RequestHandler = async (req, res) => {
     const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
 
     return {
-      id : order.id,
+      id: order.id,
       treasury: treasury?.name,
-      value_A : order.requested_value_A,
-      value_B : order.requested_value_B,
-      value_C : order.requested_value_C,
-      value_D : order.requested_value_D,
+      value_A: order.requested_value_A,
+      value_B: order.requested_value_B,
+      value_C: order.requested_value_C,
+      value_D: order.requested_value_D,
       date: order.date_order,
     }
-  
+
   });
 
   if (!mergedData) {

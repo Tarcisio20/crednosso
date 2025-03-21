@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
+import { returnDateFormatted } from "../utils/returnDateFormatted"
 
 
 export const getOrderById = async (id: number) => {
@@ -23,6 +24,22 @@ export const getOrderByIds = async (ids: number[]) => {
       id: {
         in: ids,
       },
+    }
+  })
+  if (order) {
+    return order
+  }
+  return null
+}
+
+export const getIdTreasuriesOrderByDate = async (date: string) => {
+  const order = await prisma.order.findMany({
+    where: {
+      date_order: returnDateFormatted(date),
+    status_order : {not : 5 }
+    },
+    select : {
+      id_treasury_destin : true
     }
   })
   if (order) {

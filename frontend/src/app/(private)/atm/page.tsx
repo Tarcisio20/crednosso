@@ -13,47 +13,54 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { atmType } from "@/types/atmType";
-import { getAll } from "@/app/service/atm";
+import { getAll, getAllPagination } from "@/app/service/atm";
 import { getAll as gtTreasury } from "@/app/service/treasury";
 import { Loading } from "@/app/components/ux/Loading";
 import { treasuryType } from "@/types/treasuryType";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { returnDefault } from "@/app/utils/returnDefault";
+import { Messeger } from "@/app/components/ux/Messeger";
+import { Pagination } from "@/app/components/ux/Pagination";
 
 export default function Atm() {
   const router = useRouter();
 
-  useEffect(() => {
-    getAllAtms();
-  }, []);
-
   const [atms, setAtms] = useState<atmType[]>([]);
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 15;
 
   const handleAdd = () => {
     router.push("/atm/add");
   };
 
-  const getAllAtms = async () => {
-    setError("");
+  useEffect(() => {
+    getAllAtmsPagination();
+  }, [currentPage]);
+
+  const getAllAtmsPagination = async () => {
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
-    const allAtms = await getAll();
+    const allAtms = await getAllPagination(currentPage, pageSize);
     const allTreasury = await gtTreasury();
-    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
-      setError("Erro na requisição!");
+    if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
       setLoading(false);
       return;
     }
-    if (allAtms.data.atm && allAtms.data.atm[0]?.id > 0) {
-      setAtms(allAtms.data.atm);
+    if (allAtms.data.atm.data && allAtms.data.atm.data[0].id > 0) {
+      setAtms(allAtms.data.atm.data);
       setTreasuries(allTreasury.data.treasury);
+      setTotalPages(allAtms.data.atm.totalPages);
       setLoading(false);
       return;
     } else {
-      setError("Sem dados a carregar!");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false);
       return;
     }
@@ -106,14 +113,14 @@ export default function Atm() {
                   </td>
                   <td>Ativo</td>
                   <td className="flex justify-center items-center gap-4 h-12">
-                    <Link href={`/atm/edit/${item.id}`}>
+                    <Link href={`/atm/edit/${item.id_system}`}>
                       <FontAwesomeIcon
                         icon={faPenToSquare}
                         size="1x"
                         color="#6C8EBF"
                       />
                     </Link>
-                    <Link href={`/atm/del/${item.id}`}>
+                    <Link href={`/atm/del/${item.id_system}`}>
                       <FontAwesomeIcon
                         icon={faTrash}
                         size="1x"
@@ -125,10 +132,15 @@ export default function Atm() {
               ))}
           </tbody>
         </table>
-        {error && (
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
+        {atms && totalPages > 1 &&
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
+        }
+        {error.messege && (
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

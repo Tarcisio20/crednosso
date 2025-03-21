@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { atmAddSchema } from "../schemas/atmAdd"
-import { addAtm, getAllAtm, getForId, updateAtm } from "../services/atm"
+import { addAtm, getAllAtm, getAllAtmPagination, getForId, getForIdTreasury, updateAtm } from "../services/atm"
 
 export const getAll: RequestHandler = async (req, res) => {
     const atm = await getAllAtm()
@@ -10,6 +10,41 @@ export const getAll: RequestHandler = async (req, res) => {
     }
     res.json({ atm })
 
+}
+
+export const getAllPagination: RequestHandler = async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 15;
+    const skip = (page - 1) * pageSize;
+
+    const atm = await getAllAtmPagination(page, pageSize)
+    if (!atm) {
+        res.status(401).json({ error: 'Erro ao carregar!' })
+        return
+    }
+    res.json({ atm })
+
+}
+
+export const getAtmsForIdsTreasury: RequestHandler = async (req, res) => {
+    const data = req.body
+    if (!Array.isArray(data) || data.length === 0) {
+        res.status(400).json({ error: 'Erro ao carregar!' })
+        return
+    }
+    const atms = []
+    for (let x = 0; data.length > x; x++) {
+        if(data[x].id_treasury_destin){
+            const a = await getForIdTreasury(data[x].id_treasury_destin)
+            atms.push(a)
+        }
+    }
+
+    if (!atms) {
+        res.status(401).json({ error: 'Erro ao carregar!' })
+        return
+    }
+    res.json({ atm: atms })
 }
 
 export const getById: RequestHandler = async (req, res) => {
@@ -68,4 +103,3 @@ export const update: RequestHandler = async (req, res) => {
     res.json({ atm: updateA })
 
 }
-

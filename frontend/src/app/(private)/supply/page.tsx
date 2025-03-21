@@ -8,9 +8,13 @@ import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
 import { faParachuteBox, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
+
 import { useEffect, useState } from "react";
 
 export default function Supply() {
+
+  const router = useRouter()
 
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
@@ -25,7 +29,8 @@ export default function Supply() {
   }, [])
 
   const handleAdd = () => {
-
+    router.push('/supply/add')
+    return
   }
 
   const handleDaySupplies = async () => {

@@ -288,8 +288,7 @@ export default function Order() {
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
-    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
-
+    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id_order)
     if (orderSelectedOne[0] && orderSelectedOne[0]?.id) {
       setOrderIndividual(orderSelectedOne[0])
       setValueAddA(orderSelectedOne[0].requested_value_A)
@@ -421,10 +420,11 @@ export default function Order() {
     for (let x = 0; itemsSelected.length > x; x++) {
       let chech = false
       let count = 0
-      while (chech === false || count < 8) {
+      while (!chech && count < 8) {
         ++count
         const iSelectedAlter = await delOrderById(itemsSelected[x].id_order)
         if (iSelectedAlter.status === 300 || iSelectedAlter.status === 400 || iSelectedAlter.status === 500) {
+          console.log(iSelectedAlter[0])
           if (!iSelectedAlter[0] || !iSelectedAlter[0].id) {
             return
           }
@@ -786,6 +786,7 @@ export default function Order() {
         <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">
           <tr>
             <th>#</th>
+            <th>Id</th>
             <th>T. Operação</th>
             <th>Cod. Origem</th>
             <th>Trans. Origem</th>
@@ -800,7 +801,8 @@ export default function Order() {
         </thead>
         <tbody className=" text-xl">
           {orders && orders.map((item, index) => (
-            <tr className="h-12" key={index} >
+            <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
+            ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"}`} key={index} >
               <td>
                 <input
                   type="checkbox"
@@ -813,6 +815,7 @@ export default function Order() {
                   }
                 />
               </td>
+              <td>{item.id}</td>
               <td>{returnNameTypeOperation(typeOperations, item.id_type_operation)}</td>
               <td>{item.id_treasury_origin}</td>
               <td>{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>

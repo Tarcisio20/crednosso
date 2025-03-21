@@ -179,31 +179,28 @@ export default function Order() {
     return
   }
 
-  const handleFilterByIdSystemOrigin = () => {
-    const searchId = parseInt(idTreasuryOrigin);
-
-
-    return treasuries.filter(treasury =>
-      !isNaN(searchId) && treasury.id_system === searchId
-    );
-  }
-
-  const handleFilterByIdSystemDestin = () => {
-    const searchId = parseInt(idTreasuryDestin);
-
-
-    return treasuries.filter(treasury =>
-      !isNaN(searchId) && treasury.id_system === searchId
-    );
-  }
-
-  const handleInputChangeOrigin = (e: ChangeEvent<HTMLInputElement>) => {
-    setIdTreasuryOrigin(e.target.value);
+  const handleInputChangeOrigin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value) || "";
+    setIdTreasuryOrigin(value.toString());
   };
 
-  const handleInputChangeDestin = (e: ChangeEvent<HTMLInputElement>) => {
-    setIdTreasuryDestin(e.target.value);
+  // Atualiza o estado ao selecionar no select
+  const handleSelectChangeOrigin = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasuryOrigin(event.target.value.toString());
   };
+
+  const handleInputChangeDestin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value) || "";
+    setIdTreasuryDestin(value.toString());
+  };
+
+  // Atualiza o estado ao selecionar no select
+  const handleSelectChangeDestin = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasuryDestin(event.target.value.toString());
+  };
+
+
+
 
   return (
     <Page>
@@ -249,17 +246,17 @@ export default function Order() {
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
                 value={idTreasuryOrigin}
-                onChange={e => setIdTreasuryOrigin(e.target.value)}
+                onChange={handleSelectChangeOrigin}
               >
-                {handleFilterByIdSystemOrigin().length > 0 ? (
-                  handleFilterByIdSystemOrigin().map(treasury => (
-                    <option key={treasury.id} value={treasury.id} className="uppercase bg-slate-700 text-white">
-                      {treasury.name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="">Nenhum tesouro encontrado</option>
-                )}
+                {treasuries ? treasuries.map((treasury) => (
+                  <option
+                    key={treasury.id}
+                    value={treasury.id_system}
+                    className="bg-slate-700"
+                  >
+                    {treasury.name}
+                  </option>
+                )) : <div>Sem dados a mostrar</div>}
 
               </select>
             </div>
@@ -279,17 +276,18 @@ export default function Order() {
                   <select
                     className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
                     value={idTreasuryDestin}
-                    onChange={e => setIdTreasuryDestin(e.target.value)}
+                    onChange={handleSelectChangeDestin}
                   >
-                    {handleFilterByIdSystemDestin().length > 0 ? (
-                      handleFilterByIdSystemDestin().map(treasury => (
-                        <option key={treasury.id} value={treasury.id} className="uppercase bg-slate-700 text-white">
-                          {treasury.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="">Nenhum tesouro encontrado</option>
-                    )}
+                    {treasuries ? treasuries.map((treasury) => (
+                      <option 
+                      key={treasury.id} 
+                      value={treasury.id_system}
+                      className="bg-slate-700"
+                      >
+                        {treasury.name}
+                      </option>
+                    )) : <div>Sem dados a mostrar</div>}
+
 
                   </select>
                 </div>

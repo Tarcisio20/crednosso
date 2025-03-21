@@ -17,7 +17,7 @@ import {
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function AtmEdit() {
   const { id } = useParams();
@@ -32,7 +32,7 @@ export default function AtmEdit() {
   }, [id]);
 
   const [atms, setAtms] = useState<atmType>()
-  const [treasuries, setTreasuries] = useState<treasuryType[]>()
+  const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [idSystemAtm, setIdSystemAtm] = useState('')
   const [nameAtm, setNameAtm] = useState('')
   const [nameRedAtm, setNameRedAtm] = useState('')
@@ -55,7 +55,7 @@ export default function AtmEdit() {
 
     const atmOne = await getAtmFronId(id as string);
     const t = await getAll();
-    if(t.status === 300 || t.status === 400 || t.status === 500 ){
+    if (t.status === 300 || t.status === 400 || t.status === 500) {
       setError("Erro na requisição");
       setLoading(false);
       return;
@@ -111,7 +111,7 @@ export default function AtmEdit() {
 
     const editedAtm = await update(parseInt(id as string), data);
 
-    if(editedAtm.status === 300 || editedAtm.status === 400 || editedAtm.status === 500){
+    if (editedAtm.status === 300 || editedAtm.status === 400 || editedAtm.status === 500) {
       setError("Erro na requisição");
       setLoading(false);
       return
@@ -124,6 +124,17 @@ export default function AtmEdit() {
     setError("Erro ao Atualizar");
     setLoading(false);
     return
+  };
+
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value) || "";
+    setIdTreasuryAtm(value.toString());
+  };
+
+  // Atualiza o estado ao selecionar no select
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasuryAtm(event.target.value.toString());
   };
 
   return (
@@ -183,26 +194,33 @@ export default function AtmEdit() {
             <label className="uppercase leading-3 font-bold">
               Transportadora
             </label>
-            <div
-              className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
-            >
-              <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-
-                value={idTreasuryAtm}
-                onChange={(e) => setIdTreasuryAtm(e.target.value)}
-              >
-                {treasuries &&
-                  treasuries?.map((item, index) => (
+            <div className="flex gap-2">
+              <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+                <input
+                  value={idTreasuryAtm}
+                  onChange={handleInputChange}
+                  className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+                />
+              </div>
+              <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
+                <select
+                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                  value={idTreasuryAtm}
+                  onChange={handleSelectChange}
+                >
+                  {treasuries ? treasuries.map((treasury) => (
                     <option
-                      className="uppercase bg-slate-700 text-white"
-                      value={item.id}
-                      key={index}
-                    >
-                      {item.name}
+                      key={treasury.id}
+                      value={treasury.id_system}
+                      className="bg-zinc-700">
+                      {treasury.name}
                     </option>
-                  ))}
-              </select>
+                  )) : (
+                    <option value="">Nenhum tesouro encontrado</option>
+                  )}
+
+                </select>
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-5">
