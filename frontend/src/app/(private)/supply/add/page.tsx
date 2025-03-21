@@ -31,11 +31,9 @@ export default function Supply() {
   const pageSize = 15;
 
   useEffect(() => {
-    console.log("Array completo de ATMs:", atms);
     const treasuryId = parseInt(idTreasury);
     const result = atms?.filter(atm => atm.id_treasury === treasuryId);
     setFilteredAtms(result);
-    console.log(result)
   }, [idTreasury, atms]);
 
 
@@ -148,7 +146,7 @@ export default function Supply() {
               {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((atm) => (
                 <div key={atm.id} className="flex items-start gap-3">
                   <input type="checkbox" />
-                  <div className="w-80 h-96  bg-slate-600 flex flex-col items-center pt-6 rounded-md">
+                  <div className="w-64 h-96  bg-slate-600 flex flex-col items-center pt-6 rounded-md">
                     <div className="w-56 h-28 bg-slate-500 flex justify-center items-center border-2 border-zinc-200">
                       <label className="text-4lg text-white">{atm.short_name}</label>
                     </div>
@@ -158,16 +156,16 @@ export default function Supply() {
                     </div>
                     <div className="flex flex-col gap-3 mt-8 w-full pl-4 pr-4">
                       <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6 w-[20%]"></div>
+                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
                       </div>
                       <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6  w-[80%]"></div>
+                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
                       </div>
                       <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6  w-[33%]"></div>
+                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
                       </div>
                       <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6  w-[69%]"></div>
+                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
                       </div>
                     </div>
                   </div>
