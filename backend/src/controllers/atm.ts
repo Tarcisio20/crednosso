@@ -34,10 +34,18 @@ export const getAtmsForIdsTreasury: RequestHandler = async (req, res) => {
     }
     const atms = []
     for (let x = 0; data.length > x; x++) {
-        if(data[x].id_treasury_destin){
-            const a = await getForIdTreasury(data[x].id_treasury_destin)
-            atms.push(a)
-        }
+        if (data[x].id_treasury_destin) {
+            const a = await getForIdTreasury(data[x].id_treasury_destin);
+            if (a) {
+              // Se 'a' já for um array, espalhe seus elementos
+              if (Array.isArray(a)) {
+                atms.push(...a);
+              } else {
+                // Caso não seja array, insira diretamente
+                atms.push(a);
+              }
+            }
+          }
     }
 
     if (!atms) {

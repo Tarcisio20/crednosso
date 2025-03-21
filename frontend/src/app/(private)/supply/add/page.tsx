@@ -31,8 +31,11 @@ export default function Supply() {
   const pageSize = 15;
 
   useEffect(() => {
-    const result = atms?.filter(atm => atm.id_treasury === parseInt(idTreasury));
+    console.log("Array completo de ATMs:", atms);
+    const treasuryId = parseInt(idTreasury);
+    const result = atms?.filter(atm => atm.id_treasury === treasuryId);
     setFilteredAtms(result);
+    console.log(result)
   }, [idTreasury, atms]);
 
 
@@ -66,7 +69,7 @@ export default function Supply() {
     setIdTreasury(treasuriesForIds.data.treasury[0].id_system)
 
     const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
-
+    console.log(atmsForTreasury.data.atm)
     if (atmsForTreasury.status === 300 || atmsForTreasury.status === 400 || atmsForTreasury.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
       setLoading(false)
@@ -142,12 +145,12 @@ export default function Supply() {
           <div className="mt-4 flex flex-row gap-8">
 
             <div className="flex gap-3 items-start">
-              {filteredAtms && filteredAtms.length > 0 &&
-                <>
+              {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((atm) => (
+                <div key={atm.id} className="flex items-start gap-3">
                   <input type="checkbox" />
                   <div className="w-80 h-96  bg-slate-600 flex flex-col items-center pt-6 rounded-md">
                     <div className="w-56 h-28 bg-slate-500 flex justify-center items-center border-2 border-zinc-200">
-                      <label className="text-4lg text-white">ATM XXX</label>
+                      <label className="text-4lg text-white">{atm.short_name}</label>
                     </div>
                     <div className="mt-2 flex items-start gap-2">
                       <label className="uppercase">Troca Total</label>
@@ -168,7 +171,8 @@ export default function Supply() {
                       </div>
                     </div>
                   </div>
-                </>
+                </div>
+              ))
               }
             </div>
 
