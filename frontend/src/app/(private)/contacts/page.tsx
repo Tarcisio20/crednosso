@@ -19,6 +19,7 @@ import { getByIdTreasury } from "@/app/service/contact";
 import { ContactType } from "@/types/contactType";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function Contacts() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function Contacts() {
   const [idTreasury, setIdTreasury] = useState("1");
   const [contacts, setContacts] = useState<ContactType[]>([]);
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,12 +40,12 @@ export default function Contacts() {
   };
 
   const getAllTreasury = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const allTreasuries = await getAll();
-    if(allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500){
-      setError("Erro na requisição");
+    if (allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -54,25 +55,25 @@ export default function Contacts() {
       setLoading(false);
       return;
     } else {
-      setError("Sem dados a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
       return;
     }
   };
 
   const search = async () => {
-    setContacts([])   
-    setError("");
+    setContacts([])
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     if (idTreasury === "" || idTreasury === "0") {
-      setError("Erro ao pesquisar!");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao pesquisar, tente novamente!' });
       setLoading(false);
       return;
     }
     const allContacts = await getByIdTreasury(parseInt(idTreasury));
-    if(allContacts.status === 300 || allContacts.status === 400 || allContacts.status === 500){
-      setError("Erro ma requisição");
+    if (allContacts.status === 300 || allContacts.status === 400 || allContacts.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -81,7 +82,7 @@ export default function Contacts() {
       setLoading(false);
       return;
     } else {
-      setError("Sem contatos a listar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
       return;
     }
@@ -187,7 +188,9 @@ export default function Contacts() {
                 ))}
             </tbody>
           </table>
-          {error && <div className="text-white">{error}</div>}
+          {error.messege &&
+            <Messeger type={error?.type} title={error.title} messege={error.messege} />
+          }
           {loading && <Loading />}
         </div>
       </div>

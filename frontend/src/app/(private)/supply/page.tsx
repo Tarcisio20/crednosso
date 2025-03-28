@@ -6,13 +6,17 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
+import { getSuppliesForDay } from "@/app/service/supply";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
+import { supplyType } from "@/types/supplyType";
 import { faParachuteBox, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";
 
 export default function Supply() {
+
+  const [supplies, setSupplies] = useState<supplyType[]>()
 
   const router = useRouter()
 
@@ -25,8 +29,18 @@ export default function Supply() {
   const pageSize = 15;
 
   useEffect(() => {
-    setCurrentDay(returnDayAtual())
+    const day = returnDayAtual()
+    if (day) {
+      setCurrentDay(day)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!currentDay) return
+    handleDaySupplies()
+
+  }, [currentDay])
+
 
   const handleAdd = () => {
     router.push('/supply/add')
@@ -35,8 +49,26 @@ export default function Supply() {
 
   const handleDaySupplies = async () => {
     setError({ type: '', title: '', messege: '' })
+    setLoading(true)
+    let data = {
+      date: currentDay
+    }
+    const supplayDay = await getSuppliesForDay(data)
+    if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
+      setLoading(false)
+
+    }
+    if (supplayDay.data.supply && supplayDay.data.supply.length > 0) {
+      setSupplies(supplayDay.data.supply)
+      setError({ type: '', title: '', messege: '' })
+      setLoading(false)
+      return
+    }
+    setError({ type: 'error', title: 'Error', messege: 'Sem dados a retornar, tentenovamente!' })
     setLoading(false)
-    
+    console.log(supplayDay)
+
   }
 
   return (

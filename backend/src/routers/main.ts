@@ -32,6 +32,7 @@ mainRouter.get('/treasury-pagination',verifyJWT, treasuryController.getAllPagina
 mainRouter.get('/treasury/:id',verifyJWT, treasuryController.getByIdSystem)
 mainRouter.post('/treasury/add',verifyJWT, treasuryController.add)
 mainRouter.post('/treasury/add_saldo/:id',verifyJWT, treasuryController.addSaldo)
+mainRouter.post('/treasury/minus_saldo/:id',verifyJWT, treasuryController.minusSaldo)
 mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
 mainRouter.post('/treasury/ids',verifyJWT, treasuryController.getTreasuriesForID)
 
@@ -40,6 +41,7 @@ mainRouter.post('/treasury/ids',verifyJWT, treasuryController.getTreasuriesForID
 mainRouter.get('/atm-pagination',verifyJWT, atmController.getAllPagination)
 mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)
+mainRouter.post('/atm/add_balance',verifyJWT, atmController.addBalance)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
 mainRouter.post('/atm/treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
 
@@ -113,4 +115,6 @@ mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
 mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
 
 // Supply
-mainRouter.post('/supply/:day',verifyJWT, supplyController.getAllDay)
+mainRouter.post('/supply/for-day',verifyJWT, supplyController.forDate)
+mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
+mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)

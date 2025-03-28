@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/app/components/ui/Button";
 import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { ModalSupply } from "@/app/components/ux/ModalSuppy";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
@@ -12,30 +12,42 @@ import { getTreasuriesForIds } from "@/app/service/treasury";
 import { atmType } from "@/types/atmType";
 import { treasuryType } from "@/types/treasuryType";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Supply() {
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>()
   const [atms, setAtms] = useState<atmType[]>()
   const [filteredAtms, setFilteredAtms] = useState<atmType[]>()
+  const [filteredTreasury, setFilteredTreasury] = useState<treasuryType[]>()
   const [idTreasury, setIdTreasury] = useState('')
   const [dateSupply, setDateSupply] = useState('')
 
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
   const [currentDay, setCurrentDay] = useState('')
+  const [modal, setModal] = useState(false)
+  const [atmUnique, setAtmUnique] = useState<atmType | null>()
+  const [idAtmSupplied, setIdAtmSupplied] = useState()
+  const [infosAtmSupplied, setInfosAtmsSupplied] = useState({
+    valueA: 0, valueB: 0, valueC: 0, valueD: 0
+  })
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
   useEffect(() => {
+    handleAll()
+  }, [idTreasury, atms]);
+
+
+  const handleAll = () => {
     const treasuryId = parseInt(idTreasury);
     const result = atms?.filter(atm => atm.id_treasury === treasuryId);
     setFilteredAtms(result);
-  }, [idTreasury, atms]);
-
+    filterTreasury()
+  }
 
   const handleTreasuriesForDateOrder = async () => {
 
@@ -43,41 +55,74 @@ export default function Supply() {
     setLoading(true)
     if (dateSupply === '') {
       setError({ type: 'error', title: 'Error', messege: 'Prrencher o campo de data!' })
+      setAtms([])
       setLoading(false)
       return
     }
     const idTreasuriesInOrderDate: any = await getTreasuriesInOrder(dateSupply)
     if (idTreasuriesInOrderDate.status === 300 || idTreasuriesInOrderDate.status === 400 || idTreasuriesInOrderDate.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
+      setAtms([])
       setLoading(false)
       return
     }
     const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
-    if (!treasuriesForIds.data.treasury) {
+    if (!treasuriesForIds?.data?.treasury) {
+      setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na busca por tesourarias, tente novamente!' })
       setLoading(false)
       return
     }
-    if (treasuriesForIds.status === 300 || treasuriesForIds.status === 400 || treasuriesForIds.status === 500) {
+
+    if ([300, 400, 500].includes(treasuriesForIds)) {
+      setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
       setLoading(false)
       return
     }
-    setTreasuries(treasuriesForIds.data.treasury)
+
+    const uniqueTreasury = treasuriesForIds?.data?.treasury.reduce((acc: any, current: any) => {
+      // Verifica se já existe no acumulador um item com o mesmo id_system
+      if (!acc.some((item: any) => item.id_system === current.id_system)) {
+        acc.push(current); // Se não existir, adiciona ao acumulador
+      }
+      return acc;
+    }, []);
+
+    setTreasuries(uniqueTreasury)
+    if (treasuriesForIds.data.treasury.length === 0) {
+      setAtms([])
+      setError({ type: 'error', title: 'Error', messege: 'Sem pedidos a retornar!' })
+      setLoading(false)
+      return
+    }
     setIdTreasury(treasuriesForIds.data.treasury[0].id_system)
 
     const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
-    console.log(atmsForTreasury.data.atm)
     if (atmsForTreasury.status === 300 || atmsForTreasury.status === 400 || atmsForTreasury.status === 500) {
+      setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
       setLoading(false)
       return
     }
     if (atmsForTreasury.data.atm && atmsForTreasury.data.atm[0].id > 0) {
-      setAtms(atmsForTreasury.data.atm)
+
+      const uniqueAtms = atmsForTreasury.data.atm.reduce((acc: any, current: any) => {
+        // Verifica se já existe no acumulador um item com o mesmo id_system
+        if (!acc.some((item: any) => item.id_system === current.id_system)) {
+          acc.push(current); // Se não existir, adiciona ao acumulador
+        }
+        return acc;
+      }, []);
+
+      setAtms(uniqueAtms)
       setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
+    }else{
+      setAtms([])
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao filtrar atms' })
+      setLoading(false)
     }
   }
 
@@ -85,11 +130,55 @@ export default function Supply() {
     const value = Number(event.target.value) || "";
     setIdTreasury(value.toString());
   };
-
   // Atualiza o estado ao selecionar no select
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setIdTreasury(event.target.value.toString());
   };
+
+  const handleCloseModal = () => {
+    setError({ type: '', title: '', messege: '' })
+    setLoading(false)
+    setAtmUnique(undefined)
+    setModal(false)
+  }
+
+  const handleChecked = (event: React.ChangeEvent<HTMLInputElement>, atm: atmType) => {
+    if (event.target.checked) {
+      setAtmUnique(atm); // Define o ATM selecionado
+      setModal(true)
+    } else {
+      setAtmUnique(null); // Desmarca o ATM se o checkbox for desmarcado
+    }
+
+  }
+
+  const filterTreasury = () => {
+    if (idTreasury) {
+      setFilteredTreasury(treasuries?.filter(treasury => treasury.id_system === parseInt(idTreasury)))
+    }
+  }
+
+  const handleSave = () => {
+    setError({ type: '', title: '', messege: '' })
+    setLoading(false)
+    handleTreasuriesForDateOrder()
+    handleCloseModal()
+  }
+
+  const handleSaveAndExclude = () => {
+    handleTreasuriesForDateOrder()
+    /*if (treasuries && filteredTreasury && filteredTreasury.length > 0) {
+      const filtered = treasuries.filter(
+        (treasury) =>
+          !filteredTreasury.some(
+            (filteredItem) => filteredItem.id_system === treasury.id_system
+          )
+      );*/
+    // setTreasuries(filtered);
+    // handleAll()
+    //}
+    handleCloseModal()
+  }
 
 
   return (
@@ -145,14 +234,15 @@ export default function Supply() {
             <div className="flex gap-3 items-start">
               {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((atm) => (
                 <div key={atm.id} className="flex items-start gap-3">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={atmUnique?.id === atm.id}
+                    onChange={(event) => handleChecked(event, atm)}
+                  />
                   <div className="w-64 h-96  bg-slate-600 flex flex-col items-center pt-6 rounded-md">
-                    <div className="w-56 h-28 bg-slate-500 flex justify-center items-center border-2 border-zinc-200">
+                    <div className="w-56 h-28 bg-slate-500 flex flex-col gap-2 justify-center items-center border-2 border-zinc-200">
+                      <label className="text-4lg text-white">{atm.id_system}</label>
                       <label className="text-4lg text-white">{atm.short_name}</label>
-                    </div>
-                    <div className="mt-2 flex items-start gap-2">
-                      <label className="uppercase">Troca Total</label>
-                      <input type="checkbox" />
                     </div>
                     <div className="flex flex-col gap-3 mt-8 w-full pl-4 pr-4">
                       <div className="bg-slate-500 min-h-6 w-[100%]">
@@ -182,6 +272,14 @@ export default function Supply() {
       }
       {loading &&
         <Loading />
+      }
+      {modal &&
+        <ModalSupply
+          atmIndividual={atmUnique}
+          onClose={handleCloseModal}
+          treasury={filteredTreasury}
+          onSave={handleSave}
+        />
       }
     </Page>
   );

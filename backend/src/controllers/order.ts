@@ -45,7 +45,6 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
 
 export const add: RequestHandler = async (req, res) => {
   const safeData = orderAddSchema.safeParse(req.body)
-  console.log("no add", safeData.data)
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
@@ -96,7 +95,6 @@ export const add: RequestHandler = async (req, res) => {
       bills_50: safeData.data.requested_value_C + (treasury?.bills_50 || 0),
       bills_100: safeData.data.requested_value_D + (treasury?.bills_100 || 0),
     }
-    console.log("Data", data)
     await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_destin, data)
   }
 

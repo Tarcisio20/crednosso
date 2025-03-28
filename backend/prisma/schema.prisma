@@ -94,6 +94,7 @@ model Supply {
   cassete_B Int
   cassete_C Int
   cassete_D Int
+  date DateTime @default(now())
   total_exchange Boolean @default(false)
   status Boolean @default(true)
 
@@ -101,7 +102,7 @@ model Supply {
   updatedAt DateTime @updatedAt @default(now())
 
 
-  atm Atm @relation(fields: [id_atm], references: [id])
+  atm Atm @relation(fields: [id_atm], references: [id_system])
 }
 
 model StatusOrder {
@@ -130,7 +131,7 @@ model typeStore {
 
 model Atm {
   id Int @id @default(autoincrement())
-  id_system Int
+  id_system Int @unique
   name String @unique
   short_name String @unique
   id_treasury Int

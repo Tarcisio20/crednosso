@@ -32,6 +32,7 @@ import { ContactType } from "@/types/contactType";
 import { getByIdTreasury } from "@/app/service/contact";
 import { returnArraytoString } from "@/app/utils/returnArraytoString";
 import { typeStoreType } from "@/types/typeStoreType";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function TreasuryEdit() {
 
@@ -58,7 +59,7 @@ export default function TreasuryEdit() {
   const [saldoTreasury, setSaldoTreasury] = useState('0')
   const [statusTreasury, setStatusTreasury] = useState(false)
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type : '', title : '', messege : '' });
   const [loading, setLoading] = useState(false);
 
   const [modal, setModal] = useState(false);
@@ -88,7 +89,18 @@ export default function TreasuryEdit() {
   };
 
   const getTreasuryByIdSystem = async () => {
+    setError({
+      type : '',
+      title : '',
+      messege : ''
+    });
+    setLoading(true)
     const treasuryOne = await getByIdSystem(id as string);
+    if(treasuryOne.status === 300 || treasuryOne.status === 400 || treasuryOne.status === 500){
+      setError({ type : 'error', title : 'Error', messege : 'Erro na requisição, tentar novamente!' })
+      setLoading(false)
+      return
+    }
     if (treasuryOne.data.treasury.id) {
       setTreasury(treasuryOne.data.treasury)
       setIdSystemTreasury(treasuryOne.data.treasury.id_system)
@@ -115,19 +127,22 @@ export default function TreasuryEdit() {
       setValueB(treasuryOne.data.treasury.bills_20);
       setValueC(treasuryOne.data.treasury.bills_50);
       setValueD(treasuryOne.data.treasury.bills_100);
+      setError({ type : '', title : '', messege : '' });
+      setLoading(false)
     } else {
-      setError("Item não econtrado");
+      setError({ type : 'error', title : 'Error', messege : 'Item não encontrado, tente novamente!' });
+      setLoading(false)
       return;
     }
   };
 
   const getTypeSuplies = async () => {
-    setError("");
+    setError({ type : '', title : '', messege : '' });
     setLoading(false);
     setLoading(true);
     const tSupplies = await getAll();
     if(tSupplies.status === 300 || tSupplies.status === 400 || tSupplies.status === 500){
-      setError("Erro na requisição");
+      setError({ type : 'error', title : 'Error', messege : 'Erro na requisição, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -136,43 +151,46 @@ export default function TreasuryEdit() {
       setLoading(false);
       return;
     }
-    setError("Erro ao retornar dados");
+    setError({ type : 'error', title : 'Error', messege : 'Erro ao retornar dados, tente novamente!' });
     setLoading(false);
     return;
   };
 
   const getAllContactsByIdTreasury = async () => {
-    setError("");
+    setError({ type : '', title : '', messege : '' });
     setLoading(false);
     setLoading(true);
     const ctc = await getByIdTreasury(parseInt(id as string));
     if (ctc.data.contact.length === 0) {
+      setError({ type : '', title : '', messege : '' });
       setContact("Sem contatos a mostrar");
       setLoading(false);
       return;
     }
     setContact(returnArraytoString(ctc.data.cantact));
+    setError({ type : '', title : '', messege : '' });
     setLoading(false);
     return;
   };
 
   const getTypeStore = async () => {
-    setError("");
+    setError({ type : '', title : '', messege : '' });
     setLoading(false);
     setLoading(true);
 
     const tStore = await getllTypeStore()
     if(tStore.status === 300 || tStore.status === 400 || tStore.status === 500){
-      setError("Erro na requisição");
+      setError({ type : 'error', title : 'Error', messege : 'Erro na requisição, tente novamente!' });
       setLoading(false);
       return;
     }
     if (tStore.data.typeStore && tStore.data.typeStore[0].id > 0) {
       setTypeStores(tStore.data.typeStore);
+      setError({ type : '', title : '', messege : '' });
       setLoading(false);
       return;
     }
-    setError("Erro ao retornar dados");
+    setError({ type : 'error', title : 'Error', messege : 'Erro ao retornar dados, tente novamente!' });
     setLoading(false);
     return;
   }
@@ -203,7 +221,8 @@ export default function TreasuryEdit() {
     };
     const saldo = await addSaldoTreasury(parseInt(id as string), data);
     if (!saldo.data.treasury) {
-      setError("Erro ao salvar");
+      setError({ type : 'error', title : 'Error', messege : 'Erro ao salvar, tente novamente!' });
+      setLoading(false)
       return
     }
     closeModal();
@@ -212,7 +231,7 @@ export default function TreasuryEdit() {
   };
 
   const alterTreasury = async () => {
-    setError("");
+    setError({ type : '', title : '', messege : '' });
     setLoading(false);
     setLoading(true);
     if (
@@ -220,9 +239,8 @@ export default function TreasuryEdit() {
       !validateField(nameRedTreasury) || numContaTreasury === "" ||
       regionTreasury === '' || idTypeStore === "" || idTypeSupply === ""
     ) {
-      setError(
-        "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
-      );
+      setError({ type : 'error', title : 'Error', messege : 'Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.' });
+      setLoading(false)
       return;
     }
     let data = {
@@ -244,10 +262,11 @@ export default function TreasuryEdit() {
     const editTreasury = await update(parseInt(id as string), data)
     if (editTreasury.data.treasury && editTreasury.data.treasury.id > 0) {
       await getTreasuryByIdSystem();
+      setError({ type : '', title : '', messege : '' })
       setLoading(false);
       return;
     } else {
-      setError("Erro ao Editar");
+      setError({ type : 'error', title : 'Error', messege : 'Erro ao editar, tente novamente!' })
       setLoading(false);
       return;
     }
@@ -597,11 +616,9 @@ export default function TreasuryEdit() {
               </div>
             </div>
           )}
-          {error && (
-            <div>
-              <div className="text-white">{error}</div>
-            </div>
-          )}
+          {error.messege && 
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
+          }
           {loading && <Loading />}
         </div>
       </div>

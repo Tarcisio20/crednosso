@@ -67,6 +67,18 @@ export const addAtm = async (data : Prisma.AtmCreateInput) => {
     return null
 }
 
+export const addBalanceAtm = async (id: number , data : Prisma.AtmUpdateInput) => {
+    const atm = await prisma.atm.update({ 
+        where : { id_system :  id},
+        data 
+    })
+    if(atm){
+        return atm
+    }
+    return null
+}
+
+
 export const updateAtm = async (id : number , data : Prisma.AtmUpdateInput) => {
     const editAtm = await prisma.atm.update({
         where : {

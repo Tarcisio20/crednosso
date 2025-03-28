@@ -1,8 +1,11 @@
-import { useRouter } from 'next/router';
+"use client"
+
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Cookies from "js-cookie";
+import { Page } from '@/app/components/ux/Page';
 
-export default function Logout() {
+export default function SignOut() {
   const router = useRouter();
 
   useEffect(() => {
@@ -10,9 +13,16 @@ export default function Logout() {
   }, [router]);
 
   const handleSair = async () => {
+    console.log("Chegie na saida")
+    await Cookies.set("tokenSystemCredNosso", "", { path: "/" });
     await Cookies.remove("tokenSystemCredNosso", { path: "/" });
-    router.push('/login');
+    setTimeout(() => {
+      router.push('/sign-in');
+    }, 200);
   }
 
-  return <div>Saindo...</div>;
+  return <Page>
+    <div className='text-white'>Saindo...</div>;
+  </Page>
+
 }

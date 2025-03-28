@@ -49,6 +49,7 @@ export default function TypeOrder() {
       setLoading(false)
       return
     }
+
     if (tOrders.data && tOrders.data.length > 0) {
       settypeOrders(tOrders.data)
       setTotalPages(tOrders.meta.totalPages);
@@ -56,6 +57,9 @@ export default function TypeOrder() {
       setLoading(false)
       return
     }
+
+    setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados!' })
+    setLoading(false)
   }
 
   return (

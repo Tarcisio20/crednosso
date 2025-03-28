@@ -46,7 +46,8 @@ export default function StatusOrder() {
       setLoading(false);
       return;
     }
-    if (statusOrder.data && statusOrder.data[0].id > 0) {
+    
+    if (statusOrder.data && statusOrder.data.length > 0) {
       setStatusOrders(statusOrder.data);
       setTotalPages(statusOrder.meta.totalPages);
       setLoading(false);

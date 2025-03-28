@@ -38,6 +38,18 @@ export const getAllTreasuryPagination = async (page: number, pageSize: number) =
     }
 }
 
+export const getForIdSystemEdit = async (id: string) => {
+    const treasury = await prisma.treasury.findFirst({
+        where: { 
+            id_system : parseInt(id)
+         }
+    })
+    if (treasury) {
+        return treasury;
+    }
+    return null
+}
+
 export const getForIdSystem = async (id: string) => {
     const treasury = await prisma.treasury.findFirst({
         where: { 
@@ -45,7 +57,15 @@ export const getForIdSystem = async (id: string) => {
          }
     })
     if (treasury) {
+        const total =
+      (treasury.bills_10 ?? 0) +
+      (treasury.bills_20 ?? 0) +
+      (treasury.bills_50 ?? 0) +
+      (treasury.bills_100 ?? 0);
+
+       if(total > 0){
         return treasury
+       }
     }
     return null
 }
@@ -96,6 +116,7 @@ export const addBalanceInTreasuryByIdSystem = async (id: number,
     }
     return null
 }
+
 
 export const updateTreasury = async (id: number, data: Prisma.TreasuryUpdateInput) => {
     const editTreasury = await prisma.treasury.update({

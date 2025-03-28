@@ -42,14 +42,13 @@ export default function TypeSupply() {
     setLoading(false);
     setLoading(true);
     const typeSupplies = await getAllPagination(currentPage, pageSize);
-    console.log(typeSupplies.data[0].id)
     if (typeSupplies.status === 300 || typeSupplies.status === 400 || typeSupplies.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' })
       setLoading(false);
       return
     }
-
-    if (typeSupplies.data[0].id && typeSupplies.data[0].id > 0) {
+    console.log(typeSupplies)
+    if (typeSupplies.data && typeSupplies.data.length > 0) {
       setTypeSupplies(typeSupplies.data);
       setTotalPages(typeSupplies.meta.totalPages);
       setLoading(false);

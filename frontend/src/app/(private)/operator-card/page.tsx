@@ -19,6 +19,7 @@ import { getByIdTreasury } from "@/app/service/card-operator";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function OperatorCard() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function OperatorCard() {
 
   const [cardOperators, setCardOperators] = useState<cardOperatorType[]>([]);
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,12 +42,12 @@ export default function OperatorCard() {
   };
 
   const getAllTreasuries = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
-    if(allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500){
-      setError("Erro na requisição!");
+    if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setLoading(false);
       return;
     }
@@ -56,18 +57,18 @@ export default function OperatorCard() {
       setLoading(false);
       return;
     } else {
-      setError("Erro ao retornar dados!");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados, tente novamente!' })
       setLoading(false);
       return;
     }
   };
 
   const search = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
     if (idTreasury === "" || idTreasury === "0") {
-      setError("Erro ao pesquisar!");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao pesquisar, tente novamente!' })
       setLoading(false);
       return;
     }
@@ -77,7 +78,7 @@ export default function OperatorCard() {
       allCardOperator?.status === 500 ||
       allCardOperator?.status === 300
     ) {
-      setError("Sem dados a mostrar no nomento!");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' })
       setLoading(false);
     }
     if (allCardOperator?.data.cardOperator || allCardOperator?.data.cardOperator?.id > 0) {
@@ -85,7 +86,7 @@ export default function OperatorCard() {
       setLoading(false);
       return;
     } else {
-      setError("Sem contatos a listar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem cartões a listar, tente novamente!' })
       setLoading(false);
       return;
     }
@@ -188,7 +189,9 @@ export default function OperatorCard() {
               ))}
           </tbody>
         </table>
-        {error && <div className="text-white">{error}</div>}
+        {error.messege && (
+          <Messeger type={error?.type} title={error.title} messege={error.messege} />
+        )}
         {loading && <Loading />}
       </div>
     </Page>

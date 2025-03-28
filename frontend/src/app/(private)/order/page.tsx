@@ -16,6 +16,7 @@ import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { add } from "@/app/service/order";
 import { useRouter } from "next/navigation";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function Order() {
 
@@ -38,7 +39,7 @@ export default function Order() {
   const [valueD, setValueD] = useState(0)
   const [obs, setObs] = useState('')
 
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -52,12 +53,12 @@ export default function Order() {
   }
 
   const typeOperationFunction = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     const tOperation = await getAll()
     if (tOperation.status === 300 || tOperation.status === 400 || tOperation.status === 500) {
-      setError("Erro na requisição!")
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' })
       setLoading(false)
       return
     }
@@ -67,23 +68,22 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError('Sem dados a carregar')
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar!' })
       setLoading(false)
       return
     }
   }
 
   const treasuriesFunction = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     const t = await getAllTreasury()
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError('Erro na requisição')
+      setError({ type: 'error', title: 'Error', messege: 'Erro na  requisição, tentar novamente!' })
       setLoading(false)
       return
     }
-    console.log(t.data.treasury[0].id_system)
     if (t.data.treasury && t.data.treasury[0]?.id > 0) {
       setTreasuries(t.data.treasury)
       setIdTreasuryOrigin(t.data.treasury[0].id_system)
@@ -91,7 +91,7 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError("Sem dados a retornar!")
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false)
       return
     }
@@ -100,12 +100,12 @@ export default function Order() {
   }
 
   const typeOrderFunction = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     const tOrder = await getAllTypeOrder()
     if (tOrder.status === 300 || tOrder.status === 400 || tOrder.status === 500) {
-      setError('Erro na requisição')
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })
       setLoading(false)
       return
     }
@@ -115,21 +115,21 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError("Sem dados a mostrar")
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false)
       return
     }
   }
 
   const saveOrder = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     if (
       idTypeOperation === '' || idTreasuryOrigin === '' || idTreasuryDestin === '' || idTypeOrder === '' ||
       dateOrder === ''
     ) {
-      setError("Preencher todos os dados!")
+      setError({ type: 'error', title: 'Error', messege: 'Preencher todos os campos para continuar' })
       setLoading(false)
       return
     }
@@ -149,7 +149,7 @@ export default function Order() {
     }
     const newOrder = await add(data)
     if (newOrder.status === 300 || newOrder.status === 400 || newOrder.status === 500) {
-      setError("Erro de requisição!")
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })
       setLoading(false)
       return
     }
@@ -164,11 +164,11 @@ export default function Order() {
       setValueC(0)
       setValueD(0)
       setObs('')
-      setError('')
+      setError({ type: 'success', title: 'Success', messege: 'Adicionado com sucesso!' })
       setLoading(false)
       return
     } else {
-      setError("Erro ao salvar!")
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar tentar novamente!' })
       setLoading(false)
       return
     }
@@ -424,8 +424,8 @@ export default function Order() {
         <Button color="#2E8B57" onClick={searchOrder} size="large" textColor="white" secondaryColor="#81C784"  >Pesquisar</Button>
       </div>
       <div className="mt-5 flex flex-row gap-3">
-        {error &&
-          <p className="text-white">{error}</p>
+        {error.messege &&
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
         }
         {loading &&
           <Loading />

@@ -53,7 +53,8 @@ export default function Atm() {
       setLoading(false);
       return;
     }
-    if (allAtms.data.atm.data && allAtms.data.atm.data[0].id > 0) {
+
+    if (allAtms.data.atm.data && allAtms.data.atm.data.length > 0) {
       setAtms(allAtms.data.atm.data);
       setTreasuries(allTreasury.data.treasury);
       setTotalPages(allAtms.data.atm.totalPages);

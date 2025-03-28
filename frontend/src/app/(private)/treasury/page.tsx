@@ -46,7 +46,7 @@ export default function Treasury() {
     setLoading(false);
     setLoading(true);
     const treasury = await getAllTreasuryPagination(currentPage, pageSize);
-    if (treasury) {
+    if (treasury.data && treasury.data.length > 0) {
       setTreasuries(treasury.data);
       setTotalPages(treasury.meta.totalPages);
       setLoading(false);

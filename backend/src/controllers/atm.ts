@@ -1,6 +1,7 @@
 import { RequestHandler } from "express"
 import { atmAddSchema } from "../schemas/atmAdd"
-import { addAtm, getAllAtm, getAllAtmPagination, getForId, getForIdTreasury, updateAtm } from "../services/atm"
+import { addAtm, addBalanceAtm, getAllAtm, getAllAtmPagination, getForId, getForIdTreasury, updateAtm } from "../services/atm"
+import { atmAddBalabceSchema } from "../schemas/atmAddBalabceSchema"
 
 export const getAll: RequestHandler = async (req, res) => {
     const atm = await getAllAtm()
@@ -37,15 +38,15 @@ export const getAtmsForIdsTreasury: RequestHandler = async (req, res) => {
         if (data[x].id_treasury_destin) {
             const a = await getForIdTreasury(data[x].id_treasury_destin);
             if (a) {
-              // Se 'a' já for um array, espalhe seus elementos
-              if (Array.isArray(a)) {
-                atms.push(...a);
-              } else {
-                // Caso não seja array, insira diretamente
-                atms.push(a);
-              }
+                // Se 'a' já for um array, espalhe seus elementos
+                if (Array.isArray(a)) {
+                    atms.push(...a);
+                } else {
+                    // Caso não seja array, insira diretamente
+                    atms.push(a);
+                }
             }
-          }
+        }
     }
 
     if (!atms) {
@@ -94,6 +95,27 @@ export const add: RequestHandler = async (req, res) => {
 
     res.json({ atm: newTAtm })
 }
+
+export const addBalance: RequestHandler = async (req, res) => {
+    const atmId = req.params.id
+    if (!atmId) {
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+    const safeData = atmAddBalabceSchema.safeParse(req.body)
+    if (!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const newTAtm = await addBalanceAtm(parseInt(atmId), safeData.data)
+    if (!newTAtm) {
+        res.status(401).json({ error: 'Erro ao salvar!' })
+        return
+    }
+
+    res.json({ atm: newTAtm })
+}
+
 
 export const update: RequestHandler = async (req, res) => {
     const atmId = req.params.id
