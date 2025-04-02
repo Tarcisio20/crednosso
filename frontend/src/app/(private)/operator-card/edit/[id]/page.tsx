@@ -13,6 +13,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { getCardOperatorById, update } from "@/app/service/card-operator";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { validateField } from "@/app/utils/validateField";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function OperationCardEdit() {
 
@@ -27,7 +28,7 @@ export default function OperationCardEdit() {
 
   const [cardOperator, setCardOperator] = useState<cardOperatorType>()
 
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function OperationCardEdit() {
   }
 
   const getAllTreasuries = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' });
     setLoading(false)
     setLoading(true)
     const allTreasuries = await getAll()
@@ -50,14 +51,14 @@ export default function OperationCardEdit() {
       setLoading(false)
       return
     } else {
-      setError('Erro ao carregar dados')
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar os dados, tentar novamente!' });
       setLoading(false)
       return
     }
   }
 
   const getById = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' });
     setLoading(false)
     setLoading(true)
     const cOperator = await getCardOperatorById(id as string)
@@ -70,20 +71,20 @@ export default function OperationCardEdit() {
       setLoading(false)
       return
     } else {
-      setError("Erro ao carregar dados")
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar os dados, tentar novamente!' });
       setLoading(false)
       return
     }
   }
 
   const editCardOperator = async () => {
-    setError('')
+    setError({ type: '', title: '', messege: '' });
     setLoading(false)
     setLoading(true)
     if (
       idTreasury === '' || idTreasury === '0' || !validateField(nameOperatorCard) || !validateField(numOperatorCard)
     ) {
-      setError('Prrencha todos os campos')
+      setError({ type: 'error', title: 'Error', messege: 'Preencer todos os campos!' });
       setLoading(false)
       return
     }
@@ -101,37 +102,58 @@ export default function OperationCardEdit() {
       allLOadings()
       return
     } else {
-      setError("Erro ao editar")
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao Editar, tentar novamente!' });
       setLoading(false)
       return
     }
 
   }
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value) || "";
+    setIdTreasury(value.toString());
+  };
+
+  // Atualiza o estado ao selecionar no select
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasury(event.target.value.toString());
+  };
 
 
   return (
     <Page>
       <TitlePages linkBack="/operator-card" icon={faPenToSquare} >Editar Cartão Operador</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
+
+
         <div className="flex flex-col gap-5">
-          <label className="uppercase leading-3 font-bold">Transportadora</label>
-          <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
-            <select
-              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-              value={idTreasury}
-              onChange={e => setIdTreasury(e.target.value)}
-            >
-              {treasuries && treasuries.map((item, index) => (
-                <option
-                  className="uppercase bg-slate-700 text-white"
-                  value={item.id} key={index} >
-                  {item.name}
-                </option>
-              ))}
-            </select>
+          <label className="uppercase leading-3 font-bold">
+            Transportadora
+          </label>
+          <div className="flex gap-2">
+            <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+              <input
+                value={idTreasury}
+                onChange={handleInputChange}
+                className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+              />
+            </div>
+            <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
+              <select
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                value={idTreasury}
+                onChange={handleSelectChange}
+              >
+                {treasuries && treasuries.map((treasury) => (
+                  <option key={treasury.id} value={treasury.id_system} className="uppercase bg-slate-700 text-white">
+                    {treasury.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
+
         <div className="flex flex-col gap-5">
           <label className="uppercase leading-3 font-bold">Nome</label>
           <Input color="#DDDD" placeholder="Digite o número do cartão" size="extra-large"
@@ -166,10 +188,8 @@ export default function OperationCardEdit() {
         <div>
           <Button color="#2E8B57" onClick={editCardOperator} size="meddium" textColor="white" secondaryColor="#81C784">Editar</Button>
         </div>
-        {error &&
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
+        {error.messege &&
+         <Messeger type={error.type} title={error.title} messege={error.messege} />
         }
         {loading &&
           <Loading />

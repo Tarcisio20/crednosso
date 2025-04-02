@@ -18,6 +18,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { getContactById, update } from "@/app/service/contact";
 import { ContactType } from "@/types/contactType";
 import { validateField } from "@/app/utils/validateField";
+import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function ContactsEdit() {
 
@@ -32,7 +33,7 @@ export default function ContactsEdit() {
   const [statusContact, setStatusContact] = useState(true)
   const [contact, setContact] = useState<ContactType>()
 
-  const [error, setError] = useState('')
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
 
@@ -42,12 +43,12 @@ export default function ContactsEdit() {
   }, [id])
 
   const getAllTreasuries = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const allTreasuries = await getAll();
     if (allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500) {
-      setError("Erro na requisição");
+      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -56,19 +57,19 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     } else {
-      setError("Erro ao carregar dados");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar dados, tente novamente!' });
       setLoading(false);
       return;
     }
   };
 
   const getById = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const cont = await getContactById(id as string);
     if (cont.status === 300 || cont.status === 400 || cont.status === 500) {
-      setError("Erro na requisição");
+      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -82,7 +83,7 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     } else {
-      setError("Erro ao carregar dados");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar dados, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -94,7 +95,7 @@ export default function ContactsEdit() {
   };
 
   const editContact = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     if (
@@ -104,7 +105,7 @@ export default function ContactsEdit() {
       !validateField(phoneContact) ||
       !validateField(emailContact)
     ) {
-      setError("Preencher todos os campos!");
+      setError({ type: 'error', title: 'Error', messege: 'Preencher todos os campos!' });
       setLoading(false);
       return;
     }
@@ -119,16 +120,17 @@ export default function ContactsEdit() {
 
     const editedContact = await update(parseInt(id as string), data);
     if (editedContact.status === 300 || editedContact.status === 400 || editedContact.status === 500) {
-      setError("Erro na requisição");
+      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
       return;
     }
     if (editedContact.data.contact?.id) {
+      setError({ type: 'success', title: 'Success', messege: 'Dados atualizados!' });
       setLoading(false);
       AllLoadings();
       return;
     } else {
-      setError("Erro ao editar");
+      setError({ type: 'error', title: 'Error', messege: 'Erro ao Editar, tente novamente!' });
       setLoading(false);
       return;
     }
@@ -185,6 +187,7 @@ export default function ContactsEdit() {
             value={phoneContact}
             onChange={(e) => setPhoneContact(e.target.value)}
             icon={faMobile}
+            mask="phone"
           />
         </div>
         <div className="flex flex-col gap-5">
@@ -228,10 +231,8 @@ export default function ContactsEdit() {
             Editar
           </Button>
         </div>
-        {error && (
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
+        {error.messege && (
+         <Messeger type={error.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

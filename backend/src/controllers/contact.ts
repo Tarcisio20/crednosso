@@ -30,7 +30,7 @@ export const add: RequestHandler = async (req, res) => {
     },
     name: safeData.data.name,
     email: safeData.data.email,
-    phone: safeData.data.phone,
+    phone: safeData.data.phone ?? '',
   });
   if (!newContact) {
     res.status(401).json({ error: "Erro ao salvar!" });

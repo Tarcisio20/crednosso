@@ -208,6 +208,7 @@ model OperatorCard {
   id_treasury Int
   name String @unique
   number_card String @unique
+  inUse Boolean @default(false)
   status Boolean @default(true)
 
   createdAt DateTime @default(now())

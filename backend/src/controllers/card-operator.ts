@@ -45,6 +45,7 @@ export const add: RequestHandler = async (req, res) => {
     },
     name: safeData.data.name,
     number_card: safeData.data.number_card,
+    inUse : safeData.data.inUse ?? false
   });
   if (!newCardOperator) {
     res.status(401).json({ error: "Erro ao salvar!" });
