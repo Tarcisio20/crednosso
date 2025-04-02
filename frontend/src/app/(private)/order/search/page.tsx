@@ -72,7 +72,7 @@ export default function Order() {
   const [valueAddB, setValueAddB] = useState(0)
   const [valueAddC, setValueAddC] = useState(0)
   const [valueAddD, setValueAddD] = useState(0)
-
+  const [obs, setObs] = useState("")
   const [dateAlter, setDateAlter] = useState('')
 
   const [elementRelaease, setElementRelease] = useState<pdfGeneratorReleaseType[]>([])
@@ -296,6 +296,7 @@ export default function Order() {
       setValueAddC(orderSelectedOne[0].requested_value_C)
       setValueAddD(orderSelectedOne[0].requested_value_D)
       setModalViewOrder(true)
+      setObs(orderSelectedOne[0].observation)
       setError('')
       setLoading(false)
       return
@@ -338,6 +339,7 @@ export default function Order() {
       requested_value_B: valueAddB,
       requested_value_C: valueAddC,
       requested_value_D: valueAddD,
+      observation : obs
     }
     const orderSave = await alterValueOrder(orderIndivudual?.id as number, data)
     if (orderSave.status === 300 || orderSave.status === 400 || orderSave === 500) {
@@ -677,19 +679,18 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const orders = await getOrderByIdForReport(idsSelected)
-    if(orders.status === 300 || orders.status === 400 || orders.status === 500){
+    if (orders.status === 300 || orders.status === 400 || orders.status === 500) {
       setError("Erro na requisição")
       setLoading(false)
       return
     }
-    console.log(orders)
-    if(orders.data.order && orders.data.order.length > 0){
-     const excel = await generateMultiTableExcel(orders.data.order)
-     if(excel){
-      setError('')
-      setLoading(false)
-      return
-     }
+    if (orders.data.order && orders.data.order.length > 0) {
+      const excel = await generateMultiTableExcel(orders.data.order)
+      if (excel) {
+        setError('')
+        setLoading(false)
+        return
+      }
     }
     setError('Erro ao gerar Excel')
     setLoading(false)
@@ -782,28 +783,28 @@ export default function Order() {
         </div>
 
       </div>
-      <table className="flex-1 text-center p-3" width="100%">
-        <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">
-          <tr>
-            <th>#</th>
-            <th>Id</th>
-            <th>T. Operação</th>
-            <th>Cod. Origem</th>
-            <th>Trans. Origem</th>
-            <th>Cod. Destino</th>
-            <th>Trans. Destino</th>
-            <th>Data</th>
-            <th>Solicitado</th>
-            <th>Status</th>
-            <th>Realizado</th>
-            <th>Observação</th>
+      <table className="flex-1 text-center p-3" width="98%">
+        <thead className="block border-b-2 border-b-zinc-500 uppercase pb-2 text-xl text-center">
+          <tr className="flex">
+            <th className="w-[2%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >#</th>
+            <th className="w-[3%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Id</th>
+            <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >T. Operação</th>
+            <th className="w-[8%] border-b-2 bocalcrder-b-zinc-500 uppercase pb-2 text-xl" >Cod. Origem</th>
+            <th  className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl"  >Trans. Origem</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Cod. Destino</th>
+            <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Trans. Destino</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Data</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Solicitado</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Status</th>
+            <th className="w-[4%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Realizado</th>
+            <th className="w-[15%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Observação</th>
           </tr>
         </thead>
-        <tbody className=" text-xl">
+        <tbody className="block text-xl overflow-y-auto max-h-[500px] text-center">
           {orders && orders.map((item, index) => (
             <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
             ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"}`} key={index} >
-              <td>
+              <td className="w-[2%]" >
                 <input
                   type="checkbox"
                   className="w-4 h-4 outline-none"
@@ -815,23 +816,23 @@ export default function Order() {
                   }
                 />
               </td>
-              <td>{item.id}</td>
-              <td>{returnNameTypeOperation(typeOperations, item.id_type_operation)}</td>
-              <td>{item.id_treasury_origin}</td>
-              <td>{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
-              <td>{item.id_treasury_destin}</td>
-              <td>{returnNameTreasury(treasuries, item.id_treasury_destin)}</td>
-              <td>{formatDateToString(item.date_order)}</td>
-              <td>{generateValueTotal(
+              <td className="w-[3%]" >{item.id}</td>
+              <td className="w-[12%] text-sm" >{returnNameTypeOperation(typeOperations, item.id_type_operation)}</td>
+              <td className="w-[8%]" >{item.id_treasury_origin}</td>
+              <td className="w-[12%]" >{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
+              <td className="w-[8%]" >{item.id_treasury_destin}</td>
+              <td className="w-[12%]" >{returnNameTreasury(treasuries, item.id_treasury_destin)}</td>
+              <td className="w-[8%]" >{formatDateToString(item.date_order)}</td>
+              <td className="w-[8%]" >{generateValueTotal(
                 item.requested_value_A as number, item.requested_value_B as number,
                 item.requested_value_C as number, item.requested_value_D as number
               )}</td>
-              <td>{returnNameStatus(statusOrder, item.status_order)}</td>
-              <td>{generateValueTotal(
+              <td className="w-[8%] text-sm" >{returnNameStatus(statusOrder, item.status_order)}</td>
+              <td className="w-[4%]" >{generateValueTotal(
                 item.confirmed_value_A as number, item.confirmed_value_B as number,
                 item.confirmed_value_C as number, item.confirmed_value_D as number
               )}</td>
-              <td>{item.observation}</td>
+              <td className="w-[15%]" > {item.observation}</td>
             </tr>
           ))}
         </tbody>
@@ -930,6 +931,12 @@ export default function Order() {
                 valueAddD
               )}
             </div>
+          </div>
+          <div className="w-full  flex justify-center items-center mt-2 mb-2">
+            <div className="w-full h-1 bg-zinc-600 rounded"></div>
+          </div>
+          <div className="w-full  flex justify-center items-center mt-2 mb-2">
+            <textarea className="text-black border-2 border-zinc-700 w-full h-52 p-3 rounded-md" value={obs} onChange={e=>setObs(e.target.value)}></textarea>
           </div>
           <div className="w-full  flex justify-center items-center mt-2 mb-2">
             <div className="w-full h-1 bg-zinc-600 rounded"></div>

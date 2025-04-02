@@ -109,7 +109,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
       ]],
       styles: {
         fontSize: 10,
-        cellPadding: 2,
+        cellPadding: 2, 
         halign: 'left',
         overflow: 'linebreak'
       },
@@ -118,7 +118,8 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
       margin: { left: 15, right: 15 },
       tableWidth: 250, // Largura total fixa (280mm - margens)
       showHead: 'firstPage',
-      showFoot: 'lastPage'
+      showFoot: 'lastPage',
+      alternateRowStyles: { fillColor: [240, 240, 240] }
     });
 
     doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);

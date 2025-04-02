@@ -111,6 +111,7 @@ export default function TreasuryEdit() {
       setEnanbledGMcoreTreasury(treasuryOne.data.treasury.enabled_gmcore)
       setIdTypeStore(treasuryOne.data.treasury.id_type_store)
       setIdTypeSupply(treasuryOne.data.treasury.id_type_supply)
+      setRegionTreasury(treasuryOne.data.treasury.region)
       setSaldoTreasury(
         generateValueTotal(
           treasuryOne.data.treasury.bills_10,

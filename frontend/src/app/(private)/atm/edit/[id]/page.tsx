@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
+import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getAtmFronId, update } from "@/app/service/atm";
@@ -44,11 +45,11 @@ export default function AtmEdit() {
   const [casseteCAtm, setCasseteCAtm] = useState('50')
   const [casseteDAtm, setCasseteDAtm] = useState('100')
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   const getAtmById = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
 
@@ -56,7 +57,7 @@ export default function AtmEdit() {
     const atmOne = await getAtmFronId(id as string);
     const t = await getAll();
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError("Erro na requisição");
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
       return;
     }
@@ -76,14 +77,14 @@ export default function AtmEdit() {
       setLoading(false);
       return;
     } else {
-      setError("Nada a mostrar");
+      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, atualize e tente novamente' })
       setLoading(false);
       return;
     }
   };
 
   const updateAtm = async () => {
-    setError("");
+    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
     if (
@@ -91,7 +92,7 @@ export default function AtmEdit() {
       numStoreAtm === ''
 
     ) {
-      setError("Prencher todos os campos");
+      setError({ type: 'error', title: 'Error', messege: 'Prrencha todos os campos e tente novamente' })
       setLoading(false);
       return;
     }
@@ -110,18 +111,18 @@ export default function AtmEdit() {
     };
 
     const editedAtm = await update(parseInt(id as string), data);
-
     if (editedAtm.status === 300 || editedAtm.status === 400 || editedAtm.status === 500) {
-      setError("Erro na requisição");
+      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
       return
     }
     if (editedAtm.data.atm && editedAtm.data.atm?.id > 0) {
       getAtmById();
+      setError({ type: 'success', title: 'Succes', messege: 'Atualizado com sucesso!' })
       setLoading(false);
       return;
     }
-    setError("Erro ao Atualizar");
+    setError({ type: 'error', title: 'Error', messege: 'Erro ao atualizar, tente novamente' })
     setLoading(false);
     return
   };
@@ -411,11 +412,9 @@ export default function AtmEdit() {
               Alterar
             </Button>
           </div>
-          {error && (
-            <div>
-              <p className="text-white">{error}</p>
-            </div>
-          )}
+          {error.messege &&
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
+          }
           {loading && <Loading />}
         </div>
       </div>

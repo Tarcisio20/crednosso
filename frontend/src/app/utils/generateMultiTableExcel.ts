@@ -34,8 +34,8 @@ export const generateMultiTableExcel = async (data: TransferData[]) => {
 
     data.forEach((item) => {
       // Formatar data para DD/MM/AAAA
-      const formattedDate = new Date(item.date).toLocaleDateString('pt-BR');
-
+      const formattedDate = new Date(item.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+      console.log("Formatada", item.date)
       // Cabeçalho principal (Nr: ...)
       worksheet.mergeCells(`A${currentRow}:C${currentRow}`);
       const titleCell = worksheet.getCell(`A${currentRow}`);
