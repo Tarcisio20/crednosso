@@ -13,9 +13,14 @@ import {
   faLandmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function TypeOperationAdd() {
+
+    useEffect(() => {
+      document.title = "Status Pedido - Add | CredNosso";
+    }, []);
+
   const router = useRouter();
 
   const [nameStatusOrder, setNameStatusOrder] = useState("");

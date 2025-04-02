@@ -28,6 +28,7 @@ export default function StatusOrder() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Status Pedido - Add | CredNosso";
     loadStatusOrderPagination();
   }, [currentPage]);
 

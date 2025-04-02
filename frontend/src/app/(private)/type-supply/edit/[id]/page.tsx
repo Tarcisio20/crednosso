@@ -30,6 +30,7 @@ export default function TypeSupplyEdit() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Tipo Abastecimento - Edit | CredNosso";
     getTypeSupplyById();
   }, [id]);
 

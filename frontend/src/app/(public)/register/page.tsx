@@ -2,7 +2,7 @@
 
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { passValidator } from "@/app/utils/passValidator";
@@ -12,6 +12,10 @@ import { Messeger } from "@/app/components/ux/Messeger";
 
 
 export default function SignInComponent() {
+
+    useEffect(() => {
+      document.title = "Cadastrar | CredNosso";
+    }, []);
 
   const router = useRouter()
 

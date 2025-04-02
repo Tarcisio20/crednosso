@@ -9,6 +9,7 @@ export default function SignOut() {
   const router = useRouter();
 
   useEffect(() => {
+    document.title = "Deslogar  | CredNosso";
     handleSair()
   }, [router]);
 

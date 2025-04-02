@@ -29,6 +29,7 @@ export default function ContactsAdd() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Contato - Add | CredNosso";
     getAllTreasuries()
   }, [])
 

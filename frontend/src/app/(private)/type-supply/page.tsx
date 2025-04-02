@@ -29,6 +29,7 @@ export default function TypeSupply() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Tipos Abastecimento | CredNosso";
     loadTypeSupplyPagination();
   }, [currentPage]);
 
@@ -47,7 +48,6 @@ export default function TypeSupply() {
       setLoading(false);
       return
     }
-    console.log(typeSupplies)
     if (typeSupplies.data && typeSupplies.data.length > 0) {
       setTypeSupplies(typeSupplies.data);
       setTotalPages(typeSupplies.meta.totalPages);

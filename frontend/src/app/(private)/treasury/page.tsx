@@ -33,6 +33,7 @@ export default function Treasury() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Tesourarias | CredNosso";
     loadTreasuries();
   }, [currentPage]);
 

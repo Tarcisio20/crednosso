@@ -10,9 +10,14 @@ import { add } from "@/app/service/type-store";
 import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function TypeStoreAdd() {
+
+    useEffect(() => {
+      document.title = "Tipo de Loja - Add | CredNosso";
+    }, []);
+
   const router = useRouter();
 
   const [nameTypeStore, setNameTypeStore] = useState("");

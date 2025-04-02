@@ -39,6 +39,11 @@ export default function Atm() {
   };
 
   useEffect(() => {
+    document.title = "Atms | CredNosso";
+  }, []);
+
+
+  useEffect(() => {
     getAllAtmsPagination();
   }, [currentPage]);
 

@@ -42,6 +42,7 @@ export default function TreasuryAdd() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Tesourarias - Add | CredNosso";
     allLoadings();
   }, []);
 

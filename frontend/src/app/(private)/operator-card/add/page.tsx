@@ -27,6 +27,7 @@ export default function OperationCardAdd() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Cartão Operador - Add | CredNosso";
     getAllTreasuries();
   }, []);
 

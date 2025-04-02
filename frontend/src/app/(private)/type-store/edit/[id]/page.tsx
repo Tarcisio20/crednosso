@@ -30,6 +30,7 @@ export default function TypeStoreEdit() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Tipo de Loja - Edit | CredNosso";
     getTypeStoreById();
   }, [id]);
 

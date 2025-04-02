@@ -10,10 +10,13 @@ import { add } from "@/app/service/type-order";
 import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark, faVault, faReceipt, faListOl } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export default function TypeOrderAdd() {
+    useEffect(() => {
+      document.title = "Tipo Pedido - Add | CredNosso";
+    }, []);
 
   const router = useRouter()
 

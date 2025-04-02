@@ -31,6 +31,7 @@ export default function TypeOperation() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Tipo Operação | CredNosso";
     loadTypeOerations();
   }, [currentPage]);
 

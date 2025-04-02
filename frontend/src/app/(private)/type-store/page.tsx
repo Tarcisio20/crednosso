@@ -27,6 +27,9 @@ export default function TypeStore() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
+  useEffect(() => {
+    document.title = "Tipo de Loja   | CredNosso";
+  }, []);
 
   useEffect(() => {
     loadTypeStorePagination();

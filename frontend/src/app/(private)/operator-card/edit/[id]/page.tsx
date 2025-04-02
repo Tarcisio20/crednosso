@@ -32,6 +32,7 @@ export default function OperationCardEdit() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Cartão Operador - Edit | CredNosso";
     allLOadings()
   }, [id])
 

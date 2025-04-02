@@ -78,6 +78,7 @@ export default function TreasuryEdit() {
   }
 
   useEffect(() => {
+    document.title = "Tesouraria - Edit | CredNosso";
     allLoadings();
   }, [id]);
 

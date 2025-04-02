@@ -10,9 +10,14 @@ import { add } from "@/app/service/type-supply";
 import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function TypeSupplyAdd() {
+
+    useEffect(() => {
+      document.title = "Tipo Abastecimento - Add | CredNosso";
+    }, []);
+
   const router = useRouter();
 
   const [nameTypeSupply, setNameTypeSupply] = useState("");

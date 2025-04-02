@@ -91,6 +91,7 @@ export default function Order() {
   const pageSize = 12;
 
   useEffect(() => {
+    document.title = "Pedidos - Visualizar | CredNosso";
     allLoading()
   }, [orders])
 
@@ -187,7 +188,6 @@ export default function Order() {
     setLoading(false)
     return
   }
-
 
   const handleSearch = async () => {
     setError('')

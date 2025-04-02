@@ -29,6 +29,7 @@ export default function AtmEdit() {
     return;
   }
   useEffect(() => {
+    document.title = "Atm - Edit | CredNosso";
     getAtmById();
   }, [id]);
 

@@ -33,6 +33,7 @@ export default function OperatorCard() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Cartão Operador | CredNosso";
     getAllTreasuries();
   }, []);
 

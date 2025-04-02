@@ -31,6 +31,7 @@ export default function TypeOrder() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Tipo Pedido | CredNosso";
     loadTypeOrderPagination();
   }, [currentPage]);
 

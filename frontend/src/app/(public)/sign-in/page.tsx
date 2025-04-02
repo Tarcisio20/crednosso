@@ -2,7 +2,7 @@
 
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,6 +13,11 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function SignIn() {
+
+    useEffect(() => {
+      document.title = "Login | CredNosso";
+    }, []);
+
   const router = useRouter();
 
   const [userEmail, setUserEmail] = useState("");

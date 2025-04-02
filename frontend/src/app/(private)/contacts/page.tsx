@@ -32,6 +32,7 @@ export default function Contacts() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Contatos | CredNosso";
     getAllTreasury();
   }, []);
 

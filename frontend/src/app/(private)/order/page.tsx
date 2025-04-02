@@ -43,6 +43,7 @@ export default function Order() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Pedidos | CredNosso";
     allLoading()
   }, [])
 

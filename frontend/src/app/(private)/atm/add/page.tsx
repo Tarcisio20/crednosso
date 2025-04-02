@@ -38,6 +38,7 @@ export default function AtmAdd() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Atm - Add | CredNosso";
     getAllTreasury();
   }, []);
 

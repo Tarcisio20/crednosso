@@ -29,6 +29,7 @@ export default function TypeOrderEdit() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = "Tipo Pedido - Edit | CredNosso";
     getTypeOrderById()
   }, [id])
 

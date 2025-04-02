@@ -29,6 +29,7 @@ export default function Supply() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Pedidos | CredNosso";
     const day = returnDayAtual()
     if (day) {
       setCurrentDay(day)

@@ -29,6 +29,7 @@ export default function TypeOperationEdit() {
      const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+     document.title = "Tipo Operação - Edit | CredNosso";
     getTypeOperation();
   }, [id]);
 

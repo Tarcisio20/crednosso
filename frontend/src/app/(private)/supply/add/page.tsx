@@ -38,6 +38,7 @@ export default function Supply() {
   const pageSize = 15;
 
   useEffect(() => {
+    document.title = "Pedidos - Add | CredNosso";
     handleAll()
   }, [idTreasury, atms]);
 

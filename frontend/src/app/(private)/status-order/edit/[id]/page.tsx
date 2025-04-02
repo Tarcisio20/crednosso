@@ -33,6 +33,7 @@ export default function StatusOrderEdit() {
      const [loading, setLoading] = useState(false)
 
      useEffect(() => {
+          document.title = "Status Pedido - Edit | CredNosso";
           getStatusOrder();
      }, [id]);
 

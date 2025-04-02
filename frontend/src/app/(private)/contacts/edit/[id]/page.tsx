@@ -39,6 +39,7 @@ export default function ContactsEdit() {
 
 
   useEffect(() => {
+    document.title = "Contato - Edit | CredNosso";
     AllLoadings()
   }, [id])
 
