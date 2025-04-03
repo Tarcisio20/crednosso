@@ -52,6 +52,7 @@ export default function TreasuryEdit() {
   const [idSystemTreasury, setIdSystemTreasury] = useState('')
   const [nameTreasury, setNameTreasury] = useState('')
   const [nameRedTreasury, setNameRedTreasury] = useState('')
+  const [nameForEmailTreasury, setNameForEmailTreasury] = useState('')
   const [numContaTreasury, setNumContaTreasury] = useState('')
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState('')
   const [regionTreasury, setRegionTreasury] = useState('0')
@@ -108,6 +109,7 @@ export default function TreasuryEdit() {
       setNameTreasury(treasuryOne.data.treasury.name)
       setNameRedTreasury(treasuryOne.data.treasury.short_name)
       setNumContaTreasury(treasuryOne.data.treasury.account_number)
+      setNameForEmailTreasury(treasuryOne.data.treasury.name_for_email)
       setNumGMCoreTreasury(treasuryOne.data.treasury.gmcore_number)
       setEnanbledGMcoreTreasury(treasuryOne.data.treasury.enabled_gmcore)
       setIdTypeStore(treasuryOne.data.treasury.id_type_store)
@@ -169,7 +171,7 @@ export default function TreasuryEdit() {
       setLoading(false);
       return;
     }
-    setContact(returnArraytoString(ctc.data.cantact));
+    setContact(returnArraytoString(ctc.data.contact));
     setError({ type : '', title : '', messege : '' });
     setLoading(false);
     return;
@@ -239,7 +241,8 @@ export default function TreasuryEdit() {
     if (
       idSystemTreasury === "" || !validateField(nameTreasury) ||
       !validateField(nameRedTreasury) || numContaTreasury === "" ||
-      regionTreasury === '' || idTypeStore === "" || idTypeSupply === ""
+      regionTreasury === '' || idTypeStore === "" || idTypeSupply === "" ||
+      !validateField(nameForEmailTreasury)
     ) {
       setError({ type : 'error', title : 'Error', messege : 'Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.' });
       setLoading(false)
@@ -250,6 +253,7 @@ export default function TreasuryEdit() {
       id_type_supply: parseInt(idTypeSupply),
       id_type_store : parseInt(idTypeStore),
       name: nameTreasury,
+      name_for_email : nameForEmailTreasury,
       short_name: nameRedTreasury,
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury,
@@ -264,7 +268,7 @@ export default function TreasuryEdit() {
     const editTreasury = await update(parseInt(id as string), data)
     if (editTreasury.data.treasury && editTreasury.data.treasury.id > 0) {
       await getTreasuryByIdSystem();
-      setError({ type : '', title : '', messege : '' })
+      setError({ type : 'success', title : 'Success', messege : 'Salvo com sucesso!' })
       setLoading(false);
       return;
     } else {
@@ -316,6 +320,20 @@ export default function TreasuryEdit() {
               size="extra-large"
               value={nameRedTreasury}
               onChange={(e) => setNameRedTreasury(e.target.value)}
+              icon={faVault}
+            />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">
+              Nome Loja
+            </label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite o nome da Loja da Transportadora"
+              size="extra-large"
+              value={nameForEmailTreasury}
+              onChange={(e) => setNameForEmailTreasury(e.target.value)}
               icon={faVault}
             />
           </div>

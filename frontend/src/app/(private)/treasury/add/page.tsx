@@ -34,6 +34,7 @@ export default function TreasuryAdd() {
   const [idSystemTreasury, setIdSystemTreasury] = useState("");
   const [nameTreasury, setNameTreasury] = useState("");
   const [nameRedTreasury, setNameRedTreasury] = useState("");
+  const [nameForEmailTreasury, setNameForEmailTreasury] = useState("")
   const [numContaTreasury, setNumContaTreasury] = useState("");
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState("");
   const [regionTreasury, setRegionTreasury] = useState("");
@@ -109,7 +110,8 @@ export default function TreasuryAdd() {
       regionTreasury === "0" ||
       idTypeSupply === "0" ||
       idTypeSupply === "" ||
-      idTypeStore === ""
+      idTypeStore === "" ||
+      !validateField(nameForEmailTreasury)
     ) {
       setError({
         type: 'error',
@@ -130,6 +132,7 @@ export default function TreasuryAdd() {
       region: parseInt(regionTreasury),
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury === "" ? "0" : numGMCoreTreasury,
+      name_for_email : nameForEmailTreasury.toUpperCase()
     };
     const treasury = await add(data);
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
@@ -141,6 +144,7 @@ export default function TreasuryAdd() {
       setNumContaTreasury("");
       setNumGMCoreTreasury("");
       setRegionTreasury("");
+      setNameForEmailTreasury("")
       setEnanbledGMcoreTreasury("1");
       setError({ type: 'success', title: 'Success', messege: 'Item salvo' });
       setLoading(false);
@@ -173,7 +177,7 @@ export default function TreasuryAdd() {
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nome</label>
+            <label className="uppercase leading-3 font-bold">Nome da Transportadora</label>
             <Input
               color="#DDDD"
               placeholder="Digite o nome da Transportadora"
@@ -194,6 +198,20 @@ export default function TreasuryAdd() {
               size="extra-large"
               value={nameRedTreasury}
               onChange={(e) => setNameRedTreasury(e.target.value)}
+              icon={faVault}
+            />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">
+              Nome Loja
+            </label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite o nome reduzido da Transportadora"
+              size="extra-large"
+              value={nameForEmailTreasury}
+              onChange={(e) => setNameForEmailTreasury(e.target.value)}
               icon={faVault}
             />
           </div>

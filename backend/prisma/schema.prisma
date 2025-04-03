@@ -32,6 +32,7 @@ model Treasury {
   id_type_supply Int
   id_type_store Int
   name String @unique
+  name_for_email String @default("")
   short_name String @unique
   account_number String @unique
   gmcore_number String

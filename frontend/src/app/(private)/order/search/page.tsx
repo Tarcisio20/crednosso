@@ -652,12 +652,13 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (emails && emails.email.length > 0) {
+    console.log(emails)
+    if (emails.data.email) {
       setLoading(false)
-      setError('')
+      setError('E-mail enviado com sucesso')
       return
     }
-    setError("Erro ao pesquisar!")
+    setError("Erro ao Enviar e-mail!!")
     setLoading(false)
     return
   }

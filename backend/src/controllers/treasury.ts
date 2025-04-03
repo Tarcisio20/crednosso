@@ -65,6 +65,7 @@ export const add: RequestHandler = async (req, res) => {
     region: safeData.data.region,
     account_number: safeData.data.account_number,
     gmcore_number: safeData.data.gmcore_number,
+    name_for_email : safeData.data.name_for_email ?? ""
   })
   if (!newTreasury) {
     res.status(401).json({ error: 'Erro ao salvar!' })
