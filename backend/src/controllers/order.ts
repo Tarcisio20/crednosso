@@ -8,7 +8,7 @@ import { orderAlterPartialSchema } from "../schemas/orderAlterPartialSchema"
 import { alterDateOrderSchema } from "../schemas/alterDataOrderSchema"
 import { orderGenerateReleaseSchema } from "../schemas/orderGenerateReleaseSchema"
 import { returnValueTotal } from "../utils/returnValueTotal"
-import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, updateTreasury } from "../services/treasury"
+import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, getTreasuryForTypeSupply, updateTreasury } from "../services/treasury"
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
 import { OrderType } from "../types/OrderType"
 
@@ -33,14 +33,44 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     res.status(401).json({ error: 'Preciso de um data para continuar!' })
     return
   }
-  const order = await getIdTreasuriesOrderByDate(date)
+  type OrderHereType = {
+    id_treasury_destin :  number;
+    requested_value_A: number;
+    requested_value_B: number;
+    requested_value_C: number;
+    requested_value_D: number;
+  }
 
-  if (!order) {
+  const order : OrderHereType[] | null = await getIdTreasuriesOrderByDate(date)
+  const orders = []
+  console.log(order)
+  if(order && order.length > 0){
+    for(let x = 0; x < order.length; x++){
+       let ordersForReturn = await getTreasuryForTypeSupply(order[x]?.id_treasury_destin,  2)
+      console.log(ordersForReturn)
+      if(ordersForReturn && ordersForReturn?.length > 0){
+        const match = ordersForReturn.find(
+          (item) => item.id_system === order[x].id_treasury_destin
+        );
+
+        if (match) {
+          orders.push({
+            id_treasury_destin: match.id_system,
+            requested_value_A: order[x].requested_value_A,
+            requested_value_B: order[x].requested_value_B,
+            requested_value_C: order[x].requested_value_C,
+            requested_value_D: order[x].requested_value_D,
+          });
+        }
+      }
+    }
+  }
+  if (!orders) {
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
   }
 
-  res.json({ order })
+  res.json({ order : orders })
 }
 
 export const add: RequestHandler = async (req, res) => {
@@ -308,6 +338,7 @@ export const generateRelease: RequestHandler = async (req, res) => {
   const allOrders: any = await getOrderByIds(safeData.data)
   const orders = []
   const ids_treasuries = []
+  const ids_treasuries_destin = []
   interface Treasury {
     id_system: number;
     name: string;
@@ -319,18 +350,25 @@ export const generateRelease: RequestHandler = async (req, res) => {
     bills_50: number;
     bills_100: number;
   }
+
+
   for (let x = 0; (allOrders || []).length > x; x++) {
-    ids_treasuries.push(allOrders[x].id_treasury_origin)
+    ids_treasuries.push(allOrders[x].id_treasury_destin)
   }
+
   const treasuries = await getForIds(ids_treasuries)
-  console.log("Tesrouarias", treasuries)
+
   const treasuryMap = (treasuries || []).reduce((map, treasury) => {
     map[treasury.id_system] = treasury;
     return map;
-  }, {} as Record<number, Treasury>)
+  }, {} as Record<number, Treasury>) 
 
-  const mergedData = allOrders?.map((order: any) => {
-    const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
+  const mergedData = await Promise.all (allOrders?.map(async (order: any) => {
+    const treasury = treasuryMap[order.id_treasury_destin] // Busca a tesouraria correspondente
+    let tDestin = null
+    if(order.id_type_operation === 3){
+      tDestin = await getForIdSystem(order.id_treasury_origin)
+    }
 
     return {
       codigo: order.id_treasury_origin,
@@ -339,10 +377,12 @@ export const generateRelease: RequestHandler = async (req, res) => {
       regiao: treasury?.region,
       valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
       id_type_store: treasury?.id_type_store,
-      date: order.date_order
+      date: order.date_order,
+      type_operation : order.id_type_operation,
+      conta_origem : tDestin ? tDestin.account_number : 0,
+      tesouraria_origem : tDestin ? tDestin.name : "",
     };
-  });
-
+  }));
   if (!mergedData) {
     res.status(401).json({ error: 'Erro ao alterar!' })
     return

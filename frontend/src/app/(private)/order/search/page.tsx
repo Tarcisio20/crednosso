@@ -34,6 +34,7 @@ import { returnIfMateus } from "@/app/utils/returnIfMateus";
 import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
 import { sendEmailToOrder } from "@/app/service/email";
 import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
+import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
 
 export default function Order() {
@@ -86,12 +87,17 @@ export default function Order() {
   const [totalOrderConfirmmed, setTotalOrderConfirmmed] = useState(0)
   const [totalOrderEstornado, setTotalOrderEstornado] = useState(0)
 
+  const [modalError, setModalError] = useState(false)
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 12;
 
+
   useEffect(() => {
     document.title = "Pedidos - Visualizar | CredNosso";
+  })
+  useEffect(() => {
     allLoading()
   }, [orders])
 
@@ -222,7 +228,7 @@ export default function Order() {
         let valueConfirmmed = 0
         elements.push({
           id_order: item.id,
-          id: item.id_treasury_origin,
+          id: item.id_treasury_destin,
           status: false
         })
         value = (item.requested_value_A * 10) + (item.requested_value_B * 20) + (item.requested_value_C * 50) + (item.requested_value_D * 100)
@@ -267,9 +273,10 @@ export default function Order() {
   const handleIndividualCheck = (id: number) => {
     setItemsChecks(
       itemsChecks.map((item) => (
-        item.id === id ? { ...item, status: !item.status } : item
+        item.id_order === id ? { ...item, status: !item.status } : item
       ))
     )
+    console.log(itemsChecks)
   }
 
   const viewOrder = async () => {
@@ -520,10 +527,10 @@ export default function Order() {
       setLoading(false)
       return
     }
-    const confirmRelauchDate = window.confirm(`Tem certeza que deseja mudar a data do pedido?
+    const confirmRelauchDate = window.confirm(`Tem certeza que deseja mudar a data do pedido de ID?
       ${itemsChecks
         .filter(item => item.status === true)
-        .map(item => item.id)
+        .map(item => item.id_order)
         .join(',')}
     `);
     if (!confirmRelauchDate) {
@@ -532,7 +539,7 @@ export default function Order() {
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
-    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id)
+    const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id_order)
     setOrderIndividual(orderSelectedOne[0])
     setModalRelaunchOrder(true)
     setError('')
@@ -561,6 +568,7 @@ export default function Order() {
       setLoading(false)
       return
     }
+    console.log(orderAlterForDate)
     if (orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0) {
       setDateAlter('')
       setError('')
@@ -698,6 +706,10 @@ export default function Order() {
     return
   }
 
+  const handleCloseModalMessege = () => {
+    setModalError(false)
+  }
+
   return <Page>
     <TitlePages linkBack="/order" icon={faMagnifyingGlass} >Pesquisar Pedidos</TitlePages>
     <div className="flex flex-col gap-4 p-5 w-full">
@@ -811,9 +823,9 @@ export default function Order() {
                   className="w-4 h-4 outline-none"
                   id={item.id?.toString()}
                   value=""
-                  onChange={() => handleIndividualCheck(item.id_treasury_origin as number)}
+                  onChange={() => handleIndividualCheck(item.id as number)}
                   checked={
-                    itemsChecks.find(i => i.id === item.id_treasury_origin)?.status || false
+                    itemsChecks.find(i => i.id === item.id_treasury_destin)?.status || false
                   }
                 />
               </td>
@@ -992,6 +1004,9 @@ export default function Order() {
     }
     {modalGeneratePayment &&
       <PdfGeneratorPayment data={elementPayment} onClose={() => setModalGeneratePayment(!modalGeneratePayment)} />
+    }
+    {modalError &&
+      <ModalMessege type="" title="" messege="" onClose={handleCloseModalMessege} />
     }
   </Page>
 }

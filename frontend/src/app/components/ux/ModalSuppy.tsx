@@ -38,9 +38,7 @@ export const ModalSupply = (
         cassete_D : cassD,
         total_exchange : exchange
       }
-      console.log("dENTRO DO CONSOLE DO T", data)
       const supplyReturn = await add(data)
-      console.log(supplyReturn)
      }else{
       console.log("Error")
      }

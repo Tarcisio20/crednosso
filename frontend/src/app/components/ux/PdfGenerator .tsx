@@ -14,8 +14,9 @@ type pdfProps = {
 
 export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const [abaAtiva, setAbaAtiva] = useState(1)
-  const dadosMateus = data.filter(item => item.id_type_store === 1);
-  const dadosPosterus = data.filter(item => item.id_type_store === 2);
+  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.type_operation !== 3);
+  const dadosPosterus = data.filter(item => item.id_type_store === 2 && item.type_operation !== 3);
+  const dadosEntreTesourarias = data.filter(item => item.type_operation === 3)
 
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
@@ -36,6 +37,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
   const totalMateus = calcularTotal(dadosMateus);
   const totalPosterus = calcularTotal(dadosPosterus);
+  const totalEntreTesourarias = calcularTotal(dadosEntreTesourarias)
 
   const formatarMoeda = (valor: number) =>
     valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -43,86 +45,167 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
   const handleGeneratePDF = () => {
     if (dadosMateus.length > 0) {
-      gerarPDF("MATEUS", dadosMateus);
+      gerarPDF("MATEUS", 'mateus', dadosMateus);
     }
     if (dadosPosterus.length > 0) {
-      gerarPDF("POSTERUS", dadosPosterus);
+      gerarPDF("POSTERUS", 'posterus', dadosPosterus);
+    }
+    if (dadosEntreTesourarias.length > 0) {
+      gerarPDF("ENTRE TESOURARIAS", 'entre-tesourarias', dadosEntreTesourarias);
     }
   };
 
 
-  const gerarPDF = (titulo: string, dados: typeof data) => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-    });
-    const dataOriginal = dados[0]?.date;
-    const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
+  const gerarPDF = (titulo: string, type : string, dados: typeof data) => {
 
-    // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
-    const columnStyles = {
-      0: { cellWidth: 40 },  // CONTA
-      1: { cellWidth: 30 },  // CÓDIGO
-      2: { cellWidth: 130 }, // TESOURARIA (ajustado para evitar overflow)
-      3: { cellWidth: 30 },  // REGIÃO
-      4: { cellWidth: 40 },  // VALOR
-    };
-
-    (autoTable as any)(doc, {
-      startY: 15, // Início com margem superior para não cortar
-      head: [
-        [
+    if (type === "entre-tesourarias") {
+      console.log(dados)
+      const doc = new jsPDF({
+        orientation: 'landscape',
+      });
+      const dataOriginal = dados[0]?.date;
+      const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
+      const columnStyles = {
+        0: { cellWidth: 40 },  // CONTA
+        1: { cellWidth: 60 },  // CÓDIGO
+        2: { cellWidth: 50 }, // TESOURARIA (ajustado para evitar overflow)
+        3: { cellWidth: 40 },  // REGIÃO
+        4: { cellWidth: 60 },  // VALOR
+      };
+      (autoTable as any)(doc, {
+        startY: 15, // Início com margem superior para não cortar
+        head: [
+          [
+            {
+              content: `DATA: ${dataFormatada}`,
+              colSpan: 5,
+              styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold',  halign: 'center' }
+            }
+          ],
+          [
+            { content: "SAIDA",  colSpan: 2, styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "VALOR", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "ENTRADA",   colSpan: 2, styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+          ]
+          ,
+          [
+            { content: "CODIGO - SAIDA", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "TESOURARIA - SAIDA", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "VALOR TRANSFERIDO", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "CODIGO - ENTRADA", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+            { content: "TESOURARIA - ENTRADA", styles: { fillColor: [41, 128, 185], textColor: 255,  halign: 'center' } },
+          ]
+        ],
+        body: dados.map((item) => [
+          item.conta_origem.toString(),
+          `${item.tesouraria_origem}`,
+          item.valor,
+          item.conta.toString(),
+          `${item.tesouraria}`,
+        ]),
+        foot: [[
           {
-            content: `DATA: ${dataFormatada}`,
+            content: "TOTAL ",
+            colSpan: 2,
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+          },
+          {
+            content: formatarMoeda(calcularTotal(dados)),
+            colSpan: 3,
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold',  halign: 'right' }
+          }
+        ]],
+        styles: {
+          fontSize: 10,
+          cellPadding: 2,
+          halign: 'left',
+          overflow: 'linebreak'
+        },
+        columnStyles: columnStyles,
+        theme: 'grid',
+        margin: { left: 15, right: 15 },
+        tableWidth: 250, // Largura total fixa (280mm - margens)
+        showHead: 'firstPage',
+        showFoot: 'lastPage',
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      });
+
+      doc.save(`entre-tesourarias-${formatDateToStringForTitle(dataFormatada)}.pdf`);
+      return console.log(dataFormatada)
+    } else {
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+      });
+      const dataOriginal = dados[0]?.date;
+      const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
+
+      // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
+      const columnStyles = {
+        0: { cellWidth: 40 },  // CONTA
+        1: { cellWidth: 30 },  // CÓDIGO
+        2: { cellWidth: 130 }, // TESOURARIA (ajustado para evitar overflow)
+        3: { cellWidth: 30 },  // REGIÃO
+        4: { cellWidth: 40 },  // VALOR
+      };
+
+      (autoTable as any)(doc, {
+        startY: 15, // Início com margem superior para não cortar
+        head: [
+          [
+            {
+              content: `DATA: ${dataFormatada}`,
+              colSpan: 4,
+              styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+            },
+            {
+              content: "SOLICITADO",
+              styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+            }
+          ],
+          [
+            { content: "CONTA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+            { content: "CÓDIGO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+            { content: "TESOURARIA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+            { content: "REGIÃO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+            { content: "VALOR", styles: { fillColor: [41, 128, 185], textColor: 255 } }
+          ]
+        ],
+        body: dados.map((item) => [
+          item.conta.toString(),
+          item.codigo.toString(),
+          `TESOURARIA - ${item.tesouraria}`,
+          item.regiao.toString(),
+          item.valor,
+        ]),
+        foot: [[
+          {
+            content: "TOTAL RETIRADO",
             colSpan: 4,
             styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
           },
           {
-            content: "SOLICITADO",
+            content: formatarMoeda(calcularTotal(dados)),
             styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
           }
-        ],
-        [
-          { content: "CONTA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "CÓDIGO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "TESOURARIA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "REGIÃO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "VALOR", styles: { fillColor: [41, 128, 185], textColor: 255 } }
-        ]
-      ],
-      body: dados.map((item) => [
-        item.conta.toString(),
-        item.codigo.toString(),
-        `TESOURARIA - ${item.tesouraria}`,
-        item.regiao.toString(),
-        item.valor,
-      ]),
-      foot: [[
-        {
-          content: "TOTAL RETIRADO",
-          colSpan: 4,
-          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+        ]],
+        styles: {
+          fontSize: 10,
+          cellPadding: 2,
+          halign: 'left',
+          overflow: 'linebreak'
         },
-        {
-          content: formatarMoeda(calcularTotal(dados)),
-          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
-        }
-      ]],
-      styles: {
-        fontSize: 10,
-        cellPadding: 2, 
-        halign: 'left',
-        overflow: 'linebreak'
-      },
-      columnStyles: columnStyles,
-      theme: 'grid',
-      margin: { left: 15, right: 15 },
-      tableWidth: 250, // Largura total fixa (280mm - margens)
-      showHead: 'firstPage',
-      showFoot: 'lastPage',
-      alternateRowStyles: { fillColor: [240, 240, 240] }
-    });
+        columnStyles: columnStyles,
+        theme: 'grid',
+        margin: { left: 15, right: 15 },
+        tableWidth: 250, // Largura total fixa (280mm - margens)
+        showHead: 'firstPage',
+        showFoot: 'lastPage',
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+      });
 
-    doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);
+    }
   };
 
   const Tabs = () => (
@@ -158,6 +241,18 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
                 }`}
             >
               Posterus
+            </button>
+          }
+
+          {dadosEntreTesourarias.length > 0 &&
+            <button
+              onClick={() => setAbaAtiva(3)}
+              className={`px-4 py-2 text-md font-medium ${abaAtiva === 3
+                ? 'bg-blue-600 text-white border-b-2 border-blue-600'
+                : 'text-black hover:text-gray-700'
+                }`}
+            >
+              Entre Tesourarias
             </button>
           }
 
@@ -204,6 +299,46 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
     </table>
   );
 
+  const TabelaEntreTesourarias = ({ dados, total }: { dados: typeof data; total: number }) => (
+    <table className="w-full border-collapse border border-black font-sans text-black">
+      <thead>
+        <tr className="bg-blue-600 text-white font-bold">
+          <td className="p-2 border border-black text-center" colSpan={5} >DATA: {formatDateToString(data[0]?.date)}</td>
+        </tr>
+        <tr className="bg-blue-600 text-white font-bold">
+          <th className="p-2 border border-black text-center" colSpan={2}>SAIDA</th>
+          <th className="p-2 border border-black text-center">VALOR</th>
+          <th className="p-2 border border-black text-center" colSpan={2}>ENTRADA</th>
+        </tr>
+        <tr className="bg-blue-600 text-white font-bold">
+          <th className="p-2 border border-black text-center">CODIGO - SAIDA</th>
+          <th className="p-2 border border-black text-center">TESOURARIA - SAIDA</th>
+          <th className="p-2 border border-black text-center">VALOR TRANSFERIDO</th>
+          <th className="p-2 border border-black text-center">CODIGO - ENTRADA</th>
+          <th className="p-2 border border-black text-center">TESOURARIA - ENTRADA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {dados.map((item, index) => (
+          <tr key={index} className={index % 2 === 0 ? 'bg-blue-50' : ''}>
+            <td className="p-2 border border-black text-center">{item.conta_origem}</td>
+            <td className="p-2 border border-black text-center">{item.tesouraria_origem}</td>
+            <td className="p-2 border border-black text-center">{total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+            <td className="p-2 border border-black text-center">{item.conta}</td>
+            <td className="p-2 border border-black text-center">{item.tesouraria}</td>
+          </tr>
+        ))}
+         <tr className="bg-blue-200 font-bold">
+          <td className="p-2 border border-black" colSpan={2}>TOTAL SOLICITADO</td>
+          <td className="p-2 border border-black text-center">
+            {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          </td>
+          <td className="p-2 border border-black" colSpan={2}></td>
+        </tr>
+      </tbody>
+    </table>
+  )
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-[#dfe0e7] p-6 rounded-lg shadow-lg w-[90vw] h-[90vh] flex flex-col relative">
@@ -227,6 +362,10 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
           {abaAtiva === 2 && dadosPosterus.length > 0 && (
             <Tabela dados={dadosPosterus} total={calcularTotal(dadosPosterus)} />
+          )}
+
+          {abaAtiva === 3 && dadosEntreTesourarias.length > 0 && (
+            <TabelaEntreTesourarias dados={dadosEntreTesourarias} total={calcularTotal(dadosEntreTesourarias)} />
           )}
         </div>
       </div>

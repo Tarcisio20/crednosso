@@ -95,6 +95,23 @@ export const getForIds = async (ids: number[]) => {
     return null
 }
 
+export const getTreasuryForTypeSupply = async (id: number, store : number) => {
+    const treasury = await prisma.treasury.findMany({
+        where: { 
+            id_system : id,
+            id_type_supply : store
+         },
+         select : {
+            id_system : true
+         }
+    })
+    if (treasury) {
+    
+        return treasury
+
+    }
+    return null
+}
 
 export const addTreasury = async (data: Prisma.TreasuryCreateInput) => {
     const treasury = await prisma.treasury.create({ data })

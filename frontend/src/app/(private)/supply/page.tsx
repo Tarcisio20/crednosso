@@ -55,6 +55,7 @@ export default function Supply() {
       date: currentDay
     }
     const supplayDay = await getSuppliesForDay(data)
+    console.log(supplayDay)
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
       setLoading(false)
@@ -66,9 +67,8 @@ export default function Supply() {
       setLoading(false)
       return
     }
-    setError({ type: 'error', title: 'Error', messege: 'Sem dados a retornar, tentenovamente!' })
+    setError({ type: 'error', title: 'Error', messege: 'Nunhum abastecimento cadastrado para hoje!' })
     setLoading(false)
-    console.log(supplayDay)
 
   }
 
@@ -76,8 +76,11 @@ export default function Supply() {
     <Page>
       <TitlePages linkBack="/" icon={faParachuteBox} >Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
-        <div className='flex flex-col gap-3 items-center justify-center mb-4'>
+        <div className='flex flex-row gap-3 items-center justify-center mb-4'>
           <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
+          {supplies && supplies.length > 0 &&
+          <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={()=>{}} size='meddium'>Gerar Abastecimentos</Button>
+          }
         </div>
         <div>
           <div className="text-2xl ">Abastecimentos realizados para o dia: {currentDay}</div>
@@ -86,13 +89,30 @@ export default function Supply() {
           <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl" >
             <tr >
               <th>ID</th>
-              <th>Nome</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>Id Atm</th>
+              <th>Nome Atm</th>
+              <th>Cassete A</th>
+              <th>Cassete B</th>
+              <th>Cassete C</th>
+              <th>Cassete D</th>
+              <th>Total</th>
+              <th>Ação</th>
             </tr>
           </thead>
           <tbody className=" text-xl">
-
+            {supplies && supplies.map((item) => (
+              <tr>
+                <td>{item.id}</td>
+                <td>{item.id_atm}</td>
+                <td>"Nome"</td>
+                <td>{item.cassete_A}</td>
+                <td>{item.cassete_B}</td>
+                <td>{item.cassete_C}</td>
+                <td>{item.cassete_D}</td>
+                <td>total</td>
+                <td>Excluir</td>
+              </tr>
+            ))}
           </tbody>
         </table>
         {true && totalPages > 1 &&

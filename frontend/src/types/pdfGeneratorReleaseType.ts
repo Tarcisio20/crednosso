@@ -6,4 +6,8 @@ export type pdfGeneratorReleaseType = {
     regiao: number;
     tesouraria: string;
     valor: string;
+    type_operation : number;
+    tesouraria_origem : string;
+    codigo_origem : number;
+    conta_origem : number;
 }

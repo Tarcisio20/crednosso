@@ -8,12 +8,16 @@ type ModalRelaunchOrderType = {
 }
 
 export const ModalRelaunchOrder = ({ id, value, onConfirm, onSetValue, onClose, error }: ModalRelaunchOrderType) => {
+
+    console.log("ID", id)
+
     return <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
             <h2 className="font-bold mb-4 text-black text-center uppercase text-4xl">
                 Relançar Pedido
             </h2>
-            <p className="text-black text-center">ID Pedido: </p>
+            <p className="text-black text-center">ID Pedido: {id}</p>
+
             <div className="w-full  flex justify-center items-center mt-2 mb-2">
                 <div className="w-full h-1 bg-zinc-600 rounded"></div>
             </div>

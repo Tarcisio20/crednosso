@@ -36,10 +36,14 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
   const order = await prisma.order.findMany({
     where: {
       date_order: returnDateFormatted(date),
-    status_order : {not : 5 }
+      status_order : {not : 5 }
     },
     select : {
-      id_treasury_destin : true
+      id_treasury_destin : true,
+      requested_value_A : true,
+      requested_value_B: true,
+      requested_value_C : true,
+      requested_value_D : true,
     }
   })
   if (order) {
@@ -201,7 +205,6 @@ export const confirmTotalByIds = async (ids: number[]) => {
   const allSuccess = results.every(result => result.status === "success");
   if (allSuccess) {
     return allSuccess
-    console.log("Todos os pedidos foram atualizados com sucesso!");
   } else {
     return results.filter(result => result.status === "failed");
   }

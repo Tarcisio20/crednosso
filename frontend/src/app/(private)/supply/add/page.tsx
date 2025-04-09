@@ -42,7 +42,6 @@ export default function Supply() {
     handleAll()
   }, [idTreasury, atms]);
 
-
   const handleAll = () => {
     const treasuryId = parseInt(idTreasury);
     const result = atms?.filter(atm => atm.id_treasury === treasuryId);
