@@ -23,7 +23,7 @@ export default function Supply() {
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
   const [currentDay, setCurrentDay] = useState('')
-
+  const [dateSupply, setDateSupply] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
@@ -33,6 +33,7 @@ export default function Supply() {
     const day = returnDayAtual()
     if (day) {
       setCurrentDay(day)
+      setDateSupply(day)
     }
   }, [])
 
@@ -42,6 +43,13 @@ export default function Supply() {
 
   }, [currentDay])
 
+
+  const handleGenerateOrders = async () => {
+    setError({ type: '', title: '', messege: '' })
+    setLoading(true)
+    console.log(supplies)
+    setLoading(true)
+  }
 
   const handleAdd = () => {
     router.push('/supply/add')
@@ -55,7 +63,6 @@ export default function Supply() {
       date: currentDay
     }
     const supplayDay = await getSuppliesForDay(data)
-    console.log(supplayDay)
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
       setLoading(false)
@@ -72,6 +79,12 @@ export default function Supply() {
 
   }
 
+  const handleSuppliesDay = async () => {
+
+  }
+
+
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faParachuteBox} >Abastecimento</TitlePages>
@@ -79,11 +92,18 @@ export default function Supply() {
         <div className='flex flex-row gap-3 items-center justify-center mb-4'>
           <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
           {supplies && supplies.length > 0 &&
-          <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={()=>{}} size='meddium'>Gerar Abastecimentos</Button>
+            <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleGenerateOrders} size='meddium'>Gerar Abastecimentos</Button>
           }
         </div>
-        <div>
-          <div className="text-2xl ">Abastecimentos realizados para o dia: {currentDay}</div>
+        <div className="flex flex-col gap-5 w-1/3">
+          <label className="text-lg uppercase">Data do pedido</label>
+          <input
+            type="date"
+            value={dateSupply}
+            onChange={(e) => setDateSupply(e.target.value)}
+            className="w-full h-10 outline-none rounded-md text-black text-center uppercase"
+          />
+          <button onClick={handleSuppliesDay} >Buscar</button>
         </div>
         <table className="flex-1 text-center p-3" width="100%">
           <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl" >
