@@ -11,9 +11,9 @@ import {
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { atmType } from "@/types/atmType";
-import { getAll, getAllPagination } from "@/app/service/atm";
+import { getAllPagination } from "@/app/service/atm";
 import { getAll as gtTreasury } from "@/app/service/treasury";
 import { Loading } from "@/app/components/ux/Loading";
 import { treasuryType } from "@/types/treasuryType";
@@ -43,11 +43,7 @@ export default function Atm() {
   }, []);
 
 
-  useEffect(() => {
-    getAllAtmsPagination();
-  }, [currentPage]);
-
-  const getAllAtmsPagination = async () => {
+  const getAllAtmsPagination = useCallback( async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
@@ -70,7 +66,12 @@ export default function Atm() {
       setLoading(false);
       return;
     }
-  };
+  }, [currentPage]);
+
+  
+  useEffect(() => {
+    getAllAtmsPagination();
+  }, [currentPage, getAllAtmsPagination]);
 
   return (
     <Page>

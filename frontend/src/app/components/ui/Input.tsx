@@ -15,7 +15,7 @@ type PropsInput = {
     mask ?: 'phone'
 }
 
-export const Input = ({ size, color, placeholder, value, onChange, password , icon, readonly, mask } : PropsInput) => {
+export const Input = ({ size, placeholder, value, onChange, password , icon, readonly, mask } : PropsInput) => {
 
     const formatPhone = (input: string) => {
         // Remove tudo que não é número

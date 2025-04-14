@@ -18,22 +18,14 @@ import {
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function AtmEdit() {
   const { id } = useParams();
   const router = useRouter();
 
-  if (!id) {
-    router.push("/atm");
-    return;
-  }
-  useEffect(() => {
-    document.title = "Atm - Edit | CredNosso";
-    getAtmById();
-  }, [id]);
 
-  const [atms, setAtms] = useState<atmType>()
+  const [, setAtms] = useState<atmType>()
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [idSystemAtm, setIdSystemAtm] = useState('')
   const [nameAtm, setNameAtm] = useState('')
@@ -49,7 +41,8 @@ export default function AtmEdit() {
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
-  const getAtmById = async () => {
+
+  const getAtmById = useCallback( async () => {
     setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
@@ -82,7 +75,17 @@ export default function AtmEdit() {
       setLoading(false);
       return;
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) {
+      router.push("/atm");
+      return;
+    }
+  
+    document.title = "Atm - Edit | CredNosso";
+    getAtmById();
+  }, [id, router, getAtmById]);
 
   const updateAtm = async () => {
     setError({ type: '', title: '', messege: '' })
@@ -98,7 +101,7 @@ export default function AtmEdit() {
       return;
     }
 
-    let data = {
+    const data = {
       id_system: parseInt(idSystemAtm),
       name: nameAtm.toUpperCase(),
       short_name: nameRedAtm.toUpperCase(),

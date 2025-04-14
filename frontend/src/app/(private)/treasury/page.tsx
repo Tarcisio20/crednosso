@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
 import { getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
@@ -32,13 +32,7 @@ export default function Treasury() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  useEffect(() => {
-    document.title = "Tesourarias | CredNosso";
-    loadTreasuries();
-  }, [currentPage]);
-
-
-  const loadTreasuries = async () => {
+  const loadTreasuries =  useCallback(async () => {
     setError({
       type : '',
       title : '',
@@ -57,7 +51,12 @@ export default function Treasury() {
     setError({ type : 'error', title : 'Error', messege : 'Sem dados a mostrar' })
     setLoading(false);
     return;
-  };
+  }, []);
+
+  useEffect(() => {
+    document.title = "Tesourarias | CredNosso";
+    loadTreasuries();
+  }, [currentPage, loadTreasuries]);
 
   const handleAdd = () => {
     router.push("/treasury/add");
@@ -109,7 +108,7 @@ export default function Treasury() {
                     item.bills_100 as number
                   )}
                 </td>
-                <td>{generateStatus(item?.status as Boolean)}</td>
+                <td>{generateStatus(item?.status as boolean)}</td>
                 <td className="flex justify-center items-center gap-4 h-12">
                   <Link href={`/treasury/edit/${item.id}`}>
                     <FontAwesomeIcon

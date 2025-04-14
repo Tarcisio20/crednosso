@@ -2,6 +2,15 @@ import { orderType } from '@/types/orderType'
 import axios from 'axios'
 import Cookies from "js-cookie"
 
+type OrderResponse = {
+  order: {
+    data: any[], // ou o tipo exato do seu dado
+    totalItems: number,
+    totalPages: number
+  }
+};
+
+
 export const add = async (data: orderType) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
@@ -98,7 +107,7 @@ export const searchOrdersForDatePagination = async (data : { date_initial : stri
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/order/search-by-date-pagination`, data, {
+      .post<OrderResponse>(`${process.env.NEXT_PUBLIC_API_URL}/order/search-by-date-pagination`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
@@ -108,7 +117,7 @@ export const searchOrdersForDatePagination = async (data : { date_initial : stri
           pageSize: pageSize
         }
       })
-      console.log("request", response)
+
       return {
         data : response.data.order.data,
         meta: {

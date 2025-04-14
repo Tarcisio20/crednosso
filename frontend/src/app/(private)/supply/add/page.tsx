@@ -37,17 +37,17 @@ export default function Supply() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  useEffect(() => {
-    document.title = "Pedidos - Add | CredNosso";
-    handleAll()
-  }, [idTreasury, atms]);
-
   const handleAll = () => {
     const treasuryId = parseInt(idTreasury);
     const result = atms?.filter(atm => atm.id_treasury === treasuryId);
     setFilteredAtms(result);
     filterTreasury()
   }
+
+  useEffect(() => {
+    document.title = "Pedidos - Add | CredNosso";
+    handleAll()
+  }, [idTreasury, atms, handleAll]);
 
   const handleTreasuriesForDateOrder = async () => {
 

@@ -58,7 +58,7 @@ export const getTreasuriesForDate = async (date: string) => {
   }
 }
 
-export const getSuppliesForDay = async (data: {}) => {
+export const getSuppliesForDay = async (data: string) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/for-day`, data, {

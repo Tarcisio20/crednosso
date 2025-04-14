@@ -13,5 +13,5 @@ server.use(express.json())
 server.use(mainRouter)
 
 server.listen(process.env.PORT || 3000, () => {
-    console.log(`Server run in ${process.env.BASE_URL}`)
+    console.log(`Server run in ${process.env.BASE_URL} port ${process.env.PORT }`)
 })

@@ -183,7 +183,7 @@ export default function Contacts() {
                     <td>{returnNameTreasury(treasuries, item.id_treasury)}</td>
                     <td>{item.email}</td>
                     <td>{item.phone}</td>
-                    <td>{generateStatus(item.status as Boolean)}</td>
+                    <td>{generateStatus(item.status as boolean)}</td>
                     <td className="flex justify-center items-center gap-4 h-12">
                       <Link href={`/contacts/edit/${item.id}`}>
                         <FontAwesomeIcon

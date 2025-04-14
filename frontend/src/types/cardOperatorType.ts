@@ -3,5 +3,5 @@ export type cardOperatorType = {
     id_treasury : number;
     name : string;
     number_card : string;
-    status ?: Boolean;
+    status ?: boolean;
 }

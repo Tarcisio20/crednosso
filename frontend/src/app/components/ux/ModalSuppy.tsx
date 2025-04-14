@@ -30,7 +30,7 @@ export const ModalSupply = (
      const t = await minusSaldoTreasury(treasury?.[0].id_system as number, { bills_10 : cassA, bills_20 : cassB, bills_50 : cassC, bills_100 : cassD } )
       
      if(t.data.treasury.id && t.data.treasury.id > 0){
-      let data = {
+      const data = {
         id_atm : atmIndividual?.id_system as number,
         cassete_A : cassA,
         cassete_B : cassB,
@@ -38,7 +38,7 @@ export const ModalSupply = (
         cassete_D : cassD,
         total_exchange : exchange
       }
-      const supplyReturn = await add(data)
+      await add(data)
      }else{
       console.log("Error")
      }
@@ -197,7 +197,7 @@ export const ModalSupply = (
         </div>
       </div>
       <div className="w-full flex items-center justify-center gap-2 ">
-        <input type="checkbox" checked={exchange} onChange={e=>setExchage(!exchange)} />
+        <input type="checkbox" checked={exchange} onChange={()=>setExchage(!exchange)} />
         <label className="text-black uppercase font-bold">Troca total</label>
       </div>
       <div className="w-full  flex justify-center items-center mt-2 mb-2">

@@ -2,6 +2,13 @@ import { typeOperationType } from "@/types/typeOperationType";
 import axios from 'axios'
 import Cookies from "js-cookie"
 
+type TypeOperationResponse = {
+  typeOperation: {
+    data: any[], // ou o tipo certo dos dados
+    totalItems: number,
+    totalPages: number
+  }
+}
 
 export const getAll = async () => {
   const token = Cookies.get('tokenSystemCredNosso')
@@ -34,7 +41,7 @@ export const getAll = async () => {
 export const getAllPagination = async (page: number, pageSize: number) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/type-operation-pagination`, {
+    const response = await axios.get<TypeOperationResponse>(`${process.env.NEXT_PUBLIC_API_URL}/type-operation-pagination`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`

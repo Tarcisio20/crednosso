@@ -13,7 +13,7 @@ import {
   faLandmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function TypeSupplyEdit() {
   const { id } = useParams();
@@ -29,12 +29,8 @@ export default function TypeSupplyEdit() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    document.title = "Tipo Abastecimento - Edit | CredNosso";
-    getTypeSupplyById();
-  }, [id]);
 
-  const getTypeSupplyById = async () => {
+  const getTypeSupplyById =  useCallback(async () => {
     setError("");
     setLoading(false);
     setLoading(true);
@@ -51,7 +47,13 @@ export default function TypeSupplyEdit() {
       setLoading(false);
       return;
     }
-  };
+  }, [])
+
+  
+  useEffect(() => {
+    document.title = "Tipo Abastecimento - Edit | CredNosso";
+    getTypeSupplyById();
+  }, [id, getTypeSupplyById]);
 
   const editTypeSupply = async () => {
     setError("");
@@ -62,7 +64,7 @@ export default function TypeSupplyEdit() {
       setLoading(false);
       return;
     }
-    let data = {
+      const data = {
       name: nameTypeSupply.toUpperCase(),
       status : statusTypeSupply
     }

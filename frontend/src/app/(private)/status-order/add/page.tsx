@@ -36,7 +36,7 @@ export default function TypeOperationAdd() {
       setLoading(false);
       return;
     }
-    let data = {
+    const data = {
       name: nameStatusOrder.toUpperCase(),
     };
     const newStatusOrder = await add(data);

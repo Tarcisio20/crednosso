@@ -25,17 +25,12 @@ export default function StatusOrderEdit() {
           return
      }
 
-     const [statusOrder, setStatusOrder] = useState<statusOrderType>()
+     const [, setStatusOrder] = useState<statusOrderType>()
      const [nameStatusOrder, setNameStatusOrder] = useState('')
      const [statusStatusOrder, setStatusStatusOrder] = useState(true)
 
      const [error, setError] = useState('')
      const [loading, setLoading] = useState(false)
-
-     useEffect(() => {
-          document.title = "Status Pedido - Edit | CredNosso";
-          getStatusOrder();
-     }, [id]);
 
      const getStatusOrder = async () => {
           setError("");
@@ -60,6 +55,11 @@ export default function StatusOrderEdit() {
           }
      };
 
+     useEffect(() => {
+          document.title = "Status Pedido - Edit | CredNosso";
+          getStatusOrder();
+     }, [id, getStatusOrder]);
+
      const editTypeOperation = async () => {
           setError('')
           setLoading(false)
@@ -69,7 +69,7 @@ export default function StatusOrderEdit() {
                setLoading(false)
                return
           }
-          let data = {
+          const data = {
                name: nameStatusOrder.toUpperCase(),
                status: statusStatusOrder
           }

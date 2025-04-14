@@ -7,7 +7,7 @@ import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getAllPagination } from "@/app/service/type-supply";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { typeSupplyType } from "@/types/typeSupplyType";
@@ -28,17 +28,14 @@ export default function TypeSupply() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  useEffect(() => {
-    document.title = "Tipos Abastecimento | CredNosso";
-    loadTypeSupplyPagination();
-  }, [currentPage]);
+
 
   const handleAdd = () => {
     router.push('/type-supply/add')
     return
   }
 
-  const loadTypeSupplyPagination = async () => {
+  const loadTypeSupplyPagination = useCallback(async () => {
     setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
@@ -58,7 +55,12 @@ export default function TypeSupply() {
       setLoading(false);
       return;
     }
-  }
+  },[])
+
+  useEffect(() => {
+    document.title = "Tipos Abastecimento | CredNosso";
+    loadTypeSupplyPagination();
+  }, [currentPage, loadTypeSupplyPagination]);
 
   return (
     <Page>
@@ -81,7 +83,7 @@ export default function TypeSupply() {
               <tr key={key} className="h-12">
                 <td>{item.id}</td>
                 <td>{item.name}</td>
-                <td>{generateStatus(item.status as Boolean)}</td>
+                <td>{generateStatus(item.status as boolean)}</td>
                 <td className='flex justify-center items-center gap-4 h-12'>
                   <Link href={`/type-supply/edit/${item.id}`}>
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />

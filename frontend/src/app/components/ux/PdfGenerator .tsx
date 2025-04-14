@@ -3,8 +3,8 @@
 import { formatDateToString } from "@/app/utils/formatDateToString";
 import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
 import jsPDF from "jspdf";
+import autoTable  from 'jspdf-autotable';
 import { useState } from "react";
-import autoTable from "jspdf-autotable";
 import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTitle";
 
 type pdfProps = {
@@ -149,7 +149,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         4: { cellWidth: 40 },  // VALOR
       };
 
-      (autoTable as any)(doc, {
+      (autoTable as any )(doc, {
         startY: 15, // Início com margem superior para não cortar
         head: [
           [

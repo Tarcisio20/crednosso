@@ -2,6 +2,14 @@ import { statusOrderType } from "@/types/statusOrder";
 import axios from 'axios'
 import Cookies from "js-cookie"
 
+type StatusOrderResponse = {
+  statusOrder: {
+    data: any[], // ou o tipo exato dos itens
+    totalItems: number,
+    totalPages: number
+  }
+}
+
 export const getAll = async () => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
@@ -33,7 +41,7 @@ export const getAll = async () => {
 export const getAllPagination = async (page: number, pageSize: number) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/status-order-pagination`, {
+    const response = await axios.get<StatusOrderResponse>(`${process.env.NEXT_PUBLIC_API_URL}/status-order-pagination`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`

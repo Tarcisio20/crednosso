@@ -78,10 +78,7 @@ export default function TreasuryEdit() {
     return;
   }
 
-  useEffect(() => {
-    document.title = "Tesouraria - Edit | CredNosso";
-    allLoadings();
-  }, [id]);
+
 
   const allLoadings = async () => {
     await getTreasuryByIdSystem();
@@ -89,6 +86,11 @@ export default function TreasuryEdit() {
     await getAllContactsByIdTreasury();
     await getTypeStore()
   };
+
+  useEffect(() => {
+    document.title = "Tesouraria - Edit | CredNosso";
+    allLoadings();
+  }, [id, allLoadings]);
 
   const getTreasuryByIdSystem = async () => {
     setError({
@@ -248,7 +250,7 @@ export default function TreasuryEdit() {
       setLoading(false)
       return;
     }
-    let data = {
+    const data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
       id_type_store : parseInt(idTypeStore),

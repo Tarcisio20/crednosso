@@ -1,9 +1,9 @@
 "use client"
 
 import { Page } from "@/app/components/ux/Page";
-import { faCheck, faCheckDouble, faCodeCompare, faEnvelope, faEye, faFileExport, faL, faMagnifyingGlass, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCheckDouble, faCodeCompare, faEnvelope, faEye, faFileExport, faMagnifyingGlass, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
@@ -11,9 +11,8 @@ import { getAll as getAllTreasury } from "@/app/service/treasury";
 import { typeOperationType } from "@/types/typeOperationType";
 import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
-import { useRouter } from "next/navigation";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genreratePaymmentById, genrerateRelaseById, getOrderByIdForReport, searchOrdersForDate, searchOrdersForDatePagination } from "@/app/service/order";
+import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genreratePaymmentById, genrerateRelaseById, getOrderByIdForReport, searchOrdersForDate } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -39,21 +38,19 @@ import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
 export default function Order() {
 
-  const router = useRouter()
-
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
-  const [typeOrders, setTypeOrders] = useState<typeOrderType[]>([])
+  const [, setTypeOrders] = useState<typeOrderType[]>([])
   const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
   const [orders, setOrders] = useState<orderType[]>([])
 
   const [itemsChecks, setItemsChecks] = useState<{ id_order: number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
 
-  const [idTypeOperation, setIdTypeOperation] = useState('')
-  const [idTreasuryOrigin, setIdTreasuryOrigin] = useState('')
-  const [idTreasuryDestin, setIdTreasuryDestin] = useState('')
-  const [idTypeOrder, setIdTypeOrder] = useState('')
+  const [, setIdTypeOperation] = useState('')
+  const [, setIdTreasuryOrigin] = useState('')
+  const [, setIdTreasuryDestin] = useState('')
+  const [, setIdTypeOrder] = useState('')
 
   const [dateInitial, setDateInitial] = useState('')
   const [dateFinal, setDateFinal] = useState('')
@@ -64,8 +61,6 @@ export default function Order() {
   const [modalViewOrder, setModalViewOrder] = useState(false)
   const [modalOrderConfirmPartial, setModalOrderConfirmPartial] = useState(false)
   const [modalRelauchOrder, setModalRelaunchOrder] = useState(false)
-
-  const [relauchOrderDate, setRelaunchOrderDate] = useState('')
 
   const [orderIndivudual, setOrderIndividual] = useState<orderType>()
 
@@ -85,13 +80,8 @@ export default function Order() {
   const [totalOrderMateus, setTotalOrderMateus] = useState(0)
   const [totalOrderPosterus, setTotalOrderPOsterus] = useState(0)
   const [totalOrderConfirmmed, setTotalOrderConfirmmed] = useState(0)
-  const [totalOrderEstornado, setTotalOrderEstornado] = useState(0)
 
   const [modalError, setModalError] = useState(false)
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 12;
 
 
   useEffect(() => {
@@ -101,12 +91,12 @@ export default function Order() {
     allLoading()
   }, [orders])
 
-  const allLoading = async () => {
+  const allLoading =  useCallback(async () => {
     await typeOperationFunction()
     await treasuriesFunction()
     await typeOrderFunction()
     await statusOderFunction()
-  }
+  }, [])
 
   const typeOperationFunction = async () => {
     setError('')
@@ -205,7 +195,7 @@ export default function Order() {
       return
     }
     setOrders([])
-    let data = {
+    const data = {
       date_initial: dateInitial,
       date_final: dateFinal === '' ? dateInitial : dateFinal,
     }
@@ -218,7 +208,7 @@ export default function Order() {
     }
     if (orderSarch.data.order && orderSarch.data.order.length > 0) {
       setOrders(orderSarch.data.order)
-      let elements: any = []
+      const elements: any = []
       let sum = 0
       let sumConfirmmed = 0
       let sumMateus = 0
@@ -256,10 +246,6 @@ export default function Order() {
     setLoading(false)
     return
 
-  }
-
-  const view = () => {
-    console.log(itemsChecks)
   }
 
   const handleToggleSelect = () => {

@@ -37,12 +37,6 @@ export default function Supply() {
     }
   }, [])
 
-  useEffect(() => {
-    if (!currentDay) return
-    handleDaySupplies()
-
-  }, [currentDay])
-
 
   const handleGenerateOrders = async () => {
     setError({ type: '', title: '', messege: '' })
@@ -59,10 +53,10 @@ export default function Supply() {
   const handleDaySupplies = async () => {
     setError({ type: '', title: '', messege: '' })
     setLoading(true)
-    let data = {
+    const data = {
       date: currentDay
     }
-    const supplayDay = await getSuppliesForDay(data)
+    const supplayDay = await getSuppliesForDay(data.date)
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
       setLoading(false)
@@ -78,6 +72,12 @@ export default function Supply() {
     setLoading(false)
 
   }
+
+  useEffect(() => {
+    if (!currentDay) return
+    handleDaySupplies()
+
+  }, [currentDay, handleDaySupplies])
 
   const handleSuppliesDay = async () => {
 
@@ -124,7 +124,7 @@ export default function Supply() {
               <tr>
                 <td>{item.id}</td>
                 <td>{item.id_atm}</td>
-                <td>"Nome"</td>
+                <td>Nome</td>
                 <td>{item.cassete_A}</td>
                 <td>{item.cassete_B}</td>
                 <td>{item.cassete_C}</td>

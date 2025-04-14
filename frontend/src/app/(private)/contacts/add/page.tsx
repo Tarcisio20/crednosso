@@ -4,7 +4,6 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { faMobile, faIdBadge, faEnvelope, faAdd } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/app/components/ui/Button';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Input } from '@/app/components/ui/Input';
 import { Loading } from '@/app/components/ux/Loading';
@@ -13,11 +12,8 @@ import { getAll } from '@/app/service/treasury';
 import { validateField } from '@/app/utils/validateField';
 import { add } from '@/app/service/contact';
 import { Messeger } from "@/app/components/ux/Messeger";
-import { ContactType } from "@/types/contactType";
 
 export default function ContactsAdd() {
-
-  const router = useRouter()
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>()
   const [idTreasury, setIdTreasury] = useState('0')
@@ -66,7 +62,7 @@ export default function ContactsAdd() {
       setLoading(false)
       return
     }
-    let data = {
+    const data = {
       id_treasury: parseInt(idTreasury),
       name: nameContact.toUpperCase(),
       email: emailContact.toUpperCase(),

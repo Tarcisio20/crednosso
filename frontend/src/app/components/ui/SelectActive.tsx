@@ -9,7 +9,7 @@ type SelectActiveProps = {
     icon ?: IconProp; 
 }
 
-export const SelectActive = ({ active, defaultSelected, value , size, onChange } : SelectActiveProps) => {
+export const SelectActive = ({  defaultSelected , size, onChange } : SelectActiveProps) => {
    return <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600
     ${size === 'small' ? 'w-64 h-11 text-sm' : ""}
     ${size === 'meddium' ? 'w-72 h-11 text-base' : ""}

@@ -16,11 +16,9 @@ import {
   faVault,
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AtmAdd() {
-  const router = useRouter();
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
 
@@ -57,7 +55,7 @@ export default function AtmAdd() {
       return;
     }
 
-    let data = {
+    const data = {
       id_system: parseInt(idSystemAtm),
       name: nameAtm,
       short_name: nameRedAtm,

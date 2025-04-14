@@ -4,7 +4,6 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { faIdBadge, faAdd } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/app/components/ui/Button";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
@@ -15,7 +14,6 @@ import { add } from "@/app/service/card-operator";
 import { Messeger } from "@/app/components/ux/Messeger";
 
 export default function OperationCardAdd() {
-  const router = useRouter();
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>();
   const [idTreasury, setIdTreasury] = useState("0");
@@ -68,7 +66,7 @@ export default function OperationCardAdd() {
       return;
     }
 
-    let data = {
+    const data = {
       id_treasury: parseInt(idTreasury),
       name: nameOperatorCard.toUpperCase(),
       number_card: numOperatorCard,

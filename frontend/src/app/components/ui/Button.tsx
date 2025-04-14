@@ -9,7 +9,7 @@ type ButtonProps = {
     onClick: () => void;
 }
 
-export const Button = ({ size, color, secondaryColor, textColor, children, onClick }: ButtonProps) => {
+export const Button = ({ size, color, textColor, children, onClick }: ButtonProps) => {
     return <div className={`pt-2 pb-2 pr-2 pl-2 rounded-md border-4  text-center flex items-center justify-center
         cursor-pointer
         ${size === 'small' ? 'w-64 h-10 text-sm' : ""}

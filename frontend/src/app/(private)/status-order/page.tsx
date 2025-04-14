@@ -7,7 +7,7 @@ import { faPenToSquare, faTrash, faWandMagicSparkles } from "@fortawesome/free-s
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll, getAllPagination } from "@/app/service/status-order";
@@ -27,17 +27,12 @@ export default function StatusOrder() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  useEffect(() => {
-    document.title = "Status Pedido - Add | CredNosso";
-    loadStatusOrderPagination();
-  }, [currentPage]);
-
   const handleAdd = () => {
     router.push('/status-order/add')
     return
   }
 
-  const loadStatusOrderPagination = async () => {
+  const loadStatusOrderPagination =  useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
@@ -58,7 +53,13 @@ export default function StatusOrder() {
       setLoading(false);
       return;
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    document.title = "Status Pedido - Add | CredNosso";
+    loadStatusOrderPagination();
+  }, [currentPage, loadStatusOrderPagination]);
+
 
   return (
     <Page>
@@ -81,7 +82,7 @@ export default function StatusOrder() {
               <tr key={key} className="h-12">
                 <td>{item.id}</td>
                 <td>{item.name}</td>
-                <td>{generateStatus(item.status as Boolean)}</td>
+                <td>{generateStatus(item.status as boolean)}</td>
                 <td className='flex justify-center items-center gap-4 h-12'>
                   <Link href={`/status-order/edit/${item.id}`}>
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />

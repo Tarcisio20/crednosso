@@ -11,5 +11,5 @@ export type treasuryType = {
     bills_20 ?: number;
     bills_50 ?: number;
     bills_100 ?: number;
-    status ?: Boolean;
+    status ?: boolean;
 }

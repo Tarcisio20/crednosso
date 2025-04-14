@@ -183,7 +183,7 @@ export default function OperatorCard() {
                   <td>{returnNameTreasury(treasuries, item.id_treasury)}</td>
                   <td>{item.name}</td>
                   <td>{item.number_card}</td>
-                  <td> {generateStatus(item.status as Boolean)} </td>
+                  <td> {generateStatus(item.status as boolean)} </td>
                   <td className="flex justify-center items-center gap-4 h-12">
                     <Link href={`/operator-card/edit/${item.id}`}>
                       <FontAwesomeIcon

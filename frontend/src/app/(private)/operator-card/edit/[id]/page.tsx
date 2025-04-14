@@ -4,8 +4,8 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { faIdBadge, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/app/components/ui/Button";
-import { useParams, useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/treasury";
@@ -18,7 +18,6 @@ import { Messeger } from "@/app/components/ux/Messeger";
 export default function OperationCardEdit() {
 
   const { id } = useParams()
-  const router = useRouter()
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>()
   const [idTreasury, setIdTreasury] = useState('0')
@@ -26,20 +25,22 @@ export default function OperationCardEdit() {
   const [numOperatorCard, setNumOperatorCard] = useState('')
   const [statusOperatorCard, setStatusOperatorCard] = useState(true)
 
-  const [cardOperator, setCardOperator] = useState<cardOperatorType>()
+  const [, setCardOperator] = useState<cardOperatorType>()
 
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
+
+  const allLOadings = useCallback(async () => {
+    await getAllTreasuries()
+    await getById()
+  }, [])
+  
   useEffect(() => {
     document.title = "Cartão Operador - Edit | CredNosso";
     allLOadings()
-  }, [id])
+  }, [id, allLOadings])
 
-  const allLOadings = async () => {
-    await getAllTreasuries()
-    await getById()
-  }
 
   const getAllTreasuries = async () => {
     setError({ type: '', title: '', messege: '' });
@@ -90,7 +91,7 @@ export default function OperationCardEdit() {
       return
     }
 
-    let data = {
+    const data = {
       id_treasury: parseInt(idTreasury),
       name: nameOperatorCard.toUpperCase(),
       number_card: numOperatorCard,

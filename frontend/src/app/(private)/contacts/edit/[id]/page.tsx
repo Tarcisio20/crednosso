@@ -9,8 +9,8 @@ import {
   faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/app/components/ui/Button";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/treasury";
@@ -23,7 +23,6 @@ import { Messeger } from "@/app/components/ux/Messeger";
 export default function ContactsEdit() {
 
   const { id } = useParams()
-  const router = useRouter()
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [idTreasury, setIdTreasury] = useState('0')
@@ -31,19 +30,13 @@ export default function ContactsEdit() {
   const [phoneContact, setPhoneContact] = useState('')
   const [emailContact, setEmailContact] = useState('')
   const [statusContact, setStatusContact] = useState(true)
-  const [contact, setContact] = useState<ContactType>()
+  const [, setContact] = useState<ContactType>()
 
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
 
-
-  useEffect(() => {
-    document.title = "Contato - Edit | CredNosso";
-    AllLoadings()
-  }, [id])
-
-  const getAllTreasuries = async () => {
+  const getAllTreasuries =  useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
@@ -62,9 +55,9 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     }
-  };
+  }, []);
 
-  const getById = async () => {
+  const getById = useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
@@ -88,12 +81,18 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     }
-  };
+  }, [id]);
 
-  const AllLoadings = async () => {
+  const AllLoadings = useCallback(async () => {
     await getAllTreasuries();
     await getById();
-  };
+  }, [getAllTreasuries, getById]);
+
+
+  useEffect(() => {
+    document.title = "Contato - Edit | CredNosso";
+    AllLoadings()
+  }, [id, AllLoadings])
 
   const editContact = async () => {
     setError({ type: '', title: '', messege: '' });
@@ -111,7 +110,7 @@ export default function ContactsEdit() {
       return;
     }
 
-    let data = {
+    const data = {
       id_treasury: parseInt(idTreasury),
       name: nameContact.toUpperCase(),
       phone: phoneContact,

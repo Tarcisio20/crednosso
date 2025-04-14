@@ -2,6 +2,13 @@ import axios from 'axios'
 import { treasuryType } from "@/types/treasuryType";
 import Cookies from "js-cookie"
 
+type TreasuryResponse = {
+  treasury: {
+    data: any[], // ou o tipo específico que você espera
+    totalItems: number,
+    totalPages: number
+  }
+}
 
 export const getAll = async () => {
   const token  =  Cookies.get('tokenSystemCredNosso')
@@ -64,7 +71,7 @@ export const getTreasuriesForIds = async (data : number[]) => {
 export const getAllTreasuryPagination = async (page: number, pageSize: number) => {
   const token  =  Cookies.get('tokenSystemCredNosso')
   try{
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/treasury-pagination`, {
+    const response = await axios.get<TreasuryResponse>(`${process.env.NEXT_PUBLIC_API_URL}/treasury-pagination`, {
       headers: { 
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

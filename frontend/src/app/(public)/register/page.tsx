@@ -37,13 +37,13 @@ export default function SignInComponent() {
       return;
     }
     if (userIdentification === '') {
-      setError({ type: 'error', title: 'Error', messege: 'Prrencher o campo nome!' })
+      setError({ type: 'error', title: 'Error', messege: 'Preencher o campo nome!' })
       setLoading(false)
       return
     }
 
     if (userEmail === '') {
-      setError({ type: 'error', title: 'Error', messege: 'Prrencher o campo e-mail com um e-mail válido!' })
+      setError({ type: 'error', title: 'Error', messege: 'Preencher o campo e-mail com um e-mail válido!' })
       setLoading(false)
       return
     }

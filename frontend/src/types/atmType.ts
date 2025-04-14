@@ -8,5 +8,5 @@ export type atmType = {
     cassete_B : number;
     cassete_C : number;
     cassete_D : number;
-    status ?: Boolean;
+    status ?: boolean;
 }

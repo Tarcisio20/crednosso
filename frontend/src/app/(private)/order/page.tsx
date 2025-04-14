@@ -3,7 +3,7 @@
 import { Page } from "@/app/components/ux/Page";
 import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/Button";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/type-operation";
@@ -24,7 +24,6 @@ export default function Order() {
 
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
-  const [treasuriesFormatted, setTreasuriesFormatted] = useState([])
   const [typeOrders, setTypeOrders] = useState<typeOrderType[]>([])
 
   const [idTypeOperation, setIdTypeOperation] = useState('')
@@ -42,16 +41,18 @@ export default function Order() {
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    document.title = "Pedidos | CredNosso";
-    allLoading()
-  }, [])
 
-  const allLoading = async () => {
+
+  const allLoading = useCallback(async () => {
     await typeOperationFunction()
     await treasuriesFunction()
     await typeOrderFunction()
-  }
+  }, [])
+
+  useEffect(() => {
+    document.title = "Pedidos | CredNosso";
+    allLoading()
+  }, [allLoading])
 
   const typeOperationFunction = async () => {
     setError({ type: '', title: '', messege: '' })
@@ -135,7 +136,7 @@ export default function Order() {
       return
     }
 
-    let data = {
+    const data = {
       id_type_operation: parseInt(idTypeOperation),
       id_treasury_origin: parseInt(idTreasuryOrigin),
       id_treasury_destin: idTypeOperation === '2' ? parseInt(idTreasuryOrigin) : parseInt(idTreasuryDestin),

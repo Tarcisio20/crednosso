@@ -42,16 +42,15 @@ export default function TreasuryAdd() {
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    document.title = "Tesourarias - Add | CredNosso";
-    allLoadings();
-  }, []);
-
-
   const allLoadings = async () => {
     await getTypeSuplies()
     await getTypeStore()
   }
+
+  useEffect(() => {
+    document.title = "Tesourarias - Add | CredNosso";
+    allLoadings();
+  }, [allLoadings]);
 
   const getTypeSuplies = async () => {
     setError({ type: '', title: '', messege: '' });
@@ -122,7 +121,7 @@ export default function TreasuryAdd() {
       return;
     }
 
-    let data = {
+    const data = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
       id_type_store: parseInt(idTypeStore),
