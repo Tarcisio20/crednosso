@@ -59,11 +59,13 @@ export default function Order() {
     setLoading(false)
     setLoading(true)
     const tOperation = await getAll()
+    console.log(tOperation)
     if (tOperation.status === 300 || tOperation.status === 400 || tOperation.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' })
       setLoading(false)
       return
     }
+  
     if (tOperation.data.typeOperation && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)
@@ -149,8 +151,6 @@ export default function Order() {
       status_order: 1,
       observation: obs
     }
-
-    console.log(data)
 
     const newOrder = await add(data)
     if (newOrder.status === 300 || newOrder.status === 400 || newOrder.status === 500) {

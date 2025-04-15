@@ -3,7 +3,7 @@
 import { Page } from "@/app/components/ux/Page";
 import { faCheck, faCheckDouble, faCodeCompare, faEnvelope, faEye, faFileExport, faMagnifyingGlass, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
@@ -108,6 +108,7 @@ export default function Order() {
       setLoading(false)
       return
     }
+    console.log(tOperation)
     if (tOperation.data.typeOperation && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)

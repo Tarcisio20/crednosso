@@ -18,6 +18,7 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
         console.log(treasury)
         orders.push({
             id : order[0].id,
+            id_type_operation : order[0].id_type_operation,
             id_trasury : order[0].id_treasury_destin,
             name_treasury : treasury.name_for_email,
             date : order[0].date_order,

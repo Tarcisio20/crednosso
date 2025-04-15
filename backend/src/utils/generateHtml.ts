@@ -11,7 +11,7 @@ export const generateEmailTableHTML = (data: any[]): string => {
     html += `
         <tr>
           <td colspan="3" style="border: 1px solid #000; background-color: #FFFF00; font-weight: bold; text-align: center; padding: 8px;">
-            Nr: ${item.id} | RETIRADA DE LOJA / ${item.name_treasury} - ${formattedDate}
+            Nr: ${item.id} | ${item.id_type_operation === 2 ? 'RETIRADA DE LOJA' : ''}${item.id_type_operation === 1 ? 'TRANSFERENCIA ENTRE CUSTODIA  DO MATEUS SUPERMERCADOS' : ''}   / ${item.name_treasury} - ${formattedDate}
           </td>
         </tr>
         <tr>
