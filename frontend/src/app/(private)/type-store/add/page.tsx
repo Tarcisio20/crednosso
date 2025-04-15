@@ -37,7 +37,7 @@ export default function TypeStoreAdd() {
       name: nameTypeStore.toUpperCase(),
     };
     const newTypeStore = await add(data);
-    if (newTypeStore.data.typeStore && newTypeStore.data.typeStore[0].id > 0) {
+    if (newTypeStore.data.typeStore && newTypeStore.data.typeStore.length > 0) {
       setLoading(false);
       setError({ type: 'success', title: 'Success', messege: 'Tipo de Loja salva com sucesso!' });
       return;

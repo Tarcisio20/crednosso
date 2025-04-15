@@ -50,7 +50,7 @@ export default function TreasuryAdd() {
   useEffect(() => {
     document.title = "Tesourarias - Add | CredNosso";
     allLoadings();
-  }, [allLoadings]);
+  }, []);
 
   const getTypeSuplies = async () => {
     setError({ type: '', title: '', messege: '' });
@@ -62,7 +62,6 @@ export default function TreasuryAdd() {
       setLoading(false);
       return;
     }
-
     if (tSupplies.data.typeSupply && tSupplies.data.typeSupply.length > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
       setIdTypeSupply(tSupplies.data.typeSupply[0].id);

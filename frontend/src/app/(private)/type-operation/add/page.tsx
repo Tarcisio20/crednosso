@@ -45,6 +45,8 @@ export default function TypeOperationAdd() {
     const newTypeOperation = await add(data);
     if (newTypeOperation.data.typeOperation.id) {
       setError({ type: 'success', title: 'Success', messege: 'Tipo de operação salva com sucesso!' });
+      setIdSystemTypeOperation("")
+      setNameTypeOperation("")
       setLoading(false);
       return;
     } else {

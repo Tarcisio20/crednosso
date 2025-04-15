@@ -1,5 +1,6 @@
 // Função para gerar HTML com as tabelas a partir dos dados
 export const generateEmailTableHTML = (data: any[]): string => {
+  console.log(data)
   let html = `
       <table style="border-collapse: collapse; width: 80%;">
     `;

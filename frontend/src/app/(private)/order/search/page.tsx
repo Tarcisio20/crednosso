@@ -91,12 +91,12 @@ export default function Order() {
     allLoading()
   }, [orders])
 
-  const allLoading =  useCallback(async () => {
+  const allLoading =  async () => {
     await typeOperationFunction()
     await treasuriesFunction()
     await typeOrderFunction()
     await statusOderFunction()
-  }, [])
+  }
 
   const typeOperationFunction = async () => {
     setError('')
@@ -262,7 +262,6 @@ export default function Order() {
         item.id_order === id ? { ...item, status: !item.status } : item
       ))
     )
-    console.log(itemsChecks)
   }
 
   const viewOrder = async () => {
@@ -327,7 +326,7 @@ export default function Order() {
     setError('')
     setLoading(false)
     setLoading(true)
-    let data = {
+    const data = {
       requested_value_A: valueAddA,
       requested_value_B: valueAddB,
       requested_value_C: valueAddC,
@@ -646,7 +645,6 @@ export default function Order() {
       setLoading(false)
       return
     }
-    console.log(emails)
     if (emails.data.email) {
       setLoading(false)
       setError('E-mail enviado com sucesso')

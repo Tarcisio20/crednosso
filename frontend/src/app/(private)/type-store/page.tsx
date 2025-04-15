@@ -7,7 +7,7 @@ import { faBan, faPenToSquare, faStore, faTrash } from "@fortawesome/free-solid-
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeStoreType } from "@/types/typeStoreType";
@@ -31,9 +31,6 @@ export default function TypeStore() {
     document.title = "Tipo de Loja   | CredNosso";
   }, []);
 
-  useEffect(() => {
-    loadTypeStorePagination();
-  }, [currentPage]);
 
 
   const handleAdd = () => {
@@ -41,7 +38,7 @@ export default function TypeStore() {
     return
   }
 
-  const loadTypeStorePagination = async () => {
+  const loadTypeStorePagination = useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
@@ -61,14 +58,19 @@ export default function TypeStore() {
       setLoading(false);
       return;
     }
-  }
+  }, [])
 
-  const handleDelTypeStoreById = async (id: number) => {
+  useEffect(() => {
+    loadTypeStorePagination();
+  }, [currentPage, loadTypeStorePagination]);
+
+
+  /*const handleDelTypeStoreById = async (id: number) => {
     setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
     const delTSore = await del(id)
-  }
+  }*/
 
   return (
     <Page>
@@ -91,7 +93,7 @@ export default function TypeStore() {
               <tr key={key} className="h-12">
                 <td>{item.id}</td>
                 <td>{item.name}</td>
-                <td>{generateStatus(item.status as Boolean)}</td>
+                <td>{generateStatus(item.status as boolean)}</td>
                 <td className='flex justify-center items-center gap-4 h-12'>
                   <Link href={`/type-store/edit/${item.id}`}>
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />

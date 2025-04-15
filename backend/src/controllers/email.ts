@@ -15,6 +15,7 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
     for(let x = 0; idsOrder.length > x; x++){
         let order : any = await getOrderById(parseInt(idsOrder[x]))
         let treasury : any = await getForIdSystem(order[0].id_treasury_destin)
+        console.log(treasury)
         orders.push({
             id : order[0].id,
             id_trasury : order[0].id_treasury_destin,

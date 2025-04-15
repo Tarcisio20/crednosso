@@ -52,7 +52,7 @@ export default function SignInComponent() {
       email: userEmail,
       password: userPassword
     })
-
+    console.log(user)
     if (user?.user) {
       setLoading(false)
       router.push('/login')

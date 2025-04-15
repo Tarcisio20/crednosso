@@ -47,6 +47,7 @@ export default function TypeOperationAdd() {
     }
     if (newStatusOrder.data.statusOrder && newStatusOrder.data.statusOrder?.id) {
       setError({ type: 'success', title: 'Success', messege: 'Status do Pedido salvo com sucesso!' });
+      setNameStatusOrder("")
       setLoading(false);
       return;
     } else {

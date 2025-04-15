@@ -41,6 +41,8 @@ export default function TypeOrderAdd() {
     const newTypeOrder = await add(data)
     if (newTypeOrder.data.typeOrder.id) {
       setError({ type: 'success', title: 'Success', messege: 'Tipo de pedido salvo com sucesso!' });
+      setIdSystemTypeOrder("")
+      setNameTypeOrder("")
       setLoading(false)
       return
     } else {

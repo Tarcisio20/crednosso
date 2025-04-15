@@ -6,6 +6,8 @@ import { returnDateInPtBr } from "../utils/returnDateInPtBr";
 export const sendEmailOfOrder = async (emails: string, orders: any) => {
   const html = generateEmailTableHTML(orders)
   const dt = new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })
+
+  emails += ';tarcisio.silva@crednosso.com.br;dillan.sousa@crednosso.com.br;luis.lopes@crednosso.com.br;joao.rocha@crednosso.com.br'
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,

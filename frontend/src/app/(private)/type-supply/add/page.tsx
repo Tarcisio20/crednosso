@@ -40,7 +40,7 @@ export default function TypeSupplyAdd() {
     if (newTypeSupply.data.typeSupply.id > 0) {
       setLoading(false);
       setError({ type: 'success', title: 'Success', messege: 'Tipo de abastecimento salvo com sucesso!' });
-      router.push("/type-supply");
+      setNameTypeSupply("")
       return;
     }
     setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });

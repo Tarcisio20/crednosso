@@ -32,7 +32,7 @@ export default function Treasury() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  const loadTreasuries =  useCallback(async () => {
+  const loadTreasuries =  async () => {
     setError({
       type : '',
       title : '',
@@ -51,12 +51,12 @@ export default function Treasury() {
     setError({ type : 'error', title : 'Error', messege : 'Sem dados a mostrar' })
     setLoading(false);
     return;
-  }, []);
+  };
 
   useEffect(() => {
     document.title = "Tesourarias | CredNosso";
     loadTreasuries();
-  }, [currentPage, loadTreasuries]);
+  }, [currentPage]);
 
   const handleAdd = () => {
     router.push("/treasury/add");

@@ -90,7 +90,7 @@ export default function TreasuryEdit() {
   useEffect(() => {
     document.title = "Tesouraria - Edit | CredNosso";
     allLoadings();
-  }, [id, allLoadings]);
+  }, [id]);
 
   const getTreasuryByIdSystem = async () => {
     setError({
@@ -254,9 +254,9 @@ export default function TreasuryEdit() {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
       id_type_store : parseInt(idTypeStore),
-      name: nameTreasury,
-      name_for_email : nameForEmailTreasury,
-      short_name: nameRedTreasury,
+      name: nameTreasury.toUpperCase(),
+      name_for_email : nameForEmailTreasury.toUpperCase(),
+      short_name: nameRedTreasury.toUpperCase(),
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury,
       region: parseInt(regionTreasury),
