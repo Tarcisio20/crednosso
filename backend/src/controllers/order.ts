@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -11,6 +11,16 @@ import { returnValueTotal } from "../utils/returnValueTotal"
 import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, getTreasuryForTypeSupply, updateTreasury } from "../services/treasury"
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
 import { OrderType } from "../types/OrderType"
+
+export const getAll: RequestHandler = async (req, res) => {
+  const order = await getAllOrder()
+  if (!order) {
+    res.status(401).json({ error: 'Erro ao salvar!' })
+    return
+  }
+
+  res.json({ order })
+}
 
 export const getById: RequestHandler = async (req, res) => {
   const orderId = req.params.id

@@ -38,6 +38,7 @@ mainRouter.post('/treasury/ids',verifyJWT, treasuryController.getTreasuriesForID
 
 
 // ATM
+mainRouter.get('/atm',verifyJWT, atmController.getAll)
 mainRouter.get('/atm-pagination',verifyJWT, atmController.getAllPagination)
 mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)
@@ -60,15 +61,17 @@ mainRouter.post('/type-order/add',verifyJWT, typeOrderController.add)
 mainRouter.post('/type-order/update/:id',verifyJWT, typeOrderController.update)
 
 //contact
+mainRouter.get('/contact',verifyJWT, contactController.getAll)
 mainRouter.get('/contact/treasury/:id',verifyJWT, contactController.getByIdTreasury)
 mainRouter.get('/contact/:id',verifyJWT, contactController.getById)
 mainRouter.post('/contact/add',verifyJWT, contactController.add)
 mainRouter.post('/contact/update/:id',verifyJWT, contactController.update)
 
 // card-operator
-mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
+mainRouter.get('/card-operator',verifyJWT, cardOperatorController.getAll)
 mainRouter.get('/card-operator/:id',verifyJWT, cardOperatorController.getById)
 mainRouter.get('/card-operator/treasury/:id',verifyJWT, cardOperatorController.getByIdTreasury)
+mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
 mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.update)
 
 
@@ -88,6 +91,7 @@ mainRouter.post('/status-order/add',verifyJWT, statusOrderController.add)
 mainRouter.post('/status-order/update/:id',verifyJWT, statusOrderController.update)
 
 // order
+mainRouter.get('/order',verifyJWT, orderController.getAll)
 mainRouter.get('/order/:id',verifyJWT, orderController.getById)
 mainRouter.get('/order/del/:id',verifyJWT, orderController.delById)
 mainRouter.get('/order/treasury/:date',verifyJWT, orderController.getIdTreasuryForDateOrder)
@@ -115,6 +119,7 @@ mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
 mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
 
 // Supply
+mainRouter.get('/supply',verifyJWT, supplyController.getAll)
 mainRouter.post('/supply/for-day',verifyJWT, supplyController.forDate)
 mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)

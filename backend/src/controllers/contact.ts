@@ -1,11 +1,22 @@
 import { RequestHandler } from "express";
 import { contactAddSchema } from "../schemas/contactAddSchema";
 import {
+  getAllContact,
   addContact,
   getContactForId,
   getForIdTreasury,
   updateContact,
 } from "../services/contact";
+
+export const getAll: RequestHandler = async (req, res) => {
+  const contact = await getAllContact()
+  if (!contact) {
+    res.status(401).json({ error: "Erro ao salvar!" });
+    return;
+  }
+
+  res.json({ contact });
+};
 
 export const getById: RequestHandler = async (req, res) => {
   const contactId = req.params.id;

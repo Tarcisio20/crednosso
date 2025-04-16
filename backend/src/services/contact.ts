@@ -1,6 +1,13 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
+export const getAllContact = async () => {
+    const contact = await prisma.contact.findMany()
+    if(contact){
+        return contact
+    }
+    return null
+}
 
 export const getForIdTreasury = async (id : number ) => {
     const contact = await prisma.contact.findMany({

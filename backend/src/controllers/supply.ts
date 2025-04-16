@@ -1,9 +1,19 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, getAllForDate } from "../services/supply"
+import { addSupply, getAllForDate, getAllSupply } from "../services/supply"
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
+
+export const getAll : RequestHandler = async (req, res) => {
+  const supply = await getAllSupply()
+  if(!supply) {
+   res.status(401).json({ error : 'Erro ao carregar!' })
+   return
+  }
+  res.json({ supply })
+
+}
 
 export const getAllDay : RequestHandler = async (req, res) => {
    const day = req.params.day

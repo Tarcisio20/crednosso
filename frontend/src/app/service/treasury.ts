@@ -67,7 +67,6 @@ export const getTreasuriesForIds = async (data : number[]) => {
   }
 }
 
-
 export const getAllTreasuryPagination = async (page: number, pageSize: number) => {
   const token  =  Cookies.get('tokenSystemCredNosso')
   try{
@@ -106,7 +105,6 @@ export const getAllTreasuryPagination = async (page: number, pageSize: number) =
       }
   }
 }
-
 
 export const getByIdSystem = async (id : string) => {
   const token  =  Cookies.get('tokenSystemCredNosso')

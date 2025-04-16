@@ -1,6 +1,14 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
+export const getAllCardOperator = async () => {
+    const cardOperator = await prisma.operatorCard.findMany()
+    if(cardOperator){
+        return cardOperator
+    }
+    return null
+}
+
 export const getForIdTreasury = async (id : number ) => {
     const cardOperator = await prisma.operatorCard.findMany({
         where : { id_treasury : id, status : true  }

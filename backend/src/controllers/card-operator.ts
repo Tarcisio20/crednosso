@@ -1,11 +1,22 @@
 import { RequestHandler } from "express";
 import { cardOperatorAddSchema } from "../schemas/cardOperatorAddSchema";
 import {
+  getAllCardOperator,
   addCardOperator,
   getCardOperatorForId,
   getForIdTreasury,
   updateCardOperator,
 } from "../services/cardOperator";
+
+export const getAll: RequestHandler = async (req, res) => {
+  const cardOperator = await getAllCardOperator()
+  if (!cardOperator) {
+    res.status(401).json({ error: "Erro ao salvar!" });
+    return;
+  }
+
+  res.json({ cardOperator });
+};
 
 export const getByIdTreasury: RequestHandler = async (req, res) => {
   const treasuryId = req.params.id;

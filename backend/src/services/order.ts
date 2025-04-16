@@ -2,6 +2,13 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 
+export const getAllOrder = async () => {
+  const order = await prisma.order.findMany()
+  if (order) {
+    return order
+  }
+  return null
+}
 
 export const getOrderById = async (id: number) => {
   const order = await prisma.order.findMany({
