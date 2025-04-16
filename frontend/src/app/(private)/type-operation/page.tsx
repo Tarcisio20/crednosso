@@ -84,7 +84,7 @@ export default function TypeOperation() {
               <tr className="h-12" key={index}>
                 <td>{item.id_system}</td>
                 <td>{item.name}</td>
-                <td>{generateStatus(item.status as Boolean)}</td>
+                <td>{generateStatus(item.status as boolean)}</td>
                 <td className='flex justify-center items-center gap-4 h-12'>
                   <Link href={`/type-operation/edit/${item.id}`}>
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />

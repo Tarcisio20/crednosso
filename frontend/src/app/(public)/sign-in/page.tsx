@@ -50,12 +50,13 @@ export default function SignIn() {
       setLoading(false)
       return;
     }
-    setLoading(false)
+
     if (user.data) {
       await Cookies.set("tokenSystemCredNosso", user?.data?.token, {
         expires: 2,
         path: "/",
       });
+      setLoading(false)
       router.push("/");
     }
     return false
