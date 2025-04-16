@@ -177,6 +177,7 @@ export const alterRequestsById: RequestHandler = async (req, res) => {
     requested_value_B: safeData.data.requested_value_B,
     requested_value_C: safeData.data.requested_value_C,
     requested_value_D: safeData.data.requested_value_D,
+    observation : safeData.data.observation
   })
   if (!newOrder) {
     res.status(401).json({ error: 'Erro ao salvar!' })

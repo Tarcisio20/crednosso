@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port 4444",
-    "lint": "next lint",
-    "dev:pm2": "next dev --hostname 0.0.0.0 --port 4444"
+    "lint": "next lint"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

@@ -65,6 +65,7 @@ type alterRequestsOrderType = {
   requested_value_B: number;
   requested_value_C: number;
   requested_value_D: number;
+  observation ?: string
 }
 export const alterRequestsOrderForID = async (id: number, data: alterRequestsOrderType) => {
   const order = await prisma.order.update({
