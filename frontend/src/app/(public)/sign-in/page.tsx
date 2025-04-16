@@ -11,12 +11,13 @@ import { passLoginValidator } from "@/app/utils/passLoginValidator";
 import { login } from "@/app/service/auth";
 import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
+import Image from "next/image";
 
 export default function SignIn() {
 
-    useEffect(() => {
-      document.title = "Login | CredNosso";
-    }, []);
+  useEffect(() => {
+    document.title = "Login | CredNosso";
+  }, []);
 
   const router = useRouter();
 
@@ -61,58 +62,69 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-10 bg-zinc-800 rounded-md border-2 border-zinc-750"  >
-      <div className="flex mb-7  items-center" >
-        <h3 className="text-3xl mr-2" >Sign In</h3>
-        <p className="text-sm text-zinc-600" >
-          Faça login com as suas credenciais
-        </p>
-      </div>
-      <div className="flex flex-col" >
-        <label className="uppercase mb-2 font-bold"  >Email :</label>
-        <Input
-          color="#DDD"
-          placeholder="Digite o e-mail..."
-          value={userEmail}
-          onChange={(e) => setUserEmail(e.target.value)}
-          size="large"
+    <>
+      <div>
+        <Image
+          src="https://crednosso.com.br/images/logo.png"
+          alt="Logo"
+          width={300}
+          height={150}
         />
       </div>
-      <div className="flex flex-col" >
-        <label className="uppercase mb-2 font-bold"  >Senha :</label>
-        <Input
-          color="#DDD"
-          placeholder="Digite a senha..."
-          value={userPassword}
-          password
-          onChange={(e) => setUserPassword(e.target.value)}
-          size="large"
-        />
+      <div className="flex flex-col gap-3 p-5  rounded-md"  >
+        <div className="flex mb-3  items-center" >
+          <h3 className="text-2xl mr-2 text-zinc-400  " >Sign In  |</h3>
+          <p className="text-sm text-zinc-600" >
+            Faça login com as suas credenciais
+          </p>
+        </div>
+        <div className="flex flex-col" >
+          <label className="uppercase mb-1 text-sm font-bold"  >Email :</label>
+          <Input
+            color="#DDD"
+            placeholder="Digite o e-mail..."
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            size="large"
+          />
+        </div>
+        <div className="flex flex-col" >
+          <label className="uppercase mb-1 font-bold text-sm"  >Senha :</label>
+          <Input
+            color="#DDD"
+            placeholder="Digite a senha..."
+            value={userPassword}
+            password
+            onChange={(e) => setUserPassword(e.target.value)}
+            size="large"
+          />
+        </div>
+        <div className="flex flex-col gap-3" >
+          <Button
+            size="large"
+            color="#0082c7"
+            onClick={onLoading}
+            secondaryColor="#2a49de"
+            textColor="white"
+          >
+            Logar
+          </Button>
+          <p className="text-sm" >
+            Não possui usuario?{" "}
+            <Link href="/register" className="text-zinc-400"  >
+              Registre-se
+            </Link>
+            !
+          </p>
+          {error.messege &&
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
+          }
+          {loading && (
+            <Loading />
+          )}
+        </div>
       </div>
-      <div className="flex flex-col gap-3" >
-        <Button
-          size="large"
-          color="#ADD8E6"
-          onClick={onLoading}
-          secondaryColor=""
-          textColor="black"
-        >
-          Logar
-        </Button>
-        <p  >
-          Não possui usuario?{" "}
-          <Link href="/register" className="text-zinc-400"  >
-            Registre-se
-          </Link>
-          !
-        </p>
-        {error.messege &&
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        }
-        {loading && (
-          <Loading />
-        )}
-      </div>
-    </div>
+    </>
+
   );
 }

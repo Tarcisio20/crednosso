@@ -14,7 +14,7 @@ export const Button = ({ size, color, textColor, children, onClick }: ButtonProp
         cursor-pointer
         ${size === 'small' ? 'w-64 h-10 text-sm' : ""}
         ${size === 'meddium' ? 'w-72 h-10 text-base' : ""}
-        ${size === 'large' ? 'w-80 h-10 text-lg' : ""}
+        ${size === 'large' ? 'w-80 h-10 text-md' : ""}
     `} style={{ backgroundColor: color }} onClick={onClick}  >
         <button className="p-0 m-0 text-zinc-400 font-bold uppercase" style={{ color: textColor }}  >{children}</button>
     </div>
