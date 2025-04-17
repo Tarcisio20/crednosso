@@ -6,6 +6,8 @@ import jsPDF from "jspdf";
 import { useState } from "react";
 import autoTable from "jspdf-autotable";
 import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTitle";
+import { generateExcelGMCORE } from "@/app/utils/generateExcelGMCORE";
+import { sleep } from "@/app/utils/slep";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
@@ -40,6 +42,11 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
     }, 0);
   };
 
+  const handleGenerateGMCore = async (dados : typeof data) => {
+
+    const excel = await generateExcelGMCORE(dados)
+  }
+
   const totalMateus = calcularTotal(dadosMateus);
   const totalPosterus = calcularTotal(dadosPosterus);
 
@@ -47,10 +54,13 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
     valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     if (dadosMateus.length > 0) {
       gerarPDF("MATEUS", dadosMateus);
+      await sleep(2000)
+      handleGenerateGMCore(dadosMateus)
     }
+    await sleep(2000)
     if (dadosPosterus.length > 0) {
       gerarPDF("POSTERUS", dadosPosterus);
     }

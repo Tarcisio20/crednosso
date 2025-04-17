@@ -3,6 +3,7 @@ export type pdfGeneratorPaymentType = {
     conta: string;
     tesouraria : string;
     regiao: number;
+    gmcore : string;
     valor: string;
     id_type_store: number;
     date: string;

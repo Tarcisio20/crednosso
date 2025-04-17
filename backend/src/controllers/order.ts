@@ -416,6 +416,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
   interface Treasury {
     id_system: number;
     name: string;
+    gmcore_number : string;
     id_type_store: number;
     account_number: string;
     region: number;
@@ -435,6 +436,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
       codigo: order.id_treasury_origin,
       conta: treasury?.account_number,
       tesouraria: treasury?.name,
+      gmcore : treasury?.gmcore_number,
       regiao: treasury?.region,
       valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
       id_type_store: treasury?.id_type_store,

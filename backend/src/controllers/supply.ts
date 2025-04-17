@@ -28,15 +28,13 @@ export const getAllDay : RequestHandler = async (req, res) => {
 }
 
 export const forDate : RequestHandler = async (req, res) => {
-  const data = req.body
-  console.log(returnDateFormatted(formatedDateToPTBRforEnglish(data.date)))
+  const data = req.body  
   const supply =  await getAllForDate(returnDateFormatted(formatedDateToPTBRforEnglish(data.date)), returnDateFormattedEnd(formatedDateToPTBRforEnglish(data.date)))
   if(!supply) {
    res.status(401).json({ error : 'Erro ao carregar!' })
    return
   }
   res.json({ supply })
-
 }
 export const add: RequestHandler = async (req, res) => {
   const safeData = supplyAddSchema.safeParse(req.body)

@@ -80,6 +80,7 @@ export const getForIds = async (ids: number[]) => {
         select: {
             id_system: true,
             name: true,
+            gmcore_number : true,
             account_number: true,
             region: true,
             bills_10: true,
