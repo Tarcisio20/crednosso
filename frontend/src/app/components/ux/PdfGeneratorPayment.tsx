@@ -132,7 +132,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
       showFoot: 'lastPage'
     });
 
-    doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}.pdf`);
+    doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
   };
 
   const Tabs = () => (

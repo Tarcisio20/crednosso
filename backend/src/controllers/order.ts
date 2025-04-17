@@ -421,16 +421,16 @@ export const generatePayment: RequestHandler = async (req, res) => {
     region: number;
   }
   for (let x = 0; (allOrders || []).length > x; x++) {
-    ids_treasuries.push(allOrders[x].id_treasury_origin)
+    ids_treasuries.push(allOrders[x].id_treasury_destin)
   }
+
   const treasuries = await getForIds(ids_treasuries)
   const treasuryMap = (treasuries || []).reduce((map, treasury) => {
     map[treasury.id_system] = treasury;
     return map;
   }, {} as Record<number, Treasury>)
   const mergedData = allOrders?.map((order: any) => {
-    const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
-    console.log(order)
+    const treasury = treasuryMap[order.id_treasury_destin] // Busca a tesouraria correspondente
     return {
       codigo: order.id_treasury_origin,
       conta: treasury?.account_number,
