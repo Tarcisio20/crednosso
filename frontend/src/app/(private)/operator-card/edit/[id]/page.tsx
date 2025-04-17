@@ -30,16 +30,8 @@ export default function OperationCardEdit() {
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
-
-  const allLOadings = useCallback(async () => {
-    await getAllTreasuries()
-    await getById()
-  }, [])
   
-  useEffect(() => {
-    document.title = "Cartão Operador - Edit | CredNosso";
-    allLOadings()
-  }, [id, allLOadings])
+
 
 
   const getAllTreasuries = async () => {
@@ -59,7 +51,7 @@ export default function OperationCardEdit() {
     }
   }
 
-  const getById = async () => {
+  const getById = useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false)
     setLoading(true)
@@ -77,7 +69,18 @@ export default function OperationCardEdit() {
       setLoading(false)
       return
     }
+  }, [id])
+
+  const allLOadings = async () => {
+    await getAllTreasuries()
+    await getById()
   }
+
+  useEffect(() => {
+    document.title = "Cartão Operador - Edit | CredNosso";
+
+    allLOadings()
+  }, [id])
 
   const editCardOperator = async () => {
     setError({ type: '', title: '', messege: '' });

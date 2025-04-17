@@ -56,7 +56,9 @@ export default function Supply() {
     const data = {
       date: currentDay
     }
-    const supplayDay = await getSuppliesForDay(data.date)
+    
+    const supplayDay = await getSuppliesForDay(data)
+    
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
       setLoading(false)
@@ -70,14 +72,14 @@ export default function Supply() {
     }
     setError({ type: 'error', title: 'Error', messege: 'Nunhum abastecimento cadastrado para hoje!' })
     setLoading(false)
-
+  
   }
 
   useEffect(() => {
     if (!currentDay) return
     handleDaySupplies()
 
-  }, [currentDay, handleDaySupplies])
+  }, [currentDay])
 
   const handleSuppliesDay = async () => {
 

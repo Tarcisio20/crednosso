@@ -88,15 +88,18 @@ export default function Order() {
     document.title = "Pedidos - Visualizar | CredNosso";
   })
   useEffect(() => {
+
+    const allLoading =  async () => {
+      await typeOperationFunction()
+      await treasuriesFunction()
+      await typeOrderFunction()
+      await statusOderFunction()
+    }
+
     allLoading()
   }, [orders])
 
-  const allLoading =  async () => {
-    await typeOperationFunction()
-    await treasuriesFunction()
-    await typeOrderFunction()
-    await statusOderFunction()
-  }
+ 
 
   const typeOperationFunction = async () => {
     setError('')
@@ -365,7 +368,7 @@ export default function Order() {
       return
     }
     closeModalConfirmPartial()
-    let data = {
+    const data = {
       confirmed_value_A: valueAddA,
       confirmed_value_B: valueAddB,
       confirmed_value_C: valueAddC,
@@ -545,7 +548,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    let data = {
+    const data = {
       date_order: dateAlter
     }
     const orderAlterForDate = await alterDateInOrder(orderIndivudual?.id as number, data)
