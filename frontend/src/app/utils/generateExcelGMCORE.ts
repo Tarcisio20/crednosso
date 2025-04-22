@@ -43,7 +43,7 @@ export const generateExcelGMCORE = async (data: TransferData[]) => {
       const row = worksheet.addRow([
         item.gmcore,
         formatDateToString(item.date),
-        parsedValue(item.valor),
+        parsedValue(item.valorRealizado),
         'REFERENTE A ABASTECIMENTO',
       ]);
     });
