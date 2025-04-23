@@ -254,3 +254,17 @@ export const alterDateOrderById = async (id: number, data: { date_order: Date })
 
 }
 
+export const updateOrder = async (id: number, data: Prisma.OrderUpdateInput) => {
+  const order = await prisma.order.update({
+    where: {
+      id
+    },
+    data
+  })
+  if (order) {
+    return order
+  }
+  return null
+
+}
+

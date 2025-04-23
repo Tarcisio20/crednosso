@@ -9,8 +9,6 @@ type ModalRelaunchOrderType = {
 
 export const ModalRelaunchOrder = ({ id, value, onConfirm, onSetValue, onClose, error }: ModalRelaunchOrderType) => {
 
-    console.log("ID", id)
-
     return <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
             <h2 className="font-bold mb-4 text-black text-center uppercase text-4xl">

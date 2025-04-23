@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -11,6 +11,7 @@ import { returnValueTotal } from "../utils/returnValueTotal"
 import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, getTreasuryForTypeSupply, updateTreasury } from "../services/treasury"
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
 import { OrderType } from "../types/OrderType"
+import { connect } from "http2"
 
 export const getAll: RequestHandler = async (req, res) => {
   const order = await getAllOrder()
@@ -325,15 +326,37 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
-  let data = {
-    date_order: returnDateFormatted(safeData.data.date_order)
+  
+
+  const newOrder : OrderType[] | null = await getOrderById(parseInt(orderId))
+  if(newOrder){
+    let data = {
+      typeOperation : { connect : {  id : newOrder[0].id_type_operation } },
+      treasuryOrigin : { connect : { id_system : newOrder[0].id_treasury_origin } },
+      treasuryDestin : { connect : { id_system :  newOrder[0].id_treasury_destin } },
+      date_order: returnDateFormatted(safeData.data.date_order),
+      typeOrder : { connect : { id : newOrder[0].id_type_order } },
+      requested_value_A  : newOrder[0].requested_value_A,
+      requested_value_B  : newOrder[0].requested_value_B,
+      requested_value_C  : newOrder[0].requested_value_C,
+      requested_value_D  : newOrder[0].requested_value_D,
+      observation : newOrder[0].observation,
+      statusOrder : { connect : { id : 1 } }
+    }
+
+    await addOrder(data)
+   
   }
-  const order = await alterDateOrderById(parseInt(orderId), data)
+
+  let data2 = {
+    statusOrder : { connect : { id : 6 } }
+  }
+  const order  = await updateOrder(parseInt(orderId), data2)
 
   if (!order) {
     res.status(401).json({ error: 'Erro ao alterar!' })
     return
-  }
+}
 
   res.json({ order })
 }
