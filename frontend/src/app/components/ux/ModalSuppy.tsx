@@ -18,6 +18,8 @@ type ModalSupplyType = {
 export const ModalSupply = (
   { atmIndividual, onClose, treasury, onSave }: ModalSupplyType) => {
 
+    console.log(atmIndividual)
+
   const [cassA, setCassA] = useState(0)
   const [cassB, setCassB] = useState(0)
   const [cassC, setCassC] = useState(0)

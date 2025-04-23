@@ -47,10 +47,9 @@ export default function Supply() {
   useEffect(() => {
     document.title = "Pedidos - Add | CredNosso";
     handleAll()
-  }, [idTreasury, atms, handleAll]);
+  }, [idTreasury, atms]);
 
   const handleTreasuriesForDateOrder = async () => {
-
     setError({ type: '', title: '', messege: '' })
     setLoading(true)
     if (dateSupply === '') {
@@ -66,6 +65,7 @@ export default function Supply() {
       setLoading(false)
       return
     }
+
     const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
     if (!treasuriesForIds?.data?.treasury) {
       setAtms([])
@@ -115,11 +115,22 @@ export default function Supply() {
         return acc;
       }, []);
 
+      console.log("VERIFICAÇAO", atmsForTreasury)
+      const mergedData = idTreasuriesInOrderDate.data.order
+        .map((treasury: any) => {
+          const matchingAtm = atmsForTreasury.data.atm.find(
+            (atm: any) => atm.id_system === treasury.id_treasury_destin
+          );
+          return matchingAtm ? { ...treasury, ...matchingAtm } : null;
+        })
+        .filter(Boolean); // remove os nulls onde não houve match
+
+      console.log("Merged", mergedData)
       setAtms(uniqueAtms)
       setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
-    }else{
+    } else {
       setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro ao filtrar atms' })
       setLoading(false)
@@ -135,151 +146,74 @@ export default function Supply() {
     setIdTreasury(event.target.value.toString());
   };
 
-  const handleCloseModal = () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
-    setAtmUnique(undefined)
-    setModal(false)
-  }
-
-  const handleChecked = (event: React.ChangeEvent<HTMLInputElement>, atm: atmType) => {
-    if (event.target.checked) {
-      setAtmUnique(atm); // Define o ATM selecionado
-      setModal(true)
-    } else {
-      setAtmUnique(null); // Desmarca o ATM se o checkbox for desmarcado
-    }
-
-  }
-
   const filterTreasury = () => {
     if (idTreasury) {
       setFilteredTreasury(treasuries?.filter(treasury => treasury.id_system === parseInt(idTreasury)))
     }
   }
 
-  const handleSave = () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
-    handleTreasuriesForDateOrder()
-    handleCloseModal()
-  }
-
-  const handleSaveAndExclude = () => {
-    handleTreasuriesForDateOrder()
-    /*if (treasuries && filteredTreasury && filteredTreasury.length > 0) {
-      const filtered = treasuries.filter(
-        (treasury) =>
-          !filteredTreasury.some(
-            (filteredItem) => filteredItem.id_system === treasury.id_system
-          )
-      );*/
-    // setTreasuries(filtered);
-    // handleAll()
-    //}
-    handleCloseModal()
-  }
-
-
   return (
     <Page>
       <TitlePages linkBack="/supply" icon={faAdd} >Adicinar Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
-        <div className="flex flex-col gap-5 w-1/3">
-          <label className="text-lg uppercase">Data do pedido</label>
-          <input
-            type="date"
-            value={dateSupply}
-            onChange={(e) => setDateSupply(e.target.value)}
-            className="w-full h-10 outline-none rounded-md text-black text-center uppercase"
-          />
-          <button onClick={handleTreasuriesForDateOrder} >Buscar</button>
-        </div>
-        <div className="flex flex-col gap-5 w-1/3">
-          {treasuries && treasuries.length > 0 &&
-            <>
-              <label className="uppercase leading-3 font-bold">Trasportadora</label>
-              <div className="flex gap-2">
-                <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
-                  <input
-                    value={idTreasury}
-                    onChange={handleInputChange}
-                    className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
-                  />
-                </div>
-                <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
-                  <select
-                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                    value={idTreasury}
-                    onChange={handleSelectChange}
-                  >
-                    {treasuries && treasuries.map((item, index) => (
-                      <option
-                        className="uppercase bg-slate-700 text-white"
-                        value={item.id_system} key={index} >
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </>
-          }
-        </div>
-        <div className="bg-slate-800 w-full h-1"></div>
-        <div className=" w-full h-full">
-          <label className="text-3xl uppercase">Terminais</label>
-          <div className="mt-4 flex flex-row gap-8">
-
-            <div className="flex gap-3 items-start">
-              {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((atm) => (
-                <div key={atm.id} className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={atmUnique?.id === atm.id}
-                    onChange={(event) => handleChecked(event, atm)}
-                  />
-                  <div className="w-64 h-96  bg-slate-600 flex flex-col items-center pt-6 rounded-md">
-                    <div className="w-56 h-28 bg-slate-500 flex flex-col gap-2 justify-center items-center border-2 border-zinc-200">
-                      <label className="text-4lg text-white">{atm.id_system}</label>
-                      <label className="text-4lg text-white">{atm.short_name}</label>
+        <div>
+            <div className="flex flex-col gap-5 w-1/3">
+              <label className="text-lg uppercase">Data do pedido</label>
+              <input
+                type="date"
+                value={dateSupply}
+                onChange={(e) => setDateSupply(e.target.value)}
+                className="w-full h-10 outline-none rounded-md text-black text-center uppercase"
+              />
+              <button onClick={handleTreasuriesForDateOrder} >Buscar</button>
+            </div>
+            <div className="flex flex-col gap-5 w-1/3">
+              {treasuries && treasuries.length > 0 &&
+                <>
+                  <label className="uppercase leading-3 font-bold">Trasportadora</label>
+                  <div className="flex gap-2">
+                    <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+                      <input
+                        value={idTreasury}
+                        onChange={handleInputChange}
+                        className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+                      />
                     </div>
-                    <div className="flex flex-col gap-3 mt-8 w-full pl-4 pr-4">
-                      <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
-                      </div>
-                      <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
-                      </div>
-                      <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
-                      </div>
-                      <div className="bg-slate-500 min-h-6 w-[100%]">
-                        <div className="bg-red-300 min-h-6" style={{ width: `${Math.floor(Math.random() * 101)}%` }} ></div>
-                      </div>
+                    <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
+                      <select
+                        className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                        value={idTreasury}
+                        onChange={handleSelectChange}
+                      >
+                        {treasuries && treasuries.map((item, index) => (
+                          <option
+                            className="uppercase bg-slate-700 text-white"
+                            value={item.id_system} key={index} >
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                </div>
-              ))
+                </>
               }
             </div>
-
-          </div>
-        </div>
+          </div >
+          <>
+              {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((item, key) => (
+                <div key={key}>
+                  {item.id}
+                </div>
+              ))}
+          </>
+        
+        <div className="bg-slate-800 w-full h-1"></div>
       </div>
       {error.messege &&
         <Messeger type={error.type} title={error.title} messege={error.messege} />
       }
       {loading &&
         <Loading />
-      }
-      {modal &&
-        <ModalSupply
-          atmIndividual={atmUnique}
-          onClose={handleCloseModal}
-          treasury={filteredTreasury}
-          onSave={handleSave}
-        />
       }
     </Page>
   );

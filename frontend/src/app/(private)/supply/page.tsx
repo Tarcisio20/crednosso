@@ -64,6 +64,7 @@ export default function Supply() {
       setLoading(false)
 
     }
+
     if (supplayDay.data.supply && supplayDay.data.supply.length > 0) {
       setSupplies(supplayDay.data.supply)
       setError({ type: '', title: '', messege: '' })

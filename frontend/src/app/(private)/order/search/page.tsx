@@ -35,6 +35,10 @@ import { sendEmailToOrder } from "@/app/service/email";
 import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
 import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
+type OrderType = orderType &  {
+  confirmed_total ?: number;
+  requested_total ?: number;
+}
 
 export default function Order() {
 
@@ -42,7 +46,7 @@ export default function Order() {
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [, setTypeOrders] = useState<typeOrderType[]>([])
   const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
-  const [orders, setOrders] = useState<orderType[]>([])
+  const [orders, setOrders] = useState<OrderType[]>([])
 
   const [itemsChecks, setItemsChecks] = useState<{ id_order: number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
@@ -82,6 +86,11 @@ export default function Order() {
   const [totalOrderConfirmmed, setTotalOrderConfirmmed] = useState(0)
 
   const [modalError, setModalError] = useState(false)
+
+const [sortColumn, setSortColumn] = useState<keyof  OrderType | null>(null);
+const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segredo
+
 
 
   useEffect(() => {
@@ -240,6 +249,8 @@ export default function Order() {
         }
         setTotalOrderConfirmmed(sumConfirmmed)
         setTotalOrder(sum)
+        setSortColumn(null);
+        setIsUserSorting(false); // ← importante!
       })
       setItemsChecks(elements)
       setError('')
@@ -251,6 +262,62 @@ export default function Order() {
     return
 
   }
+
+  const getSortedOrders = () => {
+    if (!isUserSorting || !sortColumn) return orders;
+  
+    const calculateRequestedTotal = (item: OrderType) => (
+      (item.requested_value_A ?? 0) * 10 +
+      (item.requested_value_B ?? 0) * 20 +
+      (item.requested_value_C ?? 0) * 50 +
+      (item.requested_value_D ?? 0) * 100
+    );
+  
+    const calculateConfirmedTotal = (item: OrderType) => (
+      (item.confirmed_value_A ?? 0) * 10 +
+      (item.confirmed_value_B ?? 0) * 20 +
+      (item.confirmed_value_C ?? 0) * 50 +
+      (item.confirmed_value_D ?? 0) * 100
+    );
+  
+    return [...orders].sort((a, b) => {
+      let valueA: any;
+      let valueB: any;
+  
+      if (sortColumn === "requested_total") {
+        valueA = calculateRequestedTotal(a);
+        valueB = calculateRequestedTotal(b);
+      } else if (sortColumn === "confirmed_total") {
+        valueA = calculateConfirmedTotal(a);
+        valueB = calculateConfirmedTotal(b);
+      } else {
+        valueA = a[sortColumn];
+        valueB = b[sortColumn];
+      }
+  
+      if (typeof valueA === "number" && typeof valueB === "number") {
+        return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+      }
+  
+      return sortDirection === "asc"
+        ? String(valueA).localeCompare(String(valueB))
+        : String(valueB).localeCompare(String(valueA));
+    });
+  };
+  
+
+  const sortedOrders = getSortedOrders();
+  
+
+  const handleSort = (column: keyof OrderType) => {
+    if (sortColumn === column) {
+      setSortDirection(prev => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+    setIsUserSorting(true); // <- aqui a gente ativa a ordenação
+  };
 
   const handleToggleSelect = () => {
     const newValue = !toggleChecks
@@ -787,22 +854,33 @@ export default function Order() {
       <table className="flex-1 text-center p-3" width="98%">
         <thead className="block border-b-2 border-b-zinc-500 uppercase pb-2 text-xl text-center">
           <tr className="flex">
-            <th className="w-[2%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >#</th>
-            <th className="w-[3%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Id</th>
+            <th className="w-[2%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl " >#</th>
+            <th className="w-[3%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
+              onClick={() => handleSort("id")}>Id {sortColumn === "id" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >T. Operação</th>
-            <th className="w-[8%] border-b-2 bocalcrder-b-zinc-500 uppercase pb-2 text-xl" >Cod. Origem</th>
-            <th  className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl"  >Trans. Origem</th>
-            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Cod. Destino</th>
+            <th className="w-[8%] border-b-2 bocalcrder-b-zinc-500 uppercase pb-2 text-xl  cursor-pointer"
+              onClick={() => handleSort("id_treasury_origin")}
+            >Cod. Origem {sortColumn === "id_treasury_origin" && (sortDirection === "asc" ? "↑" : "↓")}</th>
+            <th  className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">Trans. Origem</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" 
+               onClick={() => handleSort("id_treasury_destin")}
+            >Cod. Destino {sortColumn === "id_treasury_destin" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Trans. Destino</th>
             <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Data</th>
-            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Solicitado</th>
-            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Status</th>
-            <th className="w-[4%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Realizado</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer" 
+               onClick={() => handleSort("requested_total")}
+            >Solicitado  {sortColumn === "requested_total" && (sortDirection === "asc" ? "↑" : "↓")}</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
+              onClick={() => handleSort("status_order")}
+            >Status {sortColumn === "status_order" && (sortDirection === "asc" ? "↑" : "↓")}</th>
+            <th className="w-[4%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
+              onClick={() => handleSort("confirmed_total")}
+            >Realizado  {sortColumn === "confirmed_total" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[15%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Observação</th>
           </tr>
         </thead>
         <tbody className="block text-xl overflow-y-auto max-h-[500px] text-center">
-          {orders && orders.map((item, index) => (
+          {sortedOrders && sortedOrders.map((item, index) => (
             <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
             ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"}`} key={index} >
               <td className="w-[2%]" >
