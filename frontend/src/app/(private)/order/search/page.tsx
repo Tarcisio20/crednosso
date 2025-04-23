@@ -35,6 +35,8 @@ import { sendEmailToOrder } from "@/app/service/email";
 import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
 import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
+import { getTextColorLine } from "@/app/utils/getTextColorLine";
+
 type OrderType = orderType &  {
   confirmed_total ?: number;
   requested_total ?: number;
@@ -882,7 +884,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
         <tbody className="block text-xl overflow-y-auto max-h-[500px] text-center">
           {sortedOrders && sortedOrders.map((item, index) => (
             <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
-            ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"}`} key={index} >
+            ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"} ${getTextColorLine(item.status_order)} `}  key={index} >
               <td className="w-[2%]" >
                 <input
                   type="checkbox"
