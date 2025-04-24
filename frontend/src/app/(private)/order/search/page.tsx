@@ -626,7 +626,6 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
       setLoading(false)
       return
     }
-    console.log(orderAlterForDate)
     if (orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0) {
       setDateAlter('')
       setError('')
@@ -685,6 +684,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
     }
 
     setElementPayment(gPayment.data.order)
+    console.log(gPayment.data.order)
     setModalGeneratePayment(true)
     setError('')
     setLoading(false)

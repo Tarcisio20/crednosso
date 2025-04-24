@@ -202,9 +202,15 @@ export default function Supply() {
           <>
               {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((item, key) => (
                 <div key={key}>
-                  {item.id}
+                  <input type="checkbox" checked /> {item.id} - NOME | 
+                  <select className="text-black">
+                    <option className="text-black">COMPLEMENTAR</option>
+                    <option className="text-black">TROCA TOTAL</option>
+                    <option className="text-black">RECOLHIMENTO TOTAL</option>
+                  </select>
                 </div>
               ))}
+              <button>Abastecer</button>
           </>
         
         <div className="bg-slate-800 w-full h-1"></div>

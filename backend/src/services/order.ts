@@ -268,3 +268,21 @@ export const updateOrder = async (id: number, data: Prisma.OrderUpdateInput) => 
 
 }
 
+export const confirmPaymantAllIds = async (ids : number[]) => {
+  console.log("PRISMA")
+ const order =  await prisma.order.updateMany({
+    where: {
+      id: { in: ids },
+    },
+    data: {
+      status_order: 4,
+    },
+  });
+
+  if(order){
+    return order
+  }
+
+  return null
+}
+

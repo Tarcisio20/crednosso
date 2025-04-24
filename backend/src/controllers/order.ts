@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -426,7 +426,7 @@ export const generateRelease: RequestHandler = async (req, res) => {
 }
 
 export const generatePayment: RequestHandler = async (req, res) => {
-
+  
   const safeData = orderGenerateReleaseSchema.safeParse(req.body)
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors })
@@ -471,6 +471,9 @@ export const generatePayment: RequestHandler = async (req, res) => {
       )
     };
   });
+
+  const status = await confirmPaymantAllIds(safeData.data)
+  console.log("status", status)
 
   if (!mergedData) {
     res.status(401).json({ error: 'Erro ao alterar!' })
