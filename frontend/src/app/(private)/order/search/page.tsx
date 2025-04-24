@@ -675,6 +675,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
       setLoading(false)
       return
     }
+
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gPayment = await genreratePaymmentById(idsSelected)
     if (gPayment.status === 300 || gPayment.status === 400 || gPayment.status === 500) {
@@ -684,7 +685,6 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
     }
 
     setElementPayment(gPayment.data.order)
-    console.log(gPayment.data.order)
     setModalGeneratePayment(true)
     setError('')
     setLoading(false)
@@ -765,6 +765,16 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
 
   const handleCloseModalMessege = () => {
     setModalError(false)
+  }
+
+  const closeGenerateModalRelease = () => {
+    setModalGenerateRelease(!modalGenerateRealse)
+  
+  }
+  
+  const closeGenerateMOdalPayment = () => {
+    handleSearch()
+    setModalGeneratePayment(!modalGeneratePayment)
   }
 
   return <Page>
@@ -1068,10 +1078,10 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
       />
     }
     {modalGenerateRealse &&
-      <PdfGenerator data={elementRelaease} onClose={() => setModalGenerateRelease(!modalGenerateRealse)} />
+      <PdfGenerator data={elementRelaease} onClose={closeGenerateModalRelease} />
     }
     {modalGeneratePayment &&
-      <PdfGeneratorPayment data={elementPayment} onClose={() => setModalGeneratePayment(!modalGeneratePayment)} />
+      <PdfGeneratorPayment data={elementPayment} onClose={closeGenerateMOdalPayment} />
     }
     {modalError &&
       <ModalMessege type="" title="" messege="" onClose={handleCloseModalMessege} />

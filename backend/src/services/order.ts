@@ -39,6 +39,24 @@ export const getOrderByIds = async (ids: number[]) => {
   return null
 }
 
+export const getOrderByIdsForPaymment = async (ids: number[]) => {
+  const order = await prisma.order.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+      id_type_operation : {
+        not: 3,
+      }
+    }
+  })
+  if (order) {
+    return order
+  }
+  return null
+}
+
+
 export const getIdTreasuriesOrderByDate = async (date: string) => {
   const order = await prisma.order.findMany({
     where: {
@@ -269,10 +287,10 @@ export const updateOrder = async (id: number, data: Prisma.OrderUpdateInput) => 
 }
 
 export const confirmPaymantAllIds = async (ids : number[]) => {
-  console.log("PRISMA")
  const order =  await prisma.order.updateMany({
     where: {
       id: { in: ids },
+      id_type_operation : { not : 3 } 
     },
     data: {
       status_order: 4,

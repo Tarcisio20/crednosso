@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterDateOrderById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getOrderById, getOrderByIds, getOrderByIdsForPaymment, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -369,7 +369,7 @@ export const generateRelease: RequestHandler = async (req, res) => {
     return
   }
 
-  const allOrders: any = await getOrderByIds(safeData.data)
+  const allOrders: any = await getOrderByIdsForPaymment(safeData.data)
   const orders = []
   const ids_treasuries = []
   const ids_treasuries_destin = []
@@ -433,7 +433,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
     return
   }
 
-  const allOrders: any = await getOrderByIds(safeData.data)
+  const allOrders: any = await getOrderByIdsForPaymment(safeData.data)
   const orders = []
   const ids_treasuries = []
   interface Treasury {
@@ -473,7 +473,6 @@ export const generatePayment: RequestHandler = async (req, res) => {
   });
 
   const status = await confirmPaymantAllIds(safeData.data)
-  console.log("status", status)
 
   if (!mergedData) {
     res.status(401).json({ error: 'Erro ao alterar!' })
