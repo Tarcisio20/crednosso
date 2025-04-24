@@ -12,6 +12,8 @@ import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, getTreasuryF
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
 import { OrderType } from "../types/OrderType"
 import { connect } from "http2"
+import { returnDateInPtBr } from "../utils/returnDateInPtBr"
+import { returnDate } from "../utils/returnDate"
 
 export const getAll: RequestHandler = async (req, res) => {
   const order = await getAllOrder()
@@ -329,7 +331,11 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
   
 
   const newOrder : OrderType[] | null = await getOrderById(parseInt(orderId))
+  let obs = ''
+  let id = ''
   if(newOrder){
+    obs = newOrder[0].observation ?? ''
+    id = newOrder[0].id?.toString() ?? ''
     let data = {
       typeOperation : { connect : {  id : newOrder[0].id_type_operation } },
       treasuryOrigin : { connect : { id_system : newOrder[0].id_treasury_origin } },
@@ -340,7 +346,7 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
       requested_value_B  : newOrder[0].requested_value_B,
       requested_value_C  : newOrder[0].requested_value_C,
       requested_value_D  : newOrder[0].requested_value_D,
-      observation : newOrder[0].observation,
+      observation : `RELANÇADO DO DIA ${returnDate(newOrder[0].date_order)} || ID ${newOrder[0].id} || ${newOrder[0].observation}`,
       statusOrder : { connect : { id : 1 } }
     }
 
@@ -349,7 +355,8 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
   }
 
   let data2 = {
-    statusOrder : { connect : { id : 6 } }
+    statusOrder : { connect : { id : 6 } },
+    observation : `RELANÇADO PARA O DIA ${returnDateInPtBr(safeData.data.date_order)} || ID ${id} || ${obs}`
   }
   const order  = await updateOrder(parseInt(orderId), data2)
 
