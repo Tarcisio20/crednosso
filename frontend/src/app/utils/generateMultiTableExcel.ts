@@ -2,12 +2,14 @@ import ExcelJS from 'exceljs';
 
 type TransferData = {
   id: number;
+  id_operation : number;
   treasury: string;
   date: string;
   value_A: number;
   value_B: number;
   value_C: number;
   value_D: number;
+  treasury_destin : string;
 };
 
 export const generateMultiTableExcel = async (data: TransferData[]) => {
@@ -39,6 +41,9 @@ console.log("Excel", data)
       // Cabeçalho principal (Nr: ...)
       worksheet.mergeCells(`A${currentRow}:C${currentRow}`);
       const titleCell = worksheet.getCell(`A${currentRow}`);
+      if(item.id_operation === 3){
+        titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA ${item.treasury} / ${item.treasury_destin} - ${formattedDate}`;  
+      }
       titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA / ${item.treasury} - ${formattedDate}`;
       titleCell.style = headerStyle;
 

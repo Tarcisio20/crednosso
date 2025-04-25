@@ -514,15 +514,17 @@ export const generateReports: RequestHandler = async (req, res) => {
   }, {} as Record<number, Treasury>)
   const mergedData = allOrders?.map((order: any) => {
     const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
-
+    const treasuryDestin = treasuryMap[order.id_treasury_destin]
     return {
       id: order.id,
+      id_operation : order.id_type_operation,
       treasury: treasury?.name,
       value_A: order.requested_value_A,
       value_B: order.requested_value_B,
       value_C: order.requested_value_C,
       value_D: order.requested_value_D,
       date: order.date_order,
+      treasury_destin : treasuryDestin?.name
     }
 
   });
