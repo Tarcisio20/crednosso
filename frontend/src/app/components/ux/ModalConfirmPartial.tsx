@@ -1,3 +1,5 @@
+"use client"
+
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
@@ -17,6 +19,9 @@ type ModalConfirmPartialType = {
 
 export const ModalConfirmPartial  = (
   { oIndividual, valueAdd, setValueAddA, setValueAddB, setValueAddC, setValueAddD, onClose, onSave, error } : ModalConfirmPartialType) => {
+    
+    const confirmedTotal = parseInt(generateValueTotal(oIndividual.confirmed_value_A as number, oIndividual.confirmed_value_B as number,
+      oIndividual.confirmed_value_C as number, oIndividual.confirmed_value_D as number))
     return  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
                 <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
@@ -25,10 +30,13 @@ export const ModalConfirmPartial  = (
                 <p className="text-black text-center">ID Pedido: {oIndividual?.id}</p>
                 <p className="text-black text-xl text-center">
                   Valor do pedido atual:{" "}
-                  {generateValueTotal(
+                  {confirmedTotal <= 0 ? generateValueTotal(
                     oIndividual?.requested_value_A as number, oIndividual?.requested_value_B as number,
                     oIndividual?.requested_value_C as number, oIndividual?.requested_value_D as number
-                  )}
+                  ) : generateValueTotal(
+                    oIndividual?.confirmed_value_A as number, oIndividual?.confirmed_value_B as number,
+                    oIndividual?.confirmed_value_C as number, oIndividual?.confirmed_value_D as number
+                  ) }
                 </p>
                 <div className="w-full  flex justify-center items-center mt-2 mb-2">
                   <div className="w-full h-1 bg-zinc-600 rounded"></div>

@@ -37,9 +37,9 @@ import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
 import { getTextColorLine } from "@/app/utils/getTextColorLine";
 
-type OrderType = orderType &  {
-  confirmed_total ?: number;
-  requested_total ?: number;
+type OrderType = orderType & {
+  confirmed_total?: number;
+  requested_total?: number;
 }
 
 export default function Order() {
@@ -89,9 +89,9 @@ export default function Order() {
 
   const [modalError, setModalError] = useState(false)
 
-const [sortColumn, setSortColumn] = useState<keyof  OrderType | null>(null);
-const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segredo
+  const [sortColumn, setSortColumn] = useState<keyof OrderType | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segredo
 
 
 
@@ -100,7 +100,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
   })
   useEffect(() => {
 
-    const allLoading =  async () => {
+    const allLoading = async () => {
       await typeOperationFunction()
       await treasuriesFunction()
       await typeOrderFunction()
@@ -110,7 +110,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
     allLoading()
   }, [orders])
 
- 
+
 
   const typeOperationFunction = async () => {
     setError('')
@@ -122,7 +122,6 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
       setLoading(false)
       return
     }
-    console.log(tOperation)
     if (tOperation.data.typeOperation && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)
@@ -267,25 +266,25 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
 
   const getSortedOrders = () => {
     if (!isUserSorting || !sortColumn) return orders;
-  
+
     const calculateRequestedTotal = (item: OrderType) => (
       (item.requested_value_A ?? 0) * 10 +
       (item.requested_value_B ?? 0) * 20 +
       (item.requested_value_C ?? 0) * 50 +
       (item.requested_value_D ?? 0) * 100
     );
-  
+
     const calculateConfirmedTotal = (item: OrderType) => (
       (item.confirmed_value_A ?? 0) * 10 +
       (item.confirmed_value_B ?? 0) * 20 +
       (item.confirmed_value_C ?? 0) * 50 +
       (item.confirmed_value_D ?? 0) * 100
     );
-  
+
     return [...orders].sort((a, b) => {
       let valueA: any;
       let valueB: any;
-  
+
       if (sortColumn === "requested_total") {
         valueA = calculateRequestedTotal(a);
         valueB = calculateRequestedTotal(b);
@@ -296,20 +295,19 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
         valueA = a[sortColumn];
         valueB = b[sortColumn];
       }
-  
+
       if (typeof valueA === "number" && typeof valueB === "number") {
         return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
       }
-  
+
       return sortDirection === "asc"
         ? String(valueA).localeCompare(String(valueB))
         : String(valueB).localeCompare(String(valueA));
     });
   };
-  
 
   const sortedOrders = getSortedOrders();
-  
+
 
   const handleSort = (column: keyof OrderType) => {
     if (sortColumn === column) {
@@ -355,11 +353,22 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
     const itemsSelected = itemsChecks.filter(item => item.status === true)
     const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id_order)
     if (orderSelectedOne[0] && orderSelectedOne[0]?.id) {
+
+      let totalConfirmed = (orderSelectedOne[0].confirmed_value_A ?? 0 * 10) + (orderSelectedOne[0].confirmed_value_B ?? 0 * 20) +
+        (orderSelectedOne[0].confirmed_value_C ?? 0 * 50) + (orderSelectedOne[0].confirmed_value_D ?? 0 * 100)
+
+      if (totalConfirmed > 0) {
+        setValueAddA(orderSelectedOne[0].confirmed_value_A ?? 0)
+        setValueAddB(orderSelectedOne[0].confirmed_value_B ?? 0)
+        setValueAddC(orderSelectedOne[0].confirmed_value_C ?? 0)
+        setValueAddD(orderSelectedOne[0].confirmed_value_D ?? 0)
+      } else {
+        setValueAddA(orderSelectedOne[0].requested_value_A)
+        setValueAddB(orderSelectedOne[0].requested_value_B)
+        setValueAddC(orderSelectedOne[0].requested_value_C)
+        setValueAddD(orderSelectedOne[0].requested_value_D)
+      }
       setOrderIndividual(orderSelectedOne[0])
-      setValueAddA(orderSelectedOne[0].requested_value_A)
-      setValueAddB(orderSelectedOne[0].requested_value_B)
-      setValueAddC(orderSelectedOne[0].requested_value_C)
-      setValueAddD(orderSelectedOne[0].requested_value_D)
       setModalViewOrder(true)
       setObs(orderSelectedOne[0].observation)
       setError('')
@@ -385,6 +394,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
     setValueAddB(0)
     setValueAddC(0)
     setValueAddD(0)
+    handleSearch()
     setModalOrderConfirmPartial(false)
   }
 
@@ -404,7 +414,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
       requested_value_B: valueAddB,
       requested_value_C: valueAddC,
       requested_value_D: valueAddD,
-      observation : obs
+      observation: obs
     }
     const orderSave = await alterValueOrder(orderIndivudual?.id as number, data)
     if (orderSave.status === 300 || orderSave.status === 400 || orderSave === 500) {
@@ -769,9 +779,8 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
 
   const closeGenerateModalRelease = () => {
     setModalGenerateRelease(!modalGenerateRealse)
-  
   }
-  
+
   const closeGenerateMOdalPayment = () => {
     handleSearch()
     setModalGeneratePayment(!modalGeneratePayment)
@@ -873,14 +882,14 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
             <th className="w-[8%] border-b-2 bocalcrder-b-zinc-500 uppercase pb-2 text-xl  cursor-pointer"
               onClick={() => handleSort("id_treasury_origin")}
             >Cod. Origem {sortColumn === "id_treasury_origin" && (sortDirection === "asc" ? "↑" : "↓")}</th>
-            <th  className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">Trans. Origem</th>
-            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" 
-               onClick={() => handleSort("id_treasury_destin")}
+            <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl">Trans. Origem</th>
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl"
+              onClick={() => handleSort("id_treasury_destin")}
             >Cod. Destino {sortColumn === "id_treasury_destin" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Trans. Destino</th>
             <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >Data</th>
-            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer" 
-               onClick={() => handleSort("requested_total")}
+            <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
+              onClick={() => handleSort("requested_total")}
             >Solicitado  {sortColumn === "requested_total" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[8%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
               onClick={() => handleSort("status_order")}
@@ -894,7 +903,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
         <tbody className="block text-xl overflow-y-auto max-h-[500px] text-center">
           {sortedOrders && sortedOrders.map((item, index) => (
             <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
-            ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"} ${getTextColorLine(item.status_order)} `}  key={index} >
+            ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"} ${getTextColorLine(item.status_order)} `} key={index} >
               <td className="w-[2%]" >
                 <input
                   type="checkbox"
@@ -944,10 +953,19 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
           <p className="text-black text-center">ID Pedido: {orderIndivudual?.id}</p>
           <p className="text-black text-xl text-center">
             Saldo Atual:{" "}
-            {generateValueTotal(
-              orderIndivudual?.requested_value_A as number, orderIndivudual?.requested_value_B as number,
-              orderIndivudual?.requested_value_C as number, orderIndivudual?.requested_value_D as number
-            )}
+
+            {(
+              (orderIndivudual?.confirmed_value_A ?? 0 * 10) + (orderIndivudual?.confirmed_value_B ?? 0 * 20) +
+              (orderIndivudual?.confirmed_value_C ?? 0 * 50) + (orderIndivudual?.confirmed_value_D ?? 0 * 100)
+            ) > 0 ?
+              generateValueTotal(
+                orderIndivudual?.confirmed_value_A as number, orderIndivudual?.confirmed_value_B as number,
+                orderIndivudual?.confirmed_value_C as number, orderIndivudual?.confirmed_value_D as number
+              )
+              : generateValueTotal(
+                orderIndivudual?.requested_value_A as number, orderIndivudual?.requested_value_B as number,
+                orderIndivudual?.requested_value_C as number, orderIndivudual?.requested_value_D as number
+              )}
           </p>
           <div className="w-full  flex justify-center items-center mt-2 mb-2">
             <div className="w-full h-1 bg-zinc-600 rounded"></div>
@@ -1027,7 +1045,7 @@ const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segre
             <div className="w-full h-1 bg-zinc-600 rounded"></div>
           </div>
           <div className="w-full  flex justify-center items-center mt-2 mb-2">
-            <textarea className="text-black border-2 border-zinc-700 w-full h-52 p-3 rounded-md" value={obs} onChange={e=>setObs(e.target.value)}></textarea>
+            <textarea className="text-black border-2 border-zinc-700 w-full h-52 p-3 rounded-md" value={obs} onChange={e => setObs(e.target.value)}></textarea>
           </div>
           <div className="w-full  flex justify-center items-center mt-2 mb-2">
             <div className="w-full h-1 bg-zinc-600 rounded"></div>

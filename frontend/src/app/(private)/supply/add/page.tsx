@@ -115,7 +115,6 @@ export default function Supply() {
         return acc;
       }, []);
 
-      console.log("VERIFICAÇAO", atmsForTreasury)
       const mergedData = idTreasuriesInOrderDate.data.order
         .map((treasury: any) => {
           const matchingAtm = atmsForTreasury.data.atm.find(
@@ -125,7 +124,6 @@ export default function Supply() {
         })
         .filter(Boolean); // remove os nulls onde não houve match
 
-      console.log("Merged", mergedData)
       setAtms(uniqueAtms)
       setError({ type: '', title: '', messege: '' })
       setLoading(false)

@@ -11,7 +11,7 @@ type TransferData = {
 };
 
 export const generateMultiTableExcel = async (data: TransferData[]) => {
-
+console.log("Excel", data)
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Transferências');
