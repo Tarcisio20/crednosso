@@ -13,7 +13,6 @@ type TransferData = {
 };
 
 export const generateMultiTableExcel = async (data: TransferData[]) => {
-console.log("Excel", data)
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Transferências');
@@ -43,10 +42,11 @@ console.log("Excel", data)
       const titleCell = worksheet.getCell(`A${currentRow}`);
       if(item.id_operation === 3){
         titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA ${item.treasury} / ${item.treasury_destin} - ${formattedDate}`;  
+      }else {
+        titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA / ${item.treasury} - ${formattedDate}`;
       }
-      titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA / ${item.treasury} - ${formattedDate}`;
       titleCell.style = headerStyle;
-
+      console.log("Operation", item.id_operation)
       currentRow++;
 
       // Cabeçalhos da tabela (CED., QTD, VALOR)
@@ -112,7 +112,7 @@ console.log("Excel", data)
     });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = `transferencias-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    link.download = `transferencias-${new Date().toISOString().slice(0, 10).split('-').reverse().join('-')}.xlsx`;
     link.click();
 
     return true

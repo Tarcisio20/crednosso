@@ -500,21 +500,28 @@ export const generateReports: RequestHandler = async (req, res) => {
   const allOrders: any = await getOrderByIds(safeData.data)
   const orders = []
   const ids_treasuries = []
+  const ids_treasuries_destin = []
   interface Treasury {
     id_system: number;
     name: string;
   }
   for (let x = 0; (allOrders || []).length > x; x++) {
     ids_treasuries.push(allOrders[x].id_treasury_origin)
+    ids_treasuries_destin.push(allOrders[x].id_treasury_destin)
   }
   const treasuries = await getForIds(ids_treasuries)
+  const treasuries_destin = await getForIds(ids_treasuries_destin)
   const treasuryMap = (treasuries || []).reduce((map, treasury) => {
+    map[treasury.id_system] = treasury;
+    return map;
+  }, {} as Record<number, Treasury>)
+  const treasuryMapDestin = (treasuries_destin || []).reduce((map, treasury) => {
     map[treasury.id_system] = treasury;
     return map;
   }, {} as Record<number, Treasury>)
   const mergedData = allOrders?.map((order: any) => {
     const treasury = treasuryMap[order.id_treasury_origin] // Busca a tesouraria correspondente
-    const treasuryDestin = treasuryMap[order.id_treasury_destin]
+    const treasuryDestin = treasuryMapDestin[order.id_treasury_destin]
     return {
       id: order.id,
       id_operation : order.id_type_operation,
