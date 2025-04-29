@@ -320,7 +320,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (gBanks.data.bank && gBanks.data.bank[0].id) {
+    if (gBanks.data.bank && gBanks.data.bank.length > 0) {
       setBanks(gBanks.data.bank)
       setLoading(false)
       return
