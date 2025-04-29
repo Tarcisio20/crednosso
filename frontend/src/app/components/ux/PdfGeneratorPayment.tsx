@@ -25,14 +25,17 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
   const acount1 : any = []
   const acount2 : any = []
   const acount3 : any = []
+  const acount4 : any = []
   const filterContas = data.filter(item => {
     let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
       if(c && c === banks[0].account){
         acount1.push(item)
       }else if(c && c === banks[1].account){
         acount2.push(item)
-      }else{
+      }else if(c && c === banks[2].account){
         acount3.push(item)
+      }else {
+        acount4.push(item)
       }
    
   })
@@ -84,6 +87,9 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
     await sleep(2000)
     if(acount3.length > 0){
       gerarPDF("Mateus", acount3)
+    }
+    if(acount4.length > 0){
+      gerarPDF("Mateus", acount4)
     }
     await sleep(2000)
     handleGenerateGMCore(dadosMateus)
@@ -178,7 +184,7 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
     let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0]
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
-    if(c === "6547-1" || c === "578-9"){
+    if(c === "6547-1" || c === "578-9" || c === '571-1'){
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     }else{
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
