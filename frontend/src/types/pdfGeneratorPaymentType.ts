@@ -9,4 +9,5 @@ export type pdfGeneratorPaymentType = {
     date: string;
     valorRealizado: string;
     estorno : string;
+    conta_pagamento : string;
 }

@@ -7,19 +7,32 @@ import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getAtmsForTreasury } from "@/app/service/atm";
-import { getTreasuriesInOrder } from "@/app/service/order";
+import { getAllOrdersForDate, getTreasuriesInOrder } from "@/app/service/order";
 import { getTreasuriesForIds } from "@/app/service/treasury";
 import { atmType } from "@/types/atmType";
+import { orderType } from "@/types/orderType";
 import { treasuryType } from "@/types/treasuryType";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 
+type atmPage = {
+  id_atm: number;
+  id_treasury: number;
+  name: string;
+  short_name: string;
+  check: boolean;
+}
+
 export default function Supply() {
+
+
+
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>()
   const [atms, setAtms] = useState<atmType[]>()
-  const [filteredAtms, setFilteredAtms] = useState<atmType[]>()
+  const [filteredAtms, setFilteredAtms] = useState<atmPage[]>()
   const [filteredTreasury, setFilteredTreasury] = useState<treasuryType[]>()
+  const [orders, setOrders] = useState<orderType[]>([])
   const [idTreasury, setIdTreasury] = useState('')
   const [dateSupply, setDateSupply] = useState('')
 
@@ -39,8 +52,8 @@ export default function Supply() {
 
   const handleAll = () => {
     const treasuryId = parseInt(idTreasury);
-    const result = atms?.filter(atm => atm.id_treasury === treasuryId);
-    setFilteredAtms(result);
+   // const result = atms?.filter(atm => atm.id_treasury === treasuryId);
+    //setFilteredAtms(result);
     filterTreasury()
   }
 
@@ -65,7 +78,6 @@ export default function Supply() {
       setLoading(false)
       return
     }
-
     const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
     if (!treasuriesForIds?.data?.treasury) {
       setAtms([])
@@ -89,13 +101,14 @@ export default function Supply() {
       return acc;
     }, []);
 
-    setTreasuries(uniqueTreasury)
+
     if (treasuriesForIds.data.treasury.length === 0) {
       setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Sem pedidos a retornar!' })
       setLoading(false)
       return
     }
+    setTreasuries(uniqueTreasury)
     setIdTreasury(treasuriesForIds.data.treasury[0].id_system)
 
     const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
@@ -114,17 +127,24 @@ export default function Supply() {
         }
         return acc;
       }, []);
-
-      const mergedData = idTreasuriesInOrderDate.data.order
-        .map((treasury: any) => {
-          const matchingAtm = atmsForTreasury.data.atm.find(
-            (atm: any) => atm.id_system === treasury.id_treasury_destin
-          );
-          return matchingAtm ? { ...treasury, ...matchingAtm } : null;
+      const atmsAjusted: any = []
+      uniqueAtms.map((item: atmType) => (
+        atmsAjusted.push({
+          id_atm: item.id_system,
+          id_treasury: item.id_treasury,
+          name: item.name,
+          short_name: item.short_name,
+          check: false,
+          type : 'COMPLEMENTAR'
         })
-        .filter(Boolean); // remove os nulls onde não houve match
+      ))
 
-      setAtms(uniqueAtms)
+      const atmFiltered = atmsAjusted.filter((item: any) => item.id_treasury === treasuriesForIds.data.treasury[0].id_system)
+      console.log("Itens completos em atmsAjusted:", atmFiltered);
+
+
+      setAtms(atmsAjusted)
+      setFilteredAtms(atmFiltered)
       setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
@@ -155,62 +175,62 @@ export default function Supply() {
       <TitlePages linkBack="/supply" icon={faAdd} >Adicinar Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div>
-            <div className="flex flex-col gap-5 w-1/3">
-              <label className="text-lg uppercase">Data do pedido</label>
-              <input
-                type="date"
-                value={dateSupply}
-                onChange={(e) => setDateSupply(e.target.value)}
-                className="w-full h-10 outline-none rounded-md text-black text-center uppercase"
-              />
-              <button onClick={handleTreasuriesForDateOrder} >Buscar</button>
-            </div>
-            <div className="flex flex-col gap-5 w-1/3">
-              {treasuries && treasuries.length > 0 &&
-                <>
-                  <label className="uppercase leading-3 font-bold">Trasportadora</label>
-                  <div className="flex gap-2">
-                    <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
-                      <input
-                        value={idTreasury}
-                        onChange={handleInputChange}
-                        className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
-                      />
-                    </div>
-                    <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
-                      <select
-                        className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                        value={idTreasury}
-                        onChange={handleSelectChange}
-                      >
-                        {treasuries && treasuries.map((item, index) => (
-                          <option
-                            className="uppercase bg-slate-700 text-white"
-                            value={item.id_system} key={index} >
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+          <div className="flex flex-col gap-5 w-1/3">
+            <label className="text-lg uppercase">Data do pedido</label>
+            <input
+              type="date"
+              value={dateSupply}
+              onChange={(e) => setDateSupply(e.target.value)}
+              className="w-full h-10 outline-none rounded-md text-black text-center uppercase"
+            />
+            <button onClick={handleTreasuriesForDateOrder} >Buscar</button>
+          </div>
+          <div className="flex flex-col gap-5 w-1/3">
+            {treasuries && treasuries.length > 0 &&
+              <>
+                <label className="uppercase leading-3 font-bold">Trasportadora</label>
+                <div className="flex gap-2">
+                  <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+                    <input
+                      value={idTreasury}
+                      onChange={handleInputChange}
+                      className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+                    />
                   </div>
-                </>
-              }
-            </div>
-          </div >
-          <>
-              {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((item, key) => (
-                <div key={key}>
-                  <input type="checkbox" checked /> {item.id} - NOME | 
-                  <select className="text-black">
-                    <option className="text-black">COMPLEMENTAR</option>
-                    <option className="text-black">TROCA TOTAL</option>
-                    <option className="text-black">RECOLHIMENTO TOTAL</option>
-                  </select>
+                  <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
+                    <select
+                      className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                      value={idTreasury}
+                      onChange={handleSelectChange}
+                    >
+                      {treasuries && treasuries.map((item, index) => (
+                        <option
+                          className="uppercase bg-slate-700 text-white"
+                          value={item.id_system} key={index} >
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              ))}
-              <button>Abastecer</button>
-          </>
-        
+              </>
+            }
+          </div>
+        </div >
+        <>
+          {filteredAtms && filteredAtms.length > 0 && filteredAtms.map((item, key) => (
+            <div key={key}>
+              <input type="checkbox" defaultChecked={item.check} /> {item.id_atm} - {item.short_name} |
+              <select className="text-black">
+                <option className="text-black">COMPLEMENTAR</option>
+                <option className="text-black">TROCA TOTAL</option>
+                <option className="text-black">RECOLHIMENTO TOTAL</option>
+              </select>
+            </div>
+          ))}
+          <button>Abastecer</button>
+        </>
+
         <div className="bg-slate-800 w-full h-1"></div>
       </div>
       {error.messege &&

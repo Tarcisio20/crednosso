@@ -39,6 +39,8 @@ export default function TreasuryAdd() {
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState("");
   const [regionTreasury, setRegionTreasury] = useState("");
   const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState("1");
+  const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] = useState("");
+  const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] = useState("");
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
@@ -109,7 +111,9 @@ export default function TreasuryAdd() {
       idTypeSupply === "0" ||
       idTypeSupply === "" ||
       idTypeStore === "" ||
-      !validateField(nameForEmailTreasury)
+      !validateField(nameForEmailTreasury) ||
+      accountNumberForTransferTreasury === "" ||
+      bankBranchForTransferTreasury === ""
     ) {
       setError({
         type: 'error',
@@ -130,7 +134,8 @@ export default function TreasuryAdd() {
       region: parseInt(regionTreasury),
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury === "" ? "0" : numGMCoreTreasury,
-      name_for_email : nameForEmailTreasury.toUpperCase()
+      name_for_email : nameForEmailTreasury.toUpperCase(),
+      account_number_for_transfer : `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
     };
     const treasury = await add(data);
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
@@ -144,6 +149,8 @@ export default function TreasuryAdd() {
       setRegionTreasury("");
       setNameForEmailTreasury("")
       setEnanbledGMcoreTreasury("1");
+      setAccountNumberForTransferTreasury("")
+      setBankBranchForTransferTreasury("")
       setError({ type: 'success', title: 'Success', messege: 'Item salvo' });
       setLoading(false);
       return;
@@ -241,6 +248,30 @@ export default function TreasuryAdd() {
         </div>
 
         <div className="flex flex-col gap-4">
+
+        <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Nº Agencia  Pagamento</label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite o numero da agencia para pagamento"
+              size="extra-large"
+              value={bankBranchForTransferTreasury}
+              onChange={(e) =>  setBankBranchForTransferTreasury(e.target.value)}
+              icon={faListOl}
+            />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Nº Conta Pagamento</label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite o numero da conta para pagamento"
+              size="extra-large"
+              value={accountNumberForTransferTreasury}
+              onChange={(e) =>  setAccountNumberForTransferTreasury(e.target.value)}
+              icon={faListOl}
+            />
+          </div>
 
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Região</label>

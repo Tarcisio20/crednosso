@@ -11,5 +11,6 @@ export type treasuryType = {
     bills_20 ?: number;
     bills_50 ?: number;
     bills_100 ?: number;
+    account_number_for_transfer ?: string;
     status ?: boolean;
 }

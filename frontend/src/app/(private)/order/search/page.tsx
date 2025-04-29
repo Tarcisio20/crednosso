@@ -36,6 +36,8 @@ import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
 import { ModalMessege } from "@/app/components/ux/ModalMessege";
 
 import { getTextColorLine } from "@/app/utils/getTextColorLine";
+import { bankType } from "@/types/bankType";
+import { getAllBanks } from "@/app/service/bank";
 
 type OrderType = orderType & {
   confirmed_total?: number;
@@ -49,6 +51,7 @@ export default function Order() {
   const [, setTypeOrders] = useState<typeOrderType[]>([])
   const [statusOrder, setStatusOrder] = useState<statusOrderType[]>([])
   const [orders, setOrders] = useState<OrderType[]>([])
+  const [banks, setBanks] = useState<bankType[]>([])
 
   const [itemsChecks, setItemsChecks] = useState<{ id_order: number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
@@ -105,6 +108,7 @@ export default function Order() {
       await treasuriesFunction()
       await typeOrderFunction()
       await statusOderFunction()
+      await getAllBanksF()
     }
 
     allLoading()
@@ -305,6 +309,26 @@ export default function Order() {
         : String(valueB).localeCompare(String(valueA));
     });
   };
+
+  const getAllBanksF = async () => {
+    setError('')
+    setLoading(false)
+    setLoading(true)
+    const gBanks = await getAllBanks()
+    if (gBanks.status === 300 || gBanks.status === 400 || gBanks.status === 500) {
+      setError("Erro de requisição")
+      setLoading(false)
+      return
+    }
+    if (gBanks.data.bank && gBanks.data.bank[0].id) {
+      setBanks(gBanks.data.bank)
+      setLoading(false)
+      return
+    }
+    setError("Sem dados!")
+    setLoading(false)
+    return
+  }
 
   const sortedOrders = getSortedOrders();
 
@@ -1099,7 +1123,7 @@ export default function Order() {
       <PdfGenerator data={elementRelaease} onClose={closeGenerateModalRelease} />
     }
     {modalGeneratePayment &&
-      <PdfGeneratorPayment data={elementPayment} onClose={closeGenerateMOdalPayment} />
+      <PdfGeneratorPayment data={elementPayment} banks={banks} onClose={closeGenerateMOdalPayment} />
     }
     {modalError &&
       <ModalMessege type="" title="" messege="" onClose={handleCloseModalMessege} />

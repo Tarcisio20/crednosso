@@ -87,7 +87,8 @@ export const getForIds = async (ids: number[]) => {
             bills_20: true,
             bills_50: true,
             bills_100: true,
-            id_type_store: true
+            id_type_store: true,
+            account_number_for_transfer : true,
         }
     })
     if (treasury) {

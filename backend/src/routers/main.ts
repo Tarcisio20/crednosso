@@ -13,6 +13,7 @@ import * as orderController from '../controllers/order'
 import * as typeStoreController from '../controllers/type-store'
 import * as emailController from '../controllers/email'
 import * as supplyController from '../controllers/supply'
+import * as bankController from '../controllers/bank'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -95,6 +96,7 @@ mainRouter.get('/order',verifyJWT, orderController.getAll)
 mainRouter.get('/order/:id',verifyJWT, orderController.getById)
 mainRouter.get('/order/del/:id',verifyJWT, orderController.delById)
 mainRouter.get('/order/treasury/:date',verifyJWT, orderController.getIdTreasuryForDateOrder)
+mainRouter.get('/order/get-for-date/:date',verifyJWT, orderController.getAllOrdersForDate )
 mainRouter.post('/order/confirm-partial/:id',verifyJWT, orderController.alterPartialByID)
 mainRouter.post('/order/alter-order-requests/:id',verifyJWT, orderController.alterRequestsById)
 mainRouter.post('/order/alter-date-order/:id',verifyJWT, orderController.alterDateOrder)
@@ -123,3 +125,6 @@ mainRouter.get('/supply',verifyJWT, supplyController.getAll)
 mainRouter.post('/supply/for-day',verifyJWT, supplyController.forDate)
 mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)
+
+// bank
+mainRouter.get('/bank',verifyJWT, bankController.getAll)

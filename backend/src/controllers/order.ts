@@ -52,11 +52,14 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     requested_value_B: number;
     requested_value_C: number;
     requested_value_D: number;
+    confirmed_value_A: number;
+    confirmed_value_B: number;
+    confirmed_value_C: number;
+    confirmed_value_D: number;
   }
 
   const order : OrderHereType[] | null = await getIdTreasuriesOrderByDate(date)
   const orders = []
-  console.log(order)
   if(order && order.length > 0){
     for(let x = 0; x < order.length; x++){
        let ordersForReturn = await getTreasuryForTypeSupply(order[x]?.id_treasury_destin,  2)
@@ -73,6 +76,10 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
             requested_value_B: order[x].requested_value_B,
             requested_value_C: order[x].requested_value_C,
             requested_value_D: order[x].requested_value_D,
+            confirmed_value_A: order[x].confirmed_value_A,
+            confirmed_value_B: order[x].confirmed_value_B,
+            confirmed_value_C: order[x].confirmed_value_C,
+            confirmed_value_D: order[x].confirmed_value_D,
           });
         }
       }
@@ -84,6 +91,14 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
   }
 
   res.json({ order : orders })
+}
+
+export const getAllOrdersForDate : RequestHandler = async (req, res) => {
+  const date = req.params.date
+  if (!date) {
+    res.status(401).json({ error: 'Preciso de um data para continuar!' })
+    return
+  }
 }
 
 export const add: RequestHandler = async (req, res) => {
@@ -450,6 +465,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
     id_type_store: number;
     account_number: string;
     region: number;
+    account_number_for_transfer : string;
   }
   for (let x = 0; (allOrders || []).length > x; x++) {
     ids_treasuries.push(allOrders[x].id_treasury_destin)
@@ -471,6 +487,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
       valor: returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),
       id_type_store: treasury?.id_type_store,
       date: order.date_order,
+      conta_pagamento : treasury?.account_number_for_transfer,
       valorRealizado: returnValueTotal(order.confirmed_value_A, order.confirmed_value_B, order.confirmed_value_C, order.confirmed_value_D),
       estorno: calcularEstornoBRL(
         returnValueTotal(order.requested_value_A, order.requested_value_B, order.requested_value_C, order.requested_value_D),

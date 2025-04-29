@@ -43,6 +43,7 @@ model Treasury {
   bills_50 Int @default(0)
   bills_100 Int @default(0)
   status Boolean @default(true)
+  account_number_for_transfer String @default("")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
@@ -56,6 +57,19 @@ model Treasury {
   operatorCards OperatorCard[]
   OrdersOrigin Order[] @relation("TreasuryOrigin")
   OrdersDestin Order[] @relation("TreasuryDestin")
+}
+
+model AccountBank  {
+  id Int @id @default(autoincrement())
+  name  String
+  bank_branch String @default("")
+  bank_branch_digit String @default("")
+  account String @default("")
+  account_digit String @default("")
+  status Boolean @default(true)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model Order {

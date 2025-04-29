@@ -8,16 +8,34 @@ import autoTable from "jspdf-autotable";
 import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTitle";
 import { generateExcelGMCORE } from "@/app/utils/generateExcelGMCORE";
 import { sleep } from "@/app/utils/slep";
+import { bankType } from "@/types/bankType";
+import { access } from "fs";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
+  banks : bankType[];
   onClose: () => void;
 }
 
-export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
+export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1);
   const dadosPosterus = data.filter(item => item.id_type_store === 2);
+
+  const acount1 : any = []
+  const acount2 : any = []
+  const acount3 : any = []
+  const filterContas = data.filter(item => {
+    let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
+      if(c && c === banks[0].account){
+        acount1.push(item)
+      }else if(c && c === banks[1].account){
+        acount2.push(item)
+      }else{
+        acount3.push(item)
+      }
+   
+  })
 
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
@@ -55,7 +73,21 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
 
 
   const handleGeneratePDF = async () => {
-    if (dadosMateus.length > 0) {
+
+    if(acount1.length > 0){
+      gerarPDF("Mateus", acount1)
+    }
+    await sleep(2000)
+    if(acount2.length > 0){
+      gerarPDF("Mateus", acount2)
+    }
+    await sleep(2000)
+    if(acount3.length > 0){
+      gerarPDF("Mateus", acount3)
+    }
+    await sleep(2000)
+    handleGenerateGMCore(dadosMateus)
+   /* if (dadosMateus.length > 0) {
       gerarPDF("MATEUS", dadosMateus);
       await sleep(2000)
       handleGenerateGMCore(dadosMateus)
@@ -63,7 +95,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
     await sleep(2000)
     if (dadosPosterus.length > 0) {
       gerarPDF("POSTERUS", dadosPosterus);
-    }
+    }*/
   };
 
 
@@ -77,11 +109,11 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
     // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
     const columnStyles = {
       0: { cellWidth: 30 },  // CONTA
-      //1: { cellWidth: 30 },  // CÓDIGO
-      1: { cellWidth: 120 }, // TESOURARIA (ajustado para evitar overflow)
-      2: { cellWidth: 30 },  // REGIÃO
-      3: { cellWidth: 40 },  // VALOR 
-      4: { cellWidth: 50 },  // VALOR
+      1: { cellWidth: 20 },  // CÓDIGO
+      2: { cellWidth: 100 }, // TESOURARIA (ajustado para evitar overflow)
+      3: { cellWidth: 30 },  // PAGAMENTO
+      4: { cellWidth: 40 },  // VALOR 
+      5: { cellWidth: 50 },  // VALOR
     };
 
     (autoTable as any)(doc, {
@@ -90,7 +122,7 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
         [
           {
             content: `DATA: ${dataFormatada}`,
-            colSpan: 4,
+            colSpan: 5,
             styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
           },
           {
@@ -100,23 +132,25 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
         ],
         [
           { content: "CONTA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "LOJA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
           { content: "TESOURARIA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
-          { content: "REGIÃO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "CONTA PGTO.", styles: { fillColor: [41, 128, 185], textColor: 255 } },
           { content: "VALOR ESTORNO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
           { content: "VALOR REALIZADO", styles: { fillColor: [41, 128, 185], textColor: 255 } }
         ]
       ],
       body: dados.map((item) => [
         item.conta.toString(),
+        item.gmcore,
         `TESOURARIA - ${item.tesouraria}`,
-        item.regiao.toString(),
+        item.conta_pagamento,
         item.estorno.toString(),
         item.valorRealizado.toString(),
       ]),
       foot: [[
         {
           content: "TOTAIS",
-          colSpan: 3,
+          colSpan: 4,
           styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         },
         {
@@ -141,8 +175,17 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
       showHead: 'firstPage',
       showFoot: 'lastPage'
     });
+    let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0]
+    let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
-    doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
+    if(c === "6547-1" || c === "578-9"){
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
+    }else{
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
+    }
+
+    //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
+
   };
 
   const Tabs = () => (
@@ -193,13 +236,14 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
       <thead>
         <tr className="bg-blue-600 text-white font-bold">
           <td className="p-2 border border-black">DATA: {formatDateToString(data[0]?.date)}</td>
-          <td className="p-2 border border-black" colSpan={3}></td>
+          <td className="p-2 border border-black" colSpan={4}></td>
           <td className="p-2 border border-black">REALIZADO</td>
         </tr>
         <tr className="bg-blue-600 text-white font-bold">
           <th className="p-2 border border-black text-left">CONTA</th>
+          <th className="p-2 border border-black text-left">LOJA</th>
           <th className="p-2 border border-black text-left">TESOURARIA</th>
-          <th className="p-2 border border-black text-left">REGIÃO</th>
+          <th className="p-2 border border-black text-left">CONTA PGTO</th>
           <th className="p-2 border border-black text-left">VALOR ESTORNADO</th>
           <th className="p-2 border border-black text-left">VALOR REALIZADO</th>
         </tr>
@@ -208,14 +252,15 @@ export const PdfGeneratorPayment = ({ data, onClose }: pdfProps) => {
         {dados.map((item, index) => (
           <tr key={index} className={index % 2 === 0 ? 'bg-blue-50' : ''}>
             <td className="p-2 border border-black">{item.conta}</td>
+            <td className="p-2 border border-black">{item.gmcore}</td>
             <td className="p-2 border border-black">TESOURARIA - {item.tesouraria}</td>
-            <td className="p-2 border border-black">{item.regiao}</td>
+            <td className="p-2 border border-black">{item.conta_pagamento}</td>
             <td className="p-2 border border-black">{item.estorno}</td>
             <td className="p-2 border border-black">{item.valorRealizado}</td>
           </tr>
         ))}
         <tr className="bg-blue-200 font-bold">
-          <td className="p-2 border border-black" colSpan={3}>TOTAIS</td>
+          <td className="p-2 border border-black" colSpan={4}>TOTAIS</td>
           <td className="p-2 border border-black">
             {totalEstorno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </td>
