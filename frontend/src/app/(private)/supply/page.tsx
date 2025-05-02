@@ -124,7 +124,7 @@ export default function Supply() {
           </thead>
           <tbody className=" text-xl">
             {supplies && supplies.map((item) => (
-              <tr>
+              <tr key={item.id}>
                 <td>{item.id}</td>
                 <td>{item.id_atm}</td>
                 <td>Nome</td>

@@ -784,7 +784,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (orders.data.order && orders.data.order.length > 0) {
+    if (orders.data !== undefined && orders.data.order.length > 0) {
       const excel = await generateMultiTableExcel(orders.data.order)
       if (excel) {
         setError('')

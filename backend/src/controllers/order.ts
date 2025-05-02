@@ -56,6 +56,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     confirmed_value_B: number;
     confirmed_value_C: number;
     confirmed_value_D: number;
+    status_order : number;
   }
 
   const order : OrderHereType[] | null = await getIdTreasuriesOrderByDate(date)
@@ -80,6 +81,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
             confirmed_value_B: order[x].confirmed_value_B,
             confirmed_value_C: order[x].confirmed_value_C,
             confirmed_value_D: order[x].confirmed_value_D,
+            status_order : order[x].status_order
           });
         }
       }

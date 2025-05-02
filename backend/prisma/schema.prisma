@@ -53,6 +53,7 @@ model Treasury {
   typeStore typeStore @relation(fields: [id_type_store], references: [id])
 
   atms Atm[]
+  supplys Supply[]
   contacts Contact[]
   operatorCards OperatorCard[]
   OrdersOrigin Order[] @relation("TreasuryOrigin")
@@ -105,6 +106,7 @@ model Order {
 model Supply {
   id Int @id @default(autoincrement())
   id_atm Int
+  id_treasury Int
   cassete_A Int
   cassete_B Int
   cassete_C Int
@@ -118,6 +120,7 @@ model Supply {
 
 
   atm Atm @relation(fields: [id_atm], references: [id_system])
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
 }
 
 model StatusOrder {

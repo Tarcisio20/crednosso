@@ -73,6 +73,7 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
       confirmed_value_B : true,
       confirmed_value_C : true,
       confirmed_value_D : true,
+      status_order : true,
     }
   })
   if (order) {

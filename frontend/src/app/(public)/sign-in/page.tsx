@@ -110,6 +110,7 @@ export default function SignIn() {
           >
             Logar
           </Button>
+          {/**
           <p className="text-sm" >
             Não possui usuario?{" "}
             <Link href="/register" className="text-zinc-400"  >
@@ -117,6 +118,7 @@ export default function SignIn() {
             </Link>
             !
           </p>
+           */}
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />
           }

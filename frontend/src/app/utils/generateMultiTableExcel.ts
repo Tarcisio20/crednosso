@@ -36,13 +36,12 @@ export const generateMultiTableExcel = async (data: TransferData[]) => {
     data.forEach((item) => {
       // Formatar data para DD/MM/AAAA
       const formattedDate = new Date(item.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-      console.log("Formatada", item.date)
       // Cabeçalho principal (Nr: ...)
       worksheet.mergeCells(`A${currentRow}:C${currentRow}`);
       const titleCell = worksheet.getCell(`A${currentRow}`);
-      if(item.id_operation === 3){
+      if(item.id_operation === 3 || item.id_operation === 1){
         titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA ${item.treasury} / ${item.treasury_destin} - ${formattedDate}`;  
-      }else {
+      }else{
         titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA / ${item.treasury} - ${formattedDate}`;
       }
       titleCell.style = headerStyle;

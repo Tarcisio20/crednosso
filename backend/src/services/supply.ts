@@ -31,3 +31,43 @@ export const getAllForDate = async (date: any, dateEnd: any) => {
   }
   return null
 }
+
+export const getSupplyForIdTreasury = async (id: number) => {
+  const suplly = await prisma.supply.findMany({
+    where: {
+    id_treasury : {equals : id }
+    }
+  })
+  if (suplly) {
+    return suplly
+  }
+  return []
+}
+
+export const lastRegister  = async () => {
+const supply = await prisma.supply.findFirst({
+  orderBy: {
+    id: 'desc', // ou 'createdAt' se você tiver essa coluna
+  },
+});
+  if(supply){
+    return supply
+  }
+  return null
+}
+
+export const getAllForDateAndTreasury  = async (date: any, dateEnd: any, id_treasury : number) => {
+  const suplly = await prisma.supply.findMany({
+    where: {
+      date: {
+        gte: date,
+        lt: dateEnd,
+      },
+      id_treasury
+    }
+  })
+  if (suplly) {
+    return suplly
+  }
+  return null
+  }

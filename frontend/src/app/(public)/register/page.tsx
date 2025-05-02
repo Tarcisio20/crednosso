@@ -27,6 +27,7 @@ export default function SignInComponent() {
   const [loading, setLoading] = useState<boolean>(false)
 
   const registerUser = async () => {
+    return
     setError({ type: '', title: '', messege: '' })
     setLoading(false)
     setLoading(true)
