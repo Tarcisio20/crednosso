@@ -896,8 +896,8 @@ export default function Order() {
         </div>
 
       </div>
-      <table className="flex-1 text-center p-3" width="98%">
-        <thead className="block border-b-2 border-b-zinc-500 uppercase pb-2 text-xl text-center">
+      <table className="flex-1 text-center p-3 table-fixed w-full">
+        <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl text-center">
           <tr className="flex">
             <th className="w-[2%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl " >#</th>
             <th className="w-[3%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"

@@ -45,7 +45,6 @@ export const generateMultiTableExcel = async (data: TransferData[]) => {
         titleCell.value = `Nr: ${item.id} | TRANSFERENCIA ENTRE CUSTODIA / ${item.treasury} - ${formattedDate}`;
       }
       titleCell.style = headerStyle;
-      console.log("Operation", item.id_operation)
       currentRow++;
 
       // Cabeçalhos da tabela (CED., QTD, VALOR)
