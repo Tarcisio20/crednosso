@@ -1,7 +1,7 @@
 export type supplyForDayType = {
     id ?: number;
     id_atm : number;
-    id_teasury : number;
+    id_treasury : number;
     cassete_A : number;
     cassete_B : number;
     cassete_C : number;

@@ -4,6 +4,7 @@ import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllSupply, getSu
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
+import { AddIndividualSchema } from "../schemas/schemaAddIndividual"
 
 export const getAll : RequestHandler = async (req, res) => {
   const supply = await getAllSupply()
@@ -129,6 +130,23 @@ export const getForDayAndTreasury: RequestHandler = async (req, res) => {
     returnDateFormattedEnd(formatedDateToPTBRforEnglish(data.date)), 
     parseInt(id)
   )
+
+  if (!supply) {
+    res.status(401).json({ error: 'Erro ao salvar!' })
+    return
+  }
+
+  res.json({ supply })
+}
+
+export const addIndivudual : RequestHandler = async (req, res) => {
+  const data =  AddIndividualSchema.safeParse(req.body)
+  console.log(data.data)
+  if (!data.success) {
+    res.status(300).json({ error: 'Erro no envio dos dados!' })
+    return
+  }
+const supply = 1
 
   if (!supply) {
     res.status(401).json({ error: 'Erro ao salvar!' })

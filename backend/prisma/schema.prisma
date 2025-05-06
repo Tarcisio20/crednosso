@@ -95,7 +95,7 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 
-
+  supply Supply[]
   typeOperation TypeOperation @relation(fields: [id_type_operation], references: [id])
   treasuryOrigin Treasury @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
   treasuryDestin Treasury @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id])
@@ -106,19 +106,21 @@ model Order {
 model Supply {
   id Int @id @default(autoincrement())
   id_atm Int
+  id_order Int
   id_treasury Int
   cassete_A Int
   cassete_B Int
   cassete_C Int
   cassete_D Int
   date DateTime @default(now())
+  date_on_supply DateTime
   total_exchange Boolean @default(false)
   status Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 
-
+  order Order @relation(fields: [id_order], references: [id])
   atm Atm @relation(fields: [id_atm], references: [id_system])
   treasury Treasury @relation(fields: [id_treasury], references: [id_system])
 }

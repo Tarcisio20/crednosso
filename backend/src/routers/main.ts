@@ -126,6 +126,7 @@ mainRouter.get('/supply/treasury/:id',verifyJWT, supplyController.getForIDTreasu
 mainRouter.post('/supply/for-day',verifyJWT, supplyController.forDate)
 mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
 mainRouter.post('/supply/add_all',verifyJWT, supplyController.addAll)
+mainRouter.post('supply/add_individual',verifyJWT, supplyController.addIndivudual)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)
 mainRouter.post('/supply/for-day-treasury/:id',verifyJWT, supplyController.getForDayAndTreasury)
 

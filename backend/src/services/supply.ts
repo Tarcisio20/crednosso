@@ -35,7 +35,7 @@ export const getAllForDate = async (date: any, dateEnd: any) => {
 export const getSupplyForIdTreasury = async (id: number) => {
   const suplly = await prisma.supply.findMany({
     where: {
-    id_treasury : {equals : id }
+    id_treasury  : id 
     }
   })
   if (suplly) {

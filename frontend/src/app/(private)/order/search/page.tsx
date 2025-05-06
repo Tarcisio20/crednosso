@@ -352,6 +352,11 @@ export default function Order() {
   }
 
   const handleIndividualCheck = (id: number) => {
+    console.log("Item enviado", id)
+    itemsChecks.map((item) => (
+      console.log("MAP", (item.id_order === id ? { ...item, status: !item.status } : item))
+      //item.id_order === id ? { ...item, status: !item.status } : item
+    ))
     setItemsChecks(
       itemsChecks.map((item) => (
         item.id_order === id ? { ...item, status: !item.status } : item
@@ -936,7 +941,7 @@ export default function Order() {
                   value=""
                   onChange={() => handleIndividualCheck(item.id as number)}
                   checked={
-                    itemsChecks.find(i => i.id === item.id_treasury_destin)?.status || false
+                    itemsChecks.find(i => i.id_order === item.id)?.status || false
                   }
                 />
               </td>

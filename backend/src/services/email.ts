@@ -1,17 +1,15 @@
 import transporter from "../utils/emailConfig";
 import { generateEmailTableHTML } from "../utils/generateHtml";
-import { returnDateInPtBr } from "../utils/returnDateInPtBr";
 
 // Função para enviar e-mail automático
 export const sendEmailOfOrder = async (emails: string, orders: any) => {
   const html = generateEmailTableHTML(orders)
   const dt = new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })
-
-  emails += ';tarcisio.silva@crednosso.com.br;dillan.sousa@crednosso.com.br;luis.lopes@crednosso.com.br;joao.rocha@crednosso.com.br'
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to:  emails, // 'tarcisio.silva@crednosso.com.br'
+      to:  'tarcisio.silva@crednosso.com.br;dillan.sousa@crednosso.com.br;luis.lopes@crednosso.com.br;joao.rocha@crednosso.com.br',
+      bbc: emails,
       subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`,
       html: `
       Prezados, <br><br><br>

@@ -64,6 +64,7 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
       status_order : {not : 5 }
     },
     select : {
+      id : true,
       id_treasury_destin : true,
       requested_value_A : true,
       requested_value_B: true,
@@ -73,6 +74,7 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
       confirmed_value_B : true,
       confirmed_value_C : true,
       confirmed_value_D : true,
+      date_order : true,
       status_order : true,
     }
   })

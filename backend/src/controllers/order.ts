@@ -11,7 +11,6 @@ import { returnValueTotal } from "../utils/returnValueTotal"
 import { addBalanceInTreasuryByIdSystem, getForIds, getForIdSystem, getTreasuryForTypeSupply, updateTreasury } from "../services/treasury"
 import { calcularEstornoBRL } from "../utils/calcularEstorno"
 import { OrderType } from "../types/OrderType"
-import { connect } from "http2"
 import { returnDateInPtBr } from "../utils/returnDateInPtBr"
 import { returnDate } from "../utils/returnDate"
 
@@ -47,6 +46,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     return
   }
   type OrderHereType = {
+    id  : number;
     id_treasury_destin :  number;
     requested_value_A: number;
     requested_value_B: number;
@@ -56,6 +56,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     confirmed_value_B: number;
     confirmed_value_C: number;
     confirmed_value_D: number;
+    date_order : Date;
     status_order : number;
   }
 

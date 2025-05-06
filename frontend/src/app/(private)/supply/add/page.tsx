@@ -9,7 +9,7 @@ import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getAtmsForTreasury } from "@/app/service/atm";
 import { getAllOrdersForDate, getTreasuriesInOrder } from "@/app/service/order";
-import { getSuppliesForNow, getSupplyForIdTreasury } from "@/app/service/supply";
+import { getSuppliesForNow, getSupplyForIdTreasury, saveIndividualSupply } from "@/app/service/supply";
 import { getTreasuriesForIds } from "@/app/service/treasury";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
@@ -35,6 +35,7 @@ type atmPage = {
 }
 
 type orderPage = {
+  id: number;
   id_trasury: number;
   cass_A: number;
   cass_B: number;
@@ -79,7 +80,7 @@ export default function Supply() {
 
   useEffect(() => {
     document.title = "Pedidos - Add | CredNosso";
-    if(idTreasury){
+    if (idTreasury) {
       handleAll()
     }
   }, [idTreasury, atms]);
@@ -104,6 +105,7 @@ export default function Supply() {
     }
     idTreasuriesInOrderDate.data.order.map((item: any) => (
       orderAjusted.push({
+        id : item.id,
         id_trasury: item.id_treasury_destin,
         cass_A: item.status_order === 1 ? item.requested_value_A : item.requested_value_A,
         cass_B: item.status_order === 1 ? item.requested_value_B : item.requested_value_B,
@@ -194,10 +196,10 @@ export default function Supply() {
         setIsPar(false)
       }
 
-      const suppliesNow = await getSuppliesForNow({ date : returnDayAtual()}, treasuriesForIds.data.treasury[0].id_system )
-      if(suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0){
+      const suppliesNow = await getSuppliesForNow({ date: returnDayAtual() }, treasuriesForIds.data.treasury[0].id_system)
+      if (suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0) {
         setSupplyForDay(suppliesNow.data.supply)
-      }else{
+      } else {
         setSupplyForDay([])
       }
       setAtms(atmsAjusted)
@@ -242,10 +244,10 @@ export default function Supply() {
       await getSupplyForTreasury()
       setFilteredAtms(aFiltered)
       setSupplyUnique(orderFiltered.filter(item => item.id_trasury === parseInt(idTreasury)))
-      const suppliesNow = await getSuppliesForNow({ date : returnDayAtual()}, parseInt(idTreasury) )
-      if(suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0){
+      const suppliesNow = await getSuppliesForNow({ date: returnDayAtual() }, parseInt(idTreasury))
+      if (suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0) {
         setSupplyForDay(suppliesNow.data.supply)
-      }else{
+      } else {
         setSupplyForDay([])
       }
     }
@@ -269,8 +271,41 @@ export default function Supply() {
   }
 
   const handleSave = () => {
-    
+    console.log("Filtrado", filteredAtms)
   }
+
+  const saveIndividual = async () => {
+    const atm : atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
+    if (atm.length === 1) {
+      if (cassA === "0" && cassB === "0" && cassC === "0" && cassD === "0") {
+        setError({ type: 'error', title: 'Erro', messege: 'Preciso de algum valor para abasetcer ' })
+        return
+      }
+
+      let data : atmPage = {
+        id_atm : atm[0]?.id_atm,
+        id_treasury : atm[0]?.id_treasury,
+        name : atm[0]?.name,
+        short_name : atm[0]?.short_name,
+        check : atm[0]?.check,
+        type : atm[0]?.type,
+        cass_A : atm[0]?.cass_A,
+        cass_B : atm[0]?.cass_B,
+        cass_C : atm[0]?.cass_C,
+        cass_D : atm[0]?.cass_D,
+      }
+
+      const supply = await saveIndividualSupply(data)
+      console.log("add", supply)
+
+    }else{
+      setError({ type: 'error', title: 'Erro', messege: 'Preciso de um atm selecionado ' })
+      return
+    }
+
+    console.log("Passei")
+  }
+
 
   const handleCloseModalTrocaTotal = () => {
     setModalTrocaTotal(false)
@@ -279,7 +314,7 @@ export default function Supply() {
 
   const handleDiv = async () => {
     const confirmed = window.confirm("Tem certeza que deseja dividir o abastecimento?");
-    if(!confirmed){
+    if (!confirmed) {
       return
     }
 
@@ -301,7 +336,7 @@ export default function Supply() {
 
   return (
     <Page>
-      <TitlePages linkBack="/supply" icon={faAdd} >Adicinar Abastecimento</TitlePages>
+      <TitlePages linkBack="/supply" icon={faAdd} >Adicionar Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div>
           <div className="flex flex-col gap-5 w-1/3">
@@ -417,35 +452,38 @@ export default function Supply() {
             <div className="flex gap-5 border border-gray-600 w-80 mb-2">
               <label className="w-[95px]">R$ 10,00</label>
               <label className="w-[117px] text-black text-center">
-                <input type="number" className="w-full" value={cassA} onChange={e=>setCassA(e.target.value)} />
+                <input type="number" className="w-full" value={cassA} onChange={e => setCassA(e.target.value)} />
               </label>
               <label className="w-[106px]" >{generateReal(parseInt(cassA), 10)}</label>
             </div>
             <div className="flex gap-5 border border-gray-600 w-80  mb-2">
               <label className="w-[95px]" >R$ 20,00</label>
               <label className="w-[117px] text-black text-center" >
-              <input type="number" className="w-full" value={cassB} onChange={e=>setCassB(e.target.value)} />
+                <input type="number" className="w-full" value={cassB} onChange={e => setCassB(e.target.value)} />
               </label>
               <label className="w-[106px]" >{generateReal(parseInt(cassB), 20)}</label>
             </div>
             <div className="flex gap-5 border border-gray-600 w-80  mb-2">
               <label className="w-[95px]" >R$ 50,00</label>
-              <label className="w-[117px] text-black text-center"> 
-              <input type="number" className="w-full" value={cassC} onChange={e=>setCassC(e.target.value)} />
+              <label className="w-[117px] text-black text-center">
+                <input type="number" className="w-full" value={cassC} onChange={e => setCassC(e.target.value)} />
               </label>
               <label className="w-[106px]" >{generateReal(parseInt(cassC), 50)}</label>
             </div>
             <div className="flex gap-5 border border-gray-600 w-80  mb-2">
               <label className="w-[95px]" >R$ 100,00</label>
               <label className="w-[117px] text-black text-center" >
-              <input type="number" className="w-full" value={cassD} onChange={e=>setCassD(e.target.value)} />
+                <input type="number" className="w-full" value={cassD} onChange={e => setCassD(e.target.value)} />
               </label>
               <label className="w-[106px]" >{generateReal(parseInt(cassD), 100)}</label>
             </div>
             <div className="flex gap-5 border border-gray-600 w-80  mb-2 bg-red-400 ">
               <label className="w-14 font-bold">Total</label>
               <label className="  flex-1 text-end font-bold">{generateRealTotal(parseInt(cassA), parseInt(cassB),
-               parseInt(cassC), parseInt(cassD))}</label>
+                parseInt(cassC), parseInt(cassD))}</label>
+            </div>
+            <div>
+              <button onClick={saveIndividual}>Salvar</button>
             </div>
           </div>
         </div>
@@ -464,13 +502,13 @@ export default function Supply() {
               </thead>
               <tbody className=" text-xl">
                 {supplyForDay.map(item => (
-                   <tr key={item.id}>
-                   <th>{item.id}</th>
-                   <th>{item.id_teasury}</th>
-                   <th>{item.id_atm}</th>
-                   <th>Total</th>
-                   <th>Ações</th>
-                 </tr>
+                  <tr key={item.id}>
+                    <th>{item.id}</th>
+                    <th>{item.id_treasury}</th>
+                    <th>{item.id_atm}</th>
+                    <th>Total</th>
+                    <th>Ações</th>
+                  </tr>
                 ))}
 
               </tbody>
@@ -478,7 +516,7 @@ export default function Supply() {
           </div>
         }
       </div>
-      {modalTrocaTotal && 
+      {modalTrocaTotal &&
         <ModalTrocaTotal atms={filteredAtms ?? []} onClose={handleCloseModalTrocaTotal} />
       }
       {error.messege &&
