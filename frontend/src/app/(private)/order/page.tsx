@@ -152,6 +152,7 @@ export default function Order() {
       observation: obs
     }
 
+
     const newOrder = await add(data)
     if (newOrder.status === 300 || newOrder.status === 400 || newOrder.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })

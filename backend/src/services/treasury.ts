@@ -126,6 +126,7 @@ export const addTreasury = async (data: Prisma.TreasuryCreateInput) => {
 export const addBalanceInTreasuryByIdSystem = async (id: number,
     data: { bills_10: number, bills_20: number, bills_50: number, bills_100: number }
 ) => {
+    console.log('data', data)
     const newBalance = await prisma.treasury.update({
         where: { id_system : id },
         data

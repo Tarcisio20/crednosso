@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 import autoTable  from 'jspdf-autotable';
 import { useState } from "react";
 import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTitle";
+import { sleep } from "@/app/utils/slep";
 
 type pdfProps = {
   data: pdfGeneratorReleaseType[];
@@ -43,15 +44,18 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
     valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     if (dadosMateus.length > 0) {
       gerarPDF("MATEUS", 'mateus', dadosMateus);
+      await sleep(2000)
     }
     if (dadosPosterus.length > 0) {
       gerarPDF("POSTERUS", 'posterus', dadosPosterus);
+      await sleep(2000)
     }
     if (dadosEntreTesourarias.length > 0) {
       gerarPDF("ENTRE TESOURARIAS", 'entre-tesourarias', dadosEntreTesourarias);
+      await sleep(2000)
     }
   };
 
@@ -59,7 +63,6 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const gerarPDF = (titulo: string, type : string, dados: typeof data) => {
 
     if (type === "entre-tesourarias") {
-      console.log(dados)
       const doc = new jsPDF({
         orientation: 'landscape',
       });

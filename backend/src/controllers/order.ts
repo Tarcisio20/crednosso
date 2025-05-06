@@ -164,20 +164,18 @@ export const add: RequestHandler = async (req, res) => {
     const treasuryRemove = await getForIdSystem(safeData.data.id_treasury_origin.toString())
 
     let dataAdd = {
-      bills_10: treasuryAdd?.bills_10 as number + safeData.data.requested_value_A,
-      bills_20: treasuryAdd?.bills_20 as number + safeData.data.requested_value_B,
-      bills_50: treasuryAdd?.bills_50 as number + safeData.data.requested_value_C,
-      bills_100: treasuryAdd?.bills_100 as number + safeData.data.requested_value_D,
+      bills_10: (treasuryAdd?.bills_10 as number < 0) ? 0 : ((treasuryAdd?.bills_10 as number ?? 0) + safeData.data.requested_value_A),
+      bills_20: (treasuryAdd?.bills_20 as number < 0) ? 0 : ((treasuryAdd?.bills_20 as number ?? 0) + safeData.data.requested_value_B),
+      bills_50: (treasuryAdd?.bills_50 as number < 0) ? 0 : ((treasuryAdd?.bills_50 as number ?? 0) + safeData.data.requested_value_C),
+      bills_100: (treasuryAdd?.bills_100 as number < 0) ? 0 : ((treasuryAdd?.bills_100 as number ?? 0) + safeData.data.requested_value_D),
     }
     await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_destin, dataAdd)
-
     let dataRemove = {
-      bills_10: treasuryRemove?.bills_10 as number - safeData.data.requested_value_A,
-      bills_20: treasuryRemove?.bills_20 as number - safeData.data.requested_value_B,
-      bills_50: treasuryRemove?.bills_50 as number - safeData.data.requested_value_C,
-      bills_100: treasuryRemove?.bills_100 as number - safeData.data.requested_value_D,
-    }
-
+      bills_10: (treasuryRemove?.bills_10 as number < 0) ? 0 : (safeData.data.requested_value_A - (treasuryRemove?.bills_10 as number ?? 0)),
+      bills_20: (treasuryRemove?.bills_20 as number < 0) ? 0 : (safeData.data.requested_value_B - (treasuryRemove?.bills_20 as number ?? 0)),
+      bills_50: (treasuryRemove?.bills_50 as number < 0) ? 0 : (safeData.data.requested_value_C - (treasuryRemove?.bills_50 as number ?? 0)),
+      bills_100: (treasuryRemove?.bills_100 as number < 0) ? 0 : (safeData.data.requested_value_D - (treasuryRemove?.bills_100 as number ?? 0)),
+    };
     await addBalanceInTreasuryByIdSystem(safeData.data.id_treasury_origin, dataRemove)
   }
 
