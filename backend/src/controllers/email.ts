@@ -33,7 +33,7 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
         }
        //return
     }
-    const e : any = await sendEmailOfOrder(emails.join(';') as string, orders)
+    const e : any = await sendEmailOfOrder(emails.join(',') as string, orders)
     if(e === true){
         res.json({ email: true })
     }else{

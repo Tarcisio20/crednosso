@@ -8,7 +8,7 @@ export const sendEmailOfOrder = async (emails: string, orders: any) => {
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to:  'tarcisio.silva@crednosso.com.br;dillan.sousa@crednosso.com.br;luis.lopes@crednosso.com.br;joao.rocha@crednosso.com.br',
+      to:  'tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br',
       bbc: emails,
       subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`,
       html: `
