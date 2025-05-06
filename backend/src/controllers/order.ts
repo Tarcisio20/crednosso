@@ -387,13 +387,11 @@ export const alterDateOrder: RequestHandler = async (req, res) => {
 }
 
 export const generateRelease: RequestHandler = async (req, res) => {
-
   const safeData = orderGenerateReleaseSchema.safeParse(req.body)
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
-
   const allOrders: any = await getOrderByIdsForPaymment(safeData.data)
   const orders = []
   const ids_treasuries = []
@@ -410,24 +408,27 @@ export const generateRelease: RequestHandler = async (req, res) => {
     bills_100: number;
   }
 
-
   for (let x = 0; (allOrders || []).length > x; x++) {
     ids_treasuries.push(allOrders[x].id_treasury_destin)
+    ids_treasuries_destin.push(allOrders[x].id_treasury_origin)
   }
 
   const treasuries = await getForIds(ids_treasuries)
+  const treasuries_destin = await getForIds(ids_treasuries_destin)
 
   const treasuryMap = (treasuries || []).reduce((map, treasury) => {
     map[treasury.id_system] = treasury;
     return map;
   }, {} as Record<number, Treasury>) 
 
+  const treasuryMapDestin = (treasuries_destin || []).reduce((map, treasury) => {
+    map[treasury.id_system] = treasury;
+    return map;
+  }, {} as Record<number, Treasury>) 
+
   const mergedData = await Promise.all (allOrders?.map(async (order: any) => {
     const treasury = treasuryMap[order.id_treasury_destin] // Busca a tesouraria correspondente
-    let tDestin = null
-    if(order.id_type_operation === 3){
-      tDestin = await getForIdSystem(order.id_treasury_origin)
-    }
+    const tDestin = treasuryMapDestin[order.id_treasury_origin]
 
     return {
       codigo: order.id_treasury_origin,

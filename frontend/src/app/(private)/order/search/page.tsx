@@ -101,6 +101,7 @@ export default function Order() {
   useEffect(() => {
     document.title = "Pedidos - Visualizar | CredNosso";
   })
+
   useEffect(() => {
 
     const allLoading = async () => {
@@ -114,8 +115,6 @@ export default function Order() {
     allLoading()
   }, [orders])
 
-
-
   const typeOperationFunction = async () => {
     setError('')
     setLoading(false)
@@ -126,7 +125,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (tOperation.data.typeOperation && tOperation.data.typeOperation[0]?.id) {
+    if (tOperation.data !== undefined && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)
       setLoading(false)
@@ -148,7 +147,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (t.data.treasury && t.data.treasury[0]?.id) {
+    if (t.data !== undefined && t.data.treasury[0]?.id) {
       setTreasuries(t.data.treasury)
       setIdTreasuryOrigin(t.data.treasury[0].id)
       setIdTreasuryDestin(t.data.treasury[0].id)
@@ -171,7 +170,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (tOrder.data.typeOrder && tOrder.data.typeOrder[0]?.id) {
+    if (tOrder.data !== undefined && tOrder.data.typeOrder[0]?.id) {
       setTypeOrders(tOrder.data.typeOrder)
       setIdTypeOrder(tOrder.data.typeOrder[0].id)
       setLoading(false)
@@ -193,7 +192,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (sOrder.data.statusOrder && sOrder.data.statusOrder[0].id) {
+    if (sOrder.data !== undefined && sOrder.data.statusOrder[0].id) {
       setStatusOrder(sOrder.data.statusOrder)
       setLoading(false)
       return
@@ -224,7 +223,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (orderSarch.data.order && orderSarch.data.order.length > 0) {
+    if (orderSarch.data !== undefined && orderSarch.data.order.length > 0) {
       setOrders(orderSarch.data.order)
       const elements: any = []
       let sum = 0
@@ -320,7 +319,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (gBanks.data.bank && gBanks.data.bank.length > 0) {
+    if (gBanks.data !== undefined && gBanks.data.bank.length > 0) {
       setBanks(gBanks.data.bank)
       setLoading(false)
       return
@@ -352,11 +351,6 @@ export default function Order() {
   }
 
   const handleIndividualCheck = (id: number) => {
-    console.log("Item enviado", id)
-    itemsChecks.map((item) => (
-      console.log("MAP", (item.id_order === id ? { ...item, status: !item.status } : item))
-      //item.id_order === id ? { ...item, status: !item.status } : item
-    ))
     setItemsChecks(
       itemsChecks.map((item) => (
         item.id_order === id ? { ...item, status: !item.status } : item
@@ -684,7 +678,7 @@ export default function Order() {
     setError('')
     setLoading(false)
     setLoading(true)
-    const countTrue = itemsChecks.filter(item => item.status === true).length
+    const countTrue = itemsChecks.filter(item => item.status === true).length 
     if (countTrue === 0) {
       setError("Selecione ao menos um item para continuar")
       setLoading(false)
@@ -692,6 +686,7 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gRelease = await genrerateRelaseById(idsSelected)
+    console.log("IDS", gRelease)
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
@@ -699,6 +694,7 @@ export default function Order() {
     }
 
     setElementRelease(gRelease.data.order)
+    console.log("Element Release", gRelease.data.order)
     setModalGenerateRelease(true)
     setError('')
     setLoading(false)

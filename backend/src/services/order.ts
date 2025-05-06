@@ -46,7 +46,7 @@ export const getOrderByIdsForPaymment = async (ids: number[]) => {
         in: ids,
       },
       id_type_operation : {
-        not: 3,
+        not: 5,
       }
     }
   })

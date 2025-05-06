@@ -5,6 +5,7 @@ import { generateEmailTableHTML } from "../utils/generateHtml";
 export const sendEmailOfOrder = async (emails: string, orders: any) => {
   const html = generateEmailTableHTML(orders)
   const dt = new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })
+
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,

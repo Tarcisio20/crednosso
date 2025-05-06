@@ -66,7 +66,7 @@ export default function Order() {
       return
     }
   
-    if (tOperation.data.typeOperation && tOperation.data.typeOperation[0]?.id) {
+    if (tOperation.data !== undefined && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)
       setLoading(false)
@@ -88,7 +88,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (t.data.treasury && t.data.treasury[0]?.id > 0) {
+    if (t.data !== undefined && t.data.treasury[0]?.id > 0) {
       setTreasuries(t.data.treasury)
       setIdTreasuryOrigin(t.data.treasury[0].id_system)
       setIdTreasuryDestin(t.data.treasury[0].id_system)
@@ -113,7 +113,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (tOrder.data.typeOrder && tOrder.data.typeOrder[0]?.id) {
+    if (tOrder.data !== undefined && tOrder.data.typeOrder[0]?.id) {
       setTypeOrders(tOrder.data.typeOrder)
       setIdTypeOrder(tOrder.data.typeOrder[0].id)
       setLoading(false)
@@ -158,7 +158,7 @@ export default function Order() {
       setLoading(false)
       return
     }
-    if (newOrder.data.order && newOrder.data.order?.id) {
+    if (newOrder.data !== undefined && newOrder.data.order?.id) {
       await allLoading()
       setIdTypeOperation('1')
       setIdTreasuryOrigin('1')
