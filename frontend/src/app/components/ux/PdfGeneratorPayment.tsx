@@ -9,7 +9,6 @@ import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTit
 import { generateExcelGMCORE } from "@/app/utils/generateExcelGMCORE";
 import { sleep } from "@/app/utils/slep";
 import { bankType } from "@/types/bankType";
-import { access } from "fs";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
@@ -181,10 +180,11 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
       showHead: 'firstPage',
       showFoot: 'lastPage'
     });
-    let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0]
+    let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0].trim()
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
+    console.log(c)
 
-    if(c === "6547-1" || c === "578-9" || c === '571-1'){
+    if(c === "6547-1" || c === "578-9" || c === "571-1"){
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     }else{
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
