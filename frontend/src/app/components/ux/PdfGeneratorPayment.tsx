@@ -180,10 +180,11 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
       showHead: 'firstPage',
       showFoot: 'lastPage'
     });
-    let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0].trim()
+    let a = dados[0].conta_pagamento.split('Agência: ')[1].trim()
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
-
-    if (c === "6886-1") {
+    console.log("Agencia: ", a)
+    console.log("Conta: ", c)
+    if (c == "6886-1") {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
     }else {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
