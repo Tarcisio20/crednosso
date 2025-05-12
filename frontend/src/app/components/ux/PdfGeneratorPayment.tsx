@@ -12,31 +12,31 @@ import { bankType } from "@/types/bankType";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
-  banks : bankType[];
+  banks: bankType[];
   onClose: () => void;
 }
 
-export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
+export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1);
   const dadosPosterus = data.filter(item => item.id_type_store === 2);
 
-  const acount1 : any = []
-  const acount2 : any = []
-  const acount3 : any = []
-  const acount4 : any = []
+  const acount1: any = []
+  const acount2: any = []
+  const acount3: any = []
+  const acount4: any = []
   const filterContas = data.filter(item => {
     let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
-      if(c && c === banks[0].account){
-        acount1.push(item)
-      }else if(c && c === banks[1].account){
-        acount2.push(item)
-      }else if(c && c === banks[2].account){
-        acount3.push(item)
-      }else {
-        acount4.push(item)
-      }
-   
+    if (c && c === banks[0].account) {
+      acount1.push(item)
+    } else if (c && c === banks[1].account) {
+      acount2.push(item)
+    } else if (c && c === banks[2].account) {
+      acount3.push(item)
+    } else {
+      acount4.push(item)
+    }
+
   })
 
   const converterParaNumero = (valorString: string): number => {
@@ -62,7 +62,7 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
     }, 0);
   };
 
-  const handleGenerateGMCore = async (dados : typeof data) => {
+  const handleGenerateGMCore = async (dados: typeof data) => {
 
     const excel = await generateExcelGMCORE(dados)
   }
@@ -76,31 +76,31 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
 
   const handleGeneratePDF = async () => {
 
-    if(acount1.length > 0){
+    if (acount1.length > 0) {
       gerarPDF("Mateus", acount1)
     }
     await sleep(2000)
-    if(acount2.length > 0){
+    if (acount2.length > 0) {
       gerarPDF("Mateus", acount2)
     }
     await sleep(2000)
-    if(acount3.length > 0){
+    if (acount3.length > 0) {
       gerarPDF("Mateus", acount3)
     }
-    if(acount4.length > 0){
+    if (acount4.length > 0) {
       gerarPDF("Mateus", acount4)
     }
     await sleep(2000)
     handleGenerateGMCore(dadosMateus)
-   /* if (dadosMateus.length > 0) {
-      gerarPDF("MATEUS", dadosMateus);
-      await sleep(2000)
-      handleGenerateGMCore(dadosMateus)
-    }
-    await sleep(2000)
-    if (dadosPosterus.length > 0) {
-      gerarPDF("POSTERUS", dadosPosterus);
-    }*/
+    /* if (dadosMateus.length > 0) {
+       gerarPDF("MATEUS", dadosMateus);
+       await sleep(2000)
+       handleGenerateGMCore(dadosMateus)
+     }
+     await sleep(2000)
+     if (dadosPosterus.length > 0) {
+       gerarPDF("POSTERUS", dadosPosterus);
+     }*/
   };
 
 
@@ -182,12 +182,11 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
     });
     let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0].trim()
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
-    console.log(c)
 
-    if(c === "6547-1" || c === "578-9" || c === "571-1"){
-      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
-    }else{
+    if (c === "6886-1") {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
+    }else {
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     }
 
     //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
@@ -237,7 +236,7 @@ export const PdfGeneratorPayment =  ({ data, banks,  onClose }: pdfProps) => {
   );
 
   // Componente de Tabela Reutilizável
-  const Tabela = ({ dados, total, totalEstorno }: { dados: typeof data; total: number, totalEstorno : number }) => (
+  const Tabela = ({ dados, total, totalEstorno }: { dados: typeof data; total: number, totalEstorno: number }) => (
     <table className="w-full border-collapse border border-black font-sans text-black">
       <thead>
         <tr className="bg-blue-600 text-white font-bold">
