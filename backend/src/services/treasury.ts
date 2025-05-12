@@ -51,7 +51,6 @@ export const getForIdSystemEdit = async (id: string) => {
 }
 
 export const getForIdSystem = async (id: string) => {
-    console.log("Dentro do item", id)
     const treasury = await prisma.treasury.findFirst({
         where: { 
             id_system : parseInt(id)

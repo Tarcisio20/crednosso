@@ -15,7 +15,6 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
     for(let x = 0; idsOrder.length > x; x++){
         let order : any = await getOrderById(parseInt(idsOrder[x]))
         let treasury : any = await getForIdSystem(order[0].id_treasury_destin)
-        console.log("order",order)
         orders.push({
             id : order[0].id,
             id_type_operation : order[0].id_type_operation,
@@ -34,8 +33,8 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
         }
        //return
     }
-    //const e : any = await sendEmailOfOrder(emails.join(',') as string, orders)
-    const e = true
+    const e : any = await sendEmailOfOrder(emails.join(',') as string, orders)
+    
     if(e === true){
         res.json({ email: true })
     }else{
