@@ -51,21 +51,14 @@ export const getForIdSystemEdit = async (id: string) => {
 }
 
 export const getForIdSystem = async (id: string) => {
+    console.log("Dentro do item", id)
     const treasury = await prisma.treasury.findFirst({
         where: { 
             id_system : parseInt(id)
          }
     })
     if (treasury) {
-        const total =
-      (treasury.bills_10 ?? 0) +
-      (treasury.bills_20 ?? 0) +
-      (treasury.bills_50 ?? 0) +
-      (treasury.bills_100 ?? 0);
-
-       if(total > 0){
         return treasury
-       }
     }
     return null
 }
