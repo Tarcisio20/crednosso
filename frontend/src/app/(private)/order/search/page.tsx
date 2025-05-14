@@ -24,7 +24,7 @@ import { statusOrderType } from "@/types/statusOrder";
 import { returnNameStatus } from "@/app/utils/returnNameStatus";
 import { ModalConfirmPartial } from "@/app/components/ux/ModalConfirmPartial";
 import { ModalRelaunchOrder } from "@/app/components/ux/ModalRelaunchOrder";
-import { PdfGenerator } from "@/app/components/ux/PdfGenerator ";
+import { PdfGenerator } from "@/app/components/ux/PdfGenerator";
 import { PdfGeneratorPayment } from "@/app/components/ux/PdfGeneratorPayment";
 import { pdfGeneratorReleaseType } from "@/types/pdfGeneratorReleaseType";
 import { returnNameTypeOperation } from "@/app/utils/returnNameTypeOperation";
@@ -220,6 +220,7 @@ export default function Order() {
     }
     // const orderSarch = await searchOrdersForDatePagination(data, currentPage, pageSize)
     const orderSarch = await searchOrdersForDate(data)
+    console.log(orderSarch)
     if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
       setError("Erro de requisição")
       setLoading(false)

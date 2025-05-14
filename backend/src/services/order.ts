@@ -41,12 +41,12 @@ export const getOrderByIds = async (ids: number[]) => {
 
 export const getOrderByIdsForPaymment = async (ids: number[]) => {
   const order = await prisma.order.findMany({
-    where: {
+     where: {
       id: {
         in: ids,
       },
       id_type_operation : {
-        notIn: [4, 5, 3],
+        notIn: [4, 5],
       },
       status_order: {
         notIn: [5, 6]

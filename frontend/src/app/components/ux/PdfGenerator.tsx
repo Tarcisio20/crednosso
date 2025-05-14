@@ -14,6 +14,7 @@ type pdfProps = {
 }
 
 export const PdfGenerator = ({ data, onClose }: pdfProps) => {
+
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1 && item.type_operation !== 3);
   const dadosPosterus = data.filter(item => item.id_type_store === 2 && item.type_operation !== 3);
@@ -61,7 +62,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
 
   const gerarPDF = (titulo: string, type : string, dados: typeof data) => {
-
+    console.log("Dados", dados)
     if (type === "entre-tesourarias") {
       const doc = new jsPDF({
         orientation: 'landscape',
@@ -326,7 +327,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
           <tr key={index} className={index % 2 === 0 ? 'bg-blue-50' : ''}>
             <td className="p-2 border border-black text-center">{item.conta_origem}</td>
             <td className="p-2 border border-black text-center">{item.tesouraria_origem}</td>
-            <td className="p-2 border border-black text-center">{total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+            <td className="p-2 border border-black text-center">{item.valor}</td>
             <td className="p-2 border border-black text-center">{item.conta}</td>
             <td className="p-2 border border-black text-center">{item.tesouraria}</td>
           </tr>
