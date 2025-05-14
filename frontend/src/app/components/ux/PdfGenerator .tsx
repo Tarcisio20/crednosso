@@ -134,7 +134,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
       });
 
       doc.save(`entre-tesourarias-${formatDateToStringForTitle(dataFormatada)}.pdf`);
-      return console.log(dataFormatada)
+      return 
     } else {
 
       const doc = new jsPDF({
@@ -353,9 +353,9 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
-          LANÇAMENTO {abaAtiva === 1 ? ' MATEUS' : ''}
-          LANÇAMENTO {abaAtiva === 2 ? ' POSTERUS' : ''}
-          LANÇAMENTO {abaAtiva === 3 ? ' ENTRE TESOURARIAS' : ''}
+          {abaAtiva === 1 ? 'LANÇAMENTO MATEUS' : ''}
+          {abaAtiva === 2 ? 'LANÇAMENTO POSTERUS' : ''}
+          {abaAtiva === 3 ? 'LANÇAMENTO ENTRE TESOURARIAS' : ''}
         </h2>
 
         <Tabs />

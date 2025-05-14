@@ -712,7 +712,7 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gRelease = await genrerateRelaseById(idsSelected)
-    console.log("IDS", gRelease)
+
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
@@ -720,7 +720,6 @@ export default function Order() {
     }
 
     setElementRelease(gRelease.data.order)
-    console.log("Element Release", gRelease.data.order)
     setModalGenerateRelease(true)
     setError('')
     setLoading(false)
