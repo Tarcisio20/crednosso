@@ -102,46 +102,6 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const gerarPDF = async (titulo: string, dados: typeof data) => {
 
-
-    /*const processarDados = async () => {
-      const atualizados = await Promise.all(
-        dados.map(async (item) => {
-          if (item.codigo_destin == 9) {
-            const aux = await getRattedOrderById(item.codigo_destin);
-
-            if ([300, 400, 500].includes(aux.status)) {
-              return { ...item };
-            }
-
-            if (aux.data !== undefined && aux.data.moneySplit.length > 0) {
-              // Faz as requisições de tesourarias
-              const enrichedSplit = await Promise.all(
-                aux.data.moneySplit.map(async (splitItem: any) => {
-                  const treasury = await getByIdSystem(splitItem.id_treasury_rating);
-
-                  const transportadora =
-                    treasury?.data?.treasury?.name || "Desconhecida";
-
-                  return {
-                    ...splitItem,
-                    transportadora,
-                  };
-                })
-              );
-
-              return { ...item, aux: enrichedSplit };
-            }
-          }
-
-          return item; // Retorna sem alterar
-        })
-      );
-
-      return atualizados;
-    };
-
-    const newData = await processarDados();
-    */
      const newDataRaw = await Promise.all(
        dados.map(async (item) => {
          if (item.codigo_destin === 9) {
@@ -158,32 +118,9 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
          return [item];
        })
      );
-    /* const newDataRaw = await Promise.all(
-      dados.map(async (item) => {
-        if (item.codigo_destin === 9) {
-          const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin);
-          const refuted = await getRefundBytIdOrder(item.id_order as number);
-
-          const auxItems = auxResponse?.data?.moneySplit || [];
-
-          const includeItem = refuted?.data?.moneySplitRefund?.length > 0;
-
-          // Se refuted tiver dados, inclui o item também
-          return includeItem ? [item, ...auxItems] : [...auxItems];
-        }
-
-        // Para os outros itens, retorna como array
-        return [item];
-      })
-    );*/
-
-
-    // Achata tudo em um único array e remove possíveis nulos
+   
     const finalArray = newDataRaw.flat().filter(Boolean);
 
-
-
-    console.log("novos dados", finalArray)
     const doc = new jsPDF({
       orientation: 'landscape',
     });
@@ -265,10 +202,10 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0]
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
-    if (c === "6547-1" || c === "578-9" || c === '571-1') {
-      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
-    } else {
+   if (c == "6886-1") {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
+    }else {
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     }
 
     //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
