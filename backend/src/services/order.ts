@@ -68,6 +68,7 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
     },
     select : {
       id : true,
+      id_type_operation : true,
       id_treasury_destin : true,
       requested_value_A : true,
       requested_value_B: true,

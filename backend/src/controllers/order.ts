@@ -48,6 +48,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
   }
   type OrderHereType = {
     id: number;
+    id_type_operation : number;
     id_treasury_destin: number;
     requested_value_A: number;
     requested_value_B: number;
@@ -66,7 +67,6 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
   if (order && order.length > 0) {
     for (let x = 0; x < order.length; x++) {
       let ordersForReturn = await getTreasuryForTypeSupply(order[x]?.id_treasury_destin, 2)
-      console.log(ordersForReturn)
       if (ordersForReturn && ordersForReturn?.length > 0) {
         const match = ordersForReturn.find(
           (item) => item.id_system === order[x].id_treasury_destin

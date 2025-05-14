@@ -27,6 +27,16 @@ export const getAllPagination: RequestHandler = async (req, res) => {
 
 }
 
+export const getAtmsWithSupply: RequestHandler = async (req, res) => {
+   const { id } = req.params
+   const data = req.body
+
+   console.log("ID", id)
+   console.log("DATA", data)
+
+}
+
+
 export const getAtmsForIdsTreasury: RequestHandler = async (req, res) => {
     const data = req.body
     if (!Array.isArray(data) || data.length === 0) {

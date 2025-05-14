@@ -7,7 +7,7 @@ import { ModalTrocaTotal } from "@/app/components/ux/ModalTrocaTotal";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getAtmsForTreasury } from "@/app/service/atm";
+import { getAtmsForTreasury, getAtmsWithSupplyInDateAndTreasury } from "@/app/service/atm";
 import { getAllOrdersForDate, getTreasuriesInOrder } from "@/app/service/order";
 import { getSuppliesForNow, getSupplyForIdTreasury, saveIndividualSupply } from "@/app/service/supply";
 import { getTreasuriesForIds } from "@/app/service/treasury";
@@ -36,6 +36,7 @@ type atmPage = {
 
 type orderPage = {
   id: number;
+  id_type_operation : number;
   id_trasury: number;
   cass_A: number;
   cass_B: number;
@@ -103,9 +104,11 @@ export default function Supply() {
       setLoading(false)
       return
     }
+
     idTreasuriesInOrderDate.data.order.map((item: any) => (
       orderAjusted.push({
         id : item.id,
+        id_type_operation : item.id_type_operation,
         id_trasury: item.id_treasury_destin,
         cass_A: item.status_order === 1 ? item.requested_value_A : item.requested_value_A,
         cass_B: item.status_order === 1 ? item.requested_value_B : item.requested_value_B,
@@ -114,14 +117,21 @@ export default function Supply() {
       })
     ))
     setOrderFiltered(orderAjusted)
+
     const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
+    console.log("IDS", idTreasuriesInOrderDate.data.order)
     if (!treasuriesForIds?.data?.treasury) {
       setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na busca por tesourarias, tente novamente!' })
       setLoading(false)
       return
     }
-
+    const atmsWithSupply = []
+    idTreasuriesInOrderDate.data.order.map(async(item : any) => {
+      const atmsWithSupplies = await getAtmsWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
+     console.log(atmsWithSupplies)
+    })
+    
     if ([300, 400, 500].includes(treasuriesForIds)) {
       setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
@@ -168,6 +178,7 @@ export default function Supply() {
 
       uniqueAtms.map((item: atmType) => (
         atmsAjusted.push({
+          date_order : dateSupply,
           id_atm: item.id_system,
           id_treasury: item.id_treasury,
           name: item.name,
@@ -225,7 +236,9 @@ export default function Supply() {
   };
 
   const filterTreasury = async () => {
+
     if (idTreasury) {
+
       setFilteredTreasury(treasuries?.filter(treasury => treasury.id_system === parseInt(idTreasury)))
       let aFiltered = atms?.filter((item: any) => item.id_treasury === parseInt(idTreasury)) as []
       if (aFiltered && aFiltered.length > 1) {
