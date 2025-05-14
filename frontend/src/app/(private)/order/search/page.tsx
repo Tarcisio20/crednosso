@@ -220,7 +220,7 @@ export default function Order() {
     }
     // const orderSarch = await searchOrdersForDatePagination(data, currentPage, pageSize)
     const orderSarch = await searchOrdersForDate(data)
-    console.log(orderSarch)
+
     if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
       setError("Erro de requisição")
       setLoading(false)
@@ -587,6 +587,10 @@ export default function Order() {
         setModalValidated(true)
       }
 
+    } else if(id_operation[0] === 3){
+      setError("Tipo de operação não necessita de confirmação!")
+      setLoading(false)
+      return
     } else {
       const iSelectedAlter = await ConfirmOrderById(idsSelected)
       if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {

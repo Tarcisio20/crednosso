@@ -48,6 +48,7 @@ mainRouter.post('/atm/add',verifyJWT, atmController.add)
 mainRouter.post('/atm/add_balance',verifyJWT, atmController.addBalance)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
 mainRouter.post('/atm/treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
+mainRouter.post('/atm/get-with-supply/:id',verifyJWT, atmController.getAtmsWithSupply)
 
 // type-operation
 mainRouter.get('/type-operation',verifyJWT, typeOperationController.getAll)
