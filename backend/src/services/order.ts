@@ -244,6 +244,18 @@ export const confirmTotalByIds = async (ids: number[]) => {
 
 }
 
+export const getInfosOrders = async (id: number) => {
+      const order = await prisma.order.findUnique({
+        where: {
+          id,
+        }
+      });
+      if(order){
+        return order
+      }
+      return null 
+}
+
 type alterConfirmPartialOrderType = {
   confirmed_value_A: number,
   confirmed_value_B: number,

@@ -12,7 +12,7 @@ import { typeOperationType } from "@/types/typeOperationType";
 import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genreratePaymmentById, genrerateRelaseById, getOrderByIdForReport, searchOrdersForDate } from "@/app/service/order";
+import { alterDateInOrder, alterValueOrder, ConfirmOrderById, confirmPartialOrderById, delOrderById, genreratePaymmentById, genrerateRelaseById, getInfosOrder, getOrderByIdForReport, searchOrdersForDate } from "@/app/service/order";
 import { orderType } from "@/types/orderType";
 import { getAll as getAllStatusOrder } from "@/app/service/status-order";
 import { formatDateToString } from "@/app/utils/formatDateToString";
@@ -34,10 +34,10 @@ import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
 import { sendEmailToOrder } from "@/app/service/email";
 import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
 import { ModalMessege } from "@/app/components/ux/ModalMessege";
-
 import { getTextColorLine } from "@/app/utils/getTextColorLine";
 import { bankType } from "@/types/bankType";
 import { getAllBanks } from "@/app/service/bank";
+import { ModalValidated } from "@/app/components/ux/ModalValidated";
 
 type OrderType = orderType & {
   confirmed_total?: number;
@@ -53,7 +53,7 @@ export default function Order() {
   const [orders, setOrders] = useState<OrderType[]>([])
   const [banks, setBanks] = useState<bankType[]>([])
 
-  const [itemsChecks, setItemsChecks] = useState<{ id_order: number, id: number, status: boolean }[]>([])
+  const [itemsChecks, setItemsChecks] = useState<{ id_type_operation: Number, id_order: number, id: number, status: boolean }[]>([])
   const [toggleChecks, setToggleChecks] = useState(false)
 
   const [, setIdTypeOperation] = useState('')
@@ -96,6 +96,8 @@ export default function Order() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUserSorting, setIsUserSorting] = useState(false); // <- este é o segredo
 
+  const [validated, setValidated] = useState<OrderType>()
+  const [modalValidated, setModalValidated] = useState(false)
 
 
   useEffect(() => {
@@ -234,6 +236,7 @@ export default function Order() {
         let value = 0
         let valueConfirmmed = 0
         elements.push({
+          id_type_operation: item.id_type_operation,
           id_order: item.id,
           id: item.id_treasury_destin,
           status: false
@@ -266,6 +269,7 @@ export default function Order() {
     return
 
   }
+
 
   const getSortedOrders = () => {
     if (!isUserSorting || !sortColumn) return orders;
@@ -550,6 +554,12 @@ export default function Order() {
       setLoading(false)
       return
     }
+    if (countTrue > 1) {
+      setError("Para essa ação só pode haver 1 item selecionado")
+      setLoading(false)
+      return
+
+    }
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
         ${itemsChecks
         .filter(item => item.status === true)
@@ -561,12 +571,28 @@ export default function Order() {
       setLoading(false)
       return
     }
+    const id_operation = itemsChecks.filter(item => item.status === true).map(item => item.id_type_operation)
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
-    const iSelectedAlter = await ConfirmOrderById(idsSelected)
-    if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {
-      setError('Erro na requisição!')
-      setLoading(false)
-      return
+    const idSelected = itemsChecks.filter(item => item.status === true).map(item => item.id)
+    if (id_operation[0] === 1 && idSelected[0] === 9) {
+      const rValue = await getInfosOrder(idsSelected[0])
+      if (rValue.status === 300 || rValue.status === 400 || rValue.status === 500) {
+        setError("Erro na requisição!")
+        setLoading(false)
+        return
+      }
+      if (rValue.data.order && rValue.data.order?.id > 0) {
+        setValidated(rValue.data.order)
+        setModalValidated(true)
+      }
+
+    } else {
+      const iSelectedAlter = await ConfirmOrderById(idsSelected)
+      if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {
+        setError('Erro na requisição!')
+        setLoading(false)
+        return
+      }
     }
     handleSearch()
     setError('')
@@ -678,7 +704,7 @@ export default function Order() {
     setError('')
     setLoading(false)
     setLoading(true)
-    const countTrue = itemsChecks.filter(item => item.status === true).length 
+    const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
       setError("Selecione ao menos um item para continuar")
       setLoading(false)
@@ -718,7 +744,6 @@ export default function Order() {
       setLoading(false)
       return
     }
-
     setElementPayment(gPayment.data.order)
     setModalGeneratePayment(true)
     setError('')
@@ -809,6 +834,13 @@ export default function Order() {
   const closeGenerateMOdalPayment = () => {
     handleSearch()
     setModalGeneratePayment(!modalGeneratePayment)
+  }
+
+  const handleCloseModalValidated = () => {
+    setLoading(false)
+    setError('')
+    setModalValidated(false)
+    handleSearch()
   }
 
   return <Page>
@@ -1126,8 +1158,16 @@ export default function Order() {
     {modalGeneratePayment &&
       <PdfGeneratorPayment data={elementPayment} banks={banks} onClose={closeGenerateMOdalPayment} />
     }
+    {modalValidated &&
+      <ModalValidated
+        data={validated as orderType}
+        onClose={handleCloseModalValidated}
+        treasuries={treasuries}
+      />
+    }
     {modalError &&
       <ModalMessege type="" title="" messege="" onClose={handleCloseModalMessege} />
     }
+
   </Page>
 }

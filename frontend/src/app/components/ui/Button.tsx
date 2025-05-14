@@ -7,15 +7,16 @@ type ButtonProps = {
     secondaryColor: string;
     textColor: string;
     onClick: () => void;
+    disabled ?: boolean;
 }
 
-export const Button = ({ size, color, textColor, children, onClick }: ButtonProps) => {
+export const Button = ({ size, color, textColor, disabled, children, onClick }: ButtonProps) => {
     return <div className={`pt-2 pb-2 pr-2 pl-2 rounded-md border-4  text-center flex items-center justify-center
         cursor-pointer
         ${size === 'small' ? 'w-64 h-10 text-sm' : ""}
         ${size === 'meddium' ? 'w-72 h-10 text-base' : ""}
         ${size === 'large' ? 'w-80 h-10 text-md' : ""}
     `} style={{ backgroundColor: color }} onClick={onClick}  >
-        <button className="p-0 m-0 text-zinc-400 font-bold uppercase" style={{ color: textColor }}  >{children}</button>
+        <button className="p-0 m-0 text-zinc-400 font-bold uppercase" style={{ color: textColor }} disabled={disabled}  >{children}</button>
     </div>
 }
