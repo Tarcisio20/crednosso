@@ -1,4 +1,6 @@
 export type pdfGeneratorPaymentType = {
+    aux ?: {}[], 
+    id_order?: number;
     codigo: number;
     conta: string;
     tesouraria : string;
@@ -10,4 +12,7 @@ export type pdfGeneratorPaymentType = {
     valorRealizado: string;
     estorno : string;
     conta_pagamento : string;
+    codigo_destin  : number;
+    tesouraria_origem : string;
+    type ?: string;
 }

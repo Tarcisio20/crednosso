@@ -59,7 +59,6 @@ export default function Order() {
     setLoading(false)
     setLoading(true)
     const tOperation = await getAll()
-    console.log(tOperation)
     if (tOperation.status === 300 || tOperation.status === 400 || tOperation.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' })
       setLoading(false)

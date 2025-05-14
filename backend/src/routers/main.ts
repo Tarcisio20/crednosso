@@ -14,6 +14,8 @@ import * as typeStoreController from '../controllers/type-store'
 import * as emailController from '../controllers/email'
 import * as supplyController from '../controllers/supply'
 import * as bankController from '../controllers/bank'
+import * as moneySplitController from '../controllers/money-split'
+import * as moneySplitRefundController from '../controllers/money-split-refund'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -104,9 +106,11 @@ mainRouter.post('/order/search-by-date',verifyJWT, orderController.searchByDate)
 mainRouter.post('/order/search-by-date-pagination',verifyJWT, orderController.searchByDatePagination)
 mainRouter.post('/order/add',verifyJWT, orderController.add)
 mainRouter.post('/order/confirm-total',verifyJWT, orderController.confirmTotal)
+mainRouter.get('/order/infos-order/:id',verifyJWT, orderController.infosOrder)
 mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRelease)
 mainRouter.post('/order/generate-payment',verifyJWT, orderController.generatePayment)
 mainRouter.post('/order/order-for-report',verifyJWT, orderController.generateReports)
+mainRouter.post('/order/edit-order-for-id/:id',verifyJWT, orderController.alterOrderByIdOrder)
 
 
 // type store
@@ -132,3 +136,13 @@ mainRouter.post('/supply/for-day-treasury/:id',verifyJWT, supplyController.getFo
 
 // bank
 mainRouter.get('/bank',verifyJWT, bankController.getAll)
+
+// money split
+mainRouter.get('/money-split/:id',verifyJWT, moneySplitController.getForIdOrder)
+mainRouter.post('/money-split/add-ratteds',verifyJWT, moneySplitController.addAllRatteds)
+mainRouter.get('/money-split/get-ratted/:id',verifyJWT, moneySplitController.getAllByIdTreasury)
+mainRouter.get('/money-split/get-ratted-ajusted/:id',verifyJWT, moneySplitController.getAllByIdTreasuryAjusted)
+
+// money split refund
+mainRouter.post('/money-split-refund/add',verifyJWT, moneySplitRefundController.add)
+mainRouter.get('/money-split-refund/get-id-order/:id',verifyJWT, moneySplitRefundController.getResultByIdOrder)

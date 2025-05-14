@@ -353,7 +353,9 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
-          LANÇAMENTO {abaAtiva === 1 ? ' MATEUS' : 'POSTERUS'}
+          LANÇAMENTO {abaAtiva === 1 ? ' MATEUS' : ''}
+          LANÇAMENTO {abaAtiva === 2 ? ' POSTERUS' : ''}
+          LANÇAMENTO {abaAtiva === 3 ? ' ENTRE TESOURARIAS' : ''}
         </h2>
 
         <Tabs />

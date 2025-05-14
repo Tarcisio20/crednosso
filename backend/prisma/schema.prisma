@@ -14,226 +14,251 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  slug  String @unique
-  email String @unique
-  password  String
-  status Boolean @default(true)
+  id       Int     @id @default(autoincrement())
+  name     String
+  slug     String  @unique
+  email    String  @unique
+  password String
+  status   Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Treasury {
-  id Int @id @default(autoincrement())
-  id_system Int @unique
-  id_type_supply Int
-  id_type_store Int
-  name String @unique
-  name_for_email String @default("")
-  short_name String @unique
-  account_number String @unique
-  gmcore_number String
-  enabled_gmcore Boolean @default(true)
-  region Int
-  bills_10 Int @default(0)
-  bills_20 Int @default(0)
-  bills_50 Int @default(0)
-  bills_100 Int @default(0)
-  status Boolean @default(true)
-  account_number_for_transfer String @default("")
+  id                          Int     @id @default(autoincrement())
+  id_system                   Int     @unique
+  id_type_supply              Int
+  id_type_store               Int
+  name                        String  @unique
+  name_for_email              String  @default("")
+  short_name                  String  @unique
+  account_number              String  @unique
+  gmcore_number               String
+  enabled_gmcore              Boolean @default(true)
+  region                      Int
+  bills_10                    Int     @default(0)
+  bills_20                    Int     @default(0)
+  bills_50                    Int     @default(0)
+  bills_100                   Int     @default(0)
+  status                      Boolean @default(true)
+  account_number_for_transfer String  @default("")
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
-  typeStore typeStore @relation(fields: [id_type_store], references: [id])
+  typeStore  typeStore  @relation(fields: [id_type_store], references: [id])
 
-  atms Atm[]
-  supplys Supply[]
-  contacts Contact[]
-  operatorCards OperatorCard[]
-  OrdersOrigin Order[] @relation("TreasuryOrigin")
-  OrdersDestin Order[] @relation("TreasuryDestin")
+  moneySplitRefunds MOneySplitRefund[]
+  originMoneySplits MoneySplit[]   @relation("OriginRelation")
+  ratingMoneySplits MoneySplit[]   @relation("RatingRelation")
+  atms              Atm[]
+  supplys           Supply[]
+  contacts          Contact[]
+  operatorCards     OperatorCard[]
+  OrdersOrigin      Order[]        @relation("TreasuryOrigin")
+  OrdersDestin      Order[]        @relation("TreasuryDestin")
 }
 
-model AccountBank  {
-  id Int @id @default(autoincrement())
-  name  String
-  bank_branch String @default("")
-  bank_branch_digit String @default("")
-  account String @default("")
-  account_digit String @default("")
-  status Boolean @default(true)
- 
+model AccountBank {
+  id                Int     @id @default(autoincrement())
+  name              String
+  bank_branch       String  @default("")
+  bank_branch_digit String  @default("")
+  account           String  @default("")
+  account_digit     String  @default("")
+  status            Boolean @default(true)
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-  id_type_operation Int
+  id                 Int      @id @default(autoincrement())
+  id_type_operation  Int
   id_treasury_origin Int
   id_treasury_destin Int
-  date_order DateTime
-  id_type_order Int
-  requested_value_A Int
-  requested_value_B Int
-  requested_value_C Int
-  requested_value_D Int
-  composition_change Boolean @default(false)
-  confirmed_value_A Int @default(0)
-  confirmed_value_B Int @default(0)
-  confirmed_value_C Int @default(0)
-  confirmed_value_D Int @default(0)
-  observation String @default("")
-  status_order Int
+  date_order         DateTime
+  id_type_order      Int
+  requested_value_A  Int
+  requested_value_B  Int
+  requested_value_C  Int
+  requested_value_D  Int
+  composition_change Boolean  @default(false)
+  confirmed_value_A  Int      @default(0)
+  confirmed_value_B  Int      @default(0)
+  confirmed_value_C  Int      @default(0)
+  confirmed_value_D  Int      @default(0)
+  observation        String   @default("")
+  status_order       Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  supply Supply[]
-  typeOperation TypeOperation @relation(fields: [id_type_operation], references: [id])
-  treasuryOrigin Treasury @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
-  treasuryDestin Treasury @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id])
-  typeOrder TypeOrder @relation(fields: [id_type_order], references: [id])
-  statusOrder StatusOrder @relation(fields: [status_order], references: [id])
+  moneySplitRefunds MOneySplitRefund[]
+  moneySplits    MoneySplit[]
+  supply         Supply[]
+  typeOperation  TypeOperation @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
+  treasuryDestin Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id])
+  typeOrder      TypeOrder     @relation(fields: [id_type_order], references: [id])
+  statusOrder    StatusOrder   @relation(fields: [status_order], references: [id])
 }
 
 model Supply {
-  id Int @id @default(autoincrement())
-  id_atm Int
-  id_order Int
-  id_treasury Int
-  cassete_A Int
-  cassete_B Int
-  cassete_C Int
-  cassete_D Int
-  date DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  id_atm         Int
+  id_order       Int
+  id_treasury    Int
+  cassete_A      Int
+  cassete_B      Int
+  cassete_C      Int
+  cassete_D      Int
+  date           DateTime @default(now())
   date_on_supply DateTime
-  total_exchange Boolean @default(false)
-  status Boolean @default(true)
+  total_exchange Boolean  @default(false)
+  status         Boolean  @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  order Order @relation(fields: [id_order], references: [id])
-  atm Atm @relation(fields: [id_atm], references: [id_system])
+  order    Order    @relation(fields: [id_order], references: [id])
+  atm      Atm      @relation(fields: [id_atm], references: [id_system])
   treasury Treasury @relation(fields: [id_treasury], references: [id_system])
 }
 
 model StatusOrder {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
   status Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   orders Order[]
 }
 
 model typeStore {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
   status Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-
- treasury Treasury[]
+  treasury Treasury[]
 }
 
 model Atm {
-  id Int @id @default(autoincrement())
-  id_system Int @unique
-  name String @unique
-  short_name String @unique
-  id_treasury Int
+  id           Int     @id @default(autoincrement())
+  id_system    Int     @unique
+  name         String  @unique
+  short_name   String  @unique
+  id_treasury  Int
   number_store Int
-  cassete_A Int
-  cassete_B Int
-  cassete_C Int
-  cassete_D Int
-  status Boolean @default(true)
+  cassete_A    Int
+  cassete_B    Int
+  cassete_C    Int
+  cassete_D    Int
+  status       Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
   supplies Supply[]
 }
 
 model TypeOperation {
-  id Int @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   id_system Int
-  name String @unique
-  status Boolean @default(true)
+  name      String  @unique
+  status    Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   orders Order[]
 }
 
 model TypeOrder {
-  id Int @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   id_system Int
-  name String @unique
-  status Boolean @default(true)
+  name      String  @unique
+  status    Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   orders Order[]
 }
 
 model TypeSupply {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
   status Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   treasuries Treasury[]
 }
 
 model Contact {
-  id Int @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   id_treasury Int
-  name String
-  email String 
-  phone String
-  status Boolean @default(true)
+  name        String
+  email       String
+  phone       String
+  status      Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
 
 model OperatorCard {
-  id Int @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   id_treasury Int
-  name String @unique
-  number_card String @unique
-  inUse Boolean @default(false)
-  status Boolean @default(true)
+  name        String  @unique
+  number_card String  @unique
+  inUse       Boolean @default(false)
+  status      Boolean @default(true)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-
+  updatedAt DateTime @default(now()) @updatedAt
 
   treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
+
+model MoneySplit {
+  id                 Int     @id @default(autoincrement())
+  id_order          Int
+  id_treasury_origin Int
+  id_treasury_rating Int
+  value              Int
+  status             Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  order             Order    @relation(fields: [id_order], references: [id])
+  treasuryOrigin Treasury @relation("OriginRelation", fields: [id_treasury_origin], references: [id])
+  treasuryRating Treasury @relation("RatingRelation", fields: [id_treasury_rating], references: [id])
+}
+
+model MOneySplitRefund {
+  id                 Int     @id @default(autoincrement())
+  id_order          Int
+  id_treasury_origin Int
+  value              Int
+  status             Boolean @default(true)
+
+    createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  order             Order    @relation(fields: [id_order], references: [id])
+  treasury Treasury @relation(fields: [id_treasury_origin], references: [id])
+} 

@@ -9,9 +9,8 @@ import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTit
 import { generateExcelGMCORE } from "@/app/utils/generateExcelGMCORE";
 import { sleep } from "@/app/utils/slep";
 import { bankType } from "@/types/bankType";
-import { getRattedOrderById, getRattedOrderByIdAjusted } from "@/app/service/money-split";
+import { getRattedOrderById } from "@/app/service/money-split";
 import { getByIdSystem } from "@/app/service/treasury";
-import { getRefundBytIdOrder } from "@/app/service/money-split-refund";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
@@ -140,50 +139,13 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
       return atualizados;
     };
 
-    const newData = await processarDados();
-    */
-     const newDataRaw = await Promise.all(
-       dados.map(async (item) => {
-         if (item.codigo_destin === 9) {
-           const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin);
-           const refuted = await getRefundBytIdOrder(item.id_order as number);
+    const newData = await processarDados();*/
     
-           const auxItems = auxResponse?.data?.moneySplit || []; // <- acessa o array certo
- 
-           // Retorna um array com o item original e todos os itens de aux
-           return [item, ...auxItems];
-         }
- 
-         // Para os outros itens, retorna como array
-         return [item];
-       })
-     );
-    /* const newDataRaw = await Promise.all(
-      dados.map(async (item) => {
-        if (item.codigo_destin === 9) {
-          const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin);
-          const refuted = await getRefundBytIdOrder(item.id_order as number);
+    const newData = dados.map((item) => {
+      console.log(item)
+    })
 
-          const auxItems = auxResponse?.data?.moneySplit || [];
-
-          const includeItem = refuted?.data?.moneySplitRefund?.length > 0;
-
-          // Se refuted tiver dados, inclui o item também
-          return includeItem ? [item, ...auxItems] : [...auxItems];
-        }
-
-        // Para os outros itens, retorna como array
-        return [item];
-      })
-    );*/
-
-
-    // Achata tudo em um único array e remove possíveis nulos
-    const finalArray = newDataRaw.flat().filter(Boolean);
-
-
-
-    console.log("novos dados", finalArray)
+    console.log("novos dados", newData)
     const doc = new jsPDF({
       orientation: 'landscape',
     });
@@ -223,16 +185,21 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
           { content: "VALOR REALIZADO", styles: { fillColor: [41, 128, 185], textColor: 255 } }
         ]
       ],
-
-      body: finalArray.map((item) => [
+     /* body: newData.map((item) => [
         item.conta.toString(),
         item.gmcore,
-        `TESOURARIA - ${item.tesouraria} ${item.type ? '- PG CEFOR IMPERATRIZ' : ''}`,
+        item.aux && item.aux.length > 0 ? `PAGAMENTO`  :   `TESOURARIA - ${item.tesouraria}`,
         item.conta_pagamento,
         item.estorno.toString(),
-        item.codigo_destin === 9
-          ? (item.type === undefined ? '0' : item.valorRealizado.toString())
-          : item.valorRealizado.toString()
+        item.codigo_destin === 9 ? 0 : item.valorRealizado.toString(),
+      ]),*/
+       body: newData.map((item) => [
+        item.conta.toString(),
+        item.gmcore,
+        item.aux && item.aux.length > 0 ? `PAGAMENTO`  :   `TESOURARIA - ${item.tesouraria}`,
+        item.conta_pagamento,
+        item.estorno.toString(),
+        item.codigo_destin === 9 ? 0 : item.valorRealizado.toString(),
       ]),
       foot: [[
         {
@@ -262,15 +229,13 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
       showHead: 'firstPage',
       showFoot: 'lastPage'
     });
-    let a = dados[0].conta_pagamento.split('Agência: ')[1].trim()
+    let a = dados[0].conta_pagamento.split('Agência: ')[1].split(' - ')[0]
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
     if (c === "6547-1" || c === "578-9" || c === '571-1') {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     } else {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
-    }else {
-      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
     }
 
     //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
