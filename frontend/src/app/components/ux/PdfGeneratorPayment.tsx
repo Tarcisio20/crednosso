@@ -22,15 +22,18 @@ type pdfProps = {
 export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const [abaAtiva, setAbaAtiva] = useState(1)
-  const dadosMateus = data.filter(item => item.id_type_store === 1);
+  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation !== 3);
   const dadosPosterus = data.filter(item => item.id_type_store === 2);
+
+
+  console.log("Dados", dadosMateus)
 
   const acount1: any = []
   const acount2: any = []
   const acount3: any = []
   const acount4: any = []
   const filterContas = data.filter(item => {
-    if (item.conta_pagamento) {
+    if (item.conta_pagamento && item.id_type_operation  !== 3) {
       let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
       if (c && c === banks[0].account) {
         acount1.push(item)
@@ -119,7 +122,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
        })
      );
    
-    const finalArray = newDataRaw.flat().filter(Boolean);
+    const finalArray : any = newDataRaw.flat().filter(Boolean);
 
     const doc = new jsPDF({
       orientation: 'landscape',
@@ -161,7 +164,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
         ]
       ],
 
-      body: finalArray.map((item) => [
+      body: finalArray.map((item : any) => [
         item.conta.toString(),
         item.gmcore,
         `TESOURARIA - ${item.tesouraria} ${item.type ? '- PG CEFOR IMPERATRIZ' : ''}`,

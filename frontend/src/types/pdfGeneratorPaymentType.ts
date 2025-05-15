@@ -1,5 +1,6 @@
 export type pdfGeneratorPaymentType = {
     aux ?: {}[], 
+    id_type_operation  ?: number;
     id_order?: number;
     codigo: number;
     conta: string;

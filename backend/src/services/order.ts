@@ -49,7 +49,7 @@ export const getOrderByIdsForPaymment = async (ids: number[]) => {
         notIn: [4, 5],
       },
       status_order: {
-        notIn: [5, 6]
+        notIn: [5]
       }
     }
   })
@@ -313,7 +313,9 @@ export const confirmPaymantAllIds = async (ids : number[]) => {
  const order =  await prisma.order.updateMany({
     where: {
       id: { in: ids },
-      id_type_operation : { not : 3 } 
+      id_type_operation : { 
+        notIn : [3, 6] 
+      } 
     },
     data: {
       status_order: 4,

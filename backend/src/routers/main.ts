@@ -48,7 +48,6 @@ mainRouter.post('/atm/add',verifyJWT, atmController.add)
 mainRouter.post('/atm/add_balance',verifyJWT, atmController.addBalance)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
 mainRouter.post('/atm/treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
-mainRouter.post('/atm/get-with-supply/:id',verifyJWT, atmController.getAtmsWithSupply)
 
 // type-operation
 mainRouter.get('/type-operation',verifyJWT, typeOperationController.getAll)
@@ -134,6 +133,7 @@ mainRouter.post('/supply/add_all',verifyJWT, supplyController.addAll)
 mainRouter.post('supply/add_individual',verifyJWT, supplyController.addIndivudual)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)
 mainRouter.post('/supply/for-day-treasury/:id',verifyJWT, supplyController.getForDayAndTreasury)
+mainRouter.post('/supply/supply/get-supply-open/:id',verifyJWT, supplyController.getAtmsWithSupply)
 
 // bank
 mainRouter.get('/bank',verifyJWT, bankController.getAll)
