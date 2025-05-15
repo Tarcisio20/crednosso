@@ -1,10 +1,12 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllSupply, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyForIdTreasury, lastRegister } from "../services/supply"
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
 import { AddIndividualSchema } from "../schemas/schemaAddIndividual"
+import { date } from "zod"
+import { connect } from "http2"
 
 export const getAll : RequestHandler = async (req, res) => {
   const supply = await getAllSupply()
@@ -24,6 +26,23 @@ export const getAllDay : RequestHandler = async (req, res) => {
     return
    }
    res.json({ statusOrder })
+
+}
+
+export const getAtmsWithSupply: RequestHandler = async (req, res) => {
+   const { id } = req.params
+   const data = req.body
+
+   if(!id){
+    res.json({ error : 'Preciso de um ID para continuar!' })
+    return
+   }
+   if(data.date === undefined) {
+     res.json({ error : 'Preciso de uma data para continuar!' })
+    return
+   }
+
+   const atm = await getAtmWitSupplyForIdAndDate(parseInt(id), data)
 
 }
 
@@ -67,6 +86,10 @@ export const add: RequestHandler = async (req, res) => {
     total_exchange :  safeData.data.type === 'TROCA TOTAL' || safeData.data.type === 'RECOLHIMENTO TOTAL'  ? true : false,
     treasury  : {
       connect : { id_system : safeData.data.id_treasury }
+    },
+    date_on_supply : returnDateFormatted('10/05/2025'),
+    order : {
+      connect : { id : 1 }
     }
    }
   
@@ -141,7 +164,6 @@ export const getForDayAndTreasury: RequestHandler = async (req, res) => {
 
 export const addIndivudual : RequestHandler = async (req, res) => {
   const data =  AddIndividualSchema.safeParse(req.body)
-  console.log(data.data)
   if (!data.success) {
     res.status(300).json({ error: 'Erro no envio dos dados!' })
     return

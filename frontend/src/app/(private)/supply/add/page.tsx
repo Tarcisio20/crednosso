@@ -9,7 +9,7 @@ import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getAtmsForTreasury, getAtmsWithSupplyInDateAndTreasury } from "@/app/service/atm";
 import { getAllOrdersForDate, getTreasuriesInOrder } from "@/app/service/order";
-import { getSuppliesForNow, getSupplyForIdTreasury, saveIndividualSupply } from "@/app/service/supply";
+import { getSuppliesForNow, getSuppliesWithSupplyInDateAndTreasury, getSupplyForIdTreasury, saveIndividualSupply } from "@/app/service/supply";
 import { getTreasuriesForIds } from "@/app/service/treasury";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
@@ -128,7 +128,7 @@ export default function Supply() {
     }
     const atmsWithSupply = []
     idTreasuriesInOrderDate.data.order.map(async(item : any) => {
-      const atmsWithSupplies = await getAtmsWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
+      const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
      console.log(atmsWithSupplies)
     })
     

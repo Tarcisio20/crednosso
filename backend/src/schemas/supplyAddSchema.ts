@@ -11,4 +11,6 @@ export const supplyAddSchema = z.object({
     cass_B : z.number().optional(),
     cass_C : z.number().optional(),
     cass_D : z.number().optional(),
+    date : z.string().optional(),
+    order : z.string().optional()
 })

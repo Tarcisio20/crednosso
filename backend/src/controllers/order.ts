@@ -507,6 +507,7 @@ export const generatePayment: RequestHandler = async (req, res) => {
     const treasury_origin = treasuryMapOrigin[order.id_treasury_origin] // Busca a tesouraria correspondente
     return {
       id_order: order.id,
+      id_type_operation : order.id_type_operation,
       codigo: order.id_treasury_origin,
       conta: treasury?.account_number,
       tesouraria: treasury?.name,

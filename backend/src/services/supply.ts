@@ -44,6 +44,18 @@ export const getSupplyForIdTreasury = async (id: number) => {
   return []
 }
 
+export const getAtmWitSupplyForIdAndDate = async (id: number, data : { date : string }) => {
+  const suplly = await prisma.supply.findMany({
+    where: {
+    id_treasury  : id 
+    }
+  })
+  if (suplly) {
+    return suplly
+  }
+  return []
+}
+
 export const lastRegister  = async () => {
 const supply = await prisma.supply.findFirst({
   orderBy: {
