@@ -141,8 +141,8 @@ mainRouter.get('/bank',verifyJWT, bankController.getAll)
 // money split
 mainRouter.get('/money-split/:id',verifyJWT, moneySplitController.getForIdOrder)
 mainRouter.post('/money-split/add-ratteds',verifyJWT, moneySplitController.addAllRatteds)
-mainRouter.get('/money-split/get-ratted/:id/:id_order',verifyJWT, moneySplitController.getAllByIdTreasury)
-mainRouter.get('/money-split/get-ratted-ajusted/:id',verifyJWT, moneySplitController.getAllByIdTreasuryAjusted)
+mainRouter.get('/money-split/get-ratted/:id/',verifyJWT, moneySplitController.getAllByIdTreasury)
+mainRouter.get('/money-split/get-ratted-ajusted/:id/:id_order',verifyJWT, moneySplitController.getAllByIdTreasuryAjusted)
 
 // money split refund
 mainRouter.post('/money-split-refund/add',verifyJWT, moneySplitRefundController.add)
