@@ -12,6 +12,8 @@ import { bankType } from "@/types/bankType";
 import { getRattedOrderByIdAjusted } from "@/app/service/money-split";
 import { getByIdSystem } from "@/app/service/treasury";
 import { getRefundBytIdOrder } from "@/app/service/money-split-refund";
+import { parsedValue } from "@/app/utils/parsedValue";
+import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
@@ -56,10 +58,28 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   };
 
   const calcularTotal = (dados: typeof data) => {
-    return dados.reduce((acc, item) => {
+    const a = dados.reduce((acc, item) => {
       return acc + converterParaNumero(item.valorRealizado);
     }, 0);
+    return a
   };
+
+  const calcularTotalGeneric = (dados: typeof data) => {
+  const total = dados.reduce((acc, item) => {
+    const deveSomar = 
+      (item.codigo_destin === 9 && item.type === "RAT") ||
+      (item.codigo_destin !== 9);
+
+    if (deveSomar) {
+      acc += converterParaNumero(item.valorRealizado);
+    }
+
+    return acc;
+  }, 0);
+  console.log("t", generateTotalInReal(total))
+  return total;
+};
+
 
   const calcularTotalEstorno = (dados: typeof data) => {
     return dados.reduce((acc, item) => {
@@ -120,7 +140,17 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
      );
    
     const finalArray : any = newDataRaw.flat().filter(Boolean);
-
+    let vr = 0
+    let ve = 0
+    for (let x = 0; x < finalArray.length; x++){
+      if(finalArray[x].codigo_destin === 9 && finalArray[x].type == "RAT"){
+        vr = vr + parsedValue(finalArray[x].valorRealizado)
+      }else if(finalArray[x].codigo_destin !== 9){
+         vr = vr + parsedValue(finalArray[x].valorRealizado)
+      }
+      ve = ve + parsedValue(finalArray[x].estorno)
+    }
+    console.log("VALOR", generateTotalInReal(vr))
     const doc = new jsPDF({
       orientation: 'landscape',
     });
@@ -161,7 +191,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
         ]
       ],
 
-      body: finalArray.map((item : any) => [
+      body: finalArray.map((item : any) =>[
         item.conta.toString(),
         item.gmcore,
         `TESOURARIA - ${item.tesouraria} ${item.type ? '- PG CEFOR IMPERATRIZ' : ''}`,
@@ -178,11 +208,11 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
           styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         },
         {
-          content: formatarMoeda(calcularTotalEstorno(dados)),
+          content: formatarMoeda(calcularTotalEstorno(finalArray)),
           styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         },
         {
-          content: formatarMoeda(calcularTotal(dados)),
+          content: formatarMoeda(calcularTotalGeneric(finalArray)),
           styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
         }
       ]],
