@@ -9,7 +9,7 @@ import { formatDateToStringForTitle } from "@/app/utils/formatDateToStringForTit
 import { generateExcelGMCORE } from "@/app/utils/generateExcelGMCORE";
 import { sleep } from "@/app/utils/slep";
 import { bankType } from "@/types/bankType";
-import { getRattedOrderById, getRattedOrderByIdAjusted } from "@/app/service/money-split";
+import { getRattedOrderByIdAjusted } from "@/app/service/money-split";
 import { getByIdSystem } from "@/app/service/treasury";
 import { getRefundBytIdOrder } from "@/app/service/money-split-refund";
 
@@ -23,10 +23,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation !== 3);
-  const dadosPosterus = data.filter(item => item.id_type_store === 2);
-
-
-  console.log("Dados", dadosMateus)
+  const dadosPosterus = data.filter(item => item.id_type_store === 2)
 
   const acount1: any = []
   const acount2: any = []
@@ -108,7 +105,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
      const newDataRaw = await Promise.all(
        dados.map(async (item) => {
          if (item.codigo_destin === 9) {
-           const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin);
+           const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin, item.id_order as number);
            const refuted = await getRefundBytIdOrder(item.id_order as number);
     
            const auxItems = auxResponse?.data?.moneySplit || []; // <- acessa o array certo
