@@ -43,12 +43,13 @@ export const addAllRatteds: RequestHandler = async (req, res) => {
 }
 
 export const getAllByIdTreasury: RequestHandler = async (req, res) => {
-    const { id } = req.params
-    if (!id) {
+    const { id, id_order } = req.params
+    
+    if (!id && !id_order) {
         res.status(401).json({ error: 'ID não informado!' })
         return
     }
-    const moneySplit = await getMoneySplitByIdTreasury(parseInt(id))
+    const moneySplit = await getMoneySplitByIdTreasury(parseInt(id), parseInt(id_order))
 
 
     if (!moneySplit) {
@@ -61,12 +62,12 @@ export const getAllByIdTreasury: RequestHandler = async (req, res) => {
 }
 
 export const getAllByIdTreasuryAjusted: RequestHandler = async (req, res) => {
-    const { id } = req.params
+    const { id, id_order } = req.params
     if (!id) {
         res.status(401).json({ error: 'ID não informado!' })
         return
     }
-    const moneySplit = await getMoneySplitByIdTreasury(parseInt(id))
+    const moneySplit = await getMoneySplitByIdTreasury(parseInt(id) , parseInt(id_order))
     let result;
     if (moneySplit && moneySplit.length > 0) {
         result = await Promise.all( // <- Aqui está a correção

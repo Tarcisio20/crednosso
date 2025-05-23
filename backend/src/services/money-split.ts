@@ -13,9 +13,9 @@ export const getMoneySplitByIdOrder = async (id :number) => {
     return null
 }
 
-export const getMoneySplitByIdTreasury = async (id : number) => {
+export const getMoneySplitByIdTreasury = async (id : number, id_order : number) => {
     const moneySplit = await prisma.moneySplit.findMany({ 
-        where : { id_treasury_origin : id }
+        where : { id_treasury_origin : id, id_order : id_order }
     })
     if(moneySplit){
         return moneySplit

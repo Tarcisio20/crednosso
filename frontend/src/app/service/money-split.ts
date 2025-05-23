@@ -96,11 +96,11 @@ export const getRattedOrderById = async (id : number) => {
   }
 }
 
-export const getRattedOrderByIdAjusted = async (id : number) => {
+export const getRattedOrderByIdAjusted = async (id : number, id_order : number) => {
    try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/money-split/get-ratted-ajusted/${id}`, {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/money-split/get-ratted-ajusted/${id}/${id_order}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
