@@ -45,7 +45,7 @@ export const addAllRatteds: RequestHandler = async (req, res) => {
 export const getAllByIdTreasury: RequestHandler = async (req, res) => {
     const { id, id_order } = req.params
     
-    if (!id && !id_order) {
+    if (!id) {
         res.status(401).json({ error: 'ID não informado!' })
         return
     }
