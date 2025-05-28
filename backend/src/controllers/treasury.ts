@@ -46,7 +46,27 @@ export const add: RequestHandler = async (req, res) => {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
-
+  const data = {
+     id_system: safeData.data.id_system,
+    typeSupply: {
+      connect: {
+        id: safeData.data.id_type_supply
+      }
+    },
+    typeStore: {
+      connect: {
+        id: safeData.data.id_type_store
+      }
+    },
+    enabled_gmcore: safeData.data.enabled_gmcore as boolean,
+    name: safeData.data.name,
+    short_name: safeData.data.short_name,
+    region: safeData.data.region,
+    account_number: safeData.data.account_number,
+    gmcore_number: safeData.data.gmcore_number,
+    name_for_email : safeData.data.name_for_email ?? "",
+    account_number_for_transfer : safeData.data.account_number_for_transfer
+  }
   const newTreasury = await addTreasury({
     id_system: safeData.data.id_system,
     typeSupply: {
@@ -65,7 +85,8 @@ export const add: RequestHandler = async (req, res) => {
     region: safeData.data.region,
     account_number: safeData.data.account_number,
     gmcore_number: safeData.data.gmcore_number,
-    name_for_email : safeData.data.name_for_email ?? ""
+    name_for_email : safeData.data.name_for_email ?? "",
+    account_number_for_transfer : safeData.data.account_number_for_transfer
   })
   if (!newTreasury) {
     res.status(401).json({ error: 'Erro ao salvar!' })
