@@ -37,7 +37,7 @@ export const add: RequestHandler = async (req, res) => {
   }
   const newContact = await addContact({
     treasury: {
-      connect: { id: safeData.data.id_treasury },
+      connect: { id_system   : safeData.data.id_treasury },
     },
     name: safeData.data.name,
     email: safeData.data.email,
