@@ -12,7 +12,7 @@ type PropsInput = {
     password?: boolean;
     icon?: IconProp;
     readonly?: boolean;
-    mask?: 'phone' | 'currency'; // <- adicionei aqui
+    mask?: 'phone' | 'currency' | 'email'; 
 }
 
 export const Input = ({ size, placeholder, value, onChange, password, icon, readonly, mask }: PropsInput) => {
@@ -38,13 +38,33 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        let newValue = event.target.value;
+    const formatEmail = (input: string) => {
+    const cleaned = input.replace(/\s/g, ''); 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (mask === 'phone') {
-            newValue = formatPhone(newValue);
-        } else if (mask === 'currency') {
-            newValue = formatCurrency(newValue);
+    if (cleaned === '' || emailRegex.test(cleaned)) {
+        return cleaned;
+    }
+
+    return input;
+};
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const input = event.target.value;
+        let newValue = input;
+
+        switch (mask) {
+            case 'phone':
+                newValue = formatPhone(input);
+                break;
+            case 'currency':
+                newValue = formatCurrency(input);
+                break;
+            case 'email':
+                newValue = formatEmail(input);
+                break;
+            default:
+                newValue = input; // Sem máscara, usa valor original
         }
 
         const syntheticEvent = {
@@ -60,12 +80,11 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
 
     return (
         <div className={`flex items-center bg-slate-700 pt-2 pb-2  pl-2 rounded-md border-4 border-slate-600
-        ${size === 'small' ? 'w-64 h-11 text-sm' : ""}
-        ${size === 'meddium' ? 'w-72 h-11 text-base' : ""}
-        ${size === 'large' ? 'w-80 h-11 text-lg' : ""}
-        ${size === 'extra-large' ? 'w-96 h-11 text-lg' : ""}
-        `}
-        >
+            ${size === 'small' ? 'w-64 h-11 text-sm' : ''}
+            ${size === 'meddium' ? 'w-72 h-11 text-base' : ''}
+            ${size === 'large' ? 'w-80 h-11 text-lg' : ''}
+            ${size === 'extra-large' ? 'w-96 h-11 text-lg' : ''}
+        `}>
             {icon &&
                 <div>
                     <FontAwesomeIcon icon={icon} size="1x" color="#FFF" />
