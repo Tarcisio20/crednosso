@@ -43,16 +43,14 @@ export const add: RequestHandler = async (req, res) => {
     email: safeData.data.email,
     phone: safeData.data.phone ?? '',
   }
-  console.log(data)
- /* const newContact = await addContact({
+  const newContact = await addContact({
     treasury: {
       connect: { id_system   : safeData.data.id_treasury },
     },
     name: safeData.data.name,
     email: safeData.data.email,
     phone: safeData.data.phone ?? '',
-  });*/
-  const  newContact = 1
+  });
   if (!newContact) {
     res.status(401).json({ error: "Erro ao salvar!" });
     return;
