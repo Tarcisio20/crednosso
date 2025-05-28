@@ -137,6 +137,7 @@ export default function TreasuryAdd() {
       name_for_email : nameForEmailTreasury.toUpperCase(),
       account_number_for_transfer : `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
     };
+    console.log(data)
     const treasury = await add(data);
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
       setIdTypeSupply("1");
