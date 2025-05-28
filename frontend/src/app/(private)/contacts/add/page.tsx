@@ -68,6 +68,7 @@ export default function ContactsAdd() {
       email: emailContact.toUpperCase(),
       phone: phoneContact
     }
+
     const newContact = await add(data)
     if (newContact.status === 300 || newContact.status === 400 || newContact.status === 500) {
       setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
