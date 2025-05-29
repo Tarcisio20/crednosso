@@ -107,6 +107,7 @@ export const getAllOrdersForDate: RequestHandler = async (req, res) => {
 
 export const add: RequestHandler = async (req, res) => {
   const safeData = orderAddSchema.safeParse(req.body)
+  console.log("pedido", safeData)
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
