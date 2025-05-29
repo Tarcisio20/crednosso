@@ -100,8 +100,8 @@ model Order {
   moneySplits    MoneySplit[]
   supply         Supply[]
   typeOperation  TypeOperation @relation(fields: [id_type_operation], references: [id])
-  treasuryOrigin Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id])
-  treasuryDestin Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id])
+  treasuryOrigin Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
+  treasuryDestin Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
   typeOrder      TypeOrder     @relation(fields: [id_type_order], references: [id])
   statusOrder    StatusOrder   @relation(fields: [status_order], references: [id])
 }
