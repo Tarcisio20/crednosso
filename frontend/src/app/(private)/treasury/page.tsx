@@ -41,6 +41,7 @@ export default function Treasury() {
     setLoading(false);
     setLoading(true);
     const treasury = await getAllTreasuryPagination(currentPage, pageSize);
+    console.log("Tesourarias", treasury)
     if (treasury.data && treasury.data.length > 0) {
       setTreasuries(treasury.data);
       setTotalPages(treasury.meta.totalPages);
@@ -110,14 +111,14 @@ export default function Treasury() {
                 </td>
                 <td>{generateStatus(item?.status as boolean)}</td>
                 <td className="flex justify-center items-center gap-4 h-12">
-                  <Link href={`/treasury/edit/${item.id}`}>
+                  <Link href={`/treasury/edit/${item.id_system}`}>
                     <FontAwesomeIcon
                       icon={faPenToSquare}
                       size="1x"
                       color="#6C8EBF"
                     />
                   </Link>
-                  <Link href={`/treasury/del/${item.id}`}>
+                  <Link href={`/treasury/del/${item.id_system }`}>
                     <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                   </Link>
                 </td>
