@@ -45,6 +45,7 @@ export default function SignIn() {
     };
     setLoading(true)
     const user = await login(data);
+    console.log('user', user)
     if (!user.success) {
       setError({ type: 'error', title: 'Error', messege: 'E-mail e/ou senha inválida!' })
       setLoading(false)

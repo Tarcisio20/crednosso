@@ -119,12 +119,12 @@ export const add: RequestHandler = async (req, res) => {
     },
     treasuryOrigin: {
       connect: {
-        id: safeData.data.id_treasury_origin
+        id_system : safeData.data.id_treasury_origin
       }
     },
     treasuryDestin: {
       connect: {
-        id: safeData.data.id_treasury_destin
+        id_system : safeData.data.id_treasury_destin
       }
     },
     date_order: returnDateFormatted(safeData.data.date_order),

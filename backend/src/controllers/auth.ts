@@ -37,7 +37,7 @@ export const register : RequestHandler = async (req, res) => {
     })
 
     const token = createJWT(userSlug)
-
+    console.log('tk', token)
     res.status(201).json({
         token,
         user : {
