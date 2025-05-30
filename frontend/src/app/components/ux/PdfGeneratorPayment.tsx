@@ -31,6 +31,8 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const acount2: any = []
   const acount3: any = []
   const acount4: any = []
+  const acount5: any = []
+
   const filterContas = data.filter(item => {
     if (item.conta_pagamento && item.id_type_operation  !== 3) {
       let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
@@ -40,8 +42,10 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
         acount2.push(item)
       } else if (c && c === banks[2].account) {
         acount3.push(item)
-      } else {
+      } else if (c && c === banks[3].account){
         acount4.push(item)
+      }else{
+        acount5.push(item)
       }
     }
   })
@@ -76,7 +80,6 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
     return acc;
   }, 0);
-  console.log("t", generateTotalInReal(total))
   return total;
 };
 
@@ -114,6 +117,9 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     }
     if (acount4.length > 0) {
       gerarPDF("Mateus", acount4)
+    }
+    if(acount5.length > 0){
+      gerarPDF("Mateus", acount5)
     }
     await sleep(2000)
     handleGenerateGMCore(dadosMateus)
@@ -230,12 +236,13 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
       showFoot: 'lastPage'
     });
     let a = dados[0].conta_pagamento.split('Agência: ')[1].trim()
+    let agencia = a.split(' - ')[0].trim()
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
    if (c == "6886-1") {
-      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${a}-conta-${c}-a.pdf`);
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${agencia}-conta-${c}-a.pdf`);
     }else {
-      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${a}-conta-${c}-a.pdf`);
+      doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${agencia}-conta-${c}-a.pdf`);
     }
 
     //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
