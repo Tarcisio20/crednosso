@@ -52,7 +52,6 @@ export const login = async (data: {
         headers: { "Content-Type": "application/json" },
       }
     );
-
     return {
       success: true,
       data: response.data,

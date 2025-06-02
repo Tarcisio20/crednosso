@@ -43,9 +43,9 @@ export default function SignIn() {
       email: userEmail,
       password: userPassword,
     };
+
     setLoading(true)
     const user = await login(data);
-    console.log('user', user)
     if (!user.success) {
       setError({ type: 'error', title: 'Error', messege: 'E-mail e/ou senha inválida!' })
       setLoading(false)
@@ -111,7 +111,7 @@ export default function SignIn() {
           >
             Logar
           </Button>
-          {/**
+          
           <p className="text-sm" >
             Não possui usuario?{" "}
             <Link href="/register" className="text-zinc-400"  >
@@ -119,7 +119,7 @@ export default function SignIn() {
             </Link>
             !
           </p>
-           */}
+          
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />
           }
