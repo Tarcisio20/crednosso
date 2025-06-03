@@ -125,7 +125,11 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     handleGenerateGMCore(dadosMateus)
   };
 
-
+  console.log(acount1, "Conta 1")
+  console.log(acount2, "Conta 2")
+  console.log(acount3, "Conta 3")
+  console.log(acount5, "Conta 4")
+  console.log(acount1, "Conta 5")
   const gerarPDF = async (titulo: string, dados: typeof data) => {
 
      const newDataRaw = await Promise.all(
@@ -156,7 +160,6 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
       }
       ve = ve + parsedValue(finalArray[x].estorno)
     }
-    console.log("VALOR", generateTotalInReal(vr))
     const doc = new jsPDF({
       orientation: 'landscape',
     });

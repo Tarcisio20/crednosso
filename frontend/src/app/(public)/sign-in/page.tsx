@@ -111,14 +111,14 @@ export default function SignIn() {
           >
             Logar
           </Button>
-          
+{/*           
           <p className="text-sm" >
             Não possui usuario?{" "}
             <Link href="/register" className="text-zinc-400"  >
               Registre-se
             </Link>
             !
-          </p>
+          </p> */}
           
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />
