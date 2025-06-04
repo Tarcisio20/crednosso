@@ -717,7 +717,6 @@ export default function Order() {
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gRelease = await genrerateRelaseById(idsSelected)
-
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setError("Erro na requisição!")
       setLoading(false)
@@ -1074,7 +1073,7 @@ export default function Order() {
                   );
                 }}
               />
-              <div>{generateReal(valueAddD, 50)}</div>
+              <div>{generateReal(valueAddC, 50)}</div>
             </div>
 
             <div className="w-full flex items-center justify-center gap-2 ">
