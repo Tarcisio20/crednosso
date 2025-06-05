@@ -26,6 +26,9 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const [abaAtiva, setAbaAtiva] = useState(1)
   const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation === 1 || item.id_type_operation === 2);
   const dadosPosterus = data.filter(item => item.id_type_store === 2)
+  const dadosSantander = data.filter(item => item.id_type_operation === 4)
+
+  console.log("dados santander", dadosSantander)
 
   const acount1: any = []
   const acount2: any = []
@@ -34,7 +37,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const acount5: any = []
 
   const filterContas = data.filter(item => {
-    if (item.conta_pagamento && item.id_type_operation  !== 3) {
+    if (item.conta_pagamento && item.id_type_operation  === 1 || item.id_type_operation === 2) {
       let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
       if (c && c === banks[0].account) {
         acount1.push(item)
@@ -125,11 +128,6 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     handleGenerateGMCore(dadosMateus)
   };
 
-  console.log(acount1, "Conta 1")
-  console.log(acount2, "Conta 2")
-  console.log(acount3, "Conta 3")
-  console.log(acount5, "Conta 4")
-  console.log(acount1, "Conta 5")
   const gerarPDF = async (titulo: string, dados: typeof data) => {
 
      const newDataRaw = await Promise.all(
