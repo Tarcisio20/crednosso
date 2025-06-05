@@ -314,7 +314,7 @@ export const confirmPaymantAllIds = async (ids : number[]) => {
     where: {
       id: { in: ids },
       id_type_operation : { 
-        notIn : [3, 6] 
+        notIn : [3, 4, 5, 6] 
       } 
     },
     data: {

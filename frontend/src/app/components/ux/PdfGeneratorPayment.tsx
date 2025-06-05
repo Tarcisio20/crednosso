@@ -285,7 +285,6 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
               Posterus
             </button>
           }
-
         </div>
       </div>
 
