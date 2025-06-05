@@ -24,7 +24,7 @@ type pdfProps = {
 export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const [abaAtiva, setAbaAtiva] = useState(1)
-  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation !== 3);
+  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation === 1 || item.id_type_operation === 2);
   const dadosPosterus = data.filter(item => item.id_type_store === 2)
 
   const acount1: any = []

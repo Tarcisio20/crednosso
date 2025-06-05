@@ -334,7 +334,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
           {dadosSantander.length > 0 &&
             <button
               onClick={() => setAbaAtiva(4)}
-              className={`px-4 py-2 text-md font-medium ${abaAtiva === 3
+              className={`px-4 py-2 text-md font-medium ${abaAtiva === 4
                 ? 'bg-blue-600 text-white border-b-2 border-blue-600'
                 : 'text-black hover:text-gray-700'
                 }`}
