@@ -16,11 +16,13 @@ type pdfProps = {
 export const PdfGenerator = ({ data, onClose }: pdfProps) => {
 
   const [abaAtiva, setAbaAtiva] = useState(1)
-  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.type_operation === 1 || item.type_operation === 2);
+  const dadosMateus = data.filter(item => item.id_type_store === 1 && [1, 2].includes(item.type_operation));
   const dadosPosterus = data.filter(item => item.id_type_store === 2 && item.type_operation !== 3);
   const dadosEntreTesourarias = data.filter(item => item.type_operation === 3)
   const dadosSantander = data.filter(item => item.type_operation === 4)
 
+
+  console.log("dadosMateus", dadosMateus)
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
     const valorLimpo = valorString
