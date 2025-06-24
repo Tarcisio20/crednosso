@@ -3,7 +3,12 @@ import "../globals.css";
 import { Logo } from "../components/ui/Logo";
 import Link from "next/link";
 import '../../lib/fontawesome'; 
-import { faBoxOpen, faCoins, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faSackDollar, faStore, faThumbTack, faWandMagicSparkles, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faCoins, faCreditCard, 
+         faGauge, faGears, faIdCardClip, 
+         faParachuteBox, faSackDollar, faStore, 
+         faThumbTack, faWandMagicSparkles, faRightFromBracket,
+          faBuildingColumns
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSupple } from "@fortawesome/free-brands-svg-icons";
 
@@ -36,6 +41,7 @@ export default function RootLayout({
     {label : 'Abastecimento', icon : faParachuteBox, link : '/supply'},
     {label : 'Cartão Operador', icon : faCreditCard, link : '/operator-card'},
     {label : 'Contatos', icon : faIdCardClip, link : '/contacts'},
+    {label : 'Conta Bancária', icon : faBuildingColumns, link : '/account-bank'},
     {label : 'Pedido', icon : faCoins, link : '/order'},
     {label : 'Status do Pedido', icon : faWandMagicSparkles, link : '/status-order'},
     {label : 'Tesouraria', icon : faSackDollar, link : '/treasury'},

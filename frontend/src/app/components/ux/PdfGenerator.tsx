@@ -22,7 +22,6 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const dadosSantander = data.filter(item => item.type_operation === 4)
 
 
-  console.log("dadosMateus", dadosMateus)
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
     const valorLimpo = valorString
