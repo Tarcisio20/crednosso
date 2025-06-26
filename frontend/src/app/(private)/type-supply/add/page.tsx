@@ -11,12 +11,13 @@ import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeSupplyAdd() {
 
-    useEffect(() => {
-      document.title = "Tipo Abastecimento - Add | CredNosso";
-    }, []);
+  useEffect(() => {
+    document.title = "Tipo Abastecimento - Add | CredNosso";
+  }, []);
 
   const router = useRouter();
 
@@ -25,12 +26,10 @@ export default function TypeSupplyAdd() {
   const [loading, setLoading] = useState(false);
 
   const addTypeSupply = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (!validateField(nameTypeSupply)) {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencher todos os dados!' });
       setLoading(false);
+      toast.error('Para continuar, preencher todos os dados!');
       return;
     }
     let data = {
@@ -38,13 +37,13 @@ export default function TypeSupplyAdd() {
     };
     const newTypeSupply = await add(data);
     if (newTypeSupply.data.typeSupply.id > 0) {
-      setLoading(false);
-      setError({ type: 'success', title: 'Success', messege: 'Tipo de abastecimento salvo com sucesso!' });
       setNameTypeSupply("")
+      setLoading(false);
+      toast.success('Tipo de Abastecimento salvo com sucesso!');
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
     setLoading(false);
+    toast.error('Erro ao salvar, tente novamente!');
     return;
   };
 

@@ -19,38 +19,31 @@ import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function Treasury() {
   const router = useRouter();
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>();
 
-  const [error, setError] = useState({ type : '', title : '', messege : '' });
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-  const loadTreasuries =  async () => {
-    setError({
-      type : '',
-      title : '',
-      messege : ''
-    });
-    setLoading(false);
+  const loadTreasuries = async () => {
     setLoading(true);
     const treasury = await getAllTreasuryPagination(currentPage, pageSize);
-    console.log("Tesourarias", treasury)
     if (treasury.data && treasury.data.length > 0) {
       setTreasuries(treasury.data);
       setTotalPages(treasury.meta.totalPages);
       setLoading(false);
-      setError({ type : '', title : '', messege : '' });
       return;
     }
-    setError({ type : 'error', title : 'Error', messege : 'Sem dados a mostrar' })
     setLoading(false);
+    toast.error('Sem dados a mostrar')
     return;
   };
 
@@ -63,29 +56,27 @@ export default function Treasury() {
     router.push("/treasury/add");
   };
 
-     const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
-        e.preventDefault()
-         setError({ type: '', title: '', messege: '' });
-        setLoading(false);
-        setLoading(true);
-       if(!id){
-         setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
-          setLoading(false);
-          return;
-       }
-       const deleteTreasury = await del(id)
-       if(deleteTreasury.status === 300 || deleteTreasury.status === 400 || deleteTreasury.status === 500){
-         setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
-          setLoading(false);
-          return;
-       }
-       if(deleteTreasury.status === 200){
-         setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
-         setLoading(false);
-         loadTreasuries();
-         return;
-       }
-      };
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setLoading(true);
+    if (!id) {
+      setLoading(false);
+      toast.error('Selecione um Atm, para continunar')
+      return;
+    }
+    const deleteTreasury = await del(id)
+    if (deleteTreasury.status === 300 || deleteTreasury.status === 400 || deleteTreasury.status === 500) {
+      setLoading(false);
+      toast.error('Erro de requisição, tente novamente')
+      return;
+    }
+    if (deleteTreasury.status === 200) {
+      loadTreasuries();
+      setLoading(false);
+      toast.success('Atm deletado com sucesso!');
+      return;
+    }
+  };
 
   return (
     <Page>
@@ -142,8 +133,8 @@ export default function Treasury() {
                       color="#6C8EBF"
                     />
                   </Link>
-                  <a href={`/treasury/del/${item.id_system }`}
-                    onClick={(e)=> handleDelete(e, item.id_system as number)}
+                  <a href={`/treasury/del/${item.id_system}`}
+                    onClick={(e) => handleDelete(e, item.id_system as number)}
                   >
                     <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                   </a>
@@ -152,7 +143,7 @@ export default function Treasury() {
             ))}
           </tbody>
         </table>
-        {treasuries && totalPages > 1 && 
+        {treasuries && totalPages > 1 &&
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -161,7 +152,7 @@ export default function Treasury() {
         }
 
         {error.messege && (
-          <Messeger type={error?.type} title={error. title} messege={error.messege} />
+          <Messeger type={error?.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

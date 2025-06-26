@@ -12,6 +12,7 @@ import { login } from "@/app/service/auth";
 import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function SignIn() {
 
@@ -27,16 +28,17 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false)
 
   const onLoading = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(false)
     const email = isValidEmail(userEmail);
     if (!email) {
-      setError({ type: 'error', title: 'Error', messege: 'E-mail inválido, tente novamente!' })
+      setLoading(false)
+      toast.error('E-mail inválido, tente novamente!')
       return;
     }
     const pass = passLoginValidator(userPassword);
     if (pass !== null) {
-      setError({ type: 'error', title: 'Error', messege: `${pass}` })
+      setLoading(false)
+      toast.error(`${pass}`)
       return;
     }
     const data = {
@@ -47,8 +49,8 @@ export default function SignIn() {
     setLoading(true)
     const user = await login(data);
     if (!user.success) {
-      setError({ type: 'error', title: 'Error', messege: 'E-mail e/ou senha inválida!' })
       setLoading(false)
+      toast.error('E-mail e/ou senha inválida!')
       return;
     }
 
@@ -111,7 +113,7 @@ export default function SignIn() {
           >
             Logar
           </Button>
-{/*           
+          {/*           
           <p className="text-sm" >
             Não possui usuario?{" "}
             <Link href="/register" className="text-zinc-400"  >
@@ -119,7 +121,7 @@ export default function SignIn() {
             </Link>
             !
           </p> */}
-          
+
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />
           }

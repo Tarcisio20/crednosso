@@ -17,6 +17,7 @@ import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { add } from "@/app/service/order";
 import { useRouter } from "next/navigation";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function Order() {
 
@@ -55,36 +56,32 @@ export default function Order() {
   }, [allLoading])
 
   const typeOperationFunction = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     const tOperation = await getAll()
     if (tOperation.status === 300 || tOperation.status === 400 || tOperation.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' })
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
-  
+
     if (tOperation.data !== undefined && tOperation.data.typeOperation[0]?.id) {
       setTypeOperations(tOperation.data.typeOperation)
       setIdTypeOperation(tOperation.data.typeOperation[0].id)
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar!' })
       setLoading(false)
+      toast.error('Sem dados a carregar, tente novamente!')
       return
     }
   }
 
   const treasuriesFunction = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     const t = await getAllTreasury()
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na  requisição, tentar novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (t.data !== undefined && t.data.treasury[0]?.id > 0) {
@@ -94,8 +91,8 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false)
+      toast.error('Sem dados a carregar, tente novamente!')
       return
     }
 
@@ -103,13 +100,11 @@ export default function Order() {
   }
 
   const typeOrderFunction = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     const tOrder = await getAllTypeOrder()
     if (tOrder.status === 300 || tOrder.status === 400 || tOrder.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (tOrder.data !== undefined && tOrder.data.typeOrder[0]?.id) {
@@ -118,22 +113,20 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false)
+      toast.error('Sem dados a carregar, tente novamente!')
       return
     }
   }
 
   const saveOrder = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     if (
       idTypeOperation === '' || idTreasuryOrigin === '' || idTreasuryDestin === '' || idTypeOrder === '' ||
       dateOrder === ''
     ) {
-      setError({ type: 'error', title: 'Error', messege: 'Preencher todos os campos para continuar' })
       setLoading(false)
+      toast.error('Preencher todos os campos para continuar!')
       return
     }
 
@@ -150,12 +143,11 @@ export default function Order() {
       status_order: 1,
       observation: obs
     }
-    console.log("Pedido", data)
 
     const newOrder = await add(data)
     if (newOrder.status === 300 || newOrder.status === 400 || newOrder.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (newOrder.data !== undefined && newOrder.data.order?.id) {
@@ -169,12 +161,12 @@ export default function Order() {
       setValueC(0)
       setValueD(0)
       setObs('')
-      setError({ type: 'success', title: 'Success', messege: 'Adicionado com sucesso!' })
       setLoading(false)
+      toast.success('Pedido adicionado com sucesso!')
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar tentar novamente!' })
       setLoading(false)
+      toast.error('Erro ao salvar, tente novamente!')
       return
     }
   }
@@ -203,9 +195,6 @@ export default function Order() {
   const handleSelectChangeDestin = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setIdTreasuryDestin(event.target.value.toString());
   };
-
-
-
 
   return (
     <Page>
@@ -284,10 +273,10 @@ export default function Order() {
                     onChange={handleSelectChangeDestin}
                   >
                     {treasuries ? treasuries.map((treasury) => (
-                      <option 
-                      key={treasury.id} 
-                      value={treasury.id_system}
-                      className="bg-slate-700"
+                      <option
+                        key={treasury.id}
+                        value={treasury.id_system}
+                        className="bg-slate-700"
                       >
                         {treasury.name}
                       </option>

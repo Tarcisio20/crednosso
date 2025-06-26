@@ -18,6 +18,7 @@ import { getAllPagination } from "@/app/service/type-order";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
+import { toast } from "sonner";
 
 export default function TypeOrder() {
   const router = useRouter();
@@ -41,26 +42,22 @@ export default function TypeOrder() {
   };
 
   const loadTypeOrderPagination = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     const tOrders = await getAllPagination(currentPage, pageSize)
     if (tOrders.status === 300 || tOrders.status === 400 || tOrders.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
 
     if (tOrders.data && tOrders.data.length > 0) {
       settypeOrders(tOrders.data)
       setTotalPages(tOrders.meta.totalPages);
-      setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
     }
-
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados!' })
     setLoading(false)
+    toast.error('Erro ao retornar dados, tente novamente!')
   }
 
   return (

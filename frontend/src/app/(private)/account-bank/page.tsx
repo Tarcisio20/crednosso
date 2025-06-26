@@ -20,6 +20,7 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { del, getAllPagination } from "@/app/service/account-bank";
 import { accountBankType } from "@/types/accountBankType";
+import { toast } from "sonner";
 
 export default function AccountBank() {
   const router = useRouter();
@@ -42,21 +43,19 @@ export default function AccountBank() {
 
 
   const allAcountsPagination = useCallback( async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const allAcounts = await getAllPagination(currentPage, pageSize);
     if (allAcounts.data !== undefined && allAcounts.data.account.data.length > 0) {
-      console.log("Dentro do if")
       setAccouhnts(allAcounts.data.account.data);
       setTotalPages(allAcounts.data.account.totalPages);
       setLoading(false);  
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
       setLoading(false);
+      toast.error('Sem dados a carregar, tente novamente!');
       return;
     }
+    setLoading(false);
   }, [currentPage]);
 
   
@@ -66,24 +65,22 @@ export default function AccountBank() {
 
    const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
       e.preventDefault()
-       setError({ type: '', title: '', messege: '' });
-      setLoading(false);
       setLoading(true);
      if(!id){
-       setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
         setLoading(false);
+        toast.error('Selecione um Atm, para continunar');
         return;
      }
      const deleteAccountBank = await del(id)
      if(deleteAccountBank.status === 300 || deleteAccountBank.status === 400 || deleteAccountBank.status === 500){
-       setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
         setLoading(false);
+        toast.error('Erro de requisição, tente novamente');
         return;
      }
      if(deleteAccountBank.status === 200){
-       setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
        setLoading(false);
        allAcountsPagination();
+       toast.success('Atm deletado com sucesso!');
        return;
      }
     };

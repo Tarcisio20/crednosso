@@ -38,6 +38,7 @@ import { getTextColorLine } from "@/app/utils/getTextColorLine";
 import { bankType } from "@/types/bankType";
 import { getAllBanks } from "@/app/service/bank";
 import { ModalValidated } from "@/app/components/ux/ModalValidated";
+import { toast } from "sonner";
 
 type OrderType = orderType & {
   confirmed_total?: number;
@@ -105,7 +106,6 @@ export default function Order() {
   })
 
   useEffect(() => {
-
     const allLoading = async () => {
       await typeOperationFunction()
       await treasuriesFunction()
@@ -118,13 +118,11 @@ export default function Order() {
   }, [orders])
 
   const typeOperationFunction = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const tOperation = await getAll()
     if (tOperation.status === 300 || tOperation.status === 400 || tOperation.status === 500) {
-      setError("Erro na requisição!")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (tOperation.data !== undefined && tOperation.data.typeOperation[0]?.id) {
@@ -133,20 +131,19 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError('Sem dados a carregar')
       setLoading(false)
+      toast.error('Sem dados a carregar')
       return
     }
+    setLoading(false)
   }
 
   const treasuriesFunction = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const t = await getAllTreasury()
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError('Erro na requisição')
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (t.data !== undefined && t.data.treasury[0]?.id) {
@@ -156,20 +153,20 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError("Sem dados a retornar!")
       setLoading(false)
+      toast.error('Sem dados a retornar!')
       return
     }
+    setLoading(false)
+    return
   }
 
   const typeOrderFunction = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const tOrder = await getAllTypeOrder()
     if (tOrder.status === 300 || tOrder.status === 400 || tOrder.status === 500) {
-      setError('Erro na requisição')
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (tOrder.data !== undefined && tOrder.data.typeOrder[0]?.id) {
@@ -178,20 +175,20 @@ export default function Order() {
       setLoading(false)
       return
     } else {
-      setError("Sem dados a mostrar")
       setLoading(false)
+      toast.error('Sem dados a retornar!')
       return
     }
+    setLoading(false)
+    return
   }
 
   const statusOderFunction = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const sOrder = await getAllStatusOrder()
     if (sOrder.status === 300 || sOrder === 400 || sOrder === 500) {
-      setError("Erro de requisição")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (sOrder.data !== undefined && sOrder.data.statusOrder[0].id) {
@@ -199,18 +196,16 @@ export default function Order() {
       setLoading(false)
       return
     }
-    setError("Sem dados!")
     setLoading(false)
+    toast.error('Sem dados a retornar!')
     return
   }
 
   const handleSearch = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     if (dateInitial === '') {
-      setError('Preencher ao menos o campo de Data Inicial')
       setLoading(false)
+      toast.error('Preencher ao menos o campo de Data Inicial')
       return
     }
     setOrders([])
@@ -222,8 +217,8 @@ export default function Order() {
     const orderSarch = await searchOrdersForDate(data)
 
     if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
-      setError("Erro de requisição")
       setLoading(false)
+      toast.error('Erro de requisição, tentar novamente!')
       return
     }
     if (orderSarch.data !== undefined && orderSarch.data.order.length > 0) {
@@ -265,12 +260,10 @@ export default function Order() {
       setLoading(false)
       return
     }
-    setError('Sem dados a mostrar!')
     setLoading(false)
+    toast.error('Sem dados a mostrar!')
     return
-
   }
-
 
   const getSortedOrders = () => {
     if (!isUserSorting || !sortColumn) return orders;
@@ -315,13 +308,11 @@ export default function Order() {
   };
 
   const getAllBanksF = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const gBanks = await getAllBanks()
     if (gBanks.status === 300 || gBanks.status === 400 || gBanks.status === 500) {
-      setError("Erro de requisição")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (gBanks.data !== undefined && gBanks.data.bank.length > 0) {
@@ -329,8 +320,8 @@ export default function Order() {
       setLoading(false)
       return
     }
-    setError("Sem dados!")
     setLoading(false)
+    toast.error('Sem dados a retornar!')
     return
   }
 
@@ -364,18 +355,16 @@ export default function Order() {
   }
 
   const viewOrder = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione um item para continuar!')
       return
     }
     if (countTrue > 1) {
-      setError("Para essa ação só pode haver 1 item selecionado")
       setLoading(false)
+      toast.error('Para essa ação só pode haver 1 item selecionado!')
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
@@ -399,12 +388,11 @@ export default function Order() {
       setOrderIndividual(orderSelectedOne[0])
       setModalViewOrder(true)
       setObs(orderSelectedOne[0].observation)
-      setError('')
       setLoading(false)
       return
     } else {
-      setError("Erro ao carregar dados, tentar novamente!")
       setLoading(false)
+      toast.error('Erro ao carregar dados, tentar novamente!')
       return
     }
   }
@@ -427,15 +415,12 @@ export default function Order() {
   }
 
   const closeModalRelauchOrder = () => {
-    setError('')
     setLoading(false)
     setDateAlter('')
     setModalRelaunchOrder(false)
   }
 
   const saveOneOrder = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const data = {
       requested_value_A: valueAddA,
@@ -446,32 +431,31 @@ export default function Order() {
     }
     const orderSave = await alterValueOrder(orderIndivudual?.id as number, data)
     if (orderSave.status === 300 || orderSave.status === 400 || orderSave === 500) {
-      setError('Erro na requisição')
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (orderSave.data.order && orderSave.data.order?.id) {
       handleSearch()
-      setError('')
       setLoading(false)
       setModalViewOrder(false)
       return
     }
+    setLoading(false)
+    return
   }
 
   const saveConfirmPartialOneOrder = async () => {
-    setError("")
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione 1 item para continuar')
       return
     }
     if (countTrue > 1) {
-      setError("Para essa ação só pode haver 1 item selecionado")
       setLoading(false)
+      toast.error('Para essa ação só pode haver 1 item selecionado')
       return
     }
     closeModalConfirmPartial()
@@ -486,28 +470,26 @@ export default function Order() {
 
     const orderConfirmPartialReturn = await confirmPartialOrderById(orderIndivudual?.id as number, data)
     if (orderConfirmPartialReturn.status === 300 || orderConfirmPartialReturn.status === 400 || orderConfirmPartialReturn.status === 500) {
-      setError("Erro na requisição!")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0) {
-      setError('')
       setLoading(false)
       handleSearch()
       return
     }
-    setError('Erro ao editar')
+    setLoading(false)
+    toast.error('Erro ao editar')
     return
   }
 
   const handleDelOrders = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione um item para continuar')
       return
     }
     const confirmDelete = window.confirm(`Tem certeza que deseja excluir este(s) item(ns)?
@@ -517,8 +499,8 @@ export default function Order() {
         .join(',')}
       `);
     if (!confirmDelete) {
-      setError("Cancelado a exclusão")
       setLoading(false)
+      toast.error('Cancelado a exclusão')
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
@@ -539,25 +521,21 @@ export default function Order() {
       }
     }
     handleSearch()
-    setError('')
     setLoading(false)
     return
-
   }
 
   const handleConfirmTotal = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione 1 item para continuar')
       return
     }
     if (countTrue > 1) {
-      setError("Para essa ação só pode haver 1 item selecionado")
       setLoading(false)
+      toast.error('Para essa ação só pode haver 1 item selecionado')
       return
 
     }
@@ -587,20 +565,19 @@ export default function Order() {
         setModalValidated(true)
       }
 
-    } else if(id_operation[0] === 3){
-      setError("Tipo de operação não necessita de confirmação!")
+    } else if (id_operation[0] === 3) {
       setLoading(false)
+      toast.error('Tipo de operação não necessita de confirmação!')
       return
     } else {
       const iSelectedAlter = await ConfirmOrderById(idsSelected)
       if (iSelectedAlter.status === 300 || iSelectedAlter === 400 || iSelectedAlter === 500) {
-        setError('Erro na requisição!')
         setLoading(false)
+        toast.error('Erro na requisição, tentar novamente!')
         return
       }
     }
     handleSearch()
-    setError('')
     setLoading(false)
     return
   }
@@ -635,18 +612,16 @@ export default function Order() {
   }
 
   const relaunchOrder = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione 1 item para continuar')
       return
     }
     if (countTrue > 1) {
-      setError("Para essa ação só pode haver 1 item selecionado")
       setLoading(false)
+      toast.error('Para essa ação só pode haver 1 item selecionado')
       return
     }
     const confirmRelauchDate = window.confirm(`Tem certeza que deseja mudar a data do pedido de ID?
@@ -656,15 +631,14 @@ export default function Order() {
         .join(',')}
     `);
     if (!confirmRelauchDate) {
-      setError("Cancelado o relançamento")
       setLoading(false)
+      toast.error('Cancelado o relançamento')
       return
     }
     const itemsSelected = itemsChecks.filter(item => item.status === true)
     const orderSelectedOne = orders.filter(item => item.id === itemsSelected[0].id_order)
     setOrderIndividual(orderSelectedOne[0])
     setModalRelaunchOrder(true)
-    setError('')
     setLoading(false)
   }
 
@@ -673,12 +647,10 @@ export default function Order() {
   }
 
   const handleDateAlter = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     if (dateAlter === '') {
-      setError('Prrencha o campo de data')
       setLoading(false)
+      toast.error('Prrencha o campo de data')
       return
     }
     const data = {
@@ -686,8 +658,8 @@ export default function Order() {
     }
     const orderAlterForDate = await alterDateInOrder(orderIndivudual?.id as number, data)
     if (orderAlterForDate.status === 300 || orderAlterForDate === 400 || orderAlterForDate === 500) {
-      setError("Erro de Requisição, tente novamente")
       setLoading(false)
+      toast.error('Erro de Requisição, tente novamente')
       return
     }
     if (orderAlterForDate.data.order && orderAlterForDate.data.order?.id > 0) {
@@ -698,69 +670,64 @@ export default function Order() {
       handleSearch()
       return
     } else {
-      setError('Erro ao alterar a data')
       setLoading(false)
+      toast.error('Erro ao alterar a data, tente novamente')
       return
     }
+    setLoading(false)
+    return
 
   }
 
   const generateRelease = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione ao menos um item para continuar")
       setLoading(false)
+      toast.error('Selecione ao menos 1 item para continuar')
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gRelease = await genrerateRelaseById(idsSelected)
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
-      setError("Erro na requisição!")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
 
     setElementRelease(gRelease.data.order)
     setModalGenerateRelease(true)
-    setError('')
     setLoading(false)
   }
 
   const generatePayment = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione ao menos um item para continuar")
       setLoading(false)
+      toast.error('Selecione ao menos 1 item para continuar')
       return
     }
 
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const gPayment = await genreratePaymmentById(idsSelected)
     if (gPayment.status === 300 || gPayment.status === 400 || gPayment.status === 500) {
-      setError("Erro na requisição!")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     setElementPayment(gPayment.data.order)
     setModalGeneratePayment(true)
-    setError('')
     setLoading(false)
   }
 
   const sendEmail = async () => {
-    setError('')
-    setLoading(false)
+
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione 1 item para continuar')
       return
     }
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
@@ -770,47 +737,46 @@ export default function Order() {
         .join(',')}
       `);
     if (!confirmAlter) {
-      setError("Cancelado a operção")
       setLoading(false)
+      toast.error('Cancelado a operação')
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const emails = await sendEmailToOrder(idsSelected)
     if (emails.status === 300 || emails.status === 400 || emails.status === 500) {
-      setError("Erro na requisição!")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (emails.data.email) {
       setLoading(false)
-      setError('E-mail enviado com sucesso')
+      toast.success('E-mail enviado com sucesso')
       return
     }
-    setError("Erro ao Enviar e-mail!!")
     setLoading(false)
+    toast.error('Erro ao Enviar e-mail, tentar novamente!')
     return
   }
 
   const generateReport = async () => {
-    setError('')
     setLoading(true)
     const countTrue = itemsChecks.filter(item => item.status === true).length
     if (countTrue === 0) {
-      setError("Selecione um item para continuar")
       setLoading(false)
+      toast.error('Selecione ao menos 1 item para continuar')
       return
     }
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar gerar o relatório?`);
     if (!confirmAlter) {
-      setError("Cancelado a operção")
       setLoading(false)
+      toast.error('Cancelado a operação')
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
     const orders = await getOrderByIdForReport(idsSelected)
     if (orders.status === 300 || orders.status === 400 || orders.status === 500) {
-      setError("Erro na requisição")
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (orders.data !== undefined && orders.data.order.length > 0) {
@@ -821,8 +787,8 @@ export default function Order() {
         return
       }
     }
-    setError('Erro ao gerar Excel')
     setLoading(false)
+    toast.error('Erro ao gerar Excel, tentar novamente!')
     return
   }
 
@@ -841,7 +807,6 @@ export default function Order() {
 
   const handleCloseModalValidated = () => {
     setLoading(false)
-    setError('')
     setModalValidated(false)
     handleSearch()
   }

@@ -20,6 +20,7 @@ import { ContactType } from "@/types/contactType";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function Contacts() {
   const router = useRouter();
@@ -52,13 +53,11 @@ export default function Contacts() {
   };
 
   const getAllTreasury = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const allTreasuries = await getAll();
     if (allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente!');
       return;
     }
     if (allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id) {
@@ -67,26 +66,24 @@ export default function Contacts() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
+      toast.error('Sem dados a mostrar!');
       return;
     }
   };
 
   const search = async () => {
     setContacts([])
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (idTreasury === "" || idTreasury === "0") {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao pesquisar, tente novamente!' });
       setLoading(false);
+      toast.error('Erro ao pesquisar, tente novamente!');
       return;
     }
     const allContacts = await getByIdTreasury(parseInt(idTreasury));
     if (allContacts.status === 300 || allContacts.status === 400 || allContacts.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente!');
       return;
     }
     if (allContacts.data.contact && allContacts.data.contact[0]?.id) {
@@ -94,35 +91,33 @@ export default function Contacts() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
+      toast.error('Sem dados a mostrar, atualize e tente novamente');
       return;
     }
   };
 
-    const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
-        e.preventDefault()
-         setError({ type: '', title: '', messege: '' });
-        setLoading(false);
-        setLoading(true);
-       if(!id){
-         setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
-          setLoading(false);
-          return;
-       }
-       const deleteContact = await del(id)
-       if(deleteContact.status === 300 || deleteContact.status === 400 || deleteContact.status === 500){
-         setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
-          setLoading(false);
-          return;
-       }
-       if(deleteContact.status === 200){
-         setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
-         setLoading(false);
-         search();
-         return;
-       }
-      };
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setLoading(true);
+    if (!id) {
+      setLoading(false);
+      toast.error('Selecione um Atm, para continunar');
+      return;
+    }
+    const deleteContact = await del(id)
+    if (deleteContact.status === 300 || deleteContact.status === 400 || deleteContact.status === 500) {
+      setLoading(false);
+      toast.error('Erro de requisição, tente novamente');
+      return;
+    }
+    if (deleteContact.status === 200) {
+      setLoading(false);
+      toast.success('Atm deletado com sucesso!');
+      search();
+      return;
+    }
+  };
 
   return (
     <Page>
@@ -143,7 +138,7 @@ export default function Contacts() {
             </Button>
           </div>
           <div className="flex flex-row gap-2">
-            
+
             <div className="flex flex-col gap-5">
               <label className="uppercase leading-3 font-bold">
                 Transportadora
@@ -216,8 +211,8 @@ export default function Contacts() {
                           color="#6C8EBF"
                         />
                       </Link>
-                      <a href={`/contacts/del/${item.id}`} 
-                      onClick={(e)=> handleDelete(e, item.id as number)}
+                      <a href={`/contacts/del/${item.id}`}
+                        onClick={(e) => handleDelete(e, item.id as number)}
                       >
                         <FontAwesomeIcon
                           icon={faTrash}

@@ -11,9 +11,10 @@ import { useCallback, useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeStoreType } from "@/types/typeStoreType";
-import { del, getAllTypeStorePagination } from "@/app/service/type-store";
+import { getAllTypeStorePagination } from "@/app/service/type-store";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function TypeStore() {
 
@@ -31,21 +32,17 @@ export default function TypeStore() {
     document.title = "Tipo de Loja   | CredNosso";
   }, []);
 
-
-
   const handleAdd = () => {
     router.push('/type-store/add')
     return
   }
 
   const loadTypeStorePagination = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const tStores = await getAllTypeStorePagination(currentPage, pageSize)
     if (tStores.status === 300 || tStores.status === 400 || tStores.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' });
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente!')
       return;
     }
     if (tStores.data && tStores.data.length > 0) {
@@ -54,10 +51,12 @@ export default function TypeStore() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar' });
       setLoading(false);
+      toast.error('Erro ao retornar dados, tente novamente!')
       return;
     }
+    setLoading(false); 
+    return
   }, [])
 
   useEffect(() => {

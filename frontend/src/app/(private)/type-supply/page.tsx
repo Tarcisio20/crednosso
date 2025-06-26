@@ -15,6 +15,7 @@ import { faSupple } from "@fortawesome/free-brands-svg-icons";
 import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
+import { toast } from "sonner";
 
 export default function TypeSupply() {
 
@@ -28,21 +29,17 @@ export default function TypeSupply() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
 
-
-
   const handleAdd = () => {
     router.push('/type-supply/add')
     return
   }
 
   const loadTypeSupplyPagination = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     const typeSupplies = await getAllPagination(currentPage, pageSize);
     if (typeSupplies.status === 300 || typeSupplies.status === 400 || typeSupplies.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
     if (typeSupplies.data && typeSupplies.data.length > 0) {
@@ -51,11 +48,11 @@ export default function TypeSupply() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' })
       setLoading(false);
+      toast.error('Sem dados a mostrar!')
       return;
     }
-  },[])
+  }, [])
 
   useEffect(() => {
     document.title = "Tipos Abastecimento | CredNosso";

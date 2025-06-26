@@ -21,6 +21,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function TreasuryAdd() {
   const router = useRouter();
@@ -55,13 +56,11 @@ export default function TreasuryAdd() {
   }, []);
 
   const getTypeSuplies = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const tSupplies = await getAllSuppy();
     if (tSupplies.status === 300 && tSupplies.status === 400 && tSupplies.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' });
       setLoading(false);
+      toast.error('Sem dados a mostrar, tente novamente!');
       return;
     }
     if (tSupplies.data.typeSupply && tSupplies.data.typeSupply.length > 0) {
@@ -70,19 +69,17 @@ export default function TreasuryAdd() {
       setLoading(false);
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados' });
     setLoading(false);
+    toast.error('Erro ao retornar dados, tente novamente!');
     return;
   };
 
   const getTypeStore = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const tStore = await getAllStores()
     if (tStore.status === 300 && tStore.status === 400 && tStore.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' });
       setLoading(false);
+      toast.error('Sem dados a mostrar, tente novamente!');
       return;
     }
 
@@ -92,8 +89,8 @@ export default function TreasuryAdd() {
       setLoading(false);
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: "Erro ao retornar dados" });
     setLoading(false);
+    toast.error('Erro ao retornar dados, tente novamente!');
     return;
   }
 
@@ -115,12 +112,8 @@ export default function TreasuryAdd() {
       accountNumberForTransferTreasury === "" ||
       bankBranchForTransferTreasury === ""
     ) {
-      setError({
-        type: 'error',
-        title: 'Error',
-        messege: "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
-      });
       setLoading(false);
+      toast.error('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.');
       return;
     }
 
@@ -152,12 +145,12 @@ export default function TreasuryAdd() {
       setEnanbledGMcoreTreasury("1");
       setAccountNumberForTransferTreasury("")
       setBankBranchForTransferTreasury("")
-      setError({ type: 'success', title: 'Success', messege: 'Item salvo' });
       setLoading(false);
+      toast.success('Item salvo com sucesso!');
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar' });
       setLoading(false);
+      toast.error('Erro ao retornar dados, tente novamente!');
       return;
     }
   };

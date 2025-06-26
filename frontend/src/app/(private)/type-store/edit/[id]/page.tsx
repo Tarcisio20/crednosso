@@ -14,15 +14,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeStoreEdit() {
   const { id } = useParams();
   const router = useRouter();
 
-  if(!id){
+  if (!id) {
     router.push('/type-store')
     return
   }
+
   const [typeStore, setTypeStore] = useState<typeStoreType>()
   const [nameTypeStore, setNameTypeStore] = useState('')
   const [statusTypeStore, setStatusTypeStore] = useState(true)
@@ -35,56 +37,50 @@ export default function TypeStoreEdit() {
   }, [id]);
 
   const getTypeStoreById = async () => {
-    setError("");
-    setLoading(false);
     setLoading(true);
     const tStore = await getTypeStoreForId(id as string);
-    if(tStore.status === 300 || tStore.status === 400 || tStore.status === 500){
-      setError("Erro na requisição");
+    if (tStore.status === 300 || tStore.status === 400 || tStore.status === 500) {
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente!');
       return;
     }
     if (tStore.data.typeStore && tStore.data.typeStore?.id > 0) {
       setTypeStore(tStore.data.typeStore);
       setNameTypeStore(tStore.data.typeStore.name);
       setStatusTypeStore(tStore.data.typeStore.status);
-      setError("");
       setLoading(false);
       return;
     } else {
-      setError("Erro ao retornar");
       setLoading(false);
+      toast.error('Erro ao retornar, tente novamente!');
       return;
     }
   };
 
   const editTypeStore = async () => {
-    setError("");
-    setLoading(false);
     setLoading(true);
     if (!validateField(nameTypeStore)) {
-      setError("Preencher todos os dados!");
       setLoading(false);
+      toast.error('Para continuar, preencha todos os campos corretamente!');
       return;
     }
     let data = {
       name: nameTypeStore.toUpperCase(),
-      status : statusTypeStore
+      status: statusTypeStore
     }
     const newTypeStore = await update(parseInt(id as string), data)
-    if(newTypeStore.status === 300 || newTypeStore.status === 400 || newTypeStore.status === 500){
-      setError("Erro de requisição!");
+    if (newTypeStore.status === 300 || newTypeStore.status === 400 || newTypeStore.status === 500) {
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente!');
       return;
     }
     if (newTypeStore.data.typeStore && newTypeStore.data.typeStore.id > 0) {
       setLoading(false);
-      setError("");
       getTypeStoreById();
       return;
     }
-    setError("Erro ao salvar!");
     setLoading(false);
+    toast.error('Erro ao salvar, tente novamente!');
     return;
   };
 

@@ -14,6 +14,7 @@ import {
   faVault,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AccountBankAdd() {
 
@@ -34,13 +35,10 @@ export default function AccountBankAdd() {
 
   const addAccount = async () => {
 
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     if (  nameAccount === "" || bankBranch === "" || bankBranchDigit === "" || account === "" || accountDigit === "" ) {
-      console.log("Dentro do if") 
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, Prencher todos os campos' })
       setLoading(false);
+      toast.error('Para continuar, Prencher todos os campos');
       return;
     }
 
@@ -55,17 +53,17 @@ export default function AccountBankAdd() {
    const addNewAccount = await add(data);
 
     if (addNewAccount.data !== undefined && addNewAccount.data.account.id > 0) {
-      setError({ type: 'success', title: 'Success', messege: 'Conta Bancária Salva com sucesso!' })
       setNameAccount("");
       setBankBranch("");
       setBankBranchDigit("");
       setAccount("");
       setAccountDigit("10");
       setLoading(false);
+      toast.success('Conta Bancária Salva com sucesso!');
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, atualize e tente novamente' })
       setLoading(false);
+      toast.error('Erro ao salvar, atualize e tente novamente');
       return;
     }
   };

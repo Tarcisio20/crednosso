@@ -8,15 +8,16 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/type-order";
 import { validateField } from "@/app/utils/validateField";
-import { faAdd, faLandmark, faVault, faReceipt, faListOl } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faLandmark, faReceipt } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 
 export default function TypeOrderAdd() {
-    useEffect(() => {
-      document.title = "Tipo Pedido - Add | CredNosso";
-    }, []);
+  useEffect(() => {
+    document.title = "Tipo Pedido - Add | CredNosso";
+  }, []);
 
   const router = useRouter()
 
@@ -26,12 +27,10 @@ export default function TypeOrderAdd() {
   const [loading, setLoading] = useState(false)
 
   const addTypeOrder = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
     if (idSystemTypeOrder === '' || !validateField(nameTypeOrder)) {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencha todos os dados!' });
       setLoading(false)
+      toast.error('Para continuar, preencha todos os campos corretamente!')
       return
     }
     let data = {
@@ -40,14 +39,14 @@ export default function TypeOrderAdd() {
     }
     const newTypeOrder = await add(data)
     if (newTypeOrder.data.typeOrder.id) {
-      setError({ type: 'success', title: 'Success', messege: 'Tipo de pedido salvo com sucesso!' });
       setIdSystemTypeOrder("")
       setNameTypeOrder("")
       setLoading(false)
+      toast.success('Tipo de Pedido salvo com sucesso!');
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
       setLoading(false)
+      toast.error('Erro ao salvar, tente novamente!')
       return
     }
   }

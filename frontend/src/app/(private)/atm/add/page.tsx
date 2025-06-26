@@ -17,6 +17,7 @@ import {
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AtmAdd() {
 
@@ -41,17 +42,11 @@ export default function AtmAdd() {
   }, []);
 
   const addAtm = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(false);
     setLoading(true);
-    if (
-      idSystemAtm === "" ||
-      !validateField(nameAtm) ||
-      !validateField(nameRedAtm) ||
-      idTreasury === "0"
-    ) {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, Prencher todos os campos' })
+    if (idSystemAtm === "" || !validateField(nameAtm) || !validateField(nameRedAtm) || idTreasury === "0") {
       setLoading(false);
+      toast.error("Para continuar, Prencher todos os campos");
       return;
     }
 
@@ -70,7 +65,7 @@ export default function AtmAdd() {
     const addNewAtm = await add(data);
 
     if (addNewAtm.data.atm && addNewAtm.data.atm.id > 0) {
-      setError({ type: 'success', title: 'Success', messege: 'Atm Salvo com sucesso!' })
+      toast.success("Atm adicionado com sucesso!");
       setIdSystemAtm("");
       setNameAtm("");
       setNameRedAtm("");
@@ -80,26 +75,26 @@ export default function AtmAdd() {
       setCasseteCAtm("50");
       setCasseteDAtm("100");
       setLoading(false);
+       toast.success("Atm adicionado com sucesso!");
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, atualize e tente novamente' })
       setLoading(false);
+      toast.error("Erro ao adicionar Atm, tente novamente!");
       return;
     }
   };
 
   const getAllTreasury = async () => {
-    setLoading(false);
     setLoading(true);
     const t = await getAll();
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
       setLoading(false);
+      toast.error("Erro de requisição, tente novamente");
       return;
     }
     if (t.data.treasury && t.data.treasury.length === 0) {
-      setError({ type: 'error', title: 'Error', messege: 'Sem tesourarias para ser vinculada, favor adicionar uma tesouraria primeiro!' })
       setLoading(false);
+      toast.error("Sem tesourarias para ser vinculada, favor adicionar uma tesouraria primeiro!");
       return;
     }
     setIdTreasury(t.data.treasury[0].id);

@@ -12,6 +12,7 @@ import { getAll } from "@/app/service/treasury";
 import { validateField } from "@/app/utils/validateField";
 import { add } from "@/app/service/card-operator";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function OperationCardAdd() {
 
@@ -30,13 +31,11 @@ export default function OperationCardAdd() {
   }, []);
 
   const getAllTreasuries = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
     if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' });
       setLoading(false);
+      toast.error('Erro na requisição, tentar novamente!');
       return;
     }
     if (allTreasury.data.treasury && allTreasury.data.treasury[0].id > 0) {
@@ -45,15 +44,13 @@ export default function OperationCardAdd() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar os dados, tentar novamente!' });
       setLoading(false);
+      toast.error('Erro ao retornar os dados, tentar novamente!');
       return;
     }
   };
 
   const addCardOperator = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (
       idTreasury === "" ||
@@ -61,8 +58,8 @@ export default function OperationCardAdd() {
       !validateField(nameOperatorCard) ||
       !validateField(numOperatorCard)
     ) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro em carregar os dados, tentar novamente!' });
       setLoading(false);
+      toast.error('Preencha todos os dados para continuar!');
       return;
     }
 
@@ -70,23 +67,23 @@ export default function OperationCardAdd() {
       id_treasury: parseInt(idTreasury),
       name: nameOperatorCard.toUpperCase(),
       number_card: numOperatorCard,
-      inUse : inUseOperatorCard
+      inUse: inUseOperatorCard
     };
 
     const newCardOperator = await add(data);
 
     if (newCardOperator.status === 300 || newCardOperator.status === 400 || newCardOperator.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' });
       setLoading(false);
+      toast.error('Erro na requisição, tentar novamente!');
       return;
     }
     if (newCardOperator.data.cardOperator && newCardOperator.data.cardOperator.id > 0) {
       setLoading(false);
-      setError({ type: 'success', title: 'Success', messege: 'Salvo com sucesso!' });
+      toast.success('Cartão operador adicionado com sucesso!');
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tentar novamente!' });
       setLoading(false);
+      toast.error('Erro ao salvar, tentar novamente!');
       return;
     }
   };
@@ -161,7 +158,7 @@ export default function OperationCardAdd() {
         </div>
 
         <div className="flex flex-row gap-2 items-center">
-          <input className="w-6 h-6" type="checkbox" checked={inUseOperatorCard} onChange={e=>setInUseOperadorCard(!inUseOperatorCard)} />
+          <input className="w-6 h-6" type="checkbox" checked={inUseOperatorCard} onChange={e => setInUseOperadorCard(!inUseOperatorCard)} />
           <label className="text-white text-lg uppercase">Cartão Principal</label>
         </div>
 

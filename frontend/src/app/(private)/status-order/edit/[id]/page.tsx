@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function StatusOrderEdit() {
 
@@ -34,14 +35,12 @@ export default function StatusOrderEdit() {
   const [loading, setLoading] = useState(false)
 
   const getStatusOrder = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     try {
       const getSOrder = await getStatusOrderForId(id as string);
       if (getSOrder.status === 300 || getSOrder.status === 400 || getSOrder.status === 500) {
-        setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
         setLoading(false);
+        toast.error('Erro na requisição, tente novamente!');
         return;
       }
       if (getSOrder.data.statusOrder && getSOrder.data.statusOrder?.id) {
@@ -51,12 +50,12 @@ export default function StatusOrderEdit() {
         setLoading(false);
         return;
       } else {
-        setError({ type: 'error', title: 'Error', messege: 'Nada a mostrar!' })
         setLoading(false);
+        toast.error('Nada a mostrar, tente novamente!');
         return;
       }
     } catch (error) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar os dados!' });
+      toast.error('Erro ao carregar os dados, tente novamente!');
     } finally {
       setLoading(false); // Sempre finaliza o loading, seja com sucesso ou erro
     }
@@ -69,12 +68,10 @@ export default function StatusOrderEdit() {
   }, [id]);
 
   const editTypeOperation = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     if (!validateField(nameStatusOrder)) {
-      setError({ type: 'error', title: 'Error', messege: 'Preencha todos os campos!' })
       setLoading(false)
+      toast.error('Para continuar, preencha todos os campos corretamente!')
       return
     }
     const data = {
@@ -83,20 +80,22 @@ export default function StatusOrderEdit() {
     }
     const editedStatusOrder = await update(parseInt(id as string), data)
     if (editedStatusOrder.status === 300 || editedStatusOrder.status === 400 || editedStatusOrder.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
     if (editedStatusOrder.data.statusOrder && editedStatusOrder.data.statusOrder?.id) {
       getStatusOrder()
-      setError({ type: 'success', title: 'Success', messege: 'Alterado com sucesso!' })
       setLoading(false)
+      toast.success('Alterado com sucesso!')
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao alterar, tente novamente!' })
       setLoading(false)
+      toast.error('Erro ao alterar, tente novamente!')
       return
     }
+    setLoading(false)
+    return
   }
 
   return (

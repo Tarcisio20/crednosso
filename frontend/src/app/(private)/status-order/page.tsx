@@ -14,6 +14,7 @@ import { del, getAll, getAllPagination } from "@/app/service/status-order";
 import { statusOrderType } from "@/types/statusOrder";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
+import { toast } from "sonner";
 
 export default function StatusOrder() {
 
@@ -32,25 +33,23 @@ export default function StatusOrder() {
     return
   }
 
-  const loadStatusOrderPagination =  useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
+  const loadStatusOrderPagination = useCallback(async () => {
     setLoading(true);
     const statusOrder = await getAllPagination(currentPage, pageSize);
     if (statusOrder.status === 300 || statusOrder.status === 400 || statusOrder.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente!')
       return;
     }
-    
+
     if (statusOrder.data && statusOrder.data.length > 0) {
       setStatusOrders(statusOrder.data);
       setTotalPages(statusOrder.meta.totalPages);
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar!' });
       setLoading(false);
+      toast.error('Sem dados a mostrar, tente novamente!')
       return;
     }
   }, [])
@@ -60,30 +59,29 @@ export default function StatusOrder() {
     loadStatusOrderPagination();
   }, [currentPage, loadStatusOrderPagination]);
 
-
-   const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
-        e.preventDefault()
-         setError({ type: '', title: '', messege: '' });
-        setLoading(false);
-        setLoading(true);
-       if(!id){
-         setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
-          setLoading(false);
-          return;
-       }
-       const deleteStatusOrder = await del(id)
-       if(deleteStatusOrder.status === 300 || deleteStatusOrder.status === 400 || deleteStatusOrder.status === 500){
-         setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
-          setLoading(false);
-          return;
-       }
-       if(deleteStatusOrder.status === 200){
-         setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
-         setLoading(false);
-         loadStatusOrderPagination();
-         return;
-       }
-      };
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setLoading(true);
+    if (!id) {
+      setLoading(false);
+      toast.error('Selecione um Atm, para continunar');
+      return;
+    }
+    const deleteStatusOrder = await del(id)
+    if (deleteStatusOrder.status === 300 || deleteStatusOrder.status === 400 || deleteStatusOrder.status === 500) {
+      setLoading(false);
+      toast.error('Erro de requisição, tente novamente')
+      return;
+    }
+    if (deleteStatusOrder.status === 200) {
+      setLoading(false);
+      loadStatusOrderPagination()
+      toast.success('Atm deletado com sucesso!');
+      return;
+    }
+    setLoading(false);
+    return
+  };
 
   return (
     <Page>
@@ -112,8 +110,8 @@ export default function StatusOrder() {
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                   </Link>
                   <a href={`/status-order/del/${item.id}`}
-                      onClick={(e)=>handleDelete(e, item.id as number)}
-                      className="cursor-pointer"
+                    onClick={(e) => handleDelete(e, item.id as number)}
+                    className="cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
                   </a>

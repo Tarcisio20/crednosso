@@ -19,6 +19,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AtmEdit() {
   const { id } = useParams();
@@ -43,16 +44,12 @@ export default function AtmEdit() {
 
 
   const getAtmById = useCallback( async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
-
-
     const atmOne = await getAtmFronId(id as string);
     const t = await getAll();
     if (t.status === 300 || t.status === 400 || t.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente');
       return;
     }
     if (atmOne.data.atm && atmOne.data.atm.id) {
@@ -71,8 +68,8 @@ export default function AtmEdit() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, atualize e tente novamente' })
       setLoading(false);
+      toast.error('Sem dados a mostrar, atualize e tente novamente');
       return;
     }
   }, [id]);
@@ -88,16 +85,14 @@ export default function AtmEdit() {
   }, [id, router, getAtmById]);
 
   const updateAtm = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     if (
       idSystemAtm === '' || !validateField(nameAtm) || !validateField(nameRedAtm) || idTreasuryAtm === '0' ||
       numStoreAtm === ''
 
     ) {
-      setError({ type: 'error', title: 'Error', messege: 'Prrencha todos os campos e tente novamente' })
       setLoading(false);
+      toast.error('Preencha todos os campos e tente novamente');
       return;
     }
 
@@ -116,18 +111,18 @@ export default function AtmEdit() {
 
     const editedAtm = await update(parseInt(id as string), data);
     if (editedAtm.status === 300 || editedAtm.status === 400 || editedAtm.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente');
       return
     }
     if (editedAtm.data.atm && editedAtm.data.atm?.id > 0) {
       getAtmById();
-      setError({ type: 'success', title: 'Succes', messege: 'Atualizado com sucesso!' })
       setLoading(false);
+      toast.success('Atualizado com sucesso!');
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao atualizar, tente novamente' })
     setLoading(false);
+    toast.error('Erro ao atualizar, tente novamente');
     return
   };
 

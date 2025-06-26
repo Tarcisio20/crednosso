@@ -14,15 +14,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeSupplyEdit() {
   const { id } = useParams();
   const router = useRouter();
 
-  if(!id){
+  if (!id) {
     router.push('/type-supply')
     return
   }
+
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType>()
   const [nameTypeSupply, setNameTypeSupply] = useState('')
   const [statusTypeSupply, setStatusTypeSupply] = useState(true)
@@ -30,53 +32,48 @@ export default function TypeSupplyEdit() {
   const [loading, setLoading] = useState(false)
 
 
-  const getTypeSupplyById =  useCallback(async () => {
-    setError("");
-    setLoading(false);
+  const getTypeSupplyById = useCallback(async () => {
     setLoading(true);
     const tSupply = await getTypeSupplyForId(id as string);
     if (tSupply.data.typeSupply.id > 0) {
       setTypeSupplies(tSupply.data.typeSupply);
       setNameTypeSupply(tSupply.data.typeSupply.name);
       setStatusTypeSupply(tSupply.data.typeSupply.status);
-      setError("");
       setLoading(false);
       return;
     } else {
-      setError("Erro ao retornar");
       setLoading(false);
+      toast.error('Erro ao retornar, tente novamente!');
       return;
     }
+    setLoading(false);
+    return
   }, [])
 
-  
   useEffect(() => {
     document.title = "Tipo Abastecimento - Edit | CredNosso";
     getTypeSupplyById();
   }, [id, getTypeSupplyById]);
 
   const editTypeSupply = async () => {
-    setError("");
-    setLoading(false);
     setLoading(true);
     if (!validateField(nameTypeSupply)) {
-      setError("Preencher todos os dados!");
       setLoading(false);
+      toast.error('Para continuar, preencher todos os dados!');
       return;
     }
-      const data = {
+    const data = {
       name: nameTypeSupply.toUpperCase(),
-      status : statusTypeSupply
+      status: statusTypeSupply
     }
     const newTypeSupply = await update(parseInt(id as string), data)
     if (newTypeSupply.data.typeSupply.id > 0) {
       setLoading(false);
-      setError("");
       getTypeSupplyById();
       return;
     }
-    setError("Erro ao salvar!");
     setLoading(false);
+    toast.error('Erro ao salvar, tente novamente!');
     return;
   };
 

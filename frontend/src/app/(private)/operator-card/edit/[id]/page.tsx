@@ -14,6 +14,7 @@ import { getCardOperatorById, update } from "@/app/service/card-operator";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { validateField } from "@/app/utils/validateField";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function OperationCardEdit() {
 
@@ -30,13 +31,11 @@ export default function OperationCardEdit() {
   const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
-  
+
 
 
 
   const getAllTreasuries = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
     const allTreasuries = await getAll()
     if (allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id) {
@@ -45,15 +44,13 @@ export default function OperationCardEdit() {
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar os dados, tentar novamente!' });
       setLoading(false)
+      toast.error('Erro ao carregar os dados, tentar novamente!');
       return
     }
   }
 
   const getById = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
     const cOperator = await getCardOperatorById(id as string)
     if (cOperator.data.cardOperator && cOperator.data.cardOperator?.id) {
@@ -65,8 +62,8 @@ export default function OperationCardEdit() {
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar os dados, tentar novamente!' });
       setLoading(false)
+      toast.error('Erro ao carregar os dados, tentar novamente!');
       return
     }
   }, [id])
@@ -83,14 +80,12 @@ export default function OperationCardEdit() {
   }, [id])
 
   const editCardOperator = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
     if (
       idTreasury === '' || idTreasury === '0' || !validateField(nameOperatorCard) || !validateField(numOperatorCard)
     ) {
-      setError({ type: 'error', title: 'Error', messege: 'Preencer todos os campos!' });
       setLoading(false)
+      toast.error('Preencher todos os campos para continuar!');
       return
     }
 
@@ -107,8 +102,8 @@ export default function OperationCardEdit() {
       allLOadings()
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao Editar, tentar novamente!' });
       setLoading(false)
+      toast.error('Erro ao editar, tentar novamente!');
       return
     }
 
@@ -194,7 +189,7 @@ export default function OperationCardEdit() {
           <Button color="#2E8B57" onClick={editCardOperator} size="meddium" textColor="white" secondaryColor="#81C784">Editar</Button>
         </div>
         {error.messege &&
-         <Messeger type={error.type} title={error.title} messege={error.messege} />
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
         }
         {loading &&
           <Loading />

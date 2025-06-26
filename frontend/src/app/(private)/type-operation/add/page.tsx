@@ -15,13 +15,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeOperationAdd() {
 
-    useEffect(() => {
-      document.title = "Tipo Operação - Add | CredNosso";
-    }, []);
-  
+  useEffect(() => {
+    document.title = "Tipo Operação - Add | CredNosso";
+  }, []);
+
 
   const router = useRouter();
 
@@ -31,11 +32,10 @@ export default function TypeOperationAdd() {
   const [loading, setLoading] = useState(false);
 
   const addTypeOperation = async () => {
-    setError({ type: '', title: '', messege: '' });
     setLoading(true);
     if (!validateField(nameTypeOperation) || idSystemTypeOperation === "") {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencha todos os campos corretamente!' });
       setLoading(false);
+      toast.error('Para continuar, preencha todos os campos corretamente!');
       return;
     }
     let data = {
@@ -44,14 +44,14 @@ export default function TypeOperationAdd() {
     };
     const newTypeOperation = await add(data);
     if (newTypeOperation.data.typeOperation.id) {
-      setError({ type: 'success', title: 'Success', messege: 'Tipo de operação salva com sucesso!' });
       setIdSystemTypeOperation("")
       setNameTypeOperation("")
       setLoading(false);
+      toast.success('Tipo de Operação salva com sucesso!');
       return;
     } else {
       setLoading(false);
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
+      toast.error('Erro ao salvar, tente novamente!');
       return;
     }
   };

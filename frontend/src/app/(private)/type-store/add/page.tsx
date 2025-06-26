@@ -11,12 +11,13 @@ import { validateField } from "@/app/utils/validateField";
 import { faAdd, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeStoreAdd() {
 
-    useEffect(() => {
-      document.title = "Tipo de Loja - Add | CredNosso";
-    }, []);
+  useEffect(() => {
+    document.title = "Tipo de Loja - Add | CredNosso";
+  }, []);
 
   const router = useRouter();
 
@@ -25,12 +26,10 @@ export default function TypeStoreAdd() {
   const [loading, setLoading] = useState(false);
 
   const addTypeStore = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (!validateField(nameTypeStore)) {
-      setError({ type: '', title: '', messege: '' });
       setLoading(false);
+      toast.error('Para continuar, preencha todos os campos corretamente!');
       return;
     }
     let data = {
@@ -39,11 +38,11 @@ export default function TypeStoreAdd() {
     const newTypeStore = await add(data);
     if (newTypeStore.data.typeStore && newTypeStore.data.typeStore.length > 0) {
       setLoading(false);
-      setError({ type: 'success', title: 'Success', messege: 'Tipo de Loja salva com sucesso!' });
+      toast.success('Tipo de Loja salva com sucesso!');
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
     setLoading(false);
+    toast.error('Erro ao salvar, tente novamente!');
     return;
   };
 

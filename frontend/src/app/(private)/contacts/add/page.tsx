@@ -12,6 +12,7 @@ import { getAll } from '@/app/service/treasury';
 import { validateField } from '@/app/utils/validateField';
 import { add } from '@/app/service/contact';
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function ContactsAdd() {
 
@@ -30,13 +31,11 @@ export default function ContactsAdd() {
   }, [])
 
   const getAllTreasuries = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
     const allTreasury = await getAll()
     if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false)
+      toast.error('Erro de requisição, tente novamente!');
       return
     }
     if (allTreasury.data.treasury[0] && allTreasury.data.treasury[0].id > 0) {
@@ -45,23 +44,20 @@ export default function ContactsAdd() {
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados, tente novamente!' });
       setLoading(false)
+      toast.error('Erro ao retornar dados, tente novamente!');
       return
     }
   }
 
   const addContact = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false)
     setLoading(true)
-    if (
-      idTreasury === '' || idTreasury === '0' || !validateField(nameContact) || !validateField(emailContact)
-    ) {
-      setError({ type: 'error', title: 'Error', messege: 'Preencha todos os dados para continuar!' });
+    if (idTreasury === '' || idTreasury === '0' || !validateField(nameContact) || !validateField(emailContact)) {
       setLoading(false)
+      toast.error('Preencha todos os dados para continuar!');
       return
     }
+
     const data = {
       id_treasury: parseInt(idTreasury),
       name: nameContact.toUpperCase(),
@@ -71,23 +67,23 @@ export default function ContactsAdd() {
 
     const newContact = await add(data)
     if (newContact.status === 300 || newContact.status === 400 || newContact.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false)
+      toast.error('Erro de requisição, tente novamente!');
       return
     }
     if (newContact.data.contact && newContact.data.contact.id > 0) {
       setNameContact('')
       setPhoneContact('')
       setEmailContact('')
-      setError({ type: 'success', title: 'Success', messege: 'Salvo com sucesso!' });
       setLoading(false)
-
+      toast.success('Contato adicionado com sucesso!');
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
       setLoading(false)
+      toast.error('Erro ao salvar, tente novamente!');
       return
     }
+    setLoading(false);
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

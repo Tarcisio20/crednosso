@@ -13,6 +13,7 @@ import { faParachuteBox } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Supply() {
 
@@ -37,9 +38,7 @@ export default function Supply() {
     }
   }, [])
 
-
   const handleGenerateOrders = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(true)
     console.log(supplies)
     setLoading(true)
@@ -51,7 +50,6 @@ export default function Supply() {
   }
 
   const handleDaySupplies = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(true)
     const data = {
       date: currentDay
@@ -60,20 +58,18 @@ export default function Supply() {
     const supplayDay = await getSuppliesForDay(data)
     
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentenovamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tentenovamente!') 
 
     }
 
     if (supplayDay.data.supply && supplayDay.data.supply.length > 0) {
       setSupplies(supplayDay.data.supply)
-      setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
     }
-    setError({ type: 'error', title: 'Error', messege: 'Nunhum abastecimento cadastrado para hoje!' })
     setLoading(false)
-  
+    toast.error('Nenhum abastecimento cadastrado para hoje!')
   }
 
   useEffect(() => {
@@ -85,8 +81,6 @@ export default function Supply() {
   const handleSuppliesDay = async () => {
 
   }
-
-
 
   return (
     <Page>

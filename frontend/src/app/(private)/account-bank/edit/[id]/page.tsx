@@ -6,16 +6,15 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages"
-import { add, getAccountBankFronId, update } from "@/app/service/account-bank";
-
+import { getAccountBankFronId, update } from "@/app/service/account-bank";
 import {
-  faAdd,
   faLandmark,
   faPenToSquare,
   faVault,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AccountBankEdit() {
   const { id } = useParams();
@@ -33,14 +32,12 @@ export default function AccountBankEdit() {
   const [loading, setLoading] = useState(false);
 
   const getAccountBankById = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
 
     const accountOne = await getAccountBankFronId(id as string);
     if (accountOne.status === 300 || accountOne.status === 400 || accountOne.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente');
       return;
     }
 
@@ -54,8 +51,8 @@ export default function AccountBankEdit() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, atualize e tente novamente' })
       setLoading(false);
+      toast.error('Sem dados a mostrar, atualize e tente novamente');
       return;
     }
 
@@ -74,13 +71,11 @@ export default function AccountBankEdit() {
 
 
   const updateAccount = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
 
     if (nameAccount === "" || bankBranch === "" || bankBranchDigit === "" || account === "" || accountDigit === "") {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, Prencher todos os campos' })
       setLoading(false);
+      toast.error('Para continuar, Prencher todos os campos');
       return;
     }
 
@@ -95,19 +90,19 @@ export default function AccountBankEdit() {
 
     const editAccount = await update(parseInt(id as string), data)
     if (editAccount.status === 300 || editAccount.status === 400 || editAccount.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente');
       return;
     }
 
     if (editAccount.data !== undefined && editAccount.data.account.id > 0) {
       getAccountBankById();
-      setError({ type: 'success', title: 'Succes', messege: 'Atualizado com sucesso!' })
       setLoading(false);
+      toast.success('Conta Bancária atualizada com sucesso!');
       return;
     }
-    setError({ type: 'error', title: 'Error', messege: 'Erro ao atualizar, tente novamente' })
     setLoading(false);
+    toast.error('Erro ao atualizar, tente novamente');
     return
   }
 

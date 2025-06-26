@@ -14,12 +14,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeOperationAdd() {
 
-    useEffect(() => {
-      document.title = "Status Pedido - Add | CredNosso";
-    }, []);
+  useEffect(() => {
+    document.title = "Status Pedido - Add | CredNosso";
+  }, []);
 
   const router = useRouter();
 
@@ -28,12 +29,10 @@ export default function TypeOperationAdd() {
   const [loading, setLoading] = useState(false);
 
   const addStatusOrder = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (!validateField(nameStatusOrder)) {
-      setError({ type: 'error', title: 'Error', messege: 'Para continuar, preencha todos os campos corretamente!' });
       setLoading(false);
+      toast.error('Para continuar, preencha todos os campos corretamente!');
       return;
     }
     const data = {
@@ -41,18 +40,18 @@ export default function TypeOperationAdd() {
     };
     const newStatusOrder = await add(data);
     if (newStatusOrder.status === 300 || newStatusOrder.status === 400 || newStatusOrder.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente!');
       return;
     }
     if (newStatusOrder.data.statusOrder && newStatusOrder.data.statusOrder?.id) {
-      setError({ type: 'success', title: 'Success', messege: 'Status do Pedido salvo com sucesso!' });
       setNameStatusOrder("")
       setLoading(false);
+      toast.success('Status do Pedido salvo com sucesso!');
       return;
     } else {
       setLoading(false);
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, tente novamente!' });
+      toast.error('Erro ao salvar, tente novamente!');
       return;
     }
   };

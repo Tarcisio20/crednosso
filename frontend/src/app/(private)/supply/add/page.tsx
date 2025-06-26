@@ -7,19 +7,19 @@ import { ModalTrocaTotal } from "@/app/components/ux/ModalTrocaTotal";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getAtmsForTreasury, getAtmsWithSupplyInDateAndTreasury } from "@/app/service/atm";
-import { getAllOrdersForDate, getTreasuriesInOrder } from "@/app/service/order";
+import { getAtmsForTreasury } from "@/app/service/atm";
+import { getTreasuriesInOrder } from "@/app/service/order";
 import { getSuppliesForNow, getSuppliesWithSupplyInDateAndTreasury, getSupplyForIdTreasury, saveIndividualSupply } from "@/app/service/supply";
 import { getTreasuriesForIds } from "@/app/service/treasury";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
 import { atmType } from "@/types/atmType";
-import { orderType } from "@/types/orderType";
 import { supplyForDayType } from "@/types/supplyForDayType";
 import { treasuryType } from "@/types/treasuryType";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type atmPage = {
   id_atm: number;
@@ -87,21 +87,20 @@ export default function Supply() {
   }, [idTreasury, atms]);
 
   const handleTreasuriesForDateOrder = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(true)
     if (dateSupply === '') {
-      setError({ type: 'error', title: 'Error', messege: 'Prrencher o campo de data!' })
       setAtms([])
       setLoading(false)
+      toast.error('Prrencher o campo de data!') 
       return
     }
     const orderAjusted: orderPage[] = []
     const idTreasuriesInOrderDate: any = await getTreasuriesInOrder(dateSupply)
 
     if (idTreasuriesInOrderDate.status === 300 || idTreasuriesInOrderDate.status === 400 || idTreasuriesInOrderDate.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setAtms([])
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
 
@@ -119,7 +118,6 @@ export default function Supply() {
     setOrderFiltered(orderAjusted)
 
     const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
-    console.log("IDS", idTreasuriesInOrderDate.data.order)
     if (!treasuriesForIds?.data?.treasury) {
       setAtms([])
       setError({ type: 'error', title: 'Error', messege: 'Erro na busca por tesourarias, tente novamente!' })
@@ -129,13 +127,12 @@ export default function Supply() {
     const atmsWithSupply = []
     idTreasuriesInOrderDate.data.order.map(async(item : any) => {
       const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
-     console.log(atmsWithSupplies)
     })
     
     if ([300, 400, 500].includes(treasuriesForIds)) {
       setAtms([])
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
 
@@ -150,8 +147,8 @@ export default function Supply() {
 
     if (treasuriesForIds.data.treasury.length === 0) {
       setAtms([])
-      setError({ type: 'error', title: 'Error', messege: 'Sem pedidos a retornar!' })
       setLoading(false)
+      toast.error('Sem pedidos a retornar!')
       return
     }
     setTreasuries(uniqueTreasury)
@@ -161,8 +158,8 @@ export default function Supply() {
     const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
     if (atmsForTreasury.status === 300 || atmsForTreasury.status === 400 || atmsForTreasury.status === 500) {
       setAtms([])
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, Faça a busca por data novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
     if (atmsForTreasury.data.atm && atmsForTreasury.data.atm.length > 0) {
@@ -221,9 +218,11 @@ export default function Supply() {
       return
     } else {
       setAtms([])
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao filtrar atms' })
       setLoading(false)
+      toast.error('Erro ao filtrar atms, tente novamente!')
     }
+    setLoading(false)
+    return
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,11 +266,11 @@ export default function Supply() {
   }
 
   const getSupplyForTreasury = async () => {
-    setError({ type: '', title: '', messege: '' })
     setLoading(true)
     const allSupplyForTreasury = await getSupplyForIdTreasury(parseInt(idTreasury))
     if ([300, 400, 500].includes(allSupplyForTreasury)) {
       setLoading(false)
+      toast.error('Erro na requisição, tentar novamente!')
       return
     }
     if (allSupplyForTreasury.data !== undefined && allSupplyForTreasury.data.supply.length > 0) {
@@ -279,6 +278,7 @@ export default function Supply() {
       setLoading(false)
     } else {
       setLoading(false)
+      toast.error('Sem dados a retornar!')
       return
     }
   }
@@ -291,7 +291,7 @@ export default function Supply() {
     const atm : atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
     if (atm.length === 1) {
       if (cassA === "0" && cassB === "0" && cassC === "0" && cassD === "0") {
-        setError({ type: 'error', title: 'Erro', messege: 'Preciso de algum valor para abasetcer ' })
+        toast.error('Preciso de algum valor para abasetcer!')
         return
       }
 
@@ -309,21 +309,16 @@ export default function Supply() {
       }
 
       const supply = await saveIndividualSupply(data)
-      console.log("add", supply)
 
     }else{
-      setError({ type: 'error', title: 'Erro', messege: 'Preciso de um atm selecionado ' })
+      toast.error('Preciso de um atm selecionado!')
       return
     }
-
-    console.log("Passei")
   }
-
 
   const handleCloseModalTrocaTotal = () => {
     setModalTrocaTotal(false)
   }
-
 
   const handleDiv = async () => {
     const confirmed = window.confirm("Tem certeza que deseja dividir o abastecimento?");

@@ -19,6 +19,7 @@ import { getContactById, update } from "@/app/service/contact";
 import { ContactType } from "@/types/contactType";
 import { validateField } from "@/app/utils/validateField";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function ContactsEdit() {
 
@@ -36,14 +37,12 @@ export default function ContactsEdit() {
   const [loading, setLoading] = useState(false)
 
 
-  const getAllTreasuries =  useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
+  const getAllTreasuries = useCallback(async () => {
     setLoading(true);
     const allTreasuries = await getAll();
     if (allTreasuries.status === 300 || allTreasuries.status === 400 || allTreasuries.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de conexão, tente novamente!');
       return;
     }
     if (allTreasuries.data.treasury && allTreasuries.data.treasury[0]?.id) {
@@ -51,20 +50,18 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar dados, tente novamente!' });
       setLoading(false);
+      toast.error('Erro ao carregar dados, tente novamente!');
       return;
     }
   }, []);
 
   const getById = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     const cont = await getContactById(id as string);
     if (cont.status === 300 || cont.status === 400 || cont.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de conexão, tente novamente!');
       return;
     }
     if (cont.data.contact && cont.data.contact?.id > 0) {
@@ -77,8 +74,8 @@ export default function ContactsEdit() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao carregar dados, tente novamente!' });
       setLoading(false);
+      toast.error('Erro ao carregar dados, tente novamente!');
       return;
     }
   }, [id]);
@@ -95,8 +92,6 @@ export default function ContactsEdit() {
   }, [id, AllLoadings])
 
   const editContact = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (
       idTreasury === "" ||
@@ -105,8 +100,8 @@ export default function ContactsEdit() {
       !validateField(phoneContact) ||
       !validateField(emailContact)
     ) {
-      setError({ type: 'error', title: 'Error', messege: 'Preencher todos os campos!' });
       setLoading(false);
+      toast.error('Preencha todos os campos para continuar!');
       return;
     }
 
@@ -120,18 +115,18 @@ export default function ContactsEdit() {
 
     const editedContact = await update(parseInt(id as string), data);
     if (editedContact.status === 300 || editedContact.status === 400 || editedContact.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de conexão, tente novamente!' });
       setLoading(false);
+      toast.error('Erro de conexão, tente novamente!');
       return;
     }
     if (editedContact.data.contact?.id) {
-      setError({ type: 'success', title: 'Success', messege: 'Dados atualizados!' });
-      setLoading(false);
       AllLoadings();
+      setLoading(false);
+      toast.success('Contato editado com sucesso!');
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao Editar, tente novamente!' });
       setLoading(false);
+      toast.error('Erro ao editar, tente novamente!');
       return;
     }
   };
@@ -232,7 +227,7 @@ export default function ContactsEdit() {
           </Button>
         </div>
         {error.messege && (
-         <Messeger type={error.type} title={error.title} messege={error.messege} />
+          <Messeger type={error.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>

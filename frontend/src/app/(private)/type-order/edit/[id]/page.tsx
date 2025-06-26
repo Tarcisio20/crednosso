@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function TypeOrderEdit() {
 
@@ -35,8 +36,6 @@ export default function TypeOrderEdit() {
 
 
   const getTypeOrderById = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     const tOrders = await getTypeOrderForId(id as string)
     if (tOrders.data.typeOrder.id) {
@@ -44,23 +43,20 @@ export default function TypeOrderEdit() {
       setIdSystemTypeOrder(tOrders.data.typeOrder.id_system)
       setNameTypeOrder(tOrders.data.typeOrder.name)
       setStatusTypeOrder(tOrders.data.typeOrder.status)
-      setError('')
       setLoading(false)
       return
     } else {
-      setError("Erro ao retornar")
       setLoading(false)
+      toast.error('Erro ao retornar dados, tente novamente!')
       return
     }
   }
 
   const editTypeOrder = async () => {
-    setError('')
-    setLoading(false)
     setLoading(true)
     if (idSystemTypeOrder === '' || !validateField(nameTypeOrder)) {
-      setError("Preencher todos os campos!")
       setLoading(false)
+      toast.error('Para continuar, preencha todos os campos corretamente!')
       return
     }
     let data = {
@@ -70,13 +66,12 @@ export default function TypeOrderEdit() {
     }
     const editedTypeOrder = await update(parseInt(id as string), data)
     if (editedTypeOrder.data.typeOrder && editedTypeOrder.data.typeOrder?.id) {
-      setError('')
       setLoading(false)
       getTypeOrderById()
       return
     } else {
-      setError("Erro ao editar")
       setLoading(false)
+      toast.error('Erro ao alterar, tente novamente!')
       return
     }
   }

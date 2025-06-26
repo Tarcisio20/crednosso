@@ -20,6 +20,7 @@ import { cardOperatorType } from "@/types/cardOperatorType";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { Messeger } from "@/app/components/ux/Messeger";
+import { toast } from "sonner";
 
 export default function OperatorCard() {
   const router = useRouter();
@@ -43,13 +44,11 @@ export default function OperatorCard() {
   };
 
   const getAllTreasuries = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     const allTreasury = await getAll();
     if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setLoading(false);
+      toast.error('Erro na requisição, tente novamente!');
       return;
     }
     if (allTreasury.data.treasury && allTreasury.data.treasury[0]?.id > 0) {
@@ -58,37 +57,31 @@ export default function OperatorCard() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao retornar dados, tente novamente!' })
       setLoading(false);
+      toast.error('Erro ao retornar dados, tente novamente!');
       return;
     }
   };
 
   const search = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false);
     setLoading(true);
     if (idTreasury === "" || idTreasury === "0") {
-      setError({ type: 'error', title: 'Error', messege: 'Erro ao pesquisar, tente novamente!' })
       setLoading(false);
+      toast.error('Selecione uma transportadora para continuar!');
       return;
     }
     const allCardOperator = await getByIdTreasury(parseInt(idTreasury));
-    if (
-      allCardOperator?.status === 400 ||
-      allCardOperator?.status === 500 ||
-      allCardOperator?.status === 300
-    ) {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a mostrar, tente novamente!' })
+    if ( allCardOperator?.status === 400 || allCardOperator?.status === 500 || allCardOperator?.status === 300 ) {
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente!');
     }
     if (allCardOperator?.data.cardOperator || allCardOperator?.data.cardOperator?.id > 0) {
       setCardOperators(allCardOperator.data.cardOperator);
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem cartões a listar, tente novamente!' })
       setLoading(false);
+      toast.error('Sem cartões a listar, tente novamente!');
       return;
     }
   };
@@ -105,24 +98,22 @@ export default function OperatorCard() {
 
   const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
     e.preventDefault()
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
     if (!id) {
-      setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
       setLoading(false);
+      toast.error('Selecione um cartão para continuar!');
       return;
     }
     const deleteCard = await del(id)
     if (deleteCard.status === 300 || deleteCard.status === 400 || deleteCard.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
       setLoading(false);
+      toast.error('Erro de requisição, tente novamente');
       return;
     }
     if (deleteCard.status === 200) {
-      setError({ type: 'success', title: 'Sucesso', messege: 'Cartão deletado com sucesso!' })
       setLoading(false);
       search();
+      toast.success('Cartão deletado com sucesso!');
       return;
     }
   };

@@ -18,6 +18,7 @@ import { getAllPagination } from "@/app/service/type-operation";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
+import { toast } from "sonner";
 
 export default function TypeOperation() {
   const router = useRouter();
@@ -37,24 +38,21 @@ export default function TypeOperation() {
 
 
   const loadTypeOerations = async () => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
     setLoading(true)
     const tOperations = await getAllPagination(currentPage, pageSize)
     if (tOperations.status === 300 || tOperations.status === 400 || tOperations.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tente novamente!' })
       setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
       return
     }
     if (tOperations.data && tOperations.data.length > 0) {
       setTypeOperations(tOperations.data)
       setTotalPages(tOperations.meta.totalPages);
-      setError({ type: '', title: '', messege: '' })
       setLoading(false)
       return
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados para carregar!' })
       setLoading(false)
+      toast.error('Sem dados para carregar!')
       return
     }
   }
