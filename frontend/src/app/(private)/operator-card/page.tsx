@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/treasury";
 import { treasuryType } from "@/types/treasuryType";
-import { getByIdTreasury } from "@/app/service/card-operator";
+import { del, getByIdTreasury } from "@/app/service/card-operator";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
@@ -103,6 +103,30 @@ export default function OperatorCard() {
     setIdTreasury(event.target.value.toString());
   };
 
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setError({ type: '', title: '', messege: '' });
+    setLoading(false);
+    setLoading(true);
+    if (!id) {
+      setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
+      setLoading(false);
+      return;
+    }
+    const deleteCard = await del(id)
+    if (deleteCard.status === 300 || deleteCard.status === 400 || deleteCard.status === 500) {
+      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
+      setLoading(false);
+      return;
+    }
+    if (deleteCard.status === 200) {
+      setError({ type: 'success', title: 'Sucesso', messege: 'Cartão deletado com sucesso!' })
+      setLoading(false);
+      search();
+      return;
+    }
+  };
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faCreditCard}>
@@ -124,33 +148,33 @@ export default function OperatorCard() {
         <div className="flex flex-row gap-2">
 
           <div className="flex flex-col gap-5">
-              <label className="uppercase leading-3 font-bold">
-                Transportadora
-              </label>
-              <div className="flex gap-2">
-                <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
-                  <input
-                    value={idTreasury}
-                    onChange={handleInputChange}
-                    className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
-                  />
-                </div>
-                <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
-                  <select
-                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                    value={idTreasury}
-                    onChange={handleSelectChange}
-                  >
-                    {treasuries && treasuries.map((treasury) => (
-                      <option key={treasury.id} value={treasury.id_system} className="uppercase bg-slate-700 text-white">
-                        {treasury.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <label className="uppercase leading-3 font-bold">
+              Transportadora
+            </label>
+            <div className="flex gap-2">
+              <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 w-16 text-lg">
+                <input
+                  value={idTreasury}
+                  onChange={handleInputChange}
+                  className=" m-0 p-0 text-white bg-transparent outline-none text-center text-lg w-full"
+                />
+              </div>
+              <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
+                <select
+                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                  value={idTreasury}
+                  onChange={handleSelectChange}
+                >
+                  {treasuries && treasuries.map((treasury) => (
+                    <option key={treasury.id} value={treasury.id_system} className="uppercase bg-slate-700 text-white">
+                      {treasury.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            
+          </div>
+
           <div className="flex flex-col justify-end">
             <Button
               color="#1E90FF "
@@ -192,13 +216,15 @@ export default function OperatorCard() {
                         color="#6C8EBF"
                       />
                     </Link>
-                    <Link href={`/operator-card/del/${item.id}`}>
+                    <a href={`/operator-card/del/${item.id}`}
+                      onClick={(e) => { handleDelete(e, item.id as number) }}
+                    >
                       <FontAwesomeIcon
                         icon={faTrash}
                         size="1x"
                         color="#BF6C6C"
                       />
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))}

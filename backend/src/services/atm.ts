@@ -5,9 +5,9 @@ import { prisma } from "../utils/prisma";
 
 export const getAllAtm = async () => {
     const atm = await prisma.atm.findMany({
-        where : {  status : true}
+        where: { status: true }
     })
-    if(atm){
+    if (atm) {
         return atm
     }
     return null
@@ -39,54 +39,70 @@ export const getAllAtmPagination = async (page: number, pageSize: number) => {
     }
 }
 
-export const getForId = async (id : number ) => {
+export const getForId = async (id: number) => {
     const treasury = await prisma.atm.findFirst({
-        where : { id_system : id  }
+        where: { id_system: id }
     })
-    if(treasury){
+    if (treasury) {
         return treasury
     }
     return null
 }
 
-export const getForIdTreasury = async (id : number ) => {
+export const getForIdTreasury = async (id: number) => {
     const atm = await prisma.atm.findMany({
-        where : { id_treasury : id  }
+        where: { id_treasury: id }
     })
-    if(atm){
+    if (atm) {
         return atm
     }
     return null
 }
 
-export const addAtm = async (data : Prisma.AtmCreateInput) => {
+export const addAtm = async (data: Prisma.AtmCreateInput) => {
     const atm = await prisma.atm.create({ data })
-    if(atm){
+    if (atm) {
         return atm
     }
     return null
 }
 
-export const addBalanceAtm = async (id: number , data : Prisma.AtmUpdateInput) => {
-    const atm = await prisma.atm.update({ 
-        where : { id_system :  id},
-        data 
+export const addBalanceAtm = async (id: number, data: Prisma.AtmUpdateInput) => {
+    const atm = await prisma.atm.update({
+        where: { id_system: id },
+        data
     })
-    if(atm){
+    if (atm) {
         return atm
     }
     return null
 }
 
-export const updateAtm = async (id : number , data : Prisma.AtmUpdateInput) => {
+export const updateAtm = async (id: number, data: Prisma.AtmUpdateInput) => {
     const editAtm = await prisma.atm.update({
-        where : {
-            id_system : id
+        where: {
+            id_system: id
         },
         data
-    }) 
-    if(editAtm){
+    })
+    if (editAtm) {
         return editAtm
+    }
+    return null
+}
+
+export const delAtm = async (id: number) => {
+    const delAtm = await prisma.atm.update({
+        where: {
+            id_system: id
+        },
+        data: {
+            status: false
+        }
+
+    })
+    if (delAtm) {
+        return delAtm
     }
     return null
 }

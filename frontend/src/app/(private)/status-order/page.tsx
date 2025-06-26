@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
-import { getAll, getAllPagination } from "@/app/service/status-order";
+import { del, getAll, getAllPagination } from "@/app/service/status-order";
 import { statusOrderType } from "@/types/statusOrder";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
@@ -61,6 +61,30 @@ export default function StatusOrder() {
   }, [currentPage, loadStatusOrderPagination]);
 
 
+   const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
+        e.preventDefault()
+         setError({ type: '', title: '', messege: '' });
+        setLoading(false);
+        setLoading(true);
+       if(!id){
+         setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
+          setLoading(false);
+          return;
+       }
+       const deleteStatusOrder = await del(id)
+       if(deleteStatusOrder.status === 300 || deleteStatusOrder.status === 400 || deleteStatusOrder.status === 500){
+         setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
+          setLoading(false);
+          return;
+       }
+       if(deleteStatusOrder.status === 200){
+         setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
+         setLoading(false);
+         loadStatusOrderPagination();
+         return;
+       }
+      };
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faWandMagicSparkles} >Status do Pedido</TitlePages>
@@ -87,9 +111,12 @@ export default function StatusOrder() {
                   <Link href={`/status-order/edit/${item.id}`}>
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                   </Link>
-                  <Link href={`/status-order/del/${item.id}`}>
+                  <a href={`/status-order/del/${item.id}`}
+                      onClick={(e)=>handleDelete(e, item.id as number)}
+                      className="cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                  </Link>
+                  </a>
                 </td>
               </tr>
             ))}

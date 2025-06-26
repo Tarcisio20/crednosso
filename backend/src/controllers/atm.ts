@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { atmAddSchema } from "../schemas/atmAdd"
-import { addAtm, addBalanceAtm, getAllAtm, getAllAtmPagination, getForId, getForIdTreasury, updateAtm } from "../services/atm"
+import { addAtm, addBalanceAtm, delAtm, getAllAtm, getAllAtmPagination, getForId, getForIdTreasury, updateAtm } from "../services/atm"
 import { atmAddBalabceSchema } from "../schemas/atmAddBalabceSchema"
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -131,5 +131,21 @@ export const update: RequestHandler = async (req, res) => {
     }
 
     res.json({ atm: updateA })
+
+}
+
+export const del: RequestHandler = async (req, res) => {
+    const atmId = req.params.id
+   if(!atmId){
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+    const delA = await delAtm(parseInt(atmId))
+    if (!delA) {
+        res.status(401).json({ error: 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ atm: delA })
 
 }

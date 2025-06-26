@@ -38,6 +38,7 @@ mainRouter.post('/treasury/add',verifyJWT, treasuryController.add)
 mainRouter.post('/treasury/add_saldo/:id',verifyJWT, treasuryController.addSaldo)
 mainRouter.post('/treasury/minus_saldo/:id',verifyJWT, treasuryController.minusSaldo)
 mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
+mainRouter.get('/treasury/del/:id',verifyJWT, treasuryController.del)
 mainRouter.post('/treasury/ids',verifyJWT, treasuryController.getTreasuriesForID)
 
 
@@ -48,6 +49,7 @@ mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)
 mainRouter.post('/atm/add_balance',verifyJWT, atmController.addBalance)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
+mainRouter.post('/atm/del/:id',verifyJWT, atmController.del)
 mainRouter.post('/atm/treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
 
 // type-operation
@@ -70,6 +72,7 @@ mainRouter.get('/contact/treasury/:id',verifyJWT, contactController.getByIdTreas
 mainRouter.get('/contact/:id',verifyJWT, contactController.getById)
 mainRouter.post('/contact/add',verifyJWT, contactController.add)
 mainRouter.post('/contact/update/:id',verifyJWT, contactController.update)
+mainRouter.post('/contact/del/:id',verifyJWT, contactController.del)
 
 // card-operator
 mainRouter.get('/card-operator',verifyJWT, cardOperatorController.getAll)
@@ -77,6 +80,7 @@ mainRouter.get('/card-operator/:id',verifyJWT, cardOperatorController.getById)
 mainRouter.get('/card-operator/treasury/:id',verifyJWT, cardOperatorController.getByIdTreasury)
 mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
 mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.update)
+mainRouter.post('/card-operator/del/:id',verifyJWT, cardOperatorController.del)
 
 
 // type-supply
@@ -154,3 +158,4 @@ mainRouter.get('/account-bank-pagination',verifyJWT, accountBankController.getAl
 mainRouter.post('/account-bank/add',verifyJWT, accountBankController.add)
 mainRouter.get('/account-bank/:id',verifyJWT, accountBankController.getById)
 mainRouter.post('/account-bank/update/:id',verifyJWT, accountBankController.update)
+mainRouter.post('/account-bank/del/:id',verifyJWT, accountBankController.del)

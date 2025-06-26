@@ -47,8 +47,6 @@ export const getStatusOrderForId = async (id : string) => {
     return null
 }
 
-
-
 export const addStatusOrder = async (data : Prisma.StatusOrderCreateInput) => {
     const statusOrder = await prisma.statusOrder.create({ data })
     if(statusOrder){
@@ -66,6 +64,21 @@ export const updateStatusOrder = async (id: number, data : Prisma.StatusOrderUpd
     }) 
     if(editSOrder){
         return editSOrder
+    }
+    return null
+}
+
+export const delStatusOrder = async (id: number) => {
+    const delSOrder = await prisma.statusOrder.update({
+        where : {
+            id
+        },
+        data : {
+            status : false
+        }
+    }) 
+    if(delSOrder){
+        return delSOrder
     }
     return null
 }

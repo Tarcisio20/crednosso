@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { treasuryAddSchema } from "../schemas/treasuryAdd";
-import { addBalanceInTreasuryByIdSystem, addTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, updateTreasury } from "../services/treasury";
+import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, updateTreasury } from "../services/treasury";
 import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -112,6 +112,23 @@ export const update: RequestHandler = async (req, res) => {
   res.json({ treasury: updateT })
 
 }
+
+export const del: RequestHandler = async (req, res) => {
+  const treasuryId = req.params.id
+  if (!treasuryId) {
+    res.status(400).json({ error: 'ID da transportadora é necessário!' })
+    return  
+  }
+  const delT = await delTreasury(parseInt(treasuryId))
+  if (!delT) {
+    res.status(401).json({ error: 'Erro ao Editar!' })
+    return
+  }
+
+  res.json({ treasury: delT })
+
+}
+
 
 export const addSaldo: RequestHandler = async (req, res) => {
   const treasuryId = req.params.id

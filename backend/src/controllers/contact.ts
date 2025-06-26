@@ -6,6 +6,7 @@ import {
   getContactForId,
   getForIdTreasury,
   updateContact,
+  delContact,
 } from "../services/contact";
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -83,3 +84,21 @@ export const update: RequestHandler = async (req, res) => {
 
   res.json({ contact: updateCOntact });
 };
+
+export const del: RequestHandler = async (req, res) => {
+    const contactId = req.params.id
+
+    if(!contactId){
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+    const contactA = await delContact(parseInt(contactId))
+    if(!contactA){  
+        res.status(401).json({ error: 'Erro ao Editar!' })
+        return
+    }
+    
+
+    res.json({ account: contactA })
+
+}

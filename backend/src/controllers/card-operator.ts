@@ -6,6 +6,7 @@ import {
   getCardOperatorForId,
   getForIdTreasury,
   updateCardOperator,
+  delCardOperator,
 } from "../services/cardOperator";
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -85,3 +86,21 @@ export const update: RequestHandler = async (req, res) => {
 
   res.json({ cardOperator: updateCOperator });
 };
+
+export const del: RequestHandler = async (req, res) => {
+  const cardOperatorId = req.params.id;
+  if (!cardOperatorId) {
+    res.status(401).json({ error: "Requisição sem ID!" });
+    return;
+  }
+  const updateCOperator = await delCardOperator(
+    parseInt(cardOperatorId),
+  );
+  if (!updateCOperator) {
+    res.status(401).json({ error: "Erro ao Editar!" });
+    return;
+  }
+
+  res.json({ cardOperator: updateCOperator });
+};
+

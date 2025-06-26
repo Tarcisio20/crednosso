@@ -13,7 +13,7 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { atmType } from "@/types/atmType";
-import { getAllPagination } from "@/app/service/atm";
+import { del, getAllPagination } from "@/app/service/atm";
 import { getAll as gtTreasury } from "@/app/service/treasury";
 import { Loading } from "@/app/components/ux/Loading";
 import { treasuryType } from "@/types/treasuryType";
@@ -21,6 +21,7 @@ import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { returnDefault } from "@/app/utils/returnDefault";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
+import { toast } from "sonner";
 
 export default function Atm() {
   const router = useRouter();
@@ -43,14 +44,14 @@ export default function Atm() {
   }, []);
 
 
-  const getAllAtmsPagination = useCallback( async () => {
+  const getAllAtmsPagination = useCallback(async () => {
     setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const allAtms = await getAllPagination(currentPage, pageSize);
     const allTreasury = await gtTreasury();
     if (allTreasury.status === 300 || allTreasury.status === 400 || allTreasury.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
+      toast.error('Erro de requisição, tente novamente')
       setLoading(false);
       return;
     }
@@ -62,16 +63,40 @@ export default function Atm() {
       setLoading(false);
       return;
     } else {
-      setError({ type: 'error', title: 'Error', messege: 'Sem dados a carregar, tente novamente!' })
+      toast.error('Sem dados a carregar, tente novamente!')
       setLoading(false);
       return;
     }
   }, [currentPage]);
 
-  
+
   useEffect(() => {
     getAllAtmsPagination();
   }, [currentPage, getAllAtmsPagination]);
+
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setError({ type: '', title: '', messege: '' });
+    setLoading(false);
+    setLoading(true);
+    if (!id) {
+      toast.error('Selecione um Atm, para continunar')
+      setLoading(false);
+      return;
+    }
+    const deleteAtm = await del(id)
+    if (deleteAtm.status === 300 || deleteAtm.status === 400 || deleteAtm.status === 500) {
+      toast.error('Erro de requisição, tente novamente')
+      setLoading(false);
+      return;
+    }
+    if (deleteAtm.status === 200) {
+      toast.success('Atm deletado com sucesso!')
+      setLoading(false);
+      getAllAtmsPagination();
+      return;
+    }
+  };
 
   return (
     <Page>
@@ -120,20 +145,20 @@ export default function Atm() {
                   </td>
                   <td>Ativo</td>
                   <td className="flex justify-center items-center gap-4 h-12">
-                    <Link href={`/atm/edit/${item.id_system}`}>
+                    <Link href={`/atm/edit/${item.id_system}`} >
                       <FontAwesomeIcon
                         icon={faPenToSquare}
                         size="1x"
                         color="#6C8EBF"
                       />
                     </Link>
-                    <Link href={`/atm/del/${item.id_system}`}>
+                    <a href={`/atm/del/${item.id_system}`} onClick={(e) => handleDelete(e, item.id_system)} className="cursor-pointer" >
                       <FontAwesomeIcon
                         icon={faTrash}
                         size="1x"
                         color="#BF6C6C"
                       />
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))}

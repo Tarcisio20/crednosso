@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from 'sonner'
 import "../globals.css";
 import { Logo } from "../components/ui/Logo";
 import Link from "next/link";
@@ -78,6 +79,7 @@ export default function RootLayout({
         </div>
         <div className="flex-1">
           {children}
+          <Toaster richColors duration={4000} />
         </div>
       </div>
     </body>

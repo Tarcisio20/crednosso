@@ -1,5 +1,5 @@
 import { RequestHandler } from "express"
-import { addAccountBank, getAllAccountPagination, getForId, updateAccountBank } from "../services/account-bank";
+import { addAccountBank, delAccountBank, getAllAccountPagination, getForId, updateAccountBank } from "../services/account-bank";
 import { AccontBankAddSchema } from "../schemas/addAccountBank";
 export const getAllPagination: RequestHandler = async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
@@ -69,3 +69,20 @@ export const update: RequestHandler = async (req, res) => {
 
 }
 
+export const del: RequestHandler = async (req, res) => {
+    const accountId = req.params.id
+
+    if(!accountId){
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+    const accountA = await delAccountBank(parseInt(accountId))
+    if(!accountA){  
+        res.status(401).json({ error: 'Erro ao Editar!' })
+        return
+    }
+    
+
+    res.json({ account: accountA })
+
+}

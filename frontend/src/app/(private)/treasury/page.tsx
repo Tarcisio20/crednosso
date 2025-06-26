@@ -13,7 +13,7 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
-import { getAllTreasuryPagination } from "@/app/service/treasury";
+import { del, getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
@@ -62,6 +62,30 @@ export default function Treasury() {
   const handleAdd = () => {
     router.push("/treasury/add");
   };
+
+     const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
+        e.preventDefault()
+         setError({ type: '', title: '', messege: '' });
+        setLoading(false);
+        setLoading(true);
+       if(!id){
+         setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
+          setLoading(false);
+          return;
+       }
+       const deleteTreasury = await del(id)
+       if(deleteTreasury.status === 300 || deleteTreasury.status === 400 || deleteTreasury.status === 500){
+         setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
+          setLoading(false);
+          return;
+       }
+       if(deleteTreasury.status === 200){
+         setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
+         setLoading(false);
+         loadTreasuries();
+         return;
+       }
+      };
 
   return (
     <Page>
@@ -118,9 +142,11 @@ export default function Treasury() {
                       color="#6C8EBF"
                     />
                   </Link>
-                  <Link href={`/treasury/del/${item.id_system }`}>
+                  <a href={`/treasury/del/${item.id_system }`}
+                    onClick={(e)=> handleDelete(e, item.id_system as number)}
+                  >
                     <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                  </Link>
+                  </a>
                 </td>
               </tr>
             ))}

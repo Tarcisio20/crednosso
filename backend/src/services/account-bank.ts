@@ -57,3 +57,18 @@ export const updateAccountBank = async (id : number , data : Prisma.AccountBankU
     }
     return null
 }
+
+export const delAccountBank = async (id : number) => {
+    const editAccount = await prisma.accountBank.update({
+        where : {
+            id : id
+        },
+        data : {
+            status: false
+        }
+    }) 
+    if(editAccount){
+        return editAccount
+    }
+    return null
+}

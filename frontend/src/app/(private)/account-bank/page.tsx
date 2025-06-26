@@ -18,7 +18,7 @@ import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { returnDefault } from "@/app/utils/returnDefault";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
-import { getAllPagination } from "@/app/service/account-bank";
+import { del, getAllPagination } from "@/app/service/account-bank";
 import { accountBankType } from "@/types/accountBankType";
 
 export default function AccountBank() {
@@ -64,9 +64,33 @@ export default function AccountBank() {
     allAcountsPagination();
   }, [currentPage, allAcountsPagination]);
 
+   const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
+      e.preventDefault()
+       setError({ type: '', title: '', messege: '' });
+      setLoading(false);
+      setLoading(true);
+     if(!id){
+       setError({ type: 'error', title: 'Error', messege: 'Selecione um Atm, para continunar' })
+        setLoading(false);
+        return;
+     }
+     const deleteAccountBank = await del(id)
+     if(deleteAccountBank.status === 300 || deleteAccountBank.status === 400 || deleteAccountBank.status === 500){
+       setError({ type: 'error', title: 'Error', messege: 'Erro de requisição, tente novamente' })
+        setLoading(false);
+        return;
+     }
+     if(deleteAccountBank.status === 200){
+       setError({ type: 'success', title: 'Sucesso', messege: 'Atm deletado com sucesso!' })
+       setLoading(false);
+       allAcountsPagination();
+       return;
+     }
+    };
+
   return (
     <Page>
-      <TitlePages linkBack="/" icon={faBuildingColumns}> Contas Bacanarias </TitlePages>
+      <TitlePages linkBack="/" icon={faBuildingColumns}> Contas Bancárias </TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div className="flex flex-col gap-3 items-center justify-center mb-4">
           <Button
@@ -111,13 +135,14 @@ export default function AccountBank() {
                         color="#6C8EBF"
                       />
                     </Link>
-                    <Link href={`/account-bank/del/${item.id}`}>
+                    <a href={`/account-bank/del/${item.id}`}
+                      onClick={(e) =>handleDelete(e, item.id as number)}>
                       <FontAwesomeIcon
                         icon={faTrash}
                         size="1x"
                         color="#BF6C6C"
                       />
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))}

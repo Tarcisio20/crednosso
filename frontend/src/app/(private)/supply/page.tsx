@@ -9,7 +9,7 @@ import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getSuppliesForDay } from "@/app/service/supply";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
 import { supplyType } from "@/types/supplyType";
-import { faParachuteBox, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { faParachuteBox } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";

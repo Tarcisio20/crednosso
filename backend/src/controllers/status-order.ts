@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { statusOrderAddSchema } from "../schemas/statusOrderAddSchema"
-import { addStatusOrder, getAllStatusOrder, getAllStatusOrderPagination, getStatusOrderForId, updateStatusOrder } from "../services/statusOrder"
+import { addStatusOrder, delStatusOrder, getAllStatusOrder, getAllStatusOrderPagination, getStatusOrderForId, updateStatusOrder } from "../services/statusOrder"
 
 
 export const getAll: RequestHandler = async (req, res) => {
@@ -69,5 +69,21 @@ export const update: RequestHandler = async (req, res) => {
     }
 
     res.json({ statusOrder: updateSOrder })
+
+}
+
+export const del: RequestHandler = async (req, res) => {
+    const typeStatusOrderId = req.params.id
+    if (!typeStatusOrderId) {
+        res.status(401).json({ error: 'Selecione um Status Pedido, para continuar' })
+        return
+    }
+    const delSOrder = await delStatusOrder(parseInt(typeStatusOrderId))
+    if (!delSOrder) {
+        res.status(401).json({ error: 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ statusOrder: delSOrder })
 
 }

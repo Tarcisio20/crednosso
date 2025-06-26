@@ -130,7 +130,6 @@ export const addBalanceInTreasuryByIdSystem = async (id: number,
     return null
 }
 
-
 export const updateTreasury = async (id: number, data: Prisma.TreasuryUpdateInput) => {
     const editTreasury = await prisma.treasury.update({
         where: {
@@ -140,6 +139,21 @@ export const updateTreasury = async (id: number, data: Prisma.TreasuryUpdateInpu
     })
     if (editTreasury) {
         return editTreasury
+    }
+    return null
+}
+
+export const delTreasury = async (id: number) => {
+    const deleteTreasury = await prisma.treasury.update({
+        where: {
+            id
+        },
+        data : {
+            status: false
+        }
+    })
+    if (deleteTreasury) {
+        return deleteTreasury
     }
     return null
 }

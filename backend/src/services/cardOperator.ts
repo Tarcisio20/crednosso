@@ -49,3 +49,18 @@ export const updateCardOperator = async (id: number, data : Prisma.OperatorCardU
     }
     return null
 }
+
+export const delCardOperator = async (id: number) => {
+    const cardOperator = await prisma.operatorCard.update({
+        where : {
+            id
+        },
+        data : {
+            status : false
+        }
+    }) 
+    if(cardOperator){
+        return cardOperator
+    }
+    return null
+}
