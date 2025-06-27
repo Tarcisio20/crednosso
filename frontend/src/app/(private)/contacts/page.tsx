@@ -4,9 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import {
+  faCheck,
   faIdCardClip,
   faPenToSquare,
   faTrash,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
@@ -196,13 +198,28 @@ export default function Contacts() {
             <tbody className=" text-xl">
               {contacts &&
                 contacts.map((item, index) => (
-                  <tr className="h-12" key={index}>
+                  <tr className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                    } hover:bg-zinc-300 transition-colors hover:text-black`} key={index}>
                     <td>{item.id}</td>
                     <td>{item.name}</td>
                     <td>{returnNameTreasury(treasuries, item.id_treasury)}</td>
                     <td>{item.email}</td>
                     <td>{item.phone}</td>
-                    <td>{generateStatus(item.status as boolean)}</td>
+                    <td>
+                      {item.status ? (
+                        <FontAwesomeIcon
+                          icon={faCheck}
+                          size="2x"
+                          color="#2E8B57"
+                        />
+                      ) : (
+                        <FontAwesomeIcon
+                          icon={faXmark}
+                          size="2x"
+                          color="#BF6C6C"
+                        />
+                      )}
+                    </td>
                     <td className="flex justify-center items-center gap-4 h-12">
                       <Link href={`/contacts/edit/${item.id}`}>
                         <FontAwesomeIcon

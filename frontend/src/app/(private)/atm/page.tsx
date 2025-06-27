@@ -5,8 +5,10 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import {
   faBoxOpen,
+  faCheck,
   faPenToSquare,
   faTrash,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
@@ -33,7 +35,7 @@ export default function Atm() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 15;
+  const pageSize = 16;
 
   const handleAdd = () => {
     router.push("/atm/add");
@@ -130,7 +132,9 @@ export default function Atm() {
           <tbody className=" text-xl">
             {atms &&
               atms.map((item, index) => (
-                <tr className="h-12" key={index}>
+                <tr key={index}
+                  className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                    } hover:bg-zinc-300 transition-colors hover:text-black`}>
                   <td>{item.id_system}</td>
                   <td>{item.name}</td>
                   <td>{item.short_name}</td>
@@ -143,7 +147,21 @@ export default function Atm() {
                       cassete_D: item.cassete_D,
                     })}
                   </td>
-                  <td>Ativo</td>
+                  <td>
+                    {item.status ? (
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        size="2x"
+                        color="#2E8B57"
+                      />
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={faXmark}
+                        size="2x"
+                        color="#BF6C6C"
+                      />
+                    )}
+                  </td>
                   <td className="flex justify-center items-center gap-4 h-12">
                     <Link href={`/atm/edit/${item.id_system}`} >
                       <FontAwesomeIcon

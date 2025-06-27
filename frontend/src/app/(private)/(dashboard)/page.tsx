@@ -13,7 +13,7 @@ import { getAll as getAllTreasuries } from "@/app/service/treasury";
 import { getAll as getAllTypeOperation } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
 import { getAll as getAllTypeStore } from "@/app/service/type-store";
-import { getAll, getAll as getAllTypeSupply } from "@/app/service/type-supply";
+import { getAll as getAllTypeSupply } from "@/app/service/type-supply";
 import { atmType } from "@/types/atmType";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { ContactType } from "@/types/contactType";
@@ -26,7 +26,6 @@ import { typeOrderType } from "@/types/typeOrderType";
 import { typeStoreType } from "@/types/typeStoreType";
 import { typeSupplyType } from "@/types/typeSupplyType";
 import { faGauge } from "@fortawesome/free-solid-svg-icons";
-import Head from "next/head";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
@@ -99,9 +98,6 @@ export default function Dashboard() {
 
   return (
     <Page>
-      <Head>
-        <title>Dashboard</title>
-      </Head>
       <TitlePages linkBack="/" icon={faGauge} >Dahsboard</TitlePages>
       <div className="flex flex-row flex-wrap gap-8 w-full p-5">
         {treasuries && treasuries.length > 0 &&

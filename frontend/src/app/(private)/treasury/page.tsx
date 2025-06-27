@@ -7,6 +7,8 @@ import {
   faSackDollar,
   faPenToSquare,
   faTrash,
+  faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
@@ -110,7 +112,8 @@ export default function Treasury() {
           </thead>
           <tbody className=" text-xl">
             {treasuries?.map((item, key) => (
-              <tr key={key} className="h-12">
+              <tr key={key} className={`h-12 ${key % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                } hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id_system}</td>
                 <td>{item.name}</td>
                 <td>{item.short_name}</td>
@@ -124,7 +127,21 @@ export default function Treasury() {
                     item.bills_100 as number
                   )}
                 </td>
-                <td>{generateStatus(item?.status as boolean)}</td>
+                <td>
+                  {item.status ? (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      size="2x"
+                      color="#2E8B57"
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faXmark}
+                      size="2x"
+                      color="#BF6C6C"
+                    />
+                  )}
+                </td>
                 <td className="flex justify-center items-center gap-4 h-12">
                   <Link href={`/treasury/edit/${item.id_system}`}>
                     <FontAwesomeIcon

@@ -5,8 +5,10 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import {
   faBuildingColumns,
+  faCheck,
   faPenToSquare,
   faTrash,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
@@ -42,13 +44,13 @@ export default function AccountBank() {
   }, []);
 
 
-  const allAcountsPagination = useCallback( async () => {
+  const allAcountsPagination = useCallback(async () => {
     setLoading(true);
     const allAcounts = await getAllPagination(currentPage, pageSize);
     if (allAcounts.data !== undefined && allAcounts.data.account.data.length > 0) {
       setAccouhnts(allAcounts.data.account.data);
       setTotalPages(allAcounts.data.account.totalPages);
-      setLoading(false);  
+      setLoading(false);
       return;
     } else {
       setLoading(false);
@@ -58,32 +60,32 @@ export default function AccountBank() {
     setLoading(false);
   }, [currentPage]);
 
-  
+
   useEffect(() => {
     allAcountsPagination();
   }, [currentPage, allAcountsPagination]);
 
-   const handleDelete = async (e : React.MouseEvent<HTMLAnchorElement  >, id: number) => {
-      e.preventDefault()
-      setLoading(true);
-     if(!id){
-        setLoading(false);
-        toast.error('Selecione um Atm, para continunar');
-        return;
-     }
-     const deleteAccountBank = await del(id)
-     if(deleteAccountBank.status === 300 || deleteAccountBank.status === 400 || deleteAccountBank.status === 500){
-        setLoading(false);
-        toast.error('Erro de requisição, tente novamente');
-        return;
-     }
-     if(deleteAccountBank.status === 200){
-       setLoading(false);
-       allAcountsPagination();
-       toast.success('Atm deletado com sucesso!');
-       return;
-     }
-    };
+  const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+    e.preventDefault()
+    setLoading(true);
+    if (!id) {
+      setLoading(false);
+      toast.error('Selecione um Atm, para continunar');
+      return;
+    }
+    const deleteAccountBank = await del(id)
+    if (deleteAccountBank.status === 300 || deleteAccountBank.status === 400 || deleteAccountBank.status === 500) {
+      setLoading(false);
+      toast.error('Erro de requisição, tente novamente');
+      return;
+    }
+    if (deleteAccountBank.status === 200) {
+      setLoading(false);
+      allAcountsPagination();
+      toast.success('Atm deletado com sucesso!');
+      return;
+    }
+  };
 
   return (
     <Page>
@@ -116,14 +118,29 @@ export default function AccountBank() {
           <tbody className=" text-xl">
             {accounts &&
               accounts.map((item, index) => (
-                <tr className="h-12" key={index}>
+                <tr className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                  } hover:bg-zinc-300 transition-colors hover:text-black`} key={index}>
                   <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>{item.bank_branch}</td>
                   <td>{item.bank_branch_digit}</td>
                   <td>{item.account}</td>
                   <td>{item.account_digit}</td>
-                  <td>{item.status}</td>
+                  <td>
+                    {item.status ? (
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        size="2x"
+                        color="#2E8B57"
+                      />
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={faXmark}
+                        size="2x"
+                        color="#BF6C6C"
+                      />
+                    )}
+                  </td>
                   <td className="flex justify-center items-center gap-4 h-12">
                     <Link href={`/account-bank/edit/${item.id}`}>
                       <FontAwesomeIcon
@@ -133,7 +150,7 @@ export default function AccountBank() {
                       />
                     </Link>
                     <a href={`/account-bank/del/${item.id}`}
-                      onClick={(e) =>handleDelete(e, item.id as number)}>
+                      onClick={(e) => handleDelete(e, item.id as number)}>
                       <FontAwesomeIcon
                         icon={faTrash}
                         size="1x"
