@@ -4,7 +4,8 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 import { ModalSupply } from "@/app/components/ux/ModalSuppy";
 import { ModalTrocaTotal } from "@/app/components/ux/ModalTrocaTotal";
-import { Page } from "@/app/components/ux/Page";;
+import { Page } from "@/app/components/ux/Page";
+import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getAtmsForTreasury } from "@/app/service/atm";
 import { getTreasuriesInOrder } from "@/app/service/order";
@@ -35,7 +36,7 @@ type atmPage = {
 
 type orderPage = {
   id: number;
-  id_type_operation: number;
+  id_type_operation : number;
   id_trasury: number;
   cass_A: number;
   cass_B: number;
@@ -90,141 +91,136 @@ export default function Supply() {
     if (dateSupply === '') {
       setAtms([])
       setLoading(false)
-      toast.error('Prrencher o campo de data!')
+      toast.error('Prrencher o campo de data!') 
       return
     }
-
     const orderAjusted: orderPage[] = []
     const idTreasuriesInOrderDate: any = await getTreasuriesInOrder(dateSupply)
 
-    if (idTreasuriesInOrderDate.status === 300 || idTreasuriesInOrderDate.status === 400 ||
-       idTreasuriesInOrderDate.status === 500) {
+    if (idTreasuriesInOrderDate.status === 300 || idTreasuriesInOrderDate.status === 400 || idTreasuriesInOrderDate.status === 500) {
       setAtms([])
       setLoading(false)
       toast.error('Erro na requisição, tente novamente!')
       return
     }
 
-    if (idTreasuriesInOrderDate.data !== undefined && idTreasuriesInOrderDate.data.order.length > 0) {
-      idTreasuriesInOrderDate.data.order.map((item: any) => {
-        orderAjusted.push({
-          id: item.id,
-          id_type_operation: item.id_treasury_destin,
-          id_trasury: item.id_treasury_destin,
-          cass_A: item.status_order === 1 ? item.requested_value_A : item.requested_value_A,
-          cass_B: item.status_order === 1 ? item.requested_value_B : item.requested_value_B,
-          cass_C: item.status_order === 1 ? item.requested_value_C : item.requested_value_C,
-          cass_D: item.status_order === 1 ? item.requested_value_D : item.requested_value_D,
-        })
-    })
-      setOrderFiltered(orderAjusted)
-
-      const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
-      if (!treasuriesForIds?.data?.treasury) {
-        setAtms([])
-        setError({ type: 'error', title: 'Error', messege: 'Erro na busca por tesourarias, tente novamente!' })
-        setLoading(false)
-        return
-      }
-      const atmsWithSupply = []
-      idTreasuriesInOrderDate.data.order.map(async (item: any) => {
-        const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date: dateSupply })
+    idTreasuriesInOrderDate.data.order.map((item: any) => (
+      orderAjusted.push({
+        id : item.id,
+        id_type_operation : item.id_type_operation,
+        id_trasury: item.id_treasury_destin,
+        cass_A: item.status_order === 1 ? item.requested_value_A : item.requested_value_A,
+        cass_B: item.status_order === 1 ? item.requested_value_B : item.requested_value_B,
+        cass_C: item.status_order === 1 ? item.requested_value_C : item.requested_value_C,
+        cass_D: item.status_order === 1 ? item.requested_value_D : item.requested_value_D,
       })
+    ))
+    setOrderFiltered(orderAjusted)
 
-      if ([300, 400, 500].includes(treasuriesForIds)) {
-        setAtms([])
-        setLoading(false)
-        toast.error('Erro na requisição, tente novamente!')
-        return
+    const treasuriesForIds = await getTreasuriesForIds(idTreasuriesInOrderDate.data.order)
+    if (!treasuriesForIds?.data?.treasury) {
+      setAtms([])
+      setError({ type: 'error', title: 'Error', messege: 'Erro na busca por tesourarias, tente novamente!' })
+      setLoading(false)
+      return
+    }
+    const atmsWithSupply = []
+    idTreasuriesInOrderDate.data.order.map(async(item : any) => {
+      const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
+    })
+    
+    if ([300, 400, 500].includes(treasuriesForIds)) {
+      setAtms([])
+      setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
+      return
+    }
+
+    const uniqueTreasury = treasuriesForIds?.data?.treasury.reduce((acc: any, current: any) => {
+      // Verifica se já existe no acumulador um item com o mesmo id_system
+      if (!acc.some((item: any) => item.id_system === current.id_system)) {
+        acc.push(current); // Se não existir, adiciona ao acumulador
       }
+      return acc;
+    }, []);
 
-      const uniqueTreasury = treasuriesForIds?.data?.treasury.reduce((acc: any, current: any) => {
+
+    if (treasuriesForIds.data.treasury.length === 0) {
+      setAtms([])
+      setLoading(false)
+      toast.error('Sem pedidos a retornar!')
+      return
+    }
+    setTreasuries(uniqueTreasury)
+    setIdTreasury(treasuriesForIds.data.treasury[0].id_system)
+    setSupplyUnique(orderAjusted.filter(item => item.id_trasury === treasuriesForIds.data.treasury[0].id_system))
+
+    const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
+    if (atmsForTreasury.status === 300 || atmsForTreasury.status === 400 || atmsForTreasury.status === 500) {
+      setAtms([])
+      setLoading(false)
+      toast.error('Erro na requisição, tente novamente!')
+      return
+    }
+    if (atmsForTreasury.data.atm && atmsForTreasury.data.atm.length > 0) {
+
+      const uniqueAtms = atmsForTreasury.data.atm.reduce((acc: any, current: any) => {
         // Verifica se já existe no acumulador um item com o mesmo id_system
         if (!acc.some((item: any) => item.id_system === current.id_system)) {
           acc.push(current); // Se não existir, adiciona ao acumulador
         }
         return acc;
       }, []);
+      const atmsAjusted: any = []
 
+      uniqueAtms.map((item: atmType) => (
+        atmsAjusted.push({
+          date_order : dateSupply,
+          id_atm: item.id_system,
+          id_treasury: item.id_treasury,
+          name: item.name,
+          short_name: item.short_name,
+          check: false,
+          type: 'COMPLEMENTAR',
+          cass_A: 0,
+          cass_B: 0,
+          cass_C: 0,
+          cass_D: 0,
+        })
+      ))
+      const atmFiltered = atmsAjusted.filter((item: any) => item.id_treasury === treasuriesForIds.data.treasury[0].id_system)
 
-      if (treasuriesForIds.data.treasury.length === 0) {
-        setAtms([])
-        setLoading(false)
-        toast.error('Sem pedidos a retornar!')
-        return
-      }
-      setTreasuries(uniqueTreasury)
-      setIdTreasury(treasuriesForIds.data.treasury[0].id_system)
-      setSupplyUnique(orderAjusted.filter(item => item.id_trasury === treasuriesForIds.data.treasury[0].id_system))
-
-      const atmsForTreasury = await getAtmsForTreasury(idTreasuriesInOrderDate.data.order)
-      if (atmsForTreasury.status === 300 || atmsForTreasury.status === 400 || atmsForTreasury.status === 500) {
-        setAtms([])
-        setLoading(false)
-        toast.error('Erro na requisição, tente novamente!')
-        return
-      }
-      if (atmsForTreasury.data.atm && atmsForTreasury.data.atm.length > 0) {
-
-        const uniqueAtms = atmsForTreasury.data.atm.reduce((acc: any, current: any) => {
-          // Verifica se já existe no acumulador um item com o mesmo id_system
-          if (!acc.some((item: any) => item.id_system === current.id_system)) {
-            acc.push(current); // Se não existir, adiciona ao acumulador
+      if (atmFiltered.length > 1) {
+        const ord = orderFiltered.filter(item => item.id_trasury === treasuriesForIds.data.treasury[0].id_system)
+        if (ord.length > 0) {
+          const value = (ord[0].cass_A * 10) + (ord[0].cass_B * 20) + (ord[0].cass_C * 50) + (ord[0].cass_D * 100)
+          if (value % 2 === 0) {
+            setIsPar(true)
+          } else {
+            setIsPar(false)
           }
-          return acc;
-        }, []);
-        const atmsAjusted: any = []
-        uniqueAtms.map((item: atmType) => (
-          atmsAjusted.push({
-            date_order: dateSupply,
-            id_atm: item.id_system,
-            id_treasury: item.id_treasury,
-            name: item.name,
-            short_name: item.short_name,
-            check: false,
-            type: 'COMPLEMENTAR',
-            cass_A: 0,
-            cass_B: 0,
-            cass_C: 0,
-            cass_D: 0,
-            id : item.id
-          })
-        ))
-        const atmFiltered = atmsAjusted.filter((item: any) => item.id_treasury === treasuriesForIds.data.treasury[0].id_system)
-
-        if (atmFiltered.length > 1) {
-          const ord = orderFiltered.filter(item => item.id_trasury === treasuriesForIds.data.treasury[0].id_system)
-          if (ord.length > 0) {
-            const value = (ord[0].cass_A * 10) + (ord[0].cass_B * 20) + (ord[0].cass_C * 50) + (ord[0].cass_D * 100)
-            if (value % 2 === 0) {
-              setIsPar(true)
-            } else {
-              setIsPar(false)
-            }
-          }
-        } else {
-          setIsPar(false)
         }
-
-        const suppliesNow = await getSuppliesForNow({ date: returnDayAtual() }, treasuriesForIds.data.treasury[0].id_system)
-        if (suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0) {
-          setSupplyForDay(suppliesNow.data.supply)
-        } else {
-          setSupplyForDay([])
-        }
-        setAtms(atmsAjusted)
-        setFilteredAtms(atmFiltered)
-        await getSupplyForTreasury()
-        setError({ type: '', title: '', messege: '' })
-        setLoading(false)
-        return
       } else {
-        setAtms([])
-        setLoading(false)
-        toast.error('Erro ao filtrar atms, tente novamente!')
+        setIsPar(false)
       }
+
+      const suppliesNow = await getSuppliesForNow({ date: returnDayAtual() }, treasuriesForIds.data.treasury[0].id_system)
+      if (suppliesNow.data !== undefined && suppliesNow.data.supply.length > 0) {
+        setSupplyForDay(suppliesNow.data.supply)
+      } else {
+        setSupplyForDay([])
+      }
+      setAtms(atmsAjusted)
+      setFilteredAtms(atmFiltered)
+      await getSupplyForTreasury()
+      setError({ type: '', title: '', messege: '' })
+      setLoading(false)
+      return
+    } else {
+      setAtms([])
+      setLoading(false)
+      toast.error('Erro ao filtrar atms, tente novamente!')
     }
-    toast.error('Sem dados a mostrar, tente novamente!')
     setLoading(false)
     return
   }
@@ -292,29 +288,29 @@ export default function Supply() {
   }
 
   const saveIndividual = async () => {
-    const atm: atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
+    const atm : atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
     if (atm.length === 1) {
       if (cassA === "0" && cassB === "0" && cassC === "0" && cassD === "0") {
         toast.error('Preciso de algum valor para abasetcer!')
         return
       }
 
-      let data: atmPage = {
-        id_atm: atm[0]?.id_atm,
-        id_treasury: atm[0]?.id_treasury,
-        name: atm[0]?.name,
-        short_name: atm[0]?.short_name,
-        check: atm[0]?.check,
-        type: atm[0]?.type,
-        cass_A: atm[0]?.cass_A,
-        cass_B: atm[0]?.cass_B,
-        cass_C: atm[0]?.cass_C,
-        cass_D: atm[0]?.cass_D,
+      let data : atmPage = {
+        id_atm : atm[0]?.id_atm,
+        id_treasury : atm[0]?.id_treasury,
+        name : atm[0]?.name,
+        short_name : atm[0]?.short_name,
+        check : atm[0]?.check,
+        type : atm[0]?.type,
+        cass_A : atm[0]?.cass_A,
+        cass_B : atm[0]?.cass_B,
+        cass_C : atm[0]?.cass_C,
+        cass_D : atm[0]?.cass_D,
       }
 
       const supply = await saveIndividualSupply(data)
 
-    } else {
+    }else{
       toast.error('Preciso de um atm selecionado!')
       return
     }
@@ -460,50 +456,44 @@ export default function Supply() {
           </div>
 
           <div>
-            {filteredAtms && filteredAtms.length > 0 &&
-              <>
-                <label className="uppercase leading-3 font-bold" >Abastecimento</label>
-                <div className="flex gap-5 border border-gray-600 w-80 mb-2">
-                  <label className="w-[95px]">R$ 10,00</label>
-                  <label className="w-[117px] text-black text-center">
-                    <input type="number" className="w-full" value={cassA} onChange={e => setCassA(e.target.value)} />
-                  </label>
-                  <label className="w-[106px]" >{generateReal(parseInt(cassA), 10)}</label>
-                </div>
-
-                <div className="flex gap-5 border border-gray-600 w-80  mb-2">
-                  <label className="w-[95px]" >R$ 20,00</label>
-                  <label className="w-[117px] text-black text-center" >
-                    <input type="number" className="w-full" value={cassB} onChange={e => setCassB(e.target.value)} />
-                  </label>
-                  <label className="w-[106px]" >{generateReal(parseInt(cassB), 20)}</label>
-                </div>
-                <div className="flex gap-5 border border-gray-600 w-80  mb-2">
-                  <label className="w-[95px]" >R$ 50,00</label>
-                  <label className="w-[117px] text-black text-center">
-                    <input type="number" className="w-full" value={cassC} onChange={e => setCassC(e.target.value)} />
-                  </label>
-                  <label className="w-[106px]" >{generateReal(parseInt(cassC), 50)}</label>
-                </div>
-                <div className="flex gap-5 border border-gray-600 w-80  mb-2">
-                  <label className="w-[95px]" >R$ 100,00</label>
-                  <label className="w-[117px] text-black text-center" >
-                    <input type="number" className="w-full" value={cassD} onChange={e => setCassD(e.target.value)} />
-                  </label>
-                  <label className="w-[106px]" >{generateReal(parseInt(cassD), 100)}</label>
-                </div>
-                <div className="flex gap-5 border border-gray-600 w-80  mb-2 bg-red-400 ">
-                  <label className="w-14 font-bold">Total</label>
-                  <label className="  flex-1 text-end font-bold">{generateRealTotal(parseInt(cassA), parseInt(cassB),
-                    parseInt(cassC), parseInt(cassD))}</label>
-                </div>
-                <div>
-                  <button onClick={saveIndividual}>Salvar</button>
-                </div>
-              </>
-            }
+            <label className="uppercase leading-3 font-bold" >Abastecimento</label>
+            <div className="flex gap-5 border border-gray-600 w-80 mb-2">
+              <label className="w-[95px]">R$ 10,00</label>
+              <label className="w-[117px] text-black text-center">
+                <input type="number" className="w-full" value={cassA} onChange={e => setCassA(e.target.value)} />
+              </label>
+              <label className="w-[106px]" >{generateReal(parseInt(cassA), 10)}</label>
+            </div>
+            <div className="flex gap-5 border border-gray-600 w-80  mb-2">
+              <label className="w-[95px]" >R$ 20,00</label>
+              <label className="w-[117px] text-black text-center" >
+                <input type="number" className="w-full" value={cassB} onChange={e => setCassB(e.target.value)} />
+              </label>
+              <label className="w-[106px]" >{generateReal(parseInt(cassB), 20)}</label>
+            </div>
+            <div className="flex gap-5 border border-gray-600 w-80  mb-2">
+              <label className="w-[95px]" >R$ 50,00</label>
+              <label className="w-[117px] text-black text-center">
+                <input type="number" className="w-full" value={cassC} onChange={e => setCassC(e.target.value)} />
+              </label>
+              <label className="w-[106px]" >{generateReal(parseInt(cassC), 50)}</label>
+            </div>
+            <div className="flex gap-5 border border-gray-600 w-80  mb-2">
+              <label className="w-[95px]" >R$ 100,00</label>
+              <label className="w-[117px] text-black text-center" >
+                <input type="number" className="w-full" value={cassD} onChange={e => setCassD(e.target.value)} />
+              </label>
+              <label className="w-[106px]" >{generateReal(parseInt(cassD), 100)}</label>
+            </div>
+            <div className="flex gap-5 border border-gray-600 w-80  mb-2 bg-red-400 ">
+              <label className="w-14 font-bold">Total</label>
+              <label className="  flex-1 text-end font-bold">{generateRealTotal(parseInt(cassA), parseInt(cassB),
+                parseInt(cassC), parseInt(cassD))}</label>
+            </div>
+            <div>
+              <button onClick={saveIndividual}>Salvar</button>
+            </div>
           </div>
-
         </div>
         <div className="bg-slate-800 w-full h-1"></div>
         {supplyForDay.length > 0 &&

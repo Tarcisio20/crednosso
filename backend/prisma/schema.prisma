@@ -59,6 +59,8 @@ model Treasury {
   operatorCards     OperatorCard[]
   OrdersOrigin      Order[]        @relation("TreasuryOrigin")
   OrdersDestin      Order[]        @relation("TreasuryDestin")
+
+  OperationalError OperationalError[]
 }
 
 model AccountBank {
@@ -262,3 +264,16 @@ model MOneySplitRefund {
   order             Order    @relation(fields: [id_order], references: [id])
   treasury Treasury @relation(fields: [id_treasury_origin], references: [id])
 } 
+
+model OperationalError {
+  id                 Int     @id @default(autoincrement())
+  id_treasury Int
+  num_os Int
+  description String
+  status Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
+}

@@ -17,6 +17,7 @@ import * as bankController from '../controllers/bank'
 import * as moneySplitController from '../controllers/money-split'
 import * as moneySplitRefundController from '../controllers/money-split-refund'
 import * as accountBankController from '../controllers/account-bank'
+import * as operationalErrorController from '../controllers/operational-error'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -153,9 +154,14 @@ mainRouter.get('/money-split/get-ratted-ajusted/:id/:id_order',verifyJWT, moneyS
 mainRouter.post('/money-split-refund/add',verifyJWT, moneySplitRefundController.add)
 mainRouter.post('/money-split-refund/add',verifyJWT, moneySplitRefundController.add)
 
-
+// account bank
 mainRouter.get('/account-bank-pagination',verifyJWT, accountBankController.getAllPagination)
 mainRouter.post('/account-bank/add',verifyJWT, accountBankController.add)
 mainRouter.get('/account-bank/:id',verifyJWT, accountBankController.getById)
 mainRouter.post('/account-bank/update/:id',verifyJWT, accountBankController.update)
 mainRouter.post('/account-bank/del/:id',verifyJWT, accountBankController.del)
+
+//opperational-error
+mainRouter.get('/operational-error-pagination',verifyJWT, operationalErrorController.getAllPagination)
+mainRouter.get('/operational-error/del/:id',verifyJWT, operationalErrorController.del)
+mainRouter.post('/operational-error/add',verifyJWT, operationalErrorController.add)

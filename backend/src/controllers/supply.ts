@@ -110,8 +110,9 @@ export const addAll: RequestHandler = async (req, res) => {
     res.status(300).json({ error: 'Erro no envio dos dados!' })
     return
   }
+  console.log("DATAA", safeData)
   let data : any = []
-  safeData.map((item : any)=>(
+  safeData.map((item : any)=>{
     data.push({
       atm: {
         connect: { id_system: item.id_atm }, // Conecta ao registro Atm com base em id_system
@@ -122,12 +123,18 @@ export const addAll: RequestHandler = async (req, res) => {
       cassete_D : item.cass_D ?? 0 ,
       total_exchange : item.type === 'TROCA TOTAL' ? true : false,
       treasury  : {
-        connect : { id_system : item.id_treasury }
+        connect : { id_treasury : item.id_treasury }
+      },
+      date : returnDateFormatted(item.date_order),
+      date_on_supply : new Date(),
+      order : {
+        connect : { id_order : item.id }
       }
     })
-  ))
+})
   for(const item of data){
-    await addSupply(item)
+    const save = await addSupply(item)
+    console.log("save", save)
   }
   
   const newSupply = await lastRegister()

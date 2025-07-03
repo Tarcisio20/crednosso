@@ -43,6 +43,7 @@ export const ModalTrocaTotal = ({ atms, onClose }: ModalTrocaTotalType) => {
       setError({ type: '', title: '', messege: '' })
       setLoading(true)
         const s = await saveAllSupplies(localAtms)
+
         if(s.status === 300 || s.status === 400 || s.status === 500){
           setError({ type: 'error', title: 'Error', messege: 'Erro na requisição' })
           setLoading(false)

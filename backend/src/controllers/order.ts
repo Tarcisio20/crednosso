@@ -74,6 +74,7 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
 
         if (match) {
           orders.push({
+            id : order[x].id,
             id_treasury_destin: match.id_system,
             requested_value_A: order[x].requested_value_A,
             requested_value_B: order[x].requested_value_B,
