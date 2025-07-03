@@ -13,6 +13,7 @@ export const getAllUserPagination = async (page: number, pageSize: number) => {
         orderBy: { id: 'asc' },
           select: {
           id: true,
+          email: true,
           name: true,
           slug: true,
           status: true

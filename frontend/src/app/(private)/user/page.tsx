@@ -29,6 +29,7 @@ export default function User() {
   const getAllUsersPagination = useCallback(async () => {
     setLoading(true);
     const allUsers = await getAllPagination(currentPage, pageSize);
+    console.log(allUsers)
     if (allUsers.status === 300 || allUsers.status === 400 || allUsers.status === 500) {
       toast.error('Erro de requisição, tente novamente')
       setLoading(false);
