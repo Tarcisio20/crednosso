@@ -34,7 +34,6 @@ export default function OperationalError() {
   const getAllPaginationError = useCallback(async () => {
     setLoading(true)
     const allErros = await getAllPagination(currentPage, pageSize)
-    console.log(allErros.data.operationalError.data)
     if (allErros.status === 300 || allErros.status === 400 || allErros.status === 500) {
       toast.error('Erro na requisição, tente novamente!')
       setLoading(false)

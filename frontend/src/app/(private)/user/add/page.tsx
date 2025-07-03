@@ -31,7 +31,7 @@ export default function UserAdd() {
       setName("");
       setEmail("");
       setLoading(false);
-      toast.success("Usuário adicionado com sucesso!");
+      toast.success("Usuário adicionado com sucesso, solicitarr que o usuario veja o e-mail!");
       return;
     }
     setLoading(false);

@@ -34,6 +34,23 @@ export const getAllUserPagination = async (page: number, pageSize: number) => {
   }
 }
 
+export const getForId = async (id: number) => {
+    const user = await prisma.user.findFirst({
+        where: { id: id },
+        select : {
+          id: true,
+          name: true,
+          slug: true,
+          email: true,
+          status: true
+        }
+    })
+    if (user) {
+        return user
+    }
+    return null
+}
+
 export const findUserByEmail = async (email: string) => {
   const user = await prisma.user.findFirst({
     where: { email }
@@ -67,4 +84,44 @@ export const createUser = async (data: Prisma.UserCreateInput) => {
   }
 
   return null
+}
+
+export const updateUser = async (id: number, data: Prisma.UserUpdateInput) => {
+    const editUser = await prisma.user.update({
+        where: {
+            id: id
+        },
+        data,
+        select : {
+          id: true,
+          name: true,
+          slug: true,
+          email: true,
+          status: true
+        }
+    })
+    if (editUser) {
+        return editUser
+    }
+    return null
+}
+
+export const changePasswordFromId = async (id: number, data: Prisma.UserUpdateInput) => {
+    const editUser = await prisma.user.update({
+        where: {
+            id: id
+        },
+        data,
+        select : {
+          id: true,
+          name: true,
+          slug: true,
+          email: true,
+          status: true
+        }
+    })
+    if (editUser) {
+        return editUser
+    }
+    return null
 }

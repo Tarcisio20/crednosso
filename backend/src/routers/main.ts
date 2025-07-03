@@ -170,3 +170,6 @@ mainRouter.post('/operational-error/add',verifyJWT, operationalErrorController.a
 // user
 mainRouter.get('/user-pagination',verifyJWT, userController.getAllPagination)
 mainRouter.post('/user/add',verifyJWT, userController.add)
+mainRouter.get('/user/:id',verifyJWT, userController.getById)
+mainRouter.get('/user/update/:id',verifyJWT, userController.update)
+mainRouter.get('/user/change-password/:id',verifyJWT, userController.changePassword)

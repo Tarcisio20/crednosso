@@ -40,4 +40,4 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
     }else{
         res.status(401).json({ error: 'Erro no envio!' })
     }
-}   
+} 

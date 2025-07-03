@@ -10,7 +10,7 @@ export const sendEmailOfOrder = async (emails: string, orders: any) => {
     for (const email of emailList) {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
-        to: email+',tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,calebe.marques@crednosso.com.br',
+        to: email + ',tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,calebe.marques@crednosso.com.br',
         subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`,
         html: `
       Prezados, <br><br><br>
@@ -27,6 +27,33 @@ export const sendEmailOfOrder = async (emails: string, orders: any) => {
       `,
       });
     }
+    return true
+  } catch (error) {
+    return error
+  }
+}
+
+export const sendEmailOdCreateUser = async (name: string, email: string, password: string) => {
+  try {
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Senha do sistema CredNosso Generate`,
+      html: `
+      Olá ${name}, <br><br><br>
+
+      Segue senha sua senha de acesso ao sistema Crednosso Generate.
+      <br><br><br>
+     A sua senha é  ### ${password} ###.
+      <br><br><br>
+      Acusar recebimento deste Email.
+      <br><br> 
+      <br><br><br>
+      Atenciosamente,
+      `,
+    });
+
     return true
   } catch (error) {
     return error
