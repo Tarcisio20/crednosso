@@ -18,6 +18,7 @@ import * as moneySplitController from '../controllers/money-split'
 import * as moneySplitRefundController from '../controllers/money-split-refund'
 import * as accountBankController from '../controllers/account-bank'
 import * as operationalErrorController from '../controllers/operational-error'
+import * as userController from '../controllers/user'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -165,3 +166,7 @@ mainRouter.post('/account-bank/del/:id',verifyJWT, accountBankController.del)
 mainRouter.get('/operational-error-pagination',verifyJWT, operationalErrorController.getAllPagination)
 mainRouter.get('/operational-error/del/:id',verifyJWT, operationalErrorController.del)
 mainRouter.post('/operational-error/add',verifyJWT, operationalErrorController.add)
+
+// user
+mainRouter.get('/user-pagination',verifyJWT, userController.getAllPagination)
+mainRouter.post('/user/add',verifyJWT, userController.add)

@@ -5,6 +5,7 @@ import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { del, getAllPagination } from "@/app/service/operational-error";
 import { getAll } from "@/app/service/treasury";
+import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { OperationalErrorType } from "@/types/operationalErrorType";
 import { treasuryType } from "@/types/treasuryType";
 import { faBomb, faCheck, faPenToSquare, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -33,14 +34,14 @@ export default function OperationalError() {
   const getAllPaginationError = useCallback(async () => {
     setLoading(true)
     const allErros = await getAllPagination(currentPage, pageSize)
+    console.log(allErros.data.operationalError.data)
     if (allErros.status === 300 || allErros.status === 400 || allErros.status === 500) {
       toast.error('Erro na requisição, tente novamente!')
       setLoading(false)
       return
     }
-
-    if (allErros.data !== undefined && allErros.data.length > 0) {
-      setErros(allErros.data.operationalError)
+    if (allErros.data !== undefined && allErros.data.operationalError.data.length > 0) {
+      setErros(allErros.data.operationalError.data)
       setTotalPages(allErros.data.operationalError.totalPages)
 
       const treasury = await getAll()
@@ -125,7 +126,7 @@ export default function OperationalError() {
                 className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
                   } hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id}</td>
-                <td>{item.id_treasury}</td>
+                <td>{ returnNameTreasury(treasuries, item.id_treasury)}</td>
                 <td>{item.num_os}</td>
                 <td>{item.description}</td>
                 <td>

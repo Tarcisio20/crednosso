@@ -72,7 +72,6 @@ export default function OperationalErrorAdd() {
       description: description
     }
     const addNewError = await add(data)
-    console.log("Add", addNewError)
     if (addNewError.status === 300 || addNewError.status === 400 || addNewError.status === 500) {
       toast.error("Erro de requisição, tente novamente");
       setLoading(false);
@@ -127,10 +126,10 @@ export default function OperationalErrorAdd() {
         </div>
 
         <div className="flex flex-col gap-5">
-          <label className="uppercase leading-3 font-bold">Id</label>
+          <label className="uppercase leading-3 font-bold">N OS</label>
           <Input
             color="#DDDD"
-            placeholder="Digite o Id no sistema"
+            placeholder="Digite o número da OS"
             size="extra-large"
             value={numOS}
             onChange={(e) => setNumOs(e.target.value)}

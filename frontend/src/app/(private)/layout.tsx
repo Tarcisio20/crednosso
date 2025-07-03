@@ -10,7 +10,8 @@ import {
   faParachuteBox, faSackDollar, faStore,
   faThumbTack, faWandMagicSparkles, faRightFromBracket,
   faBuildingColumns,
-  faBomb
+  faBomb,
+  faUserTie
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSupple } from "@fortawesome/free-brands-svg-icons";
@@ -53,6 +54,7 @@ export default function RootLayout({
     { label: 'Tipo de Pedido', icon: faThumbTack, link: '/type-order' },
     { label: 'Tipo de Loja', icon: faStore, link: '/type-store' },
     { label: 'Tipo de Abastecimento', icon: faSupple, link: '/type-supply' },
+    { label: 'Usuários', icon: faUserTie, link: '/user' },
   ]
 
   return (

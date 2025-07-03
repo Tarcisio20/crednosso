@@ -47,7 +47,6 @@ export default function Atm() {
 
 
   const getAllAtmsPagination = useCallback(async () => {
-    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     const allAtms = await getAllPagination(currentPage, pageSize);
@@ -78,7 +77,6 @@ export default function Atm() {
 
   const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
     e.preventDefault()
-    setError({ type: '', title: '', messege: '' });
     setLoading(false);
     setLoading(true);
     if (!id) {
