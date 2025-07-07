@@ -3,7 +3,7 @@ type PageProps = {
 }
 
 export const Page = ({ children } : PageProps) => {
-    return <div className="p-2 flex flex-col w-full items-center mt-4">
+    return <main className="sm:ml-14 p-4 flex flex-col h-screen">
         {children}
-    </div>
+    </main>
 }

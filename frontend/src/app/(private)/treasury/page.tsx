@@ -12,12 +12,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import {  useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
 import { del, getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
-import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { Messeger } from "@/app/components/ux/Messeger";
@@ -25,6 +24,7 @@ import { toast } from "sonner";
 
 export default function Treasury() {
   const router = useRouter();
+
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>();
 
@@ -34,6 +34,7 @@ export default function Treasury() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
+
 
   const loadTreasuries = async () => {
     setLoading(true);

@@ -14,6 +14,7 @@ import { getAll as getAllTypeOperation } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
 import { getAll as getAllTypeStore } from "@/app/service/type-store";
 import { getAll as getAllTypeSupply } from "@/app/service/type-supply";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { atmType } from "@/types/atmType";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { ContactType } from "@/types/contactType";
@@ -25,7 +26,8 @@ import { typeOperationType } from "@/types/typeOperationType";
 import { typeOrderType } from "@/types/typeOrderType";
 import { typeStoreType } from "@/types/typeStoreType";
 import { typeSupplyType } from "@/types/typeSupplyType";
-import { faGauge } from "@fortawesome/free-solid-svg-icons";
+import { faSupple } from "@fortawesome/free-brands-svg-icons";
+import { faBoxOpen, faCoins, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faSackDollar, faStore, faThumbTack, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
@@ -99,40 +101,42 @@ export default function Dashboard() {
   return (
     <Page>
       <TitlePages linkBack="/" icon={faGauge} >Dahsboard</TitlePages>
-      <div className="flex flex-row flex-wrap gap-8 w-full p-5">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+
         {treasuries && treasuries.length > 0 &&
-          <CardDash title="Tesourarias" value={treasuries.length.toString()} />
+          <CardDash title="Tesourarias" value={treasuries.length.toString()} icon={faSackDollar} />
         }
-        {atms && atms.length > 0 &&
-          <CardDash title="Atms" value={atms.length.toString()} />
+         {atms && atms.length > 0 &&
+          <CardDash title="Atms" value={atms.length.toString()} icon={faBoxOpen} />
         }
         {supllies && supllies.length > 0 &&
-          <CardDash title="Abasteciment..." value={supllies.length.toString()} />
+          <CardDash title="Abasteciment..." value={supllies.length.toString()} icon={faParachuteBox} />
         }
         {cardOperatos && cardOperatos.length > 0 &&
-          <CardDash title="C. Operador" value={cardOperatos.length.toString()} />
+          <CardDash title="Cartão Operador" value={cardOperatos.length.toString()} icon={faCreditCard} />
         }
         {contacts && contacts.length > 0 &&
-          <CardDash title="Contatos" value={contacts.length.toString()} />
+          <CardDash title="Contatos" value={contacts.length.toString()} icon={faIdCardClip} />
         }
         {orders && orders.length > 0 &&
-          <CardDash title="Pedidos" value={orders.length.toString()} />
+          <CardDash title="Pedidos" value={orders.length.toString()} icon={faCoins} />
         }
         {statusOrders && statusOrders.length > 0 &&
-          <CardDash title="Status Pedido" value={statusOrders.length.toString()} />
+          <CardDash title="Status Pedido" value={statusOrders.length.toString()} icon={faWandMagicSparkles} />
         }
         {typeOperations && typeOperations.length > 0 &&
-          <CardDash title="T. Operações" value={typeOperations.length.toString()} />
+          <CardDash title="Tipo Operações" value={typeOperations.length.toString()} icon={faGears} />
         }
         {typeSupllies && typeSupllies.length > 0 &&
-          <CardDash title="Tipo Pedido" value={typeSupllies.length.toString()} />
+          <CardDash title="Tipo Pedido" value={typeSupllies.length.toString()} icon={faThumbTack} />
         }
         {typeStores && typeStores.length > 0 &&
-          <CardDash title="Tipo Loja" value={typeStores.length.toString()} />
+          <CardDash title="Tipo Loja" value={typeStores.length.toString()}  icon={faStore} />
         }
         {typeOrders && typeOrders.length > 0 &&
-          <CardDash title="T. Abastecimento" value={typeOrders.length.toString()} />
+          <CardDash title="Tipo Abastecimento" value={typeOrders.length.toString()} icon={faSupple} />
         }
+
       </div>
     </Page>
   );

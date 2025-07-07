@@ -1,30 +1,10 @@
-import { Geist, Geist_Mono } from "next/font/google";
+
 import { Toaster } from 'sonner'
 import "../globals.css";
-import { Logo } from "../components/ui/Logo";
-import Link from "next/link";
 import '../../lib/fontawesome';
-import {
-  faBoxOpen, faCoins, faCreditCard,
-  faGauge, faGears, faIdCardClip,
-  faParachuteBox, faSackDollar, faStore,
-  faThumbTack, faWandMagicSparkles, faRightFromBracket,
-  faBuildingColumns,
-  faBomb,
-  faUserTie
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSupple } from "@fortawesome/free-brands-svg-icons";
+import { cn } from '@/lib/utils';
+import { Sidebar } from '../components/ui/Sidebar';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 
 export const metadata = {
@@ -39,54 +19,16 @@ export default function RootLayout({
 }) {
 
 
-  const menu = [
-    { label: 'Inicio', icon: faGauge, link: '/' },
-    { label: 'Atm', icon: faBoxOpen, link: '/atm' },
-    { label: 'Abastecimento', icon: faParachuteBox, link: '/supply' },
-    { label: 'Cartão Operador', icon: faCreditCard, link: '/operator-card' },
-    { label: 'Contatos', icon: faIdCardClip, link: '/contacts' },
-    { label: 'Conta Bancária', icon: faBuildingColumns, link: '/account-bank' },
-    { label: 'Erros Operacionais', icon: faBomb, link: '/operational-error' },
-    { label: 'Pedido', icon: faCoins, link: '/order' },
-    { label: 'Status do Pedido', icon: faWandMagicSparkles, link: '/status-order' },
-    { label: 'Tesouraria', icon: faSackDollar, link: '/treasury' },
-    { label: 'Tipo de Operação', icon: faGears, link: '/type-operation' },
-    { label: 'Tipo de Pedido', icon: faThumbTack, link: '/type-order' },
-    { label: 'Tipo de Loja', icon: faStore, link: '/type-store' },
-    { label: 'Tipo de Abastecimento', icon: faSupple, link: '/type-supply' },
-    { label: 'Usuários', icon: faUserTie, link: '/user' },
-  ]
+
 
   return (
     <html lang="pt-BR">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning >
-        <div className="flex w-screen h-screen p-2">
-          <div className="w-56 flex flex-col gap-9">
-            <div className="w-full p-2 justify-center items-center mt-4">
-              <Logo />
-            </div>
-            <div className="flex-1">
-              <ul className="bg-[#0082c7]">
-                {menu.map((item, index) => (
-                  <li key={index} className="pb-3 pt-3 text-left pl-2 bg-[#0082c7] uppercase hover:bg-[#4682b4] cursor-pointer">
-                    <Link href={item.link} className="flex items-center gap-2" >{
-                      <FontAwesomeIcon icon={item.icon} size="1x" color="#FFF" />
-                    }{item.label}</Link>
-                  </li>
-                ))}
-                <li className="pb-3 pt-3 text-left pl-2 bg-red-600 uppercase hover:bg-red-700 cursor-pointer">
-                  <Link href="/sign-out" className="flex items-center gap-2">
-                    <FontAwesomeIcon icon={faRightFromBracket} size="1x" color="#FFF" />
-                    Sair</Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex-1">
-            {children}
-            <Toaster richColors duration={4000} />
-          </div>
-        </div>
+      <body className={cn(
+        "min-h-screen font-sans antialiased dark",
+      )} suppressHydrationWarning >
+        <Sidebar />
+        {children}
+        <Toaster richColors duration={4000} />
       </body>
     </html>
   )
