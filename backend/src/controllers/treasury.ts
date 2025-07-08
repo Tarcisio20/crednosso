@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
 import { treasuryAddSchema } from "../schemas/treasuryAdd";
-import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, updateTreasury } from "../services/treasury";
+import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, getTreasuriesInOrderForDate, updateTreasury } from "../services/treasury";
 import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
+import { getIdTreasuriesOrderByDate } from "../services/order";
 
 export const getAll: RequestHandler = async (req, res) => {
   const treasury = await getAllTreasury()
@@ -47,7 +48,7 @@ export const add: RequestHandler = async (req, res) => {
     return
   }
   const data = {
-     id_system: safeData.data.id_system,
+    id_system: safeData.data.id_system,
     typeSupply: {
       connect: {
         id: safeData.data.id_type_supply
@@ -64,8 +65,8 @@ export const add: RequestHandler = async (req, res) => {
     region: safeData.data.region,
     account_number: safeData.data.account_number,
     gmcore_number: safeData.data.gmcore_number,
-    name_for_email : safeData.data.name_for_email ?? "",
-    account_number_for_transfer : safeData.data.account_number_for_transfer
+    name_for_email: safeData.data.name_for_email ?? "",
+    account_number_for_transfer: safeData.data.account_number_for_transfer
   }
   const newTreasury = await addTreasury({
     id_system: safeData.data.id_system,
@@ -85,8 +86,8 @@ export const add: RequestHandler = async (req, res) => {
     region: safeData.data.region,
     account_number: safeData.data.account_number,
     gmcore_number: safeData.data.gmcore_number,
-    name_for_email : safeData.data.name_for_email ?? "",
-    account_number_for_transfer : safeData.data.account_number_for_transfer
+    name_for_email: safeData.data.name_for_email ?? "",
+    account_number_for_transfer: safeData.data.account_number_for_transfer
   })
   if (!newTreasury) {
     res.status(401).json({ error: 'Erro ao salvar!' })
@@ -117,7 +118,7 @@ export const del: RequestHandler = async (req, res) => {
   const treasuryId = req.params.id
   if (!treasuryId) {
     res.status(400).json({ error: 'ID da transportadora é necessário!' })
-    return  
+    return
   }
   const delT = await delTreasury(parseInt(treasuryId))
   if (!delT) {
@@ -144,9 +145,9 @@ export const addSaldo: RequestHandler = async (req, res) => {
   }
   const data = {
     bills_10: treasury?.bills_10 + (safeData.data.bills_10 ?? 0),
-    bills_20: treasury?.bills_20 + (safeData.data.bills_20  ?? 0),
-    bills_50: treasury?.bills_50 + (safeData.data.bills_50  ?? 0),
-    bills_100: treasury?.bills_100 + (safeData.data.bills_100  ?? 0),
+    bills_20: treasury?.bills_20 + (safeData.data.bills_20 ?? 0),
+    bills_50: treasury?.bills_50 + (safeData.data.bills_50 ?? 0),
+    bills_100: treasury?.bills_100 + (safeData.data.bills_100 ?? 0),
   }
   const newBalance = await addBalanceInTreasuryByIdSystem(parseInt(treasuryId), data)
   if (!newBalance?.id) {
@@ -169,9 +170,9 @@ export const minusSaldo: RequestHandler = async (req, res) => {
     return
   }
   const data = {
-    bills_10: treasury?.bills_10 - (safeData.data.bills_10 ?? 0 ),
+    bills_10: treasury?.bills_10 - (safeData.data.bills_10 ?? 0),
     bills_20: treasury?.bills_20 - (safeData.data.bills_20 ?? 0),
-    bills_50: treasury?.bills_50 - (safeData.data.bills_50 ??0),
+    bills_50: treasury?.bills_50 - (safeData.data.bills_50 ?? 0),
     bills_100: treasury?.bills_100 - (safeData.data.bills_100 ?? 0),
   }
   const newBalance = await addBalanceInTreasuryByIdSystem(parseInt(treasuryId), data)
@@ -208,5 +209,90 @@ export const getTreasuriesForID: RequestHandler = async (req, res) => {
     return
   }
   res.json({ treasury: treasuries })
+
+}
+type OrderWithTreasuryProps = {
+  id_order: number,
+  id_type_operation: number,
+  id_treasury_origin: number,
+  id_treasury_destin: number,
+  requested_value_A: number,
+  requested_value_B: number,
+  requested_value_C: number,
+  requested_value_D: number,
+  confirmed_value_A: number,
+  confirmed_value_B: number,
+  confirmed_value_C: number,
+  confirmed_value_D: number,
+  status_order: number;
+  treasury_origin_name: string;
+  treasury_destin_name: string;
+}
+export const getTreasuriesInOrderByDate: RequestHandler = async (req, res) => {0
+  const date = req.params.date
+  if (!date || date === "") {
+    res.status(400).json({ error: 'Data inválida!' })
+    return
+  }
+  const orders = await getIdTreasuriesOrderByDate(date)
+
+  if (!orders || orders.length === 0) {
+    res.status(400).json({ error: 'Nenhum pedido encontrado para esta data.' })
+    return
+  }
+  const orderWithTreasury: OrderWithTreasuryProps[] = []
+
+
+  for (const order of orders) {
+    if (order.id_treasury_origin === order.id_treasury_destin) {
+      const t_name = await getForIdSystem(order.id_treasury_origin.toString());
+      orderWithTreasury.push({
+        id_order: order.id,
+        id_type_operation: order.id_type_operation,
+        id_treasury_origin: order.id_treasury_origin,
+        id_treasury_destin: order.id_treasury_destin,
+        requested_value_A: order.requested_value_A,
+        requested_value_B: order.requested_value_B,
+        requested_value_C: order.requested_value_C,
+        requested_value_D: order.requested_value_D,
+        confirmed_value_A: order.confirmed_value_A,
+        confirmed_value_B: order.confirmed_value_B,
+        confirmed_value_C: order.confirmed_value_C,
+        confirmed_value_D: order.confirmed_value_D,
+        status_order: order.status_order,
+        treasury_origin_name: t_name?.name_for_email ?? "",
+        treasury_destin_name: t_name?.name_for_email ?? ""  
+      })
+    }else{
+      const t_name_o = await getForIdSystem(order.id_treasury_origin.toString());
+      const t_name_d = await getForIdSystem(order.id_treasury_destin.toString());
+       orderWithTreasury.push({
+        id_order: order.id,
+        id_type_operation: order.id_type_operation,
+        id_treasury_origin: order.id_treasury_origin,
+        id_treasury_destin: order.id_treasury_destin,
+        requested_value_A: order.requested_value_A,
+        requested_value_B: order.requested_value_B,
+        requested_value_C: order.requested_value_C,
+        requested_value_D: order.requested_value_D,
+        confirmed_value_A: order.confirmed_value_A,
+        confirmed_value_B: order.confirmed_value_B,
+        confirmed_value_C: order.confirmed_value_C,
+        confirmed_value_D: order.confirmed_value_D,
+        status_order: order.status_order,
+        treasury_origin_name: t_name_o?.name_for_email ?? "",
+        treasury_destin_name: t_name_d?.name_for_email ?? ""  
+      })
+    }
+  }
+  if (orderWithTreasury) {
+    res.json({ treasury : orderWithTreasury })
+    return
+  } else {
+    res.status(400).json({ error: 'Nenhum pedido encontrado para esta data.' })
+    return
+  }
+
+
 
 }

@@ -10,7 +10,7 @@ export const sendEmailOfOrder = async (emails: string, orders: any) => {
     for (const email of emailList) {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
-        to: email + ',tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,calebe.marques@crednosso.com.br',
+        to: email + ',tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,kalebe.marques@crednosso.com.br',
         subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`,
         html: `
       Prezados, <br><br><br>

@@ -157,3 +157,7 @@ export const delTreasury = async (id: number) => {
     }
     return null
 }
+
+export const getTreasuriesInOrderForDate = async (date: string) => {
+   
+}

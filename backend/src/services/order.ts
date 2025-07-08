@@ -1,6 +1,5 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
-import { returnDateFormatted } from "../utils/returnDateFormatted"
 
 export const getAllOrder = async () => {
   const order = await prisma.order.findMany()
@@ -41,11 +40,11 @@ export const getOrderByIds = async (ids: number[]) => {
 
 export const getOrderByIdsForPaymment = async (ids: number[]) => {
   const order = await prisma.order.findMany({
-     where: {
+    where: {
       id: {
         in: ids,
       },
-      id_type_operation : {
+      id_type_operation: {
         notIn: [5],
       },
       status_order: {
@@ -59,33 +58,37 @@ export const getOrderByIdsForPaymment = async (ids: number[]) => {
   return null
 }
 
-
 export const getIdTreasuriesOrderByDate = async (date: string) => {
-  const order = await prisma.order.findMany({
-    where: {
-      date_order: returnDateFormatted(date),
-      status_order : {not : 5 }
-    },
-    select : {
-      id : true,
-      id_type_operation : true,
-      id_treasury_destin : true,
-      requested_value_A : true,
-      requested_value_B: true,
-      requested_value_C : true,
-      requested_value_D : true,
-      confirmed_value_A : true,
-      confirmed_value_B : true,
-      confirmed_value_C : true,
-      confirmed_value_D : true,
-      date_order : true,
-      status_order : true,
+  try {
+    const order = await prisma.order.findMany({
+      where: {
+        date_order: new Date(date),
+        status_order: { not: 5 }
+      },
+      select: {
+        id: true,
+        id_type_operation: true,
+        id_treasury_origin: true,
+        id_treasury_destin: true,
+        requested_value_A: true,
+        requested_value_B: true,
+        requested_value_C: true,
+        requested_value_D: true,
+        confirmed_value_A: true,
+        confirmed_value_B: true,
+        confirmed_value_C: true,
+        confirmed_value_D: true,
+        status_order: true,
+      }
+    })
+    if (order) {
+      return order
     }
-  })
-  if (order) {
-    return order
+    return null
+  } catch (error) {
+    return null
+
   }
-  return null
 }
 
 export const addOrder = async (data: Prisma.OrderCreateInput) => {
@@ -101,7 +104,7 @@ type alterRequestsOrderType = {
   requested_value_B: number;
   requested_value_C: number;
   requested_value_D: number;
-  observation ?: string
+  observation?: string
 }
 export const alterRequestsOrderForID = async (id: number, data: alterRequestsOrderType) => {
   const order = await prisma.order.update({
@@ -249,15 +252,15 @@ export const confirmTotalByIds = async (ids: number[]) => {
 }
 
 export const getInfosOrders = async (id: number) => {
-      const order = await prisma.order.findUnique({
-        where: {
-          id,
-        }
-      });
-      if(order){
-        return order
-      }
-      return null 
+  const order = await prisma.order.findUnique({
+    where: {
+      id,
+    }
+  });
+  if (order) {
+    return order
+  }
+  return null
 }
 
 type alterConfirmPartialOrderType = {
@@ -309,20 +312,20 @@ export const updateOrder = async (id: number, data: Prisma.OrderUpdateInput) => 
 
 }
 
-export const confirmPaymantAllIds = async (ids : number[]) => {
- const order =  await prisma.order.updateMany({
+export const confirmPaymantAllIds = async (ids: number[]) => {
+  const order = await prisma.order.updateMany({
     where: {
       id: { in: ids },
-      id_type_operation : { 
-        notIn : [3, 4, 5, 6] 
-      } 
+      id_type_operation: {
+        notIn: [3, 4, 5, 6]
+      }
     },
     data: {
       status_order: 4,
     },
   });
 
-  if(order){
+  if (order) {
     return order
   }
 

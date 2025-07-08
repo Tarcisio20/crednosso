@@ -27,7 +27,6 @@ export const sendEmailToOrder : RequestHandler = async (req, res) => {
             value_100 : order[0].requested_value_D,
         })
         let ctc : any = await getForIdTreasury(order[0].id_treasury_destin)
-        console.log("Contato", ctc)
         for(let i = 0; ctc?.length > i; i++){
            emails.push(ctc[i].email)
         }

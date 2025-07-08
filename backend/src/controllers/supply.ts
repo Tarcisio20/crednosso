@@ -48,11 +48,13 @@ export const getAtmsWithSupply: RequestHandler = async (req, res) => {
 
 export const getForIDTreasury : RequestHandler = async (req, res) => {
   const idSupply = req.params.id
+  console.log("ID", idSupply)
   if(!idSupply) {
    res.status(401).json({ error : 'Erro ao carregar!' })
    return
   }
-  const supply = await getSupplyForIdTreasury(parseInt(idSupply))
+  console.log("ID depois do if", idSupply)
+  const supply = await getSupplyForIdTreasury( Number(idSupply))
   res.json({ supply })
 
 }

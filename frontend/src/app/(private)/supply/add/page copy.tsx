@@ -36,7 +36,7 @@ type atmPage = {
 
 type orderPage = {
   id: number;
-  id_type_operation : number;
+  id_type_operation: number;
   id_trasury: number;
   cass_A: number;
   cass_B: number;
@@ -82,6 +82,11 @@ export default function Supply() {
   useEffect(() => {
     document.title = "Pedidos - Add | CredNosso";
     if (idTreasury) {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0"); // mês começa em 0
+      const dd = String(now.getDate()).padStart(2, "0");
+      setDateSupply(`${yyyy}-${mm}-${dd}`);
       handleAll()
     }
   }, [idTreasury, atms]);
@@ -91,7 +96,7 @@ export default function Supply() {
     if (dateSupply === '') {
       setAtms([])
       setLoading(false)
-      toast.error('Prrencher o campo de data!') 
+      toast.error('Prrencher o campo de data!')
       return
     }
     const orderAjusted: orderPage[] = []
@@ -106,8 +111,8 @@ export default function Supply() {
 
     idTreasuriesInOrderDate.data.order.map((item: any) => (
       orderAjusted.push({
-        id : item.id,
-        id_type_operation : item.id_type_operation,
+        id: item.id,
+        id_type_operation: item.id_type_operation,
         id_trasury: item.id_treasury_destin,
         cass_A: item.status_order === 1 ? item.requested_value_A : item.requested_value_A,
         cass_B: item.status_order === 1 ? item.requested_value_B : item.requested_value_B,
@@ -125,10 +130,10 @@ export default function Supply() {
       return
     }
     const atmsWithSupply = []
-    idTreasuriesInOrderDate.data.order.map(async(item : any) => {
-      const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date : dateSupply })
+    idTreasuriesInOrderDate.data.order.map(async (item: any) => {
+      const atmsWithSupplies = await getSuppliesWithSupplyInDateAndTreasury(item.id_treasury_destin, { date: dateSupply })
     })
-    
+
     if ([300, 400, 500].includes(treasuriesForIds)) {
       setAtms([])
       setLoading(false)
@@ -175,7 +180,7 @@ export default function Supply() {
 
       uniqueAtms.map((item: atmType) => (
         atmsAjusted.push({
-          date_order : dateSupply,
+          date_order: dateSupply,
           id_atm: item.id_system,
           id_treasury: item.id_treasury,
           name: item.name,
@@ -288,29 +293,29 @@ export default function Supply() {
   }
 
   const saveIndividual = async () => {
-    const atm : atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
+    const atm: atmPage[] = filteredAtms?.filter(item => item.check === true) ?? []
     if (atm.length === 1) {
       if (cassA === "0" && cassB === "0" && cassC === "0" && cassD === "0") {
         toast.error('Preciso de algum valor para abasetcer!')
         return
       }
 
-      let data : atmPage = {
-        id_atm : atm[0]?.id_atm,
-        id_treasury : atm[0]?.id_treasury,
-        name : atm[0]?.name,
-        short_name : atm[0]?.short_name,
-        check : atm[0]?.check,
-        type : atm[0]?.type,
-        cass_A : atm[0]?.cass_A,
-        cass_B : atm[0]?.cass_B,
-        cass_C : atm[0]?.cass_C,
-        cass_D : atm[0]?.cass_D,
+      let data: atmPage = {
+        id_atm: atm[0]?.id_atm,
+        id_treasury: atm[0]?.id_treasury,
+        name: atm[0]?.name,
+        short_name: atm[0]?.short_name,
+        check: atm[0]?.check,
+        type: atm[0]?.type,
+        cass_A: atm[0]?.cass_A,
+        cass_B: atm[0]?.cass_B,
+        cass_C: atm[0]?.cass_C,
+        cass_D: atm[0]?.cass_D,
       }
 
       const supply = await saveIndividualSupply(data)
 
-    }else{
+    } else {
       toast.error('Preciso de um atm selecionado!')
       return
     }

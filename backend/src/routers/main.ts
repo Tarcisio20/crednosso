@@ -42,6 +42,7 @@ mainRouter.post('/treasury/minus_saldo/:id',verifyJWT, treasuryController.minusS
 mainRouter.post('/treasury/update/:id',verifyJWT, treasuryController.update)
 mainRouter.get('/treasury/del/:id',verifyJWT, treasuryController.del)
 mainRouter.post('/treasury/ids',verifyJWT, treasuryController.getTreasuriesForID)
+mainRouter.get('/treasury/order/:date',verifyJWT, treasuryController.getTreasuriesInOrderByDate)
 
 
 // ATM
