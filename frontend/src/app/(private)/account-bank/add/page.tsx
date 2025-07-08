@@ -144,9 +144,9 @@ export default function AccountBankAdd() {
           <Button
               color="#2E8B57"
               onClick={addAccount}
-              size="meddium"
+              size="medium"
               textColor="white"
-              secondaryColor="#81C784"
+              variant="primary"
             >
               Cadastrar
             </Button>

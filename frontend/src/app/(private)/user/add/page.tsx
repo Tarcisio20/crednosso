@@ -70,9 +70,9 @@ export default function UserAdd() {
             <Button
               color="#2E8B57"
               onClick={addUser}
-              size="meddium"
+              size="medium"
               textColor="white"
-              secondaryColor="#81C784"
+              variant={"primary"}
             >
               Cadastrar
             </Button>

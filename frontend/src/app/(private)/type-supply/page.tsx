@@ -64,7 +64,7 @@ export default function TypeSupply() {
       <TitlePages linkBack="/" icon={faSupple} >Tipo de Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div className='flex flex-col gap-3 items-center justify-center mb-4'>
-          <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
+          <Button color='#2E8B57' textColor='white' onClick={handleAdd} size="medium" variant={"primary"}>Adicionar</Button>
         </div>
         <table className="flex-1 text-center p-3" width="100%">
           <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl" >

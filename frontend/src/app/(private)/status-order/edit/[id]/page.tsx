@@ -129,7 +129,7 @@ export default function StatusOrderEdit() {
           </div>
         </div>
         <div className="flex flex-col gap-5" >
-          <Button color="#2E8B57" onClick={editTypeOperation} size="meddium" textColor="white" secondaryColor="#81C784">Editar</Button>
+          <Button color="#2E8B57" onClick={editTypeOperation} size="medium" textColor="white" variant={"primary"}>Editar</Button>
         </div>
         {error.messege &&
           <Messeger type={error.type} title={error.title} messege={error.messege} />

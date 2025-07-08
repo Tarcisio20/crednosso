@@ -101,10 +101,10 @@ export default function OperationalError() {
       <div className="flex flex-col gap-3 items-center justify-center mb-4">
         <Button
           color="#2E8857"
-          secondaryColor="#81C784"
+          variant={"primary"}
           textColor="white"
           onClick={handleAdd}
-          size="meddium"
+          size="medium"
         >Adicionar</Button>
       </div>
       <table className="flex-1 text-center p-3" width="100%">
@@ -144,14 +144,14 @@ export default function OperationalError() {
                   )}
                 </td>
                 <td className="flex justify-center items-center gap-4 h-12">
-                  <Link href={`/atm/edit/${item.id}`} >
+                  <Link href={`/operational-error/edit/${item.id}`} >
                     <FontAwesomeIcon
                       icon={faPenToSquare}
                       size="1x"
                       color="#6C8EBF"
                     />
                   </Link>
-                  <a href={`/atm/del/${item.id}`} onClick={(e) => handleDelete(e, item.id as number)} className="cursor-pointer" >
+                  <a href={`/operational-error/del/${item.id}`} onClick={(e) => handleDelete(e, item.id as number)} className="cursor-pointer" >
                     <FontAwesomeIcon
                       icon={faTrash}
                       size="1x"

@@ -87,9 +87,9 @@ export default function Supply() {
       <TitlePages linkBack="/" icon={faParachuteBox} >Abastecimento</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div className='flex flex-row gap-3 items-center justify-center mb-4'>
-          <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleAdd} size='meddium'>Adicionar</Button>
+          <Button color='#2E8B57'  textColor='white' onClick={handleAdd} size='medium'>Adicionar</Button>
           {supplies && supplies.length > 0 &&
-            <Button color='#2E8B57' secondaryColor='#81C784' textColor='white' onClick={handleGenerateOrders} size='meddium'>Gerar Abastecimentos</Button>
+            <Button color='#2E8B57' variant={"primary"}  disabled={loading} textColor='white' onClick={handleGenerateOrders} size='medium'>Gerar Abastecimentos</Button>
           }
         </div>
         <div className="flex flex-col gap-5 w-1/3">

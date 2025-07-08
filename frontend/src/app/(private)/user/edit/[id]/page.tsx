@@ -136,7 +136,7 @@ export default function UserEdit() {
             className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
           >
             <select
-              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
               value={status ? "true" : "false"}
               onChange={(e) => setStatus(e.target.value === "true")}
             >
@@ -154,18 +154,18 @@ export default function UserEdit() {
           <Button
             color="#2E8B57"
             onClick={editUser}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"}
           >
             Editar
           </Button>
           <Button
             color="#2E8B57"
             onClick={changePassowrdUser}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"}
           >
             Redefinir Senha
           </Button>

@@ -94,7 +94,7 @@ export default function TypeOrderEdit() {
           <label className="uppercase leading-3 font-bold">Status</label>
           <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
             <select
-              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm  uppercase"
               value={statusTypeOrder ? "true" : "false"}
               onChange={e => setStatusTypeOrder(e.target.value === "true")}
             >
@@ -111,8 +111,8 @@ export default function TypeOrderEdit() {
             </select>
           </div>
         </div>
-        <div className="flex flex-col gap-5" >
-          <Button color="#2E8B57" onClick={editTypeOrder} size="meddium" textColor="white" secondaryColor="#81C784">Editar</Button>
+        <div className="flex flex-col gap-5 w-[300px]" >
+          <Button color="#2E8B57" onClick={editTypeOrder} size="medium" textColor="white" variant={"primary"}>Editar</Button>
         </div>
         {error &&
           <div className="text-white">

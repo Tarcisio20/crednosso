@@ -108,7 +108,7 @@ export default function SignIn() {
             size="large"
             color="#0082c7"
             onClick={onLoading}
-            secondaryColor="#2a49de"
+            variant={"primary"}
             textColor="white"
           >
             Logar

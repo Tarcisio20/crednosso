@@ -183,7 +183,7 @@ export default function AtmAdd() {
               </div>
               <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
                 <select
-                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                  className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                   value={idTreasury}
                   onChange={handleSelectChange}
                 >
@@ -208,7 +208,7 @@ export default function AtmAdd() {
               <div className="flex flex-col gap-2">
                 <label>CASSETE A</label>
                 <div
-                  className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+                  className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
                 >
                   <select
                     className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
@@ -245,10 +245,10 @@ export default function AtmAdd() {
               <div className="flex flex-col gap-2">
                 <label>CASSETE B</label>
                 <div
-                  className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+                 className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
                 >
                   <select
-                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg "
                     value={casseteBAtm}
                     onChange={(e) => setCasseteBAtm(e.target.value)}
                   >
@@ -282,7 +282,7 @@ export default function AtmAdd() {
               <div className="flex flex-col gap-2">
                 <label>CASSETE C</label>
                 <div
-                  className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+                  className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
                 >
                   <select
                     className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
@@ -319,7 +319,7 @@ export default function AtmAdd() {
               <div className="flex flex-col gap-2">
                 <label>CASSETE D</label>
                 <div
-                  className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+                  className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
                 >
                   <select
                     className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
@@ -359,9 +359,9 @@ export default function AtmAdd() {
             <Button
               color="#2E8B57"
               onClick={addAtm}
-              size="meddium"
+              size="medium"
+              variant="primary"
               textColor="white"
-              secondaryColor="#81C784"
             >
               Cadastrar
             </Button>

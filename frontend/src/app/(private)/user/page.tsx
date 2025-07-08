@@ -93,10 +93,10 @@ export default function User() {
       <div className="flex flex-col gap-3 items-center justify-center mb-4">
         <Button
           color="#2E8B57"
-          secondaryColor="#81C784"
+          variant={"primary"}
           textColor="white"
           onClick={handleAdd}
-          size="meddium"
+          size="medium"
         >
           Adicionar
         </Button>

@@ -63,13 +63,13 @@ export default function TypeStoreAdd() {
             icon={faLandmark}
           />
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 w-[300px]">
           <Button
             color="#2E8B57"
             onClick={addTypeStore}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"  }
           >
             Cadastrar
           </Button>

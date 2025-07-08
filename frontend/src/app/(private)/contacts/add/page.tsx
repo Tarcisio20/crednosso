@@ -116,7 +116,7 @@ export default function ContactsAdd() {
             </div>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                 value={idTreasury}
                 onChange={handleSelectChange}
               >
@@ -146,7 +146,13 @@ export default function ContactsAdd() {
             value={emailContact} onChange={(e) => setEmailContact(e.target.value)} icon={faEnvelope} />
         </div>
         <div>
-          <Button color="#2E8B57" onClick={addContact} size="meddium" textColor="white" secondaryColor="#81C784">Adicionar</Button>
+          <Button 
+            color="#2E8B57" 
+            onClick={addContact} 
+            size="medium" 
+            textColor="white"
+            variant="primary"
+          >Adicionar</Button>
         </div>
         {error &&
           <div className="text-white">

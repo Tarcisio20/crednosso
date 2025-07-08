@@ -212,7 +212,7 @@ export default function Order() {
             </div>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                 value={idTypeOperation}
                 onChange={e => setIdTypeOperation(e.target.value)}
               >
@@ -238,7 +238,7 @@ export default function Order() {
             </div>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                 value={idTreasuryOrigin}
                 onChange={handleSelectChangeOrigin}
               >
@@ -268,7 +268,7 @@ export default function Order() {
                 </div>
                 <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
                   <select
-                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                    className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                     value={idTreasuryDestin}
                     onChange={handleSelectChangeDestin}
                   >
@@ -312,7 +312,7 @@ export default function Order() {
             </div>
             <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`} >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                 value={idTypeOrder}
                 onChange={e => setIdTypeOrder(e.target.value)}
               >
@@ -414,16 +414,16 @@ export default function Order() {
         </div>
       </div>
       <div className="mt-5 flex flex-row gap-3">
-        <Button color="#2E8B57" onClick={saveOrder} size="large" textColor="white" secondaryColor="#81C784"  >Salvar</Button>
-        <Button color="#2E8B57" onClick={searchOrder} size="large" textColor="white" secondaryColor="#81C784"  >Pesquisar</Button>
-      </div>
-      <div className="mt-5 flex flex-row gap-3">
-        {error.messege &&
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        }
-        {loading &&
-          <Loading />
-        }
+        <Button color="#2E8B57" onClick={saveOrder} size="large" textColor="white" variant={"primary"}  >Salvar</Button>
+        <Button color="#2E8B57" onClick={searchOrder} size="large" textColor="white" variant={"primary"}  >Pesquisar</Button>
+        <div className="mt-5 flex flex-row gap-3">
+          {error.messege &&
+            <Messeger type={error.type} title={error.title} messege={error.messege} />
+          }
+          {loading &&
+            <Loading />
+          }
+        </div>
       </div>
     </Page>
   );

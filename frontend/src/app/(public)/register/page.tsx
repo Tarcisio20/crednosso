@@ -89,7 +89,7 @@ export default function SignInComponent() {
         <Input color="#DDD" placeholder="Digite a senha novamente..." value={userConfirmPassword} password onChange={(e) => setUserConfirmPassword(e.target.value)} size="large" />
       </div>
       <div className="flex flex-col gap-3">
-        <Button size="large" color="#ADD8E6" onClick={registerUser} secondaryColor="" textColor="black" >Logar</Button>
+        <Button size="large" color="#ADD8E6" onClick={registerUser} textColor="black" >Logar</Button>
         <p className="">Já tem acesso? <Link href="/sign-in" className="text-zinc-400">Clique aqui </Link>!</p>
       </div>
       {error.messege &&

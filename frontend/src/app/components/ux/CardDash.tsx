@@ -11,7 +11,7 @@ type CardDashProps = {
 }
 
 export const CardDash = ({ title, value, icon }: CardDashProps) => {
-    return  <Card className="w-[300px] ">
+    return  <Card className="">
           <CardHeader>
             <div className="flex items-center justify-center">
               <CardTitle className="text-lg sm:text-xl text-gray-100 select-none ">{title}</CardTitle>

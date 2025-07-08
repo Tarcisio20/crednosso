@@ -67,13 +67,13 @@ export default function TypeOperationAdd() {
           <Input color="#DDDD" placeholder="Digite o nome do Status do Pedido" size="extra-large"
             value={nameStatusOrder} onChange={(e) => setNameStatusOrder(e.target.value)} icon={faLandmark} />
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5v w-[200px]">
           <Button
             color="#2E8B57"
             onClick={addStatusOrder}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"} 
           >
             Cadastrar
           </Button>

@@ -63,8 +63,8 @@ export default function TypeOrderAdd() {
           <label className="uppercase leading-3 font-bold">Nome</label>
           <Input color="#DDDD" placeholder="Digite o nome do Tipo de Pedido" size="extra-large" value={nameTypeOrder} onChange={(e) => setNameTypeOrder(e.target.value)} icon={faLandmark} />
         </div>
-        <div className="flex flex-col gap-5" >
-          <Button color="#2E8B57" onClick={addTypeOrder} size="meddium" textColor="white" secondaryColor="#81C784">Cadastrar</Button>
+        <div className="flex flex-col gap-5 w-[300px]" >
+          <Button color="#2E8B57" onClick={addTypeOrder} size="medium" textColor="white" variant={"primary"}>Cadastrar</Button>
         </div>
         {error.messege && (
           <Messeger type={error.type} title={error.title} messege={error.messege} />

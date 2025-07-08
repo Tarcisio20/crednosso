@@ -220,9 +220,9 @@ export default function AccountBankEdit() {
             <Button
               color="#2E8B57"
               onClick={updateAccount}
-              size="meddium"
+              size="medium"
               textColor="white"
-              secondaryColor="#81C784"
+              variant="primary"
             >
               Editar
             </Button>

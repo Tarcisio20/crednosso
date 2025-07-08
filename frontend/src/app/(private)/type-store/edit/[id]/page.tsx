@@ -107,7 +107,7 @@ export default function TypeStoreEdit() {
             className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
           >
             <select
-              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+              className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm uppercase"
               value={statusTypeStore ? "true" : "false"}
               onChange={e => setStatusTypeStore(e.target.value === "true")}
             >
@@ -124,13 +124,13 @@ export default function TypeStoreEdit() {
             </select>
           </div>
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 w-[300px]">
           <Button
             color="#2E8B57"
             onClick={editTypeStore}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"}
           >
             Editar
           </Button>

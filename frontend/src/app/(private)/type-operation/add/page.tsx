@@ -72,13 +72,13 @@ export default function TypeOperationAdd() {
           <Input color="#DDDD" placeholder="Digite o nome do Tipo de Operação" size="extra-large"
             value={nameTypeOperation} onChange={(e) => setNameTypeOperation(e.target.value)} icon={faLandmark} />
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 w-[300px]">
           <Button
             color="#2E8B57"
             onClick={addTypeOperation}
-            size="meddium"
+            size="medium"
             textColor="white"
-            secondaryColor="#81C784"
+            variant={"primary"} 
           >
             Cadastrar
           </Button>
