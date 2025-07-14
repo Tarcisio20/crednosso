@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en"   >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`} suppressHydrationWarning
       >
         <div className="flex items-center justify-center min-h-screen min-w-screen "  >
           {children}

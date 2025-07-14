@@ -477,6 +477,7 @@ export default function Order() {
     if (orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0) {
       setLoading(false)
       handleSearch()
+      toast.success('Confirmação parcial realizada com sucesso!') 
       return
     }
     setLoading(false)

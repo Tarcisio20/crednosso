@@ -10,18 +10,23 @@ export const getAllOrder = async () => {
 }
 
 export const getOrderById = async (id: number) => {
-  const order = await prisma.order.findMany({
-    where: {
-      id,
-      status_order: {
-        not: 5
+  try {
+    const order = await prisma.order.findMany({
+      where: {
+        id,
+        status_order: {
+          not: 5
+        }
       }
+    })
+    if (order) {
+      return order
     }
-  })
-  if (order) {
-    return order
+    return null
+  } catch (error) {
+    return null
   }
-  return null
+
 }
 
 export const getOrderByIds = async (ids: number[]) => {
@@ -331,4 +336,74 @@ export const confirmPaymantAllIds = async (ids: number[]) => {
 
   return null
 }
+
+export const getMediasYears = async () => {
+  try {
+    const medias = await prisma.$queryRaw<
+      {
+        ano: number
+        mes: number
+        media_solicitada: number
+        media_confirmada: number
+      }[]
+    >`
+      SELECT
+        YEAR(date_order) AS ano,
+        MONTH(date_order) AS mes,
+        AVG(
+          (requested_value_A * 10) +
+          (requested_value_B * 20) +
+          (requested_value_C * 50) +
+          (requested_value_D * 100)
+        ) AS media_solicitada,
+        AVG(
+          (confirmed_value_A * 10) +
+          (confirmed_value_B * 20) +
+          (confirmed_value_C * 50) +
+          (confirmed_value_D * 100)
+        ) AS media_confirmada
+      FROM \`order\`
+      GROUP BY ano, mes
+      ORDER BY ano, mes;
+    `
+
+    if (!medias) return null
+
+    const agrupadoPorAno = medias.reduce((acc, item) => {
+      const { ano, mes, media_solicitada, media_confirmada } = item
+      let anoExistente = acc.find((entry) => entry.ano === ano)
+
+      if (!anoExistente) {
+        anoExistente = {
+          ano,
+          total_solicitado: 0,
+          total_confirmado: 0,
+          meses: [],
+        }
+        acc.push(anoExistente)
+      }
+
+      anoExistente.total_solicitado += media_solicitada
+      anoExistente.total_confirmado += media_confirmada
+      anoExistente.meses.push({ mes, media_solicitada, media_confirmada })
+
+      return acc
+    }, [] as {
+      ano: number
+      total_solicitado: number
+      total_confirmado: number
+      meses: {
+        mes: number
+        media_solicitada: number
+        media_confirmada: number
+      }[]
+    }[])
+
+    return agrupadoPorAno
+  } catch (error) {
+    console.error('Erro em getMediasYears:', error)
+    return null
+  }
+}
+
 

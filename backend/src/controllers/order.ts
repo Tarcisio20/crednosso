@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getOrderById, getOrderByIds, getOrderByIdsForPaymment, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getMediasYears, getOrderById, getOrderByIds, getOrderByIdsForPaymment, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -58,7 +58,6 @@ export const getIdTreasuryForDateOrder: RequestHandler = async (req, res) => {
     confirmed_value_B: number;
     confirmed_value_C: number;
     confirmed_value_D: number;
-    date_order: Date;
     status_order: number;
   }
 
@@ -740,5 +739,15 @@ export const alterOrderByIdOrder: RequestHandler = async (req, res) => {
   }
 
   res.json({ order })
+}
+
+export const getOrderMediasForYear: RequestHandler = async (req, res) => {
+  const medias = await getMediasYears()
+  if (!medias) {
+    res.status(401).json({ error: 'Erro ao buscar médias!' })
+    return
+  }
+
+  res.json({ medias })
 }
 

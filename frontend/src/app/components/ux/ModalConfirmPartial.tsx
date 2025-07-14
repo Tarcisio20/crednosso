@@ -4,6 +4,7 @@ import { generateReal } from "@/app/utils/generateReal";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { orderType } from "@/types/orderType";
+import { toast } from "sonner";
 
 type ModalConfirmPartialType = {
   oIndividual : orderType;
@@ -20,8 +21,19 @@ type ModalConfirmPartialType = {
 export const ModalConfirmPartial  = (
   { oIndividual, valueAdd, setValueAddA, setValueAddB, setValueAddC, setValueAddD, onClose, onSave, error } : ModalConfirmPartialType) => {
     
-    const confirmedTotal = parseInt(generateValueTotal(oIndividual.confirmed_value_A as number, oIndividual.confirmed_value_B as number,
-      oIndividual.confirmed_value_C as number, oIndividual.confirmed_value_D as number))
+      const requeredValue = generateRealTotal(oIndividual.requested_value_A as number, oIndividual.requested_value_B as number,
+        oIndividual.requested_value_C as number, oIndividual.requested_value_D as number) 
+
+        const handleSaveValues = () => {
+          const totalConfirmed = (valueAdd.a * 10) + (valueAdd.b * 20) +  (valueAdd.c * 50)  +  (valueAdd.d * 100)
+          const totalSolicited = (oIndividual.requested_value_A as number * 10) + (oIndividual.requested_value_B as number * 20) +  (oIndividual.requested_value_C as number * 50)  +  (oIndividual.requested_value_D as number * 100)
+          if(totalConfirmed > totalSolicited){
+            toast.error("Valor total confirmado maior que o solicitado, tente novamente")
+          }else{
+            onSave()
+          }
+        }
+
     return  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
                 <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
@@ -30,13 +42,7 @@ export const ModalConfirmPartial  = (
                 <p className="text-black text-center">ID Pedido: {oIndividual?.id}</p>
                 <p className="text-black text-xl text-center">
                   Valor do pedido atual:{" "}
-                  {confirmedTotal <= 0 ? generateValueTotal(
-                    oIndividual?.requested_value_A as number, oIndividual?.requested_value_B as number,
-                    oIndividual?.requested_value_C as number, oIndividual?.requested_value_D as number
-                  ) : generateValueTotal(
-                    oIndividual?.confirmed_value_A as number, oIndividual?.confirmed_value_B as number,
-                    oIndividual?.confirmed_value_C as number, oIndividual?.confirmed_value_D as number
-                  ) }
+                  {requeredValue === "" ? "R$ 0,00" : `R$ ${requeredValue}`  }
                 </p>
                 <div className="w-full  flex justify-center items-center mt-2 mb-2">
                   <div className="w-full h-1 bg-zinc-600 rounded"></div>
@@ -117,7 +123,7 @@ export const ModalConfirmPartial  = (
                 </div>
                 <div className="flex justify-center gap-4">
                   <button
-                    onClick={onSave}
+                    onClick={handleSaveValues}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                   >
                     Salvar

@@ -103,6 +103,7 @@ mainRouter.post('/status-order/update/:id',verifyJWT, statusOrderController.upda
 
 // order
 mainRouter.get('/order',verifyJWT, orderController.getAll)
+mainRouter.get('/order/medias',verifyJWT, orderController.getOrderMediasForYear)
 mainRouter.get('/order/:id',verifyJWT, orderController.getById)
 mainRouter.get('/order/del/:id',verifyJWT, orderController.delById)
 mainRouter.get('/order/treasury/:date',verifyJWT, orderController.getIdTreasuryForDateOrder)
