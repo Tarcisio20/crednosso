@@ -901,8 +901,8 @@ export default function Order() {
       <table className="flex-1 text-center p-3 table-fixed w-full">
         <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-xl text-center">
           <tr className="flex">
-            <th className="w-[2%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl " >#</th>
-            <th className="w-[3%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
+            <th className="w-[80px] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl " >#</th>
+            <th className="w-[100px] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl cursor-pointer"
               onClick={() => handleSort("id")}>Id {sortColumn === "id" && (sortDirection === "asc" ? "↑" : "↓")}</th>
             <th className="w-[12%] border-b-2 border-b-zinc-500 uppercase pb-2 text-xl" >T. Operação</th>
             <th className="w-[8%] border-b-2 bocalcrder-b-zinc-500 uppercase pb-2 text-xl  cursor-pointer"
@@ -930,7 +930,7 @@ export default function Order() {
           {sortedOrders && sortedOrders.map((item, index) => (
             <tr className={`h-12 hover:bg-zinc-400 hover:text-black 
             ${index % 2 === 0 ? "bg-slate-800" : "bg-transparent"} ${getTextColorLine(item.status_order)} `} key={index} >
-              <td className="w-[2%]" >
+              <td className="min-w-[80px] max-w-[80px]" >
                 <input
                   type="checkbox"
                   className="w-4 h-4 outline-none"
@@ -942,7 +942,7 @@ export default function Order() {
                   }
                 />
               </td>
-              <td className="w-[3%]" >{item.id}</td>
+              <td className="min-w-[100px] max-w-[100px]" >{item.id}</td>
               <td className="w-[12%] text-sm" >{returnNameTypeOperation(typeOperations, item.id_type_operation)}</td>
               <td className="w-[8%]" >{item.id_treasury_origin}</td>
               <td className="w-[12%]" >{returnNameTreasury(treasuries, item.id_treasury_origin)}</td>
