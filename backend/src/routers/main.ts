@@ -19,6 +19,7 @@ import * as moneySplitRefundController from '../controllers/money-split-refund'
 import * as accountBankController from '../controllers/account-bank'
 import * as operationalErrorController from '../controllers/operational-error'
 import * as userController from '../controllers/user'
+import * as socketEventController from '../controllers/socket-event';
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -175,3 +176,10 @@ mainRouter.post('/user/add',verifyJWT, userController.add)
 mainRouter.get('/user/:id',verifyJWT, userController.getById)
 mainRouter.get('/user/update/:id',verifyJWT, userController.update)
 mainRouter.get('/user/change-password/:id',verifyJWT, userController.changePassword)
+
+
+// socket io
+mainRouter.post('/tarefa-iniciada', socketEventController.notifyScheduler);
+mainRouter.post('/tarefa-finalizada', socketEventController.notifyFinished);
+mainRouter.post('/tarefa-erro', socketEventController.notifySchedulerError);
+
