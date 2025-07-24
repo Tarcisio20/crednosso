@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { faBars, faBomb, faBoxOpen, faBuildingColumns, faCoins, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faRightFromBracket, faSackDollar, faShieldHalved, faStore, faThumbTack, faUserTie, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBomb, faBoxOpen, faBuildingColumns, faCloudArrowDown, faCoins, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faRightFromBracket, faSackDollar, faShieldHalved, faStore, faThumbTack, faUserTie, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { Nav } from "./Menu";
@@ -32,6 +32,7 @@ export const Sidebar = () => {
     { label: 'Cartão Operador', icon: faCreditCard, link: '/operator-card' },
     { label: 'Contatos', icon: faIdCardClip, link: '/contacts' },
     { label: 'Conta Bancária', icon: faBuildingColumns, link: '/account-bank' },
+    { label: 'Download', icon: faCloudArrowDown, link: '/download' },
     { label: 'Erros Operacionais', icon: faBomb, link: '/operational-error' },
     { label: 'Pedido', icon: faCoins, link: '/order' },
     { label: 'Status do Pedido', icon: faWandMagicSparkles, link: '/status-order' },
@@ -41,6 +42,7 @@ export const Sidebar = () => {
     { label: 'Tipo de Loja', icon: faStore, link: '/type-store' },
     { label: 'Tipo de Abastecimento', icon: faSupple, link: '/type-supply' },
     { label: 'Usuários', icon: faUserTie, link: '/user' },
+
   ]
 
 
@@ -60,10 +62,10 @@ export const Sidebar = () => {
             {menu.map((item, index) => (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
-                  <button onClick={()=>{
+                  <button onClick={() => {
                     setOnLoadingStart(true)
-                      router.push(item.link)
-                    }} className="flex h-9 w-9 shrink-0 items-center justify-center
+                    router.push(item.link)
+                  }} className="flex h-9 w-9 shrink-0 items-center justify-center
                     text-muted-foreground rounded-lg transition-colors hover:text-foreground">
                     <FontAwesomeIcon icon={item.icon} size="1x" className="h-5 w-5 transition-all " />
                     <span className="sr-only">{item.label}</span>

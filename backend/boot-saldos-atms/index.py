@@ -7,6 +7,9 @@ from driver import get_driver
 from logger_util import log_info, log_error  # <- IMPORTADO AQUI
 import time
 from config import SITE_URL, USERNAME, PASSWORD
+import pandas as pd
+from datetime import datetime
+from excel_util import salvar_planilha
 
 driver = get_driver()
 try:
@@ -128,7 +131,7 @@ try:
         except Exception as error:
             log_error("[BOOT-PY] >> ERRO AO ACESSAR O SISTEMA", error)
 
-    print(infos)
+    salvar_planilha(infos)
     time.sleep(2)
     log_error("[BOOT-PY] >> SAIR DO BOT")
     driver.quit()

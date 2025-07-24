@@ -20,6 +20,7 @@ import * as accountBankController from '../controllers/account-bank'
 import * as operationalErrorController from '../controllers/operational-error'
 import * as userController from '../controllers/user'
 import * as socketEventController from '../controllers/socket-event';
+import * as downloadController from '../controllers/download'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -176,6 +177,10 @@ mainRouter.post('/user/add',verifyJWT, userController.add)
 mainRouter.get('/user/:id',verifyJWT, userController.getById)
 mainRouter.get('/user/update/:id',verifyJWT, userController.update)
 mainRouter.get('/user/change-password/:id',verifyJWT, userController.changePassword)
+
+// donwload
+mainRouter.get('/download/archive/:name',verifyJWT, downloadController.donwloadArchiveForName)
+mainRouter.get('/download/:page/:pageSize',verifyJWT, downloadController.getAllPagination)
 
 
 // socket io

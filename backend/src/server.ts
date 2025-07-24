@@ -29,6 +29,10 @@ app.use(express.json());
 // Roteador principal
 app.use(mainRouter);
 
+app.use(cors({
+  exposedHeaders: ['Content-Disposition'], // necessário para downloads
+}));
+
 // Evento de conexão via socket
 io.on("connection", (socket) => {
   console.log("🟢 Cliente conectado via Socket.IO");
