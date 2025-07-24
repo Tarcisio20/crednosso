@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
 
@@ -27,31 +27,41 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     setSocket(newSocket);
 
-    newSocket.on("connect", () => {
+    const onConnect = () => {
       console.log("✅ Conectado ao socket");
-    });
+    };
 
-    newSocket.on("tarefa_iniciada", (data: TarefaPayload) => {
+    const onDisconnect = () => {
+      console.log("❌ Desconectado do socket");
+    };
+
+    const onTarefaIniciada = (data: TarefaPayload) => {
       console.log("📩 tarefa_iniciada recebida", data);
       toast.success(data.mensagem);
-    });
+    };
 
-    newSocket.on("tarefa_finalizada", (data: TarefaPayload) => {
+    const onTarefaFinalizada = (data: TarefaPayload) => {
       console.log("📩 tarefa_finalizada recebida", data);
       toast.success(data.mensagem);
-    });
+    };
 
-    newSocket.on("disconnect", () => {
-      console.log("❌ Desconectado do socket");
-    });
-
-    newSocket.on("tarefa_finalizada", (data: TarefaPayload) => {
-      console.error("📩 tarefa_erro recebida", data);
+    const onTarefaErro = (data: TarefaPayload) => {
+      console.log("📩 tarefa_erro recebida", data);
       toast.error(data.mensagem);
-    });
+    };
 
+    newSocket.on("connect", onConnect);
+    newSocket.on("disconnect", onDisconnect);
+    newSocket.on("tarefa_iniciada", onTarefaIniciada);
+    newSocket.on("tarefa_finalizada", onTarefaFinalizada);
+    newSocket.on("tarefa_erro", onTarefaErro); // certifique-se que o backend está emitindo "tarefa_error"
 
     return () => {
+      newSocket.off("connect", onConnect);
+      newSocket.off("disconnect", onDisconnect);
+      newSocket.off("tarefa_iniciada", onTarefaIniciada);
+      newSocket.off("tarefa_finalizada", onTarefaFinalizada);
+      newSocket.off("tarefa_erro", onTarefaErro);
       newSocket.disconnect();
     };
   }, []);

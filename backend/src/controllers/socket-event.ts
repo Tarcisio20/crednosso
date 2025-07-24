@@ -57,7 +57,7 @@ export const notifySchedulerError = async (req: Request, res: Response): Promise
 
     res.sendStatus(200);
   } catch (error) {
-    console.error("Erro ao emitir evento de erro:", error);
+     console.log("❌Erro ao emitir socket (erro):", error);
     res.status(500).json({ erro: "Erro interno ao emitir evento de erro" });
   }
 };
