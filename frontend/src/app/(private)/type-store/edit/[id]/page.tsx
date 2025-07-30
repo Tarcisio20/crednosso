@@ -20,9 +20,15 @@ export default function TypeStoreEdit() {
   const { id } = useParams();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!id) return;
+    document.title = "Tipo de Loja - Edit | CredNosso";
+    getTypeStoreById();
+  }, [id]);
+
   if (!id) {
-    router.push('/type-store')
-    return
+    router.push('/type-store');
+    return null;
   }
 
   const [typeStore, setTypeStore] = useState<typeStoreType>()

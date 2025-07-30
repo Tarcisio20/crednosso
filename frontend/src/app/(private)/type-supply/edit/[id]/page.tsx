@@ -20,10 +20,7 @@ export default function TypeSupplyEdit() {
   const { id } = useParams();
   const router = useRouter();
 
-  if (!id) {
-    router.push('/type-supply')
-    return
-  }
+  
 
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType>()
   const [nameTypeSupply, setNameTypeSupply] = useState('')
@@ -50,10 +47,16 @@ export default function TypeSupplyEdit() {
     return
   }, [])
 
-  useEffect(() => {
+   useEffect(() => {
     document.title = "Tipo Abastecimento - Edit | CredNosso";
+
+    if (!id) {
+      router.push("/type-supply");
+      return;
+    }
+
     getTypeSupplyById();
-  }, [id, getTypeSupplyById]);
+  }, [id, router, getTypeSupplyById]);
 
   const editTypeSupply = async () => {
     setLoading(true);

@@ -27,6 +27,24 @@ export const getAllAtmPagination = async (page: number, pageSize: number) => {
     }
 }
 
+export const getOperationErroForId = async (id : number) => {
+    try {
+       const error = await prisma.operationalError.findUnique({
+           where: {
+               id
+           }
+       })
+       if(error){
+        return error
+       }
+       return null
+    } catch (error) {
+        console.error('Erro no service:', error);
+        return null;
+    }
+}
+
+
 export const addError = async (data: Prisma.OperationalErrorCreateInput ) => {
     const operationalError = await prisma.operationalError.create({ data })
     if (operationalError) {
@@ -35,6 +53,18 @@ export const addError = async (data: Prisma.OperationalErrorCreateInput ) => {
     return null
 }
 
+export const editOperationalError = async (id: number,  data : Prisma.OperationalErrorUpdateInput) => {
+    const delError = await prisma.operationalError.update({
+        where: {
+            id: id
+        },
+        data
+    })
+    if (delError) {
+        return delError
+    }
+    return null
+}
 
 export const delOperationalError = async (id: number) => {
     const delError = await prisma.operationalError.update({

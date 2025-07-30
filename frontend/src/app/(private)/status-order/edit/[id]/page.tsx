@@ -22,10 +22,11 @@ export default function StatusOrderEdit() {
   const { id } = useParams()
   const router = useRouter()
 
-  if (!id) {
-    router.push('/status-order')
-    return
-  }
+
+  if (!id){
+    router.push('/status-order');
+    return null; // ou um <Loading /> ou fragmento vazio
+  } 
 
   const [, setStatusOrder] = useState<statusOrderType>()
   const [nameStatusOrder, setNameStatusOrder] = useState('')
@@ -33,6 +34,8 @@ export default function StatusOrderEdit() {
 
   const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
+
+  if (!id) router.push('/status-order');
 
   const getStatusOrder = useCallback(async () => {
     setLoading(true);

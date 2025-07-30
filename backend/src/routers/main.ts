@@ -168,7 +168,9 @@ mainRouter.post('/account-bank/del/:id',verifyJWT, accountBankController.del)
 
 //opperational-error
 mainRouter.get('/operational-error-pagination',verifyJWT, operationalErrorController.getAllPagination)
+mainRouter.get('/operational-error/:id',verifyJWT, operationalErrorController.getOperationalErrorById)
 mainRouter.get('/operational-error/del/:id',verifyJWT, operationalErrorController.del)
+mainRouter.post('/operational-error/edit/:id',verifyJWT, operationalErrorController.edit)
 mainRouter.post('/operational-error/add',verifyJWT, operationalErrorController.add)
 
 // user

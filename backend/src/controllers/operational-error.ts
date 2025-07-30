@@ -1,5 +1,5 @@
 import { RequestHandler } from "express"
-import { addError, delOperationalError, getAllAtmPagination } from "../services/operational-error";
+import { addError, delOperationalError, editOperationalError, getAllAtmPagination, getOperationErroForId } from "../services/operational-error";
 import { operationalErrorAddSchema } from "../schemas/operationalErrorAdd";
 
 export const getAllPagination: RequestHandler = async (req, res) => {
@@ -37,6 +37,42 @@ export const add: RequestHandler = async (req, res) => {
     res.json({ operationalError: newOError })
 }
 
+export const getOperationalErrorById: RequestHandler = async (req, res) => {
+    console.log("C  heguel dsdsddsd")
+    const operationalErrorId = req.params.id
+   if(!operationalErrorId){
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+    const operationalError = await getOperationErroForId(parseInt(operationalErrorId))
+    if (!operationalError) {
+        res.status(401).json({ error: 'Erro ao carregar!' })
+        return
+    }
+    res.json({ operationalError })
+}
+
+export const edit: RequestHandler = async (req, res) => {
+    const operationalErrorId = req.params.id
+    const safeData = operationalErrorAddSchema.safeParse(req.body)
+
+   if(!operationalErrorId){
+        res.status(401).json({ error: 'Informar ID para continuar!' })
+        return
+    }
+     if (!safeData.success) {
+        res.status(300).json({ error: safeData.error.flatten().fieldErrors })
+        return
+    }
+    const editE = await editOperationalError(parseInt(operationalErrorId),  safeData.data)
+    if (!editE) {
+        res.status(401).json({ error: 'Erro ao Editar!' })
+        return
+    }
+
+    res.json({ operationalError : editE })
+
+}
 
 export const del: RequestHandler = async (req, res) => {
     const operationalErrorId = req.params.id

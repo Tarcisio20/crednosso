@@ -116,7 +116,6 @@ export const addBalance: RequestHandler = async (req, res) => {
     res.json({ atm: newTAtm })
 }
 
-
 export const update: RequestHandler = async (req, res) => {
     const atmId = req.params.id
     const safeData = atmAddSchema.safeParse(req.body)
