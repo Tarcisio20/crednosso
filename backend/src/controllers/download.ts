@@ -14,6 +14,9 @@ function extrairDataDoNome(nomeArquivo: string): Date | null {
 
 export const getAllPagination: RequestHandler = async (req, res) => {
   try {
+
+    manterUltimos10Arquivos()
+
     const pastaPlanilhas = path.join(__dirname, "..", "..", "planilhas");
 
     const arquivos = fs
@@ -83,6 +86,38 @@ export const donwloadArchiveForName: RequestHandler = async (req, res) => {
     console.error("Erro inesperado:", error);
     res.status(500).json({ message: "Erro ao processar o download." });
   }
+};
+
+export const manterUltimos10Arquivos = () => {
+  const pastaPlanilhas = path.join(__dirname, "..", "..", "planilhas");
+
+  const arquivos = fs
+    .readdirSync(pastaPlanilhas)
+    .filter((file) => {
+      const filePath = path.join(pastaPlanilhas, file);
+      return (
+        fs.statSync(filePath).isFile() &&
+        /^dados-\d{2}-\d{2}-\d{4}\.xlsx$/i.test(file)
+      );
+    })
+    .sort((a, b) => {
+      const dataA = extrairDataDoNome(a);
+      const dataB = extrairDataDoNome(b);
+      if (!dataA || !dataB) return 0;
+      return dataB.getTime() - dataA.getTime(); // mais novos primeiro
+    });
+
+  const arquivosParaExcluir = arquivos.slice(10); // mantém os 10 primeiros
+
+  arquivosParaExcluir.forEach((arquivo) => {
+    const caminho = path.join(pastaPlanilhas, arquivo);
+    try {
+      fs.unlinkSync(caminho);
+      console.log(`Arquivo excluído: ${arquivo}`);
+    } catch (err) {
+      console.error(`Erro ao excluir ${arquivo}:`, err);
+    }
+  });
 };
 
 

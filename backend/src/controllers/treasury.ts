@@ -3,6 +3,7 @@ import { treasuryAddSchema } from "../schemas/treasuryAdd";
 import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, getTreasuriesInOrderForDate, updateTreasury } from "../services/treasury";
 import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
 import { getIdTreasuriesOrderByDate } from "../services/order";
+import { returnDate } from "../utils/returnDate";
 
 export const getAll: RequestHandler = async (req, res) => {
   const treasury = await getAllTreasury()
@@ -187,12 +188,13 @@ export const getTreasuriesForID: RequestHandler = async (req, res) => {
   const ids = req.body
   if (ids.length === 0) {
     res.status(400).json({ error: 'Precisamos de IDs para continuar' })
-    return
-  }
-  const treasuries = []
+     return
+   }
+
+   const treasuries = []
   for (let x = 0; ids.length > x; x++) {
-    const t = await getForIdSystem(ids[x].id_treasury_destin)
-    if (t && t.id > 0) {
+    const t = await getForIdSystem(ids[x])
+  if (t && t.id > 0) {
       treasuries.push({
         id: t?.id,
         id_system: t?.id_system,
@@ -204,6 +206,7 @@ export const getTreasuriesForID: RequestHandler = async (req, res) => {
       })
     }
   }
+  console.log("treasuries", treasuries)
   if (!treasuries) {
     res.json({ error: 'Transportadora não localizada!' })
     return
@@ -227,6 +230,9 @@ type OrderWithTreasuryProps = {
   status_order: number;
   treasury_origin_name: string;
   treasury_destin_name: string;
+  composiotion_change: boolean;
+  observation: string;
+  date_order: Date;
 }
 export const getTreasuriesInOrderByDate: RequestHandler = async (req, res) => {0
   const date = req.params.date
@@ -235,13 +241,11 @@ export const getTreasuriesInOrderByDate: RequestHandler = async (req, res) => {0
     return
   }
   const orders = await getIdTreasuriesOrderByDate(date)
-
   if (!orders || orders.length === 0) {
     res.status(400).json({ error: 'Nenhum pedido encontrado para esta data.' })
     return
   }
   const orderWithTreasury: OrderWithTreasuryProps[] = []
-
 
   for (const order of orders) {
     if (order.id_treasury_origin === order.id_treasury_destin) {
@@ -261,7 +265,10 @@ export const getTreasuriesInOrderByDate: RequestHandler = async (req, res) => {0
         confirmed_value_D: order.confirmed_value_D,
         status_order: order.status_order,
         treasury_origin_name: t_name?.name_for_email ?? "",
-        treasury_destin_name: t_name?.name_for_email ?? ""  
+        treasury_destin_name: t_name?.name_for_email ?? "",
+        composiotion_change: order.composition_change,
+        observation: order.observation ,
+        date_order : order.date_order
       })
     }else{
       const t_name_o = await getForIdSystem(order.id_treasury_origin.toString());
@@ -281,7 +288,10 @@ export const getTreasuriesInOrderByDate: RequestHandler = async (req, res) => {0
         confirmed_value_D: order.confirmed_value_D,
         status_order: order.status_order,
         treasury_origin_name: t_name_o?.name_for_email ?? "",
-        treasury_destin_name: t_name_d?.name_for_email ?? ""  
+        treasury_destin_name: t_name_d?.name_for_email ?? "" ,
+        composiotion_change: order.composition_change,
+        observation: order.observation,
+        date_order : order.date_order
       })
     }
   }

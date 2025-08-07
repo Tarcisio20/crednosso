@@ -7,4 +7,7 @@ export type supplyType = {
     cassete_D : number;
     total_exchange : boolean;
     status ?: boolean;
+    id_treasury : number;
+    id_order : number;
+    date_on_suply ?: string;
 } 

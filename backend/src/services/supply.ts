@@ -3,18 +3,19 @@ import { prisma } from "../utils/prisma"
 
 export const getAllSupply = async () => {
   const supply = await prisma.supply.findMany()
-  if(supply){
+  if (supply) {
     return supply
   }
   return null
 }
 
 export const addSupply = async (data: Prisma.SupplyCreateInput) => {
-  const suplly = await prisma.supply.create({ data })
-  if (suplly) {
-    return suplly
-  }
-  return null
+  try {
+    return await prisma.supply.create({ data })
+  } catch (error) {
+    return null
+   }
+ 
 }
 
 export const getAllForDate = async (date: any, dateEnd: any) => {
@@ -35,7 +36,7 @@ export const getAllForDate = async (date: any, dateEnd: any) => {
 export const getSupplyForIdTreasury = async (id: number) => {
   const suplly = await prisma.supply.findMany({
     where: {
-    id_treasury  : id 
+      id_treasury: id
     }
   })
   if (suplly) {
@@ -44,10 +45,10 @@ export const getSupplyForIdTreasury = async (id: number) => {
   return []
 }
 
-export const getAtmWitSupplyForIdAndDate = async (id: number, data : { date : string }) => {
+export const getAtmWitSupplyForIdAndDate = async (id: number, data: { date: string }) => {
   const suplly = await prisma.supply.findMany({
     where: {
-    id_treasury  : id 
+      id_treasury: id
     }
   })
   if (suplly) {
@@ -56,19 +57,19 @@ export const getAtmWitSupplyForIdAndDate = async (id: number, data : { date : st
   return []
 }
 
-export const lastRegister  = async () => {
-const supply = await prisma.supply.findFirst({
-  orderBy: {
-    id: 'desc', // ou 'createdAt' se você tiver essa coluna
-  },
-});
-  if(supply){
+export const lastRegister = async () => {
+  const supply = await prisma.supply.findFirst({
+    orderBy: {
+      id: 'desc', // ou 'createdAt' se você tiver essa coluna
+    },
+  });
+  if (supply) {
     return supply
   }
   return null
 }
 
-export const getAllForDateAndTreasury  = async (date: any, dateEnd: any, id_treasury : number) => {
+export const getAllForDateAndTreasury = async (date: any, dateEnd: any, id_treasury: number) => {
   const suplly = await prisma.supply.findMany({
     where: {
       date: {
@@ -82,4 +83,19 @@ export const getAllForDateAndTreasury  = async (date: any, dateEnd: any, id_trea
     return suplly
   }
   return null
-  }
+}
+
+export const getSupplyByOrder = async (numOrder: number) => {
+  try { 
+    const supply = await prisma.supply.findMany({
+      where: {
+        id_order: numOrder,
+        status: true // ou outro status que você queira filtrar
+      }
+    })
+    return supply
+  }catch (error) {
+   
+    return []
+  } 
+}
