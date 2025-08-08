@@ -39,7 +39,6 @@ export default function AtmEdit() {
   const [casseteCAtm, setCasseteCAtm] = useState('50')
   const [casseteDAtm, setCasseteDAtm] = useState('100')
 
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
 
@@ -411,9 +410,7 @@ export default function AtmEdit() {
               Alterar
             </Button>
           </div>
-          {error.messege &&
-            <Messeger type={error.type} title={error.title} messege={error.messege} />
-          }
+
           {loading && <Loading />}
         </div>
       </div>

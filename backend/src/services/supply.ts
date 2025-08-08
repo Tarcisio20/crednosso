@@ -13,6 +13,7 @@ export const addSupply = async (data: Prisma.SupplyCreateInput) => {
   try {
     return await prisma.supply.create({ data })
   } catch (error) {
+    console.error("Erro ao adicionar abastecimento:", error);
     return null
    }
  

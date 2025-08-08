@@ -8,86 +8,92 @@ import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getTypeStoreForId, update } from "@/app/service/type-store";
 import { validateField } from "@/app/utils/validateField";
 import { typeStoreType } from "@/types/typeStoreType";
-import {
-  faEdit,
-  faLandmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 
 export default function TypeStoreEdit() {
   const { id } = useParams();
   const router = useRouter();
 
+  const [typeStore, setTypeStore] = useState<typeStoreType>();
+  const [nameTypeStore, setNameTypeStore] = useState('');
+  const [statusTypeStore, setStatusTypeStore] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
+
+  const getTypeStoreById = useCallback(async () => {
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      const tStore = await getTypeStoreForId(id as string);
+      console.log("Tipo de Loja:", tStore);
+
+      if ("error" in tStore || !("data" in tStore)) {
+        toast.error("Erro na requisição, tente novamente!");
+        return;
+      }
+
+      const store = (tStore as { data: { typeStore: typeStoreType } }).data.typeStore;
+
+      if (store?.id != null && store.id > 0) {
+        setTypeStore(store);
+        setNameTypeStore(store.name ?? '');
+        setStatusTypeStore(store.status ?? true);
+      } else {
+        toast.error("Erro ao retornar os dados.");
+      }
+    } catch {
+      toast.error("Erro inesperado, tente novamente!");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (!id) return;
     document.title = "Tipo de Loja - Edit | CredNosso";
     getTypeStoreById();
-  }, [id]);
-
-  if (!id) {
-    router.push('/type-store');
-    return null;
-  }
-
-  const [typeStore, setTypeStore] = useState<typeStoreType>()
-  const [nameTypeStore, setNameTypeStore] = useState('')
-  const [statusTypeStore, setStatusTypeStore] = useState(true)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  }, [id, getTypeStoreById]);
 
   useEffect(() => {
-    document.title = "Tipo de Loja - Edit | CredNosso";
-    getTypeStoreById();
-  }, [id]);
-
-  const getTypeStoreById = async () => {
-    setLoading(true);
-    const tStore = await getTypeStoreForId(id as string);
-    if (tStore.status === 300 || tStore.status === 400 || tStore.status === 500) {
-      setLoading(false);
-      toast.error('Erro na requisição, tente novamente!');
-      return;
-    }
-    if (tStore.data.typeStore && tStore.data.typeStore?.id > 0) {
-      setTypeStore(tStore.data.typeStore);
-      setNameTypeStore(tStore.data.typeStore.name);
-      setStatusTypeStore(tStore.data.typeStore.status);
-      setLoading(false);
-      return;
-    } else {
-      setLoading(false);
-      toast.error('Erro ao retornar, tente novamente!');
-      return;
-    }
-  };
+    if (!id) router.push("/type-store");
+  }, [id, router]);
 
   const editTypeStore = async () => {
-    setLoading(true);
     if (!validateField(nameTypeStore)) {
-      setLoading(false);
-      toast.error('Para continuar, preencha todos os campos corretamente!');
+      toast.error("Para continuar, preencha todos os campos corretamente!");
       return;
     }
-    let data = {
-      name: nameTypeStore.toUpperCase(),
-      status: statusTypeStore
-    }
-    const newTypeStore = await update(parseInt(id as string), data)
-    if (newTypeStore.status === 300 || newTypeStore.status === 400 || newTypeStore.status === 500) {
+
+    setLoading(true);
+    try {
+      const data: typeStoreType = {
+        name: nameTypeStore.toUpperCase(),
+        status: statusTypeStore,
+      };
+
+      const newTypeStore = await update(parseInt(id as string), data);
+
+      if ("status" in newTypeStore && [300, 400, 500].includes(newTypeStore.status)) {
+        toast.error("Erro na requisição, tente novamente!");
+        return;
+      }
+
+      const updated = (newTypeStore as { data: { typeStore: typeStoreType } }).data.typeStore;
+
+      if (updated?.id != null && updated.id > 0) {
+        await getTypeStoreById();
+        toast.success("Alterado com sucesso!");
+      } else {
+        toast.error("Erro ao salvar, tente novamente!");
+      }
+    } catch {
+      toast.error("Erro inesperado ao salvar!");
+    } finally {
       setLoading(false);
-      toast.error('Erro na requisição, tente novamente!');
-      return;
     }
-    if (newTypeStore.data.typeStore && newTypeStore.data.typeStore.id > 0) {
-      setLoading(false);
-      getTypeStoreById();
-      return;
-    }
-    setLoading(false);
-    toast.error('Erro ao salvar, tente novamente!');
-    return;
   };
 
   return (
@@ -100,7 +106,7 @@ export default function TypeStoreEdit() {
           <label className="uppercase leading-3 font-bold">Nome</label>
           <Input
             color="#DDDD"
-            placeholder="Digite o nome do Tipo de Pedido"
+            placeholder="Digite o nome do Tipo de Loja"
             size="extra-large"
             value={nameTypeStore}
             onChange={(e) => setNameTypeStore(e.target.value)}
@@ -109,22 +115,16 @@ export default function TypeStoreEdit() {
         </div>
         <div className="flex flex-col gap-5">
           <label className="uppercase leading-3 font-bold">Status</label>
-          <div
-            className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
-          >
+          <div className="flex bg-slate-700 pt-2 pb-2 px-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg">
             <select
               className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm uppercase"
               value={statusTypeStore ? "true" : "false"}
-              onChange={e => setStatusTypeStore(e.target.value === "true")}
+              onChange={(e) => setStatusTypeStore(e.target.value === "true")}
             >
-              <option
-                className="uppercase bg-slate-700 text-white"
-                value="true" >
+              <option className="uppercase bg-slate-700 text-white" value="true">
                 Ativo
               </option>
-              <option
-                className="uppercase bg-slate-700 text-white"
-                value="false" >
+              <option className="uppercase bg-slate-700 text-white" value="false">
                 Inativo
               </option>
             </select>
@@ -136,16 +136,11 @@ export default function TypeStoreEdit() {
             onClick={editTypeStore}
             size="medium"
             textColor="white"
-            variant={"primary"}
+            variant="primary"
           >
             Editar
           </Button>
         </div>
-        {error && (
-          <div>
-            <p className="text-white">{error}</p>
-          </div>
-        )}
         {loading && <Loading />}
       </div>
     </Page>

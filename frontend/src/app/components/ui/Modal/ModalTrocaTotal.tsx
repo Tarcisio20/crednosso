@@ -19,6 +19,7 @@ type ModalTrocaTotalProps = {
 };
 
 export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose }: ModalTrocaTotalProps) => {
+
   const [cloneAtmSelected, setCloneAtmSelected] = useState<supplyProps[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -35,7 +36,7 @@ export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose }:
       cassete_D: atm.cassete_D,
       total_exchange: false,
       date: orderUsed?.date_order as Date,
-      date_for_supply: dateForOS
+      date_on_supply: dateForOS
     }))
     setCloneAtmSelected(includeFiled);
     setLoading(false);
@@ -65,6 +66,7 @@ export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose }:
       cassete_C: valueC! / qtAtms,
       cassete_D: valueD! / qtAtms,
     }));
+
     setCloneAtmSelected(novosDados);
     const addSupply = await add(novosDados)
     if(addSupply.data.erros.length === 0) {

@@ -98,9 +98,9 @@ export default function Dashboard() {
       setTypeSupllies(tp.data.typeSupply)
     }
 
-    const tl = await getAllTypeStore()
-    if (tl.data !== undefined && tl.data.typeStore.length > 0) {
-      setTypeStores(tl.data.typeStore)
+    const tl = await getAllTypeStore();
+    if (tl && Array.isArray(tl.typeStore) && tl.typeStore.length > 0) {
+      setTypeStores(tl.typeStore);
     }
 
     const torder = await getAllTypeOrder()

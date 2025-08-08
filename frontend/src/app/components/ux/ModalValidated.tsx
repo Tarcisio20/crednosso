@@ -13,7 +13,6 @@ import { addRefund } from "@/app/service/money-split-refund";
 import { Loading } from "./Loading";
 import { alterOrderById, delOrderById, getOrderById } from "@/app/service/order";
 import { generateBills } from "@/app/utils/generateBills";
-import { comma } from "postcss/lib/list";
 
 type ModalValidatedType = {
   data: orderType;
@@ -24,7 +23,6 @@ type ModalValidatedType = {
 export const ModalValidated = ({ data, treasuries, onClose }: ModalValidatedType) => {
 
   useEffect(() => {
-
     handleGetConfirmations()
   }, [])
 
@@ -183,7 +181,6 @@ export const ModalValidated = ({ data, treasuries, onClose }: ModalValidatedType
           composition_change: true,
           status_order: 3,
         }
-
         await alterOrderById(data.id as number, newBills)
       }
       vEstorno = 0
@@ -347,9 +344,8 @@ export const ModalValidated = ({ data, treasuries, onClose }: ModalValidatedType
               <Button
                 color="#2E8B57"
                 onClick={addValueForTreasury}
-                size="meddium"
+                size="medium"
                 textColor="white"
-                secondaryColor="#81C784"
                 disabled={loading}
               >
                 Salvar

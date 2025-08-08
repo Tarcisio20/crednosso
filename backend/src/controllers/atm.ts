@@ -136,6 +136,7 @@ export const update: RequestHandler = async (req, res) => {
 
 export const del: RequestHandler = async (req, res) => {
   const atmId = req.params.id
+  console.log("Deletando ATM ID: "+ atmId);
   if (!atmId) {
     res.status(401).json({ error: 'Informar ID para continuar!' })
     return

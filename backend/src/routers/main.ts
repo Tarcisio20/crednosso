@@ -54,7 +54,7 @@ mainRouter.get('/atm/:id',verifyJWT, atmController.getById)
 mainRouter.post('/atm/add',verifyJWT, atmController.add)
 mainRouter.post('/atm/add_balance',verifyJWT, atmController.addBalance)
 mainRouter.post('/atm/update/:id',verifyJWT, atmController.update)
-mainRouter.post('/atm/del/:id',verifyJWT, atmController.del)
+mainRouter.get('/atm/del/:id',verifyJWT, atmController.del)
 mainRouter.post('/atm/treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
 mainRouter.post('/atm/for-ids-treasury',verifyJWT, atmController.getAtmsForIdsTreasury)
 

@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function TypeStoreAdd() {
-
   useEffect(() => {
     document.title = "Tipo de Loja - Add | CredNosso";
   }, []);
@@ -27,23 +26,32 @@ export default function TypeStoreAdd() {
 
   const addTypeStore = async () => {
     setLoading(true);
+
     if (!validateField(nameTypeStore)) {
       setLoading(false);
       toast.error('Para continuar, preencha todos os campos corretamente!');
       return;
     }
-    let data = {
+
+    const data = {
       name: nameTypeStore.toUpperCase(),
     };
-    const newTypeStore = await add(data);
-    if (newTypeStore.data.typeStore && newTypeStore.data.typeStore.length > 0) {
+
+    try {
+      const newTypeStore = await add(data) as any;
+
+      if (newTypeStore?.data?.typeStore?.length > 0) {
+        toast.success('Tipo de Loja salva com sucesso!');
+        router.push("/type-store");
+      } else {
+        toast.error('Erro ao salvar, tente novamente!');
+      }
+    } catch (error) {
+      console.error("Erro ao salvar Tipo de Loja:", error);
+      toast.error('Erro inesperado, tente novamente!');
+    } finally {
       setLoading(false);
-      toast.success('Tipo de Loja salva com sucesso!');
-      return;
     }
-    setLoading(false);
-    toast.error('Erro ao salvar, tente novamente!');
-    return;
   };
 
   return (
@@ -51,6 +59,7 @@ export default function TypeStoreAdd() {
       <TitlePages linkBack="/type-store" icon={faAdd}>
         Adicionar Tipo de Loja
       </TitlePages>
+
       <div className="flex flex-col gap-8 p-5 w-full">
         <div className="flex flex-col gap-5">
           <label className="uppercase leading-3 font-bold">Nome</label>
@@ -63,20 +72,23 @@ export default function TypeStoreAdd() {
             icon={faLandmark}
           />
         </div>
+
         <div className="flex flex-col gap-5 w-[300px]">
           <Button
             color="#2E8B57"
             onClick={addTypeStore}
             size="medium"
             textColor="white"
-            variant={"primary"  }
+            variant="primary"
           >
             Cadastrar
           </Button>
         </div>
+
         {error.messege && (
           <Messeger type={error.type} title={error.title} messege={error.messege} />
         )}
+
         {loading && <Loading />}
       </div>
     </Page>

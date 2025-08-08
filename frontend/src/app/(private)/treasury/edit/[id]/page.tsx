@@ -12,7 +12,7 @@ import {
   faDollarSign,
   faListOl,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { treasuryType } from "@/types/treasuryType";
 import {
@@ -36,34 +36,37 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function TreasuryEdit() {
+  const { id } = useParams();
+  const router = useRouter();
 
-  const { id } = useParams()
-  const router = useRouter()
+  // Redirecionamento seguro com useEffect
+  useEffect(() => {
+    if (!id) {
+      router.push("/treasury");
+    }
+  }, [id, router]);
 
-  const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>()
-  const [idTypeSupply, setIdTypeSupply] = useState('0')
-
-  const [typeStores, setTypeStores] = useState<typeStoreType[]>([])
-  const [idTypeStore, setIdTypeStore] = useState('0')
-
-  const [contacts, setContacts] = useState<ContactType[]>()
-
-  const [contact, setContact] = useState('')
-  const [treasury, setTreasury] = useState<treasuryType>()
-  const [idSystemTreasury, setIdSystemTreasury] = useState('')
-  const [nameTreasury, setNameTreasury] = useState('')
-  const [nameRedTreasury, setNameRedTreasury] = useState('')
-  const [nameForEmailTreasury, setNameForEmailTreasury] = useState('')
-  const [numContaTreasury, setNumContaTreasury] = useState('')
-  const [numGMCoreTreasury, setNumGMCoreTreasury] = useState('')
-  const [regionTreasury, setRegionTreasury] = useState('0')
-  const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState(true)
-  const [saldoTreasury, setSaldoTreasury] = useState('0')
+  const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>();
+  const [idTypeSupply, setIdTypeSupply] = useState("0");
+  const [typeStores, setTypeStores] = useState<typeStoreType[]>([]);
+  const [idTypeStore, setIdTypeStore] = useState("0");
+  const [contacts, setContacts] = useState<ContactType[]>();
+  const [contact, setContact] = useState("");
+  const [treasury, setTreasury] = useState<treasuryType>();
+  const [idSystemTreasury, setIdSystemTreasury] = useState("");
+  const [nameTreasury, setNameTreasury] = useState("");
+  const [nameRedTreasury, setNameRedTreasury] = useState("");
+  const [nameForEmailTreasury, setNameForEmailTreasury] = useState("");
+  const [numContaTreasury, setNumContaTreasury] = useState("");
+  const [numGMCoreTreasury, setNumGMCoreTreasury] = useState("");
+  const [regionTreasury, setRegionTreasury] = useState("0");
+  const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState(true);
+  const [saldoTreasury, setSaldoTreasury] = useState("0");
   const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] = useState("");
   const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] = useState("");
-  const [statusTreasury, setStatusTreasury] = useState(false)
+  const [statusTreasury, setStatusTreasury] = useState(false);
 
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
+  const [error, setError] = useState({ type: "", title: "", messege: "" });
   const [loading, setLoading] = useState(false);
 
   const [modal, setModal] = useState(false);
@@ -76,128 +79,106 @@ export default function TreasuryEdit() {
   const [valueAddC, setValueAddC] = useState(0);
   const [valueAddD, setValueAddD] = useState(0);
 
-  useEffect(() => {
-    if (!id) {
-      router.push("/treasury");
-    }
-  }, [id]);
-
-  if (!id) return null;
-
-
-
-  const allLoadings = async () => {
-    await getTreasuryByIdSystem();
-    await getTypeSuplies();
-    await getAllContactsByIdTreasury();
-    await getTypeStore()
-  };
-
-  useEffect(() => {
-    document.title = "Tesouraria - Edit | CredNosso";
-    allLoadings();
-  }, [id]);
-
   const getTreasuryByIdSystem = async () => {
-    setLoading(true)
+    setLoading(true);
     const treasuryOne = await getByIdSystem(id as string);
-    if (treasuryOne.status === 300 || treasuryOne.status === 400 || treasuryOne.status === 500) {
-      setError({ type: 'error', title: 'Error', messege: 'Erro na requisição, tentar novamente!' })
-      setLoading(false)
-      toast.error('Erro na requisição, tentar novamente!')
-      return
-    }
-    if (treasuryOne.data.treasury.id) {
-      setTreasury(treasuryOne.data.treasury)
-      setIdSystemTreasury(treasuryOne.data.treasury.id_system)
-      setNameTreasury(treasuryOne.data.treasury.name)
-      setNameRedTreasury(treasuryOne.data.treasury.short_name)
-      setNumContaTreasury(treasuryOne.data.treasury.account_number)
-      setNameForEmailTreasury(treasuryOne.data.treasury.name_for_email)
-      setNumGMCoreTreasury(treasuryOne.data.treasury.gmcore_number)
-      setEnanbledGMcoreTreasury(treasuryOne.data.treasury.enabled_gmcore)
-      setIdTypeStore(treasuryOne.data.treasury.id_type_store)
-      setIdTypeSupply(treasuryOne.data.treasury.id_type_supply)
-      setRegionTreasury(treasuryOne.data.treasury.region)
-      setSaldoTreasury(
-        generateValueTotal(
-          treasuryOne.data.treasury.bills_10,
-          treasuryOne.data.treasury.bills_20,
-          treasuryOne.data.treasury.bills_50,
-          treasuryOne.data.treasury.bills_100
-        )
-      );
-      setEnanbledGMcoreTreasury(
-        treasuryOne.data.treasury.enabled_gmcore
-      );
-      setStatusTreasury(treasuryOne.data.treasury.status);
-      setValueA(treasuryOne.data.treasury.bills_10);
-      setValueB(treasuryOne.data.treasury.bills_20);
-      setValueC(treasuryOne.data.treasury.bills_50);
-      setValueD(treasuryOne.data.treasury.bills_100);
-      const bank = treasuryOne.data.treasury.account_number_for_transfer
-      if (bank) {
-        const partes = bank.split(' - ');
-        setBankBranchForTransferTreasury(partes[0].split(': ')[1])
-        setAccountNumberForTransferTreasury(partes[1].split(': ')[1])
-      }
-      setLoading(false)
-    } else {
-      setLoading(false)
-      toast.error('Item não encontrado, tente novamente!')
+    if ([300, 400, 500].includes(treasuryOne.status)) {
+      setError({ type: "error", title: "Error", messege: "Erro na requisição, tentar novamente!" });
+      toast.error("Erro na requisição, tentar novamente!");
+      setLoading(false);
       return;
     }
+
+    if (treasuryOne.data.treasury?.id) {
+      const t = treasuryOne.data.treasury;
+      setTreasury(t);
+      setIdSystemTreasury(t.id_system);
+      setNameTreasury(t.name);
+      setNameRedTreasury(t.short_name);
+      setNumContaTreasury(t.account_number);
+      setNameForEmailTreasury(t.name_for_email);
+      setNumGMCoreTreasury(t.gmcore_number);
+      setEnanbledGMcoreTreasury(t.enabled_gmcore);
+      setIdTypeStore(t.id_type_store);
+      setIdTypeSupply(t.id_type_supply);
+      setRegionTreasury(t.region);
+      setSaldoTreasury(generateValueTotal(t.bills_10, t.bills_20, t.bills_50, t.bills_100));
+      setValueA(t.bills_10);
+      setValueB(t.bills_20);
+      setValueC(t.bills_50);
+      setValueD(t.bills_100);
+      setStatusTreasury(t.status);
+
+      const bank = t.account_number_for_transfer;
+      if (bank) {
+        const partes = bank.split(" - ");
+        setBankBranchForTransferTreasury(partes[0].split(": ")[1]);
+        setAccountNumberForTransferTreasury(partes[1].split(": ")[1]);
+      }
+    } else {
+      toast.error("Item não encontrado, tente novamente!");
+    }
+    setLoading(false);
   };
 
   const getTypeSuplies = async () => {
     setLoading(true);
     const tSupplies = await getAll();
-    if (tSupplies.status === 300 || tSupplies.status === 400 || tSupplies.status === 500) {
+    if ([300, 400, 500].includes(tSupplies.status)) {
+      toast.error("Erro na requisição, tente novamente!");
       setLoading(false);
-      toast.error('Erro na requisição, tente novamente!');
       return;
     }
-    if (tSupplies.data.typeSupply && tSupplies.data.typeSupply[0].id > 0) {
+
+    if (tSupplies.data.typeSupply?.[0]?.id > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
-      setLoading(false);
-      return;
+    } else {
+      toast.error("Erro ao retornar dados, tente novamente!");
     }
     setLoading(false);
-    toast.error('Erro ao retornar dados, tente novamente!');
-    return;
   };
 
   const getAllContactsByIdTreasury = async () => {
     setLoading(true);
     const ctc = await getByIdTreasury(parseInt(id as string));
     if (ctc.data.contact.length === 0) {
-      setLoading(false);
-      toast.error('Sem contatos a mostrar, tente novamente!');
-      return;
+      toast.error("Sem contatos a mostrar, tente novamente!");
+    } else {
+      setContact(returnArraytoString(ctc.data.contact));
     }
-    setContact(returnArraytoString(ctc.data.contact));
     setLoading(false);
-    return;
   };
 
   const getTypeStore = async () => {
     setLoading(true);
+    const tStore: any = await getllTypeStore(); // tipagem quebrada, forçando como any
+    if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
+      setLoading(false);
+      toast.error('Sem dados a mostrar, tente novamente!');
+      return;
+    }
 
-    const tStore = await getllTypeStore()
-    if (tStore.status === 300 || tStore.status === 400 || tStore.status === 500) {
-      setLoading(false);
-      toast.error('Erro na requisição, tente novamente!');
-      return;
-    }
-    if (tStore.data.typeStore && tStore.data.typeStore[0].id > 0) {
-      setTypeStores(tStore.data.typeStore);
-      setLoading(false);
-      return;
-    }
+
+    setTypeStores(tStore.typeStore);
+    setIdTypeStore(tStore.typeStore[0].id?.toString() || '');
     setLoading(false);
-    toast.error('Erro ao retornar dados, tente novamente!');
-    return;
-  }
+
+
+  };
+
+  const allLoadings = useCallback(async () => {
+    await getTreasuryByIdSystem();
+    await getTypeSuplies();
+    await getAllContactsByIdTreasury();
+    await getTypeStore();
+  }, [id]);
+
+  useEffect(() => {
+    document.title = "Tesouraria - Edit | CredNosso";
+    if (id) {
+      allLoadings();
+    }
+  }, [id, allLoadings]);
 
   const addSaldo = () => {
     setModal(true);
@@ -205,7 +186,6 @@ export default function TreasuryEdit() {
 
   const addContact = () => {
     router.push("/contacts/add");
-    return;
   };
 
   const closeModal = () => {
@@ -225,13 +205,11 @@ export default function TreasuryEdit() {
     };
     const saldo = await addSaldoTreasury(parseInt(id as string), data);
     if (!saldo.data.treasury) {
-      setLoading(false)
-      toast.error('Erro ao salvar, tente novamente!');
-      return
+      toast.error("Erro ao salvar, tente novamente!");
+      return;
     }
     closeModal();
     await getTreasuryByIdSystem();
-    return
   };
 
   const alterTreasury = async () => {
@@ -239,13 +217,14 @@ export default function TreasuryEdit() {
     if (
       idSystemTreasury === "" || !validateField(nameTreasury) ||
       !validateField(nameRedTreasury) || numContaTreasury === "" ||
-      regionTreasury === '' || idTypeStore === "" || idTypeSupply === "" ||
+      regionTreasury === "" || idTypeStore === "" || idTypeSupply === "" ||
       !validateField(nameForEmailTreasury)
     ) {
-      setLoading(false)
-      toast.error('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.');
+      toast.error("Preencher todos os campos obrigatórios.");
+      setLoading(false);
       return;
     }
+
     const dataElement = {
       id_system: parseInt(idSystemTreasury),
       id_type_supply: parseInt(idTypeSupply),
@@ -264,17 +243,15 @@ export default function TreasuryEdit() {
       status: statusTreasury,
       account_number_for_transfer: `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`
     };
-    const editTreasury = await update(parseInt(id as string), dataElement)
-    if (editTreasury.data.treasury && editTreasury.data.treasury.id > 0) {
+
+    const editTreasury = await update(parseInt(id as string), dataElement);
+    if (editTreasury.data.treasury?.id > 0) {
       await getTreasuryByIdSystem();
-      setLoading(false);
-      toast.success('Salvo com sucesso!');
-      return;
+      toast.success("Salvo com sucesso!");
     } else {
-      setLoading(false);
-      toast.error('Erro ao editar, tente novamente!');
-      return;
+      toast.error("Erro ao editar, tente novamente!");
     }
+    setLoading(false);
   };
 
   return (

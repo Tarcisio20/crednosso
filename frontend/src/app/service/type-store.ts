@@ -2,10 +2,42 @@ import { typeStoreType } from "@/types/typeStoreType";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-export const getAll = async () => {
+// Tipagem da resposta padrão
+export type GetAllTypeStoreResponse = {
+  typeStore: typeStoreType[];
+};
+
+// Tipagem para resposta paginada
+interface TypeStorePaginationResponse {
+  typeStore: {
+    data: typeStoreType[];
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+// Tipagem para buscar por ID
+export type GetTypeStoreForIdResponse = {
+  typeStore: typeStoreType;
+};
+
+// Função auxiliar para tratar erros
+const handleError = (error: any) => {
+  if (error.response) {
+    const { message } = error.response.data;
+    return { error: message, status: error.response.status };
+  } else if (error.request) {
+    return { error: error.request, status: 500 };
+  } else {
+    return { error: error.message, status: 300 };
+  }
+};
+
+// Buscar todos os tipos de loja
+export const getAll = async (): Promise<GetAllTypeStoreResponse> => {
   const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const response = await axios.get(
+    const response = await axios.get<GetAllTypeStoreResponse>(
       `${process.env.NEXT_PUBLIC_API_URL}/type-store`,
       {
         headers: {
@@ -14,70 +46,45 @@ export const getAll = async () => {
         },
       }
     );
-    return response;
+    return response.data;
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return { error: message, status: 400, data: undefined } as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-      console.error("Erro de conexão:", error.request);
-      return { error: error.request, status: 500, data: undefined } as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-      console.error("Erro:", error.message);
-      return { error: error.message, status: 300, data: undefined } as any;
-    }
+    return { typeStore: [] }; // fallback seguro
   }
 };
 
+// Buscar com paginação
 export const getAllTypeStorePagination = async (page: number, pageSize: number) => {
   const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/type-store-pagination`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          page: page,
-          pageSize: pageSize
-        }
-      }
-    );
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/type-store-pagination`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      params: { page, pageSize },
+    });
+
+    const typedResponse = response.data as TypeStorePaginationResponse;
+
     return {
-      data : response.data.typeStore.data,
+      data: typedResponse.typeStore.data,
       meta: {
-        totalItems :  response.data.typeStore.totalItems,
-        totalPages : response.data.typeStore.totalPages
-      }
-    }
+        totalItems: typedResponse.typeStore.totalItems,
+        totalPages: typedResponse.typeStore.totalPages,
+      },
+    };
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-     // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return { error: message, status: 400, data: undefined } as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-    //  console.error("Erro de conexão:", error.request);
-      return { error: error.request, status: 500, data: undefined } as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-    //  console.error("Erro:", error.message);
-      return { error: error.message, status: 300, data: undefined } as any;
-    }
+    return handleError(error);
   }
 };
 
-export const getTypeStoreForId = async (id: string) => {
+// Buscar por ID
+export const getTypeStoreForId = async (
+  id: string
+): Promise<{ data: GetTypeStoreForIdResponse; status: number } | { error: any; status: number }> => {
   const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const response = await axios.get(
+    const response = await axios.get<GetTypeStoreForIdResponse>(
       `${process.env.NEXT_PUBLIC_API_URL}/type-store/${id}`,
       {
         headers: {
@@ -86,29 +93,19 @@ export const getTypeStoreForId = async (id: string) => {
         },
       }
     );
-    return response;
+    return {
+      data: response.data,
+      status: response.status,
+    };
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-     // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return { error: message, status: 400, data: undefined } as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-    //  console.error("Erro de conexão:", error.request);
-      return { error: error.request, status: 500, data: undefined } as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-      console.error("Erro:", error.message);
-      return { error: error.message, status: 300, data: undefined } as any;
-    }
+    return handleError(error);
   }
 };
 
-
+// Criar novo tipo de loja
 export const add = async (data: typeStoreType) => {
+  const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const token = Cookies.get("tokenSystemCredNosso");
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/type-store/add`,
       data,
@@ -121,26 +118,14 @@ export const add = async (data: typeStoreType) => {
     );
     return response;
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      // console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return { error: message, status: 400, data: undefined } as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-       //  console.error("Erro de conexão:", error.request);
-       return { error: error.request, status: 500, data: undefined } as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-    //  console.error("Erro:", error.message);
-      return { error: error.message, status: 300, data: undefined } as any;
-    }
+    return handleError(error);
   }
 };
 
+// Atualizar tipo de loja
 export const update = async (id: number, data: typeStoreType) => {
+  const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const token = Cookies.get("tokenSystemCredNosso");
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/type-store/update/${id}`,
       data,
@@ -153,28 +138,17 @@ export const update = async (id: number, data: typeStoreType) => {
     );
     return response;
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      //console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return {error : message, status : 400, data : undefined} as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-     // console.error("Erro de conexão:", error.request);
-      return {error :  error.request, status : 500, data : undefined} as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-      //console.error("Erro:", error.message);
-      return {error :  error.message, status : 300  , data : undefined} as any;
-    }
+    return handleError(error);
   }
 };
 
+// Deletar tipo de loja
 export const del = async (id: number) => {
+  const token = Cookies.get("tokenSystemCredNosso");
   try {
-    const token = Cookies.get("tokenSystemCredNosso");
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/type-store/delete/${id}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -184,21 +158,6 @@ export const del = async (id: number) => {
     );
     return response;
   } catch (error: any) {
-    if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      //console.error("Erro na requisição:", message); // Exibe a mensagem de erro
-      return {error : message, status : 400, data : undefined} as any;
-    } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
-     // console.error("Erro de conexão:", error.request);
-      return {error :  error.request, status : 500, data : undefined} as any;
-    } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
-      //console.error("Erro:", error.message);
-      return {error :  error.message, status : 300  , data : undefined} as any;
-    }
+    return handleError(error);
   }
 };
-
-

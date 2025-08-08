@@ -58,12 +58,13 @@ export default function TreasuryAdd() {
   const getTypeSuplies = async () => {
     setLoading(true);
     const tSupplies = await getAllSuppy();
+
     if (tSupplies.status === 300 && tSupplies.status === 400 && tSupplies.status === 500) {
       setLoading(false);
       toast.error('Sem dados a mostrar, tente novamente!');
       return;
     }
-    if (tSupplies.data.typeSupply && tSupplies.data.typeSupply.length > 0) {
+    if (tSupplies.data !== undefined && tSupplies.data.typeSupply.length > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
       setIdTypeSupply(tSupplies.data.typeSupply[0].id);
       setLoading(false);
@@ -74,25 +75,22 @@ export default function TreasuryAdd() {
     return;
   };
 
-  const getTypeStore = async () => {
-    setLoading(true);
-    const tStore = await getAllStores()
-    if (tStore.status === 300 && tStore.status === 400 && tStore.status === 500) {
-      setLoading(false);
-      toast.error('Sem dados a mostrar, tente novamente!');
-      return;
-    }
+const getTypeStore = async () => {
+  setLoading(true);
+  const tStore = await getAllStores();
 
-    if (tStore.data.typeStore && tStore.data.typeStore.length > 0) {
-      setTypeStores(tStore.data.typeStore);
-      setIdTypeStore(tStore.data.typeStore[0].id);
-      setLoading(false);
-      return;
-    }
+  if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
     setLoading(false);
-    toast.error('Erro ao retornar dados, tente novamente!');
+    toast.error('Sem dados a mostrar, tente novamente!');
     return;
   }
+
+  setTypeStores(tStore.typeStore);
+  setIdTypeStore(tStore.typeStore[0].id?.toString() || '');
+  setLoading(false);
+};
+
+
 
   const cadTeasury = async () => {
     setError({ type: '', title: '', messege: '' });

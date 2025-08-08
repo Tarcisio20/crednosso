@@ -2,6 +2,14 @@ import { typeSupplyType } from "@/types/typeSupplyType";
 import axios from "axios";
 import Cookies from "js-cookie";
 
+interface TypeSupplyPaginationResponse {
+  typeSupply: {
+    data: typeSupplyType[];
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
 export const getAll = async () => {
   const token = Cookies.get("tokenSystemCredNosso");
   try {
@@ -17,16 +25,13 @@ export const getAll = async () => {
     return response;
   } catch (error: any) {
     if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      const { message } = error.response.data;
+      console.error("Erro na requisição:", message);
       return { error: message, status: 400, data: undefined } as any;
     } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
       console.error("Erro de conexão:", error.request);
       return { error: error.request, status: 500, data: undefined } as any;
     } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
       console.error("Erro:", error.message);
       return { error: error.message, status: 300, data: undefined } as any;
     }
@@ -45,30 +50,29 @@ export const getAllPagination = async (page: number, pageSize: number) => {
         },
         params: {
           page: page,
-          pageSize: pageSize
-        }
+          pageSize: pageSize,
+        },
       }
     );
-   // console.log("Requisição", response.data.typeSupply)
+
+    const typedResponse = response.data as TypeSupplyPaginationResponse;
+
     return {
-      data : response.data.typeSupply.data,
+      data: typedResponse.typeSupply.data,
       meta: {
-        totalItems :  response.data.typeSupply.totalItems,
-        totalPages : response.data.typeSupply.totalPages
-      }
-    }
+        totalItems: typedResponse.typeSupply.totalItems,
+        totalPages: typedResponse.typeSupply.totalPages,
+      },
+    };
   } catch (error: any) {
     if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      const { message } = error.response.data;
+      console.error("Erro na requisição:", message);
       return { error: message, status: 400, data: undefined } as any;
     } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
       console.error("Erro de conexão:", error.request);
       return { error: error.request, status: 500, data: undefined } as any;
     } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
       console.error("Erro:", error.message);
       return { error: error.message, status: 300, data: undefined } as any;
     }
@@ -90,16 +94,13 @@ export const getTypeSupplyForId = async (id: string) => {
     return response;
   } catch (error: any) {
     if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      const { message } = error.response.data;
+      console.error("Erro na requisição:", message);
       return message;
     } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
       console.error("Erro de conexão:", error.request);
       return error.request;
     } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
       console.error("Erro:", error.message);
       return error.message;
     }
@@ -122,16 +123,13 @@ export const add = async (data: typeSupplyType) => {
     return response;
   } catch (error: any) {
     if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      const { message } = error.response.data;
+      console.error("Erro na requisição:", message);
       return message;
     } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
       console.error("Erro de conexão:", error.request);
       return error.request;
     } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
       console.error("Erro:", error.message);
       return error.message;
     }
@@ -154,16 +152,13 @@ export const update = async (id: number, data: typeSupplyType) => {
     return response;
   } catch (error: any) {
     if (error.response) {
-      // Erro retornado pela API (ex: status 400, 500, etc.)
-      const { message } = error.response.data; // Captura a mensagem de erro
-      console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      const { message } = error.response.data;
+      console.error("Erro na requisição:", message);
       return message;
     } else if (error.request) {
-      // Erro de conexão (não houve resposta do servidor)
       console.error("Erro de conexão:", error.request);
       return error.request;
     } else {
-      // Erro genérico (ex: erro ao configurar a requisição)
       console.error("Erro:", error.message);
       return error.message;
     }

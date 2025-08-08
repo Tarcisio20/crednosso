@@ -217,8 +217,11 @@ export default function SupplyAdd() {
               supply.id_treasury === orderInUse.id_treasury_destin &&
               supply.id_order === orderInUse.id_order
           )
-          console.log("sSelected", sSelected);
-          if (sSelected.length > 0) setSuppliesSelected(sSelected);
+          if (sSelected.length > 0) {
+            setSuppliesSelected(sSelected);
+          } else {
+            setSuppliesSelected([]);
+          }
         }
       }
       if (ids) {
@@ -356,7 +359,7 @@ export default function SupplyAdd() {
       total_exchange: trocaTotal,
       date: orderInUse?.date_order as Date,
     }
-
+    console.log("itens para salvar", data)
     const saveSupply = await saveIndividualSupply(data)
     if (saveSupply.status === 400 || saveSupply.status === 500 || saveSupply.status === 300) {
       toast.error(saveSupply.message)
@@ -871,7 +874,7 @@ export default function SupplyAdd() {
         data={suplies as []}
         atms={atms as []}
         treasuries={treasuries as []}
-        /> 
+      />
     }
     {loading && <Loading />}
   </Page >

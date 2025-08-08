@@ -85,6 +85,7 @@ export default function Atm() {
       return;
     }
     const deleteAtm = await del(id)
+    console.log("Deletado", deleteAtm);
     if (deleteAtm.status === 300 || deleteAtm.status === 400 || deleteAtm.status === 500) {
       toast.error('Erro de requisição, tente novamente')
       setLoading(false);

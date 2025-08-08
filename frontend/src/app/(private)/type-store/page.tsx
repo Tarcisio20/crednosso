@@ -17,12 +17,11 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function TypeStore() {
+  const router = useRouter();
 
-  const router = useRouter()
-
-  const [typeStores, setTypeStores] = useState<typeStoreType[]>()
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
-  const [loading, setLoading] = useState(false)
+  const [typeStores, setTypeStores] = useState<typeStoreType[]>();
+  const [error, setError] = useState({ type: '', title: '', messege: '' });
+  const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -33,54 +32,43 @@ export default function TypeStore() {
   }, []);
 
   const handleAdd = () => {
-    router.push('/type-store/add')
-    return
-  }
+    router.push('/type-store/add');
+  };
 
   const loadTypeStorePagination = useCallback(async () => {
     setLoading(true);
-    const tStores = await getAllTypeStorePagination(currentPage, pageSize)
-    if (tStores.status === 300 || tStores.status === 400 || tStores.status === 500) {
+    const tStores = await getAllTypeStorePagination(currentPage, pageSize);
+
+    if ("status" in tStores && [300, 400, 500].includes(tStores.status)) {
       setLoading(false);
-      toast.error('Erro na requisição, tente novamente!')
+      toast.error('Erro na requisição, tente novamente!');
       return;
     }
-    if (tStores.data && tStores.data.length > 0) {
+
+    if ("data" in tStores && tStores.data.length > 0) {
       setTypeStores(tStores.data);
       setTotalPages(tStores.meta.totalPages);
-      setLoading(false);
-      return;
     } else {
-      setLoading(false);
-      toast.error('Erro ao retornar dados, tente novamente!')
-      return;
+      toast.error('Erro ao retornar dados, tente novamente!');
     }
+
     setLoading(false);
-    return
-  }, [])
+  }, [currentPage]);
 
   useEffect(() => {
     loadTypeStorePagination();
   }, [currentPage, loadTypeStorePagination]);
 
-
-  /*const handleDelTypeStoreById = async (id: number) => {
-    setError({ type: '', title: '', messege: '' })
-    setLoading(false)
-    setLoading(true)
-    const delTSore = await del(id)
-  }*/
-
   return (
     <Page>
-      <TitlePages linkBack="/" icon={faStore} >Tipo de Loja</TitlePages>
+      <TitlePages linkBack="/" icon={faStore}>Tipo de Loja</TitlePages>
       <div className="flex flex-col gap-4 p-5 w-full">
         <div className='flex flex-col gap-3 items-center justify-center mb-4'>
           <Button color='#2E8B57' textColor='white' onClick={handleAdd} size="medium" variant={"primary"}>Adicionar</Button>
         </div>
         <table className="flex-1 text-center p-3" width="100%">
-          <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl" >
-            <tr >
+          <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl">
+            <tr>
               <th>ID</th>
               <th>Nome</th>
               <th>Status</th>
@@ -89,23 +77,14 @@ export default function TypeStore() {
           </thead>
           <tbody className=" text-xl">
             {typeStores?.map((item, key) => (
-              <tr key={key} className={`h-12 ${key % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
-                } hover:bg-zinc-300 transition-colors hover:text-black`}>
+              <tr key={key} className={`h-12 ${key % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'} hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id}</td>
                 <td>{item.name}</td>
                 <td>
                   {item.status ? (
-                    <FontAwesomeIcon
-                      icon={faCheck}
-                      size="2x"
-                      color="#2E8B57"
-                    />
+                    <FontAwesomeIcon icon={faCheck} size="2x" color="#2E8B57" />
                   ) : (
-                    <FontAwesomeIcon
-                      icon={faXmark}
-                      size="2x"
-                      color="#BF6C6C"
-                    />
+                    <FontAwesomeIcon icon={faXmark} size="2x" color="#BF6C6C" />
                   )}
                 </td>
                 <td className='flex justify-center items-center gap-4 h-12'>
@@ -113,32 +92,29 @@ export default function TypeStore() {
                     <FontAwesomeIcon icon={faPenToSquare} size="1x" color="#6C8EBF" />
                   </Link>
                   <Link href={`/type-store/del/${item.id}`}>
-                    {item.status === true ?
+                    {item.status === true ? (
                       <FontAwesomeIcon icon={faTrash} size="1x" color="#BF6C6C" />
-                      :
+                    ) : (
                       <FontAwesomeIcon icon={faBan} size="1x" color="#BF6C6C" />
-                    }
+                    )}
                   </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {typeStores && totalPages > 1 &&
+        {typeStores && totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={(page: number) => setCurrentPage(page)}
           />
-        }
+        )}
         {error.messege && (
           <Messeger type={error?.type} title={error.title} messege={error.messege} />
         )}
-        {loading &&
-          <Loading />
-        }
+        {loading && <Loading />}
       </div>
     </Page>
   );
-
 }

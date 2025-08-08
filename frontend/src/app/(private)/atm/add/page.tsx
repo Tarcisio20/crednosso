@@ -52,8 +52,8 @@ export default function AtmAdd() {
 
     const data = {
       id_system: parseInt(idSystemAtm),
-      name: nameAtm,
-      short_name: nameRedAtm,
+      name: nameAtm.toUpperCase(),
+      short_name: nameRedAtm.toUpperCase(),
       number_store: parseInt(numStoreAtm),
       id_treasury: parseInt(idTreasury),
       cassete_A: parseInt(casseteAAtm),
@@ -63,7 +63,6 @@ export default function AtmAdd() {
     };
 
     const addNewAtm = await add(data);
-
     if (addNewAtm.data.atm && addNewAtm.data.atm.id > 0) {
       toast.success("Atm adicionado com sucesso!");
       setIdSystemAtm("");
@@ -160,7 +159,7 @@ export default function AtmAdd() {
             <label className="uppercase leading-3 font-bold">Nº da Loja</label>
             <Input
               color="#DDDD"
-              placeholder="Digite o nome reduzido do Terminal"
+              placeholder="Digite o Numero da Loja"
               size="extra-large"
               value={numStoreAtm}
               onChange={(e) => setNumStoreAtm(e.target.value)}
