@@ -6,5 +6,7 @@ export const AccontBankAddSchema = z.object({
     bank_branch_digit : z.string({ message : 'Digito da Agência é obrigatódio' }),
     account : z.string({ message : 'Numero da conta é obrigatódio' }),
     account_digit : z.string({ message : 'Numerodo digito da conta é obrigatódio' }),
+    hash : z.string().optional(),
+    type : z.string().optional(),
     status : z.boolean({ message : 'Status é obrigatódio' }).optional()
 })

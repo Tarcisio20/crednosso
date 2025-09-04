@@ -128,7 +128,6 @@ export const add: RequestHandler = async (req, res) => {
 type SupplyAdd = z.infer<typeof supplyAddSchema>;
 export const addAll: RequestHandler = async (req, res) => {
   const safeData: SupplyAdd[] = req.body;
-  console.log("Dados recebidos para addAll", safeData);
   if (!safeData || safeData.length === 0) {
     res.status(400).json({ error: "Erro no envio dos dados!" });
     return;
@@ -154,7 +153,6 @@ export const addAll: RequestHandler = async (req, res) => {
         date: item.date,
         order: { connect: { id: item.id_order! } }
       };
-      console.log("calendario", item.date_on_supply);
       const save = await addSupply(data);
       results.sucesso.push(save);
 

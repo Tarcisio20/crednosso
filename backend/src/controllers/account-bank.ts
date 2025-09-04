@@ -1,6 +1,7 @@
 import { RequestHandler } from "express"
 import { addAccountBank, delAccountBank, getAllAccountPagination, getForId, updateAccountBank } from "../services/account-bank";
 import { AccontBankAddSchema } from "../schemas/addAccountBank";
+import { hash } from "crypto";
 export const getAllPagination: RequestHandler = async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 15;
@@ -27,6 +28,8 @@ export const add: RequestHandler = async (req, res) => {
         bank_branch_digit: safeData.data.bank_branch_digit,
         account: safeData.data.account,
         account_digit: safeData.data.account_digit,
+        hash: safeData.data.hash,
+        type: safeData.data.type,
 
     })
     if (!newAccountBank) {

@@ -25,6 +25,8 @@ export default function AccountBankEdit() {
   const [bankBranchDigit, setBankBranchDigit] = useState("");
   const [account, setAccount] = useState("");
   const [accountDigit, setAccountDigit] = useState("");
+  const [typeAccount, setTypeAccount] = useState("mateus");
+  const [hash, setHash] = useState("");
   const [statusAccount, setStatusAccount] = useState(true);
 
 
@@ -48,6 +50,9 @@ export default function AccountBankEdit() {
       setAccount(accountOne.data.account.account);
       setAccountDigit(accountOne.data.account.account_digit);
       setStatusAccount(accountOne.data.account.status);
+      setTypeAccount(accountOne.data.account.type);
+      setHash(accountOne.data.account.hash);
+      
       setLoading(false);
       return;
     } else {
@@ -85,6 +90,8 @@ export default function AccountBankEdit() {
       bank_branch_digit: bankBranchDigit.trim(),
       account: account.trim(),
       account_digit: accountDigit.trim(),
+      hash : bankBranch+bankBranchDigit+account+accountDigit,
+      type: typeAccount.toLowerCase(),
       status: statusAccount
     };
 
@@ -206,12 +213,45 @@ export default function AccountBankEdit() {
             <label className="uppercase leading-3 font-bold">Nº Digito da conta</label>
             <Input
               color="#DDDD"
-              placeholder="Digite o numero do gigito da agencia"
+              placeholder="Digite o numero do digito da agencia"
               size="extra-large"
               value={accountDigit}
               onChange={(e) => setAccountDigit(e.target.value)}
               icon={faVault}
             />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Hash da Conta</label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite o numero do gigito da agencia"
+              size="extra-large"
+              value={hash}
+              onChange={(e) => setHash(e.target.value)}
+              icon={faVault}
+              readOnly
+            />
+          </div>
+
+           <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Empresa Vinculada</label>
+            <div
+              className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+            >
+              <select
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                value={typeAccount.toUpperCase()}
+                onChange={(e)=>setTypeAccount(e.target.value)}
+              >
+                <option className="uppercase bg-slate-700 text-white" value="mateus">
+                  MATEUS
+                </option>
+                <option className="uppercase bg-slate-700 text-white" value="posterus">
+                  POSTERUS
+                </option>
+              </select>
+            </div>
           </div>
 
 

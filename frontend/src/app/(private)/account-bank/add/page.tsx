@@ -24,6 +24,7 @@ export default function AccountBankAdd() {
   const [bankBranchDigit, setBankBranchDigit] = useState("");
   const [account, setAccount] = useState("");
   const [accountDigit, setAccountDigit] = useState("");
+  const [typeAccount, setTypeAccount] = useState("mateus");
  
 
   const [error, setError] = useState({ type: '', title: '', messege: '' })
@@ -48,6 +49,8 @@ export default function AccountBankAdd() {
       bank_branch_digit: bankBranchDigit.trim(),
       account: account.trim(),
       account_digit: accountDigit.trim(),
+      type : typeAccount.toLowerCase(),
+      hash : bankBranch+bankBranchDigit+account+accountDigit
     };
 
    const addNewAccount = await add(data);
@@ -67,6 +70,7 @@ export default function AccountBankAdd() {
       return;
     }
   };
+
 
 
   return (
@@ -137,6 +141,26 @@ export default function AccountBankAdd() {
               icon={faVault}
             />
           </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Empresa Vinculada</label>
+            <div
+              className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
+            >
+              <select
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
+                value={typeAccount.toUpperCase()}
+                onChange={(e)=>setTypeAccount(e.target.value)}
+              >
+                <option className="uppercase bg-slate-700 text-white" value="mateus">
+                  Mateus
+                </option>
+                <option className="uppercase bg-slate-700 text-white" value="posterus">
+                  Posterus
+                </option>
+              </select>
+            </div>
+          </div>
          
 
           <div className="flex flex-col gap-4">    
@@ -157,7 +181,6 @@ export default function AccountBankAdd() {
           {loading && <Loading />}
           </div>
         </div>
-
       </div>
     </Page>
   );

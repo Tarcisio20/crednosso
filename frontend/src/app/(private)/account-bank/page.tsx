@@ -48,6 +48,7 @@ export default function AccountBank() {
     setLoading(true);
     const allAcounts = await getAllPagination(currentPage, pageSize);
     if (allAcounts.data !== undefined && allAcounts.data.account.data.length > 0) {
+      console.log("Dados", allAcounts.data.account.data)
       setAccouhnts(allAcounts.data.account.data);
       setTotalPages(allAcounts.data.account.totalPages);
       setLoading(false);
@@ -111,6 +112,7 @@ export default function AccountBank() {
               <th>Digito</th>
               <th>Conta</th>
               <th>Digito</th>
+              <th>Vinculo</th>
               <th>Ativo</th>
               <th>Ações</th>
             </tr>
@@ -126,6 +128,7 @@ export default function AccountBank() {
                   <td>{item.bank_branch_digit}</td>
                   <td>{item.account}</td>
                   <td>{item.account_digit}</td>
+                  <td>{item.type?.toUpperCase()}</td>
                   <td>
                     {item.status ? (
                       <FontAwesomeIcon

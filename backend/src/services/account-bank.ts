@@ -27,7 +27,7 @@ export const getAllAccountPagination = async (page: number, pageSize: number) =>
     }
 }
 
-export const addAccountBank = async (data : Prisma.AccountBankCreateInput) => {
+export const addAccountBank = async (data : Prisma.accountBankCreateInput) => {
     const account = await prisma.accountBank.create({ data })
     if(account){
         return account
@@ -45,7 +45,7 @@ export const getForId = async (id : number ) => {
     return null
 }
 
-export const updateAccountBank = async (id : number , data : Prisma.AccountBankUpdateInput) => {
+export const updateAccountBank = async (id : number , data : Prisma.accountBankUpdateInput) => {
     const editAccount = await prisma.accountBank.update({
         where : {
             id : id

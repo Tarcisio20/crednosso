@@ -13,9 +13,10 @@ type PropsInput = {
     icon?: IconProp;
     readonly?: boolean;
     mask?: 'phone' | 'currency' | 'email'; 
+    readOnly?: boolean
 }
 
-export const Input = ({ size, placeholder, value, onChange, password, icon, readonly, mask }: PropsInput) => {
+export const Input = ({ size, placeholder, value, onChange, password, icon, readonly, mask, readOnly = false }: PropsInput) => {
 
     const formatPhone = (input: string) => {
         const numbers = input.replace(/\D/g, '');
@@ -96,7 +97,7 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
                 value={value}
                 onChange={handleChange}
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                readOnly={readonly}
+                readOnly={readOnly}
                 maxLength={mask === 'phone' ? 15 : undefined}
             />
         </div>
