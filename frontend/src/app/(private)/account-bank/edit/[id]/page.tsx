@@ -50,8 +50,8 @@ export default function AccountBankEdit() {
       setAccount(accountOne.data.account.account);
       setAccountDigit(accountOne.data.account.account_digit);
       setStatusAccount(accountOne.data.account.status);
-      setTypeAccount(accountOne.data.account.type);
-      setHash(accountOne.data.account.hash);
+      setTypeAccount(accountOne.data.account.type ?? 'mateus');
+      setHash(accountOne.data.account.hash ?? '');
       
       setLoading(false);
       return;
@@ -113,45 +113,7 @@ export default function AccountBankEdit() {
     return
   }
 
-  // const addAccount = async () => {
-
-  //   setError({ type: '', title: '', messege: '' })
-  //   setLoading(false);
-  //   setLoading(true);
-  //   if (nameAccount === "" || bankBranch === "" || bankBranchDigit === "" || account === "" || accountDigit === "") {
-  //     console.log("Dentro do if")
-  //     setError({ type: 'error', title: 'Error', messege: 'Para continuar, Prencher todos os campos' })
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   const data = {
-  //     name: nameAccount.trim().toUpperCase(),
-  //     bank_branch: bankBranch.trim(),
-  //     bank_branch_digit: bankBranchDigit.trim(),
-  //     account: account.trim(),
-  //     account_digit: accountDigit.trim(),
-  //   };
-
-  //   const addNewAccount = await add(data);
-
-  //   if (addNewAccount.data !== undefined && addNewAccount.data.account.id > 0) {
-  //     setError({ type: 'success', title: 'Success', messege: 'Conta Bancária Salva com sucesso!' })
-  //     setNameAccount("");
-  //     setBankBranch("");
-  //     setBankBranchDigit("");
-  //     setAccount("");
-  //     setAccountDigit("10");
-  //     setLoading(false);
-  //     return;
-  //   } else {
-  //     setError({ type: 'error', title: 'Error', messege: 'Erro ao salvar, atualize e tente novamente' })
-  //     setLoading(false);
-  //     return;
-  //   }
-  // };
-
-
+ 
   return (
     <Page>
       <TitlePages linkBack="/account-bank" icon={faPenToSquare}>
