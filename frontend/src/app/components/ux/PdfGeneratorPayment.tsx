@@ -27,23 +27,18 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation === 1 || item.id_type_operation === 2);
   const dadosPosterus = data.filter(item => item.id_type_store === 2)
   const dadosSantander = data.filter(item => item.id_type_operation === 4)
-  // -------------------------------------------------------
 
-  console.log("Mateus", dadosMateus)
+  console.log("dados", data)
 
-
-  // ------------------------------------------------------
-
-
+  
   const acount1: any = []
   const acount2: any = []
   const acount3: any = []
   const acount4: any = []
   const acount5: any = []
-  const acount6: any = []
 
   const filterContas = data.filter(item => {
-    if (item.conta_pagamento && item.id_type_operation === 1 || item.id_type_operation === 2) {
+    if (item.conta_pagamento && item.id_type_operation  === 1 || item.id_type_operation === 2) {
       let c = item.conta_pagamento.split('Conta: ')[1].split('-')[0].trim()
       if (c && c === banks[0].account) {
         acount1.push(item)
@@ -51,12 +46,10 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
         acount2.push(item)
       } else if (c && c === banks[2].account) {
         acount3.push(item)
-      } else if (c && c === banks[3].account) {
+      } else if (c && c === banks[3].account){
         acount4.push(item)
-      } else if (c && c === banks[4].account) {
+      }else{
         acount5.push(item)
-      } else {
-        acount6.push(item)
       }
     }
   })
@@ -80,19 +73,19 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   };
 
   const calcularTotalGeneric = (dados: typeof data) => {
-    const total = dados.reduce((acc, item) => {
-      const deveSomar =
-        (item.codigo_destin === 9 && item.type === "RAT") ||
-        (item.codigo_destin !== 9);
+  const total = dados.reduce((acc, item) => {
+    const deveSomar = 
+      (item.codigo_destin === 9 && item.type === "RAT") ||
+      (item.codigo_destin !== 9);
 
-      if (deveSomar) {
-        acc += converterParaNumero(item.valorRealizado);
-      }
+    if (deveSomar) {
+      acc += converterParaNumero(item.valorRealizado);
+    }
 
-      return acc;
-    }, 0);
-    return total;
-  };
+    return acc;
+  }, 0);
+  return total;
+};
 
 
   const calcularTotalEstorno = (dados: typeof data) => {
@@ -129,7 +122,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     if (acount4.length > 0) {
       gerarPDF("Mateus", acount4)
     }
-    if (acount5.length > 0) {
+    if(acount5.length > 0){
       gerarPDF("Mateus", acount5)
     }
     await sleep(2000)
@@ -138,31 +131,31 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const gerarPDF = async (titulo: string, dados: typeof data) => {
 
-    const newDataRaw = await Promise.all(
-      dados.map(async (item) => {
-        if (item.codigo_destin === 9) {
-          const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin, item.id_order as number);
-          const refuted = await getRefundBytIdOrder(item.id_order as number);
-
-          const auxItems = auxResponse?.data?.moneySplit || []; // <- acessa o array certo
-
-          // Retorna um array com o item original e todos os itens de aux
-          return [item, ...auxItems];
-        }
-
-        // Para os outros itens, retorna como array
-        return [item];
-      })
-    );
-
-    const finalArray: any = newDataRaw.flat().filter(Boolean);
+     const newDataRaw = await Promise.all(
+       dados.map(async (item) => {
+         if (item.codigo_destin === 9) {
+           const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin, item.id_order as number);
+           const refuted = await getRefundBytIdOrder(item.id_order as number);
+    
+           const auxItems = auxResponse?.data?.moneySplit || []; // <- acessa o array certo
+ 
+           // Retorna um array com o item original e todos os itens de aux
+           return [item, ...auxItems];
+         }
+ 
+         // Para os outros itens, retorna como array
+         return [item];
+       })
+     );
+   
+    const finalArray : any = newDataRaw.flat().filter(Boolean);
     let vr = 0
     let ve = 0
-    for (let x = 0; x < finalArray.length; x++) {
-      if (finalArray[x].codigo_destin === 9 && finalArray[x].type == "RAT") {
+    for (let x = 0; x < finalArray.length; x++){
+      if(finalArray[x].codigo_destin === 9 && finalArray[x].type == "RAT"){
         vr = vr + parsedValue(finalArray[x].valorRealizado)
-      } else if (finalArray[x].codigo_destin !== 9) {
-        vr = vr + parsedValue(finalArray[x].valorRealizado)
+      }else if(finalArray[x].codigo_destin !== 9){
+         vr = vr + parsedValue(finalArray[x].valorRealizado)
       }
       ve = ve + parsedValue(finalArray[x].estorno)
     }
@@ -206,7 +199,7 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
         ]
       ],
 
-      body: finalArray.map((item: any) => [
+      body: finalArray.map((item : any) =>[
         item.conta.toString(),
         item.gmcore,
         `TESOURARIA - ${item.tesouraria} ${item.type ? '- PG CEFOR IMPERATRIZ' : ''}`,
@@ -248,9 +241,9 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     let agencia = a.split(' - ')[0].trim()
     let c = dados[0].conta_pagamento.split('Conta: ')[1].trim()
 
-    if (c == "6886-1") {
+   if (c == "6886-1") {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-posterus-agencia-${agencia}-conta-${c}-a.pdf`);
-    } else {
+    }else {
       doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-mateus-agencia-${agencia}-conta-${c}-a.pdf`);
     }
 
