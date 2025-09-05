@@ -14,6 +14,8 @@ import { getByIdSystem } from "@/app/service/treasury";
 import { getRefundBytIdOrder } from "@/app/service/money-split-refund";
 import { parsedValue } from "@/app/utils/parsedValue";
 import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
+import { GenerateArrays } from "@/app/utils/generateArrays";
+import { toast } from "sonner";
 
 type pdfProps = {
   data: pdfGeneratorPaymentType[];
@@ -28,9 +30,8 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
   const dadosPosterus = data.filter(item => item.id_type_store === 2)
   const dadosSantander = data.filter(item => item.id_type_operation === 4)
 
-  console.log("dados", data)
+  const arrayForArchives = GenerateArrays(banks , data) 
 
-  
   const acount1: any = []
   const acount2: any = []
   const acount3: any = []
@@ -107,27 +108,27 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
 
   const handleGeneratePDF = async () => {
+  // cria toast persistente
+  const toastId = toast.loading("Gerando PDFs...");
 
-    if (acount1.length > 0) {
-      gerarPDF("Mateus", acount1)
+  try {
+    for (let i = 0; i < arrayForArchives.length; i++) {
+      if(arrayForArchives[i].data.length > 0){
+        gerarPDF1(arrayForArchives[i].type, arrayForArchives[i].data);
+        await sleep(1000);
+      }
     }
-    await sleep(2000)
-    if (acount2.length > 0) {
-      gerarPDF("Mateus", acount2)
-    }
-    await sleep(2000)
-    if (acount3.length > 0) {
-      gerarPDF("Mateus", acount3)
-    }
-    if (acount4.length > 0) {
-      gerarPDF("Mateus", acount4)
-    }
-    if(acount5.length > 0){
-      gerarPDF("Mateus", acount5)
-    }
-    await sleep(2000)
-    handleGenerateGMCore(dadosMateus)
-  };
+
+    await sleep(1000);
+    handleGenerateGMCore(dadosMateus);
+
+    // fecha e mostra sucesso
+    toast.success("PDF(s) gerado(s) com sucesso!", { id: toastId });
+  } catch (error) {
+    console.error(error);
+    toast.error("Erro ao gerar PDFs!", { id: toastId });
+  }
+};
 
   const gerarPDF = async (titulo: string, dados: typeof data) => {
 
@@ -250,6 +251,123 @@ export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
     //doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo.toLowerCase()}-a.pdf`);
 
   };
+
+   const gerarPDF1 = async (titulo: string, dados: typeof data) => {
+
+     const newDataRaw = await Promise.all(
+       dados.map(async (item) => {
+         if (item.codigo_destin === 9) {
+           const auxResponse = await getRattedOrderByIdAjusted(item.codigo_destin, item.id_order as number);
+           const refuted = await getRefundBytIdOrder(item.id_order as number);
+    
+           const auxItems = auxResponse?.data?.moneySplit || []; // <- acessa o array certo
+ 
+           // Retorna um array com o item original e todos os itens de aux
+           return [item, ...auxItems];
+         }
+ 
+         // Para os outros itens, retorna como array
+         return [item];
+       })
+     );
+   
+    const finalArray : any = newDataRaw.flat().filter(Boolean);
+    let vr = 0
+    let ve = 0
+    for (let x = 0; x < finalArray.length; x++){
+      if(finalArray[x].codigo_destin === 9 && finalArray[x].type == "RAT"){
+        vr = vr + parsedValue(finalArray[x].valorRealizado)
+      }else if(finalArray[x].codigo_destin !== 9){
+         vr = vr + parsedValue(finalArray[x].valorRealizado)
+      }
+      ve = ve + parsedValue(finalArray[x].estorno)
+    }
+    const doc = new jsPDF({
+      orientation: 'landscape',
+    });
+    const dataOriginal = dados[0]?.date;
+    const dataFormatada = dataOriginal ? formatDateToString(dataOriginal) : 'Data inválida';
+
+    // Configuração de larguras fixas (em mm) para preencher a página em landscape (280mm)
+    const columnStyles = {
+      0: { cellWidth: 30 },  // CONTA
+      1: { cellWidth: 20 },  // CÓDIGO
+      2: { cellWidth: 100 }, // TESOURARIA (ajustado para evitar overflow)
+      3: { cellWidth: 30 },  // PAGAMENTO
+      4: { cellWidth: 40 },  // VALOR 
+      5: { cellWidth: 50 },  // VALOR
+    };
+
+    (autoTable as any)(doc, {
+      startY: 15, // Início com margem superior para não cortar
+      head: [
+        [
+          {
+            content: `DATA: ${dataFormatada}`,
+            colSpan: 5,
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+          },
+          {
+            content: "TRANSF. BANCO",
+            styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+          }
+        ],
+        [
+          { content: "CONTA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "LOJA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "TESOURARIA", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "CONTA PGTO.", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "VALOR ESTORNO", styles: { fillColor: [41, 128, 185], textColor: 255 } },
+          { content: "VALOR REALIZADO", styles: { fillColor: [41, 128, 185], textColor: 255 } }
+        ]
+      ],
+
+      body: finalArray.map((item : any) =>[
+        item.conta.toString(),
+        item.gmcore,
+        `TESOURARIA - ${item.tesouraria} ${item.type ? '- PG CEFOR IMPERATRIZ' : ''}`,
+        item.conta_pagamento,
+        item.estorno.toString(),
+        item.codigo_destin === 9
+          ? (item.type === undefined ? '0' : item.valorRealizado.toString())
+          : item.valorRealizado.toString()
+      ]),
+      foot: [[
+        {
+          content: "TOTAIS",
+          colSpan: 4,
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+        },
+        {
+          content: formatarMoeda(calcularTotalEstorno(finalArray)),
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+        },
+        {
+          content: formatarMoeda(calcularTotalGeneric(finalArray)),
+          styles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
+        }
+      ]],
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+        halign: 'left',
+        overflow: 'linebreak'
+      },
+      columnStyles: columnStyles,
+      theme: 'grid',
+      margin: { left: 15, right: 15 },
+      tableWidth: 250, // Largura total fixa (280mm - margens)
+      showHead: 'firstPage',
+      showFoot: 'lastPage'
+    });
+    let a = dados[0]?.conta_pagamento.split('Agência: ')[1].trim()
+    let agencia = a?.split(' - ')[0].trim()
+    let c = dados[0]?.conta_pagamento.split('Conta: ')[1].trim()
+
+     doc.save(`pedido-${formatDateToStringForTitle(dataFormatada)}-${titulo}-agencia-${agencia}-conta-${c}-a.pdf`);    
+
+  };
+  
 
   const Tabs = () => (
     <div className="flex mb-4 border-b-2 border-gray-200">

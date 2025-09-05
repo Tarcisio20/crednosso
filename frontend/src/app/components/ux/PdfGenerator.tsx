@@ -21,7 +21,10 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const dadosEntreTesourarias = data.filter(item => item.type_operation === 3)
   const dadosSantander = data.filter(item => item.type_operation === 4)
 
-
+  //  console.log("dadosMateus", dadosMateus)
+  //  console.log("dadosPosterus", dadosPosterus)
+  //  console.log("dadosEntreTesourarias", dadosEntreTesourarias)
+  //  console.log("dadosSantander", dadosSantander)
   const converterParaNumero = (valorString: string): number => {
     // Remove todos os caracteres não numéricos exceto vírgula
     const valorLimpo = valorString
@@ -44,8 +47,7 @@ export const PdfGenerator = ({ data, onClose }: pdfProps) => {
   const totalEntreTesourarias = calcularTotal(dadosEntreTesourarias)
   const totalSantander = calcularTotal(dadosSantander)
 
-  const formatarMoeda = (valor: number) =>
-    valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const formatarMoeda = (valor: number) => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 
   const handleGeneratePDF = async () => {

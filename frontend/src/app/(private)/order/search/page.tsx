@@ -689,7 +689,9 @@ export default function Order() {
       return
     }
     const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
+
     const gRelease = await genrerateRelaseById(idsSelected)
+    console.log("grel", gRelease)
     if (gRelease.status === 300 || gRelease.status === 400 || gRelease.status === 500) {
       setLoading(false)
       toast.error('Erro na requisição, tentar novamente!')
