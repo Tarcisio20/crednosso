@@ -60,7 +60,8 @@ export default function AccountBankAdd() {
       setBankBranch("");
       setBankBranchDigit("");
       setAccount("");
-      setAccountDigit("10");
+      setAccountDigit("");
+      setTypeAccount("mateus");
       setLoading(false);
       toast.success('Conta Bancária Salva com sucesso!');
       return;
@@ -148,8 +149,8 @@ export default function AccountBankAdd() {
               className={`flex bg-slate-700 pt-1 pb-1 pr-2 pl-2 rounded-md border-4 border-slate-600 w-96 h-11 text-lg`}
             >
               <select
-                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg"
-                value={typeAccount.toUpperCase()}
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
+                value={typeAccount}
                 onChange={(e)=>setTypeAccount(e.target.value)}
               >
                 <option className="uppercase bg-slate-700 text-white" value="mateus">

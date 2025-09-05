@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model accountBank {
+model AccountBank {
   id                Int      @id @default(autoincrement())
   name              String
   bank_branch       String   @default("")
@@ -18,248 +18,244 @@ model accountBank {
   account_digit     String   @default("")
   bank_branch_digit String   @default("")
   hash              String?
-  type              String  @default("mateus")
+  type              String   @default("mateus")
 }
 
-model atm {
-  id           Int      @id @default(autoincrement())
-  id_system    Int      @unique(map: "Atm_id_system_key")
-  name         String   @unique(map: "Atm_name_key")
-  short_name   String   @unique(map: "Atm_short_name_key")
+model Atm {
+  id           Int     @id @default(autoincrement())
+  id_system    Int     @unique
+  name         String  @unique
+  short_name   String  @unique
   id_treasury  Int
+  number_store Int
   cassete_A    Int
   cassete_B    Int
   cassete_C    Int
   cassete_D    Int
-  status       Boolean  @default(true)
-  number_store Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
-  treasury     treasury @relation(fields: [id_treasury], references: [id], map: "Atm_id_treasury_fkey")
-  supply       supply[]
+  status       Boolean @default(true)
 
-  @@index([id_treasury], map: "Atm_id_treasury_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
+  supplies Supply[]
 }
 
-model contact {
-  id          Int      @id @default(autoincrement())
+model Contact {
+  id          Int     @id @default(autoincrement())
   id_treasury Int
   name        String
   email       String
   phone       String
-  status      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-  treasury    treasury @relation(fields: [id_treasury], references: [id_system], map: "Contact_id_treasury_fkey")
+  status      Boolean @default(true)
 
-  @@index([id_treasury], map: "Contact_id_treasury_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
 }
 
-model moneySplit {
-  id                                               Int      @id @default(autoincrement())
-  id_treasury_origin                               Int
-  id_treasury_rating                               Int
-  value                                            Int
-  status                                           Boolean  @default(true)
-  createdAt                                        DateTime @default(now())
-  updatedAt                                        DateTime @default(now())
-  id_order                                         Int
-  order                                            order    @relation(fields: [id_order], references: [id], map: "MoneySplit_id_order_fkey")
-  treasury_moneysplit_id_treasury_originTotreasury treasury @relation("moneysplit_id_treasury_originTotreasury", fields: [id_treasury_origin], references: [id], map: "MoneySplit_id_treasury_origin_fkey")
-  treasury_moneysplit_id_treasury_ratingTotreasury treasury @relation("moneysplit_id_treasury_ratingTotreasury", fields: [id_treasury_rating], references: [id], map: "MoneySplit_id_treasury_rating_fkey")
+model MoneySplit {
+  id                 Int     @id @default(autoincrement())
+  id_order          Int
+  id_treasury_origin Int
+  id_treasury_rating Int
+  value              Int
+  status             Boolean @default(true)
 
-  @@index([id_order], map: "MoneySplit_id_order_fkey")
-  @@index([id_treasury_origin], map: "MoneySplit_id_treasury_origin_fkey")
-  @@index([id_treasury_rating], map: "MoneySplit_id_treasury_rating_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  order             Order    @relation(fields: [id_order], references: [id])
+  treasuryOrigin Treasury @relation("OriginRelation", fields: [id_treasury_origin], references: [id])
+  treasuryRating Treasury @relation("RatingRelation", fields: [id_treasury_rating], references: [id])
 }
 
-model moneySplitRefund {
-  id                 Int      @id @default(autoincrement())
-  id_order           Int
+model MOneySplitRefund {
+ id                 Int     @id @default(autoincrement())
+  id_order          Int
   id_treasury_origin Int
   value              Int
-  status             Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @default(now())
-  order              order    @relation(fields: [id_order], references: [id], map: "MOneySplitRefund_id_order_fkey")
-  treasury           treasury @relation(fields: [id_treasury_origin], references: [id], map: "MOneySplitRefund_id_treasury_origin_fkey")
+  status             Boolean @default(true)
 
-  @@index([id_order], map: "MOneySplitRefund_id_order_fkey")
-  @@index([id_treasury_origin], map: "MOneySplitRefund_id_treasury_origin_fkey")
+    createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  order             Order    @relation(fields: [id_order], references: [id])
+  treasury Treasury @relation(fields: [id_treasury_origin], references: [id])
 }
 
-model operationalError {
-  id          Int      @id @default(autoincrement())
+model OperationalError {
+    id                 Int     @id @default(autoincrement())
   id_treasury Int
-  num_os      Int
+  num_os Int
   description String
-  status      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-  treasury    treasury @relation(fields: [id_treasury], references: [id], map: "OperationalError_id_treasury_fkey")
+  status Boolean  @default(true)
 
-  @@index([id_treasury], map: "OperationalError_id_treasury_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
 
-model operatorCard {
-  id          Int      @id @default(autoincrement())
+model OperatorCard {
+   id          Int     @id @default(autoincrement())
   id_treasury Int
-  name        String   @unique(map: "OperatorCard_name_key")
-  number_card String   @unique(map: "OperatorCard_number_card_key")
-  status      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-  inUse       Boolean  @default(false)
-  treasury    treasury @relation(fields: [id_treasury], references: [id], map: "OperatorCard_id_treasury_fkey")
+  name        String  @unique
+  number_card String  @unique
+  inUse       Boolean @default(false)
+  status      Boolean @default(true)
 
-  @@index([id_treasury], map: "OperatorCard_id_treasury_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id])
 }
 
-model order {
-  id                                          Int                @id @default(autoincrement())
-  id_type_operation                           Int
-  id_treasury_origin                          Int
-  id_treasury_destin                          Int
-  date_order                                  DateTime
-  id_type_order                               Int
-  requested_value_A                           Int
-  requested_value_B                           Int
-  requested_value_C                           Int
-  requested_value_D                           Int
-  composition_change                          Boolean            @default(false)
-  confirmed_value_A                           Int                @default(0)
-  confirmed_value_B                           Int                @default(0)
-  confirmed_value_C                           Int                @default(0)
-  confirmed_value_D                           Int                @default(0)
-  status_order                                Int
-  createdAt                                   DateTime           @default(now())
-  updatedAt                                   DateTime           @default(now())
-  observation                                 String             @default("")
-  moneysplit                                  moneySplit[]
-  moneysplitrefund                            moneySplitRefund[]
-  treasury_order_id_treasury_destinTotreasury treasury           @relation("order_id_treasury_destinTotreasury", fields: [id_treasury_destin], references: [id_system], map: "Order_id_treasury_destin_fkey")
-  treasury_order_id_treasury_originTotreasury treasury           @relation("order_id_treasury_originTotreasury", fields: [id_treasury_origin], references: [id_system], map: "Order_id_treasury_origin_fkey")
-  typeoperation                               typeOperation      @relation(fields: [id_type_operation], references: [id], map: "Order_id_type_operation_fkey")
-  typeorder                                   typeOrder          @relation(fields: [id_type_order], references: [id], map: "Order_id_type_order_fkey")
-  statusorder                                 statusOrder        @relation(fields: [status_order], references: [id], map: "Order_status_order_fkey")
-  supply                                      supply[]
+model Order {
+ id                 Int      @id @default(autoincrement())
+  id_type_operation  Int
+  id_treasury_origin Int
+  id_treasury_destin Int
+  date_order         DateTime
+  id_type_order      Int
+  requested_value_A  Int
+  requested_value_B  Int
+  requested_value_C  Int
+  requested_value_D  Int
+  composition_change Boolean  @default(false)
+  confirmed_value_A  Int      @default(0)
+  confirmed_value_B  Int      @default(0)
+  confirmed_value_C  Int      @default(0)
+  confirmed_value_D  Int      @default(0)
+  observation        String   @default("")
+  status_order       Int
 
-  @@index([id_treasury_destin], map: "Order_id_treasury_destin_fkey")
-  @@index([id_treasury_origin], map: "Order_id_treasury_origin_fkey")
-  @@index([id_type_operation], map: "Order_id_type_operation_fkey")
-  @@index([id_type_order], map: "Order_id_type_order_fkey")
-  @@index([status_order], map: "Order_status_order_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  moneySplitRefunds MOneySplitRefund[]
+  moneySplits    MoneySplit[]
+  supply         Supply[]
+  typeOperation  TypeOperation @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
+  treasuryDestin Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
+  typeOrder      TypeOrder     @relation(fields: [id_type_order], references: [id])
+  statusOrder    StatusOrder   @relation(fields: [status_order], references: [id])
 }
 
-model statusOrder {
+model StatusOrder {
   id        Int      @id @default(autoincrement())
   name      String   @unique(map: "StatusOrder_name_key")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  order     order[]
+  order     Order[]
 }
 
-model supply {
+model Supply {
   id             Int      @id @default(autoincrement())
   id_atm         Int
+  id_order       Int
+  id_treasury    Int
   cassete_A      Int
   cassete_B      Int
   cassete_C      Int
   cassete_D      Int
+  date           DateTime @default(now())
+  date_on_supply DateTime
   total_exchange Boolean  @default(false)
   status         Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now())
-  date           DateTime @default(now())
-  id_treasury    Int
-  id_order       Int
-  date_on_supply DateTime
-  atm            atm      @relation(fields: [id_atm], references: [id_system], map: "Supply_id_atm_fkey")
-  order          order    @relation(fields: [id_order], references: [id], map: "Supply_id_order_fkey")
-  treasury       treasury @relation(fields: [id_treasury], references: [id_system], map: "Supply_id_treasury_fkey")
 
-  @@index([id_atm], map: "Supply_id_atm_fkey")
-  @@index([id_order], map: "Supply_id_order_fkey")
-  @@index([id_treasury], map: "Supply_id_treasury_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  order    Order    @relation(fields: [id_order], references: [id])
+  atm      Atm      @relation(fields: [id_atm], references: [id_system])
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
 }
 
-model treasury {
-  id                                                 Int                @id @default(autoincrement())
-  id_system                                          Int                @unique(map: "Treasury_id_system_key")
-  name                                               String             @unique(map: "Treasury_name_key")
-  short_name                                         String             @unique(map: "Treasury_short_name_key")
-  account_number                                     String             @unique(map: "Treasury_account_number_key")
-  gmcore_number                                      String
-  region                                             Int
-  bills_10                                           Int                @default(0)
-  bills_20                                           Int                @default(0)
-  bills_50                                           Int                @default(0)
-  bills_100                                          Int                @default(0)
-  status                                             Boolean            @default(true)
-  id_type_supply                                     Int
-  enabled_gmcore                                     Boolean            @default(true)
-  id_type_store                                      Int
-  createdAt                                          DateTime           @default(now())
-  updatedAt                                          DateTime           @default(now())
-  name_for_email                                     String             @default("")
-  account_number_for_transfer                        String             @default("")
-  atm                                                atm[]
-  contact                                            contact[]
-  moneysplit_moneysplit_id_treasury_originTotreasury moneySplit[]       @relation("moneysplit_id_treasury_originTotreasury")
-  moneysplit_moneysplit_id_treasury_ratingTotreasury moneySplit[]       @relation("moneysplit_id_treasury_ratingTotreasury")
-  moneysplitrefund                                   moneySplitRefund[]
-  operationalerror                                   operationalError[]
-  operatorcard                                       operatorCard[]
-  order_order_id_treasury_destinTotreasury           order[]            @relation("order_id_treasury_destinTotreasury")
-  order_order_id_treasury_originTotreasury           order[]            @relation("order_id_treasury_originTotreasury")
-  supply                                             supply[]
-  typestore                                          typeStore          @relation(fields: [id_type_store], references: [id], map: "Treasury_id_type_store_fkey")
-  typesupply                                         typeSupply         @relation(fields: [id_type_supply], references: [id], map: "Treasury_id_type_supply_fkey")
+model Treasury {
+  id                          Int     @id @default(autoincrement())
+  id_system                   Int     @unique
+  id_type_supply              Int
+  id_type_store               Int
+  name                        String  @unique
+  name_for_email              String  @default("")
+  short_name                  String  @unique
+  account_number              String  @unique
+  gmcore_number               String
+  enabled_gmcore              Boolean @default(true)
+  region                      Int
+  bills_10                    Int     @default(0)
+  bills_20                    Int     @default(0)
+  bills_50                    Int     @default(0)
+  bills_100                   Int     @default(0)
+  status                      Boolean @default(true)
+  account_number_for_transfer String  @default("")
 
-  @@index([id_type_store], map: "Treasury_id_type_store_fkey")
-  @@index([id_type_supply], map: "Treasury_id_type_supply_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
+  typeStore  typeStore  @relation(fields: [id_type_store], references: [id])
+
+  moneySplitRefunds MOneySplitRefund[]
+  originMoneySplits MoneySplit[]       @relation("OriginRelation")
+  ratingMoneySplits MoneySplit[]       @relation("RatingRelation")
+  atms              Atm[]
+  supplys           Supply[]
+  contacts          Contact[]
+  operatorCards     OperatorCard[]
+  OrdersOrigin      Order[]            @relation("TreasuryOrigin")
+  OrdersDestin      Order[]            @relation("TreasuryDestin")
+
+  OperationalError OperationalError[]
 }
 
-model typeOperation {
+model TypeOperation {
   id        Int      @id @default(autoincrement())
   id_system Int
   name      String   @unique(map: "TypeOperation_name_key")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  order     order[]
+  orders    Order[]
 }
 
-model typeOrder {
+model TypeOrder {
   id        Int      @id @default(autoincrement())
   id_system Int
   name      String   @unique(map: "TypeOrder_name_key")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  order     order[]
+  orders    Order[]
 }
 
 model typeStore {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique(map: "typeStore_name_key")
-  status    Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  treasury  treasury[]
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury[]
 }
 
-model typeSupply {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique(map: "TypeSupply_name_key")
-  status    Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  treasury  treasury[]
+model TypeSupply {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasuries Treasury[]
 }
 
-model user {
+model User {
   id        Int      @id @default(autoincrement())
   name      String
   slug      String   @unique(map: "User_slug_key")
