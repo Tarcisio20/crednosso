@@ -1,6 +1,7 @@
 export type supplyType = {
     id ?: number;
     id_atm : number;
+    atm ?: { id: number; name: string };
     cassete_A : number;
     cassete_B : number;
     cassete_C : number;

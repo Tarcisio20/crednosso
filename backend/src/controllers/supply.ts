@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
@@ -80,6 +80,28 @@ export const getForIDTreasury: RequestHandler = async (req, res) => {
 export const forDate: RequestHandler = async (req, res) => {
   const data = req.body
   const supply = await getAllForDate(returnDateFormatted(formatedDateToPTBRforEnglish(data.date)), returnDateFormattedEnd(formatedDateToPTBRforEnglish(data.date)))
+  if (!supply) {
+    res.status(401).json({ error: 'Erro ao carregar!' })
+    return
+  }
+  res.json({ supply })
+}
+
+export const forDatePagination: RequestHandler = async (req, res) => {
+  const data = req.body
+  const page = parseInt(req.query.page as string) || 1;
+  const pageSize = parseInt(req.query.pageSize as string) || 15;
+  const skip = (page - 1) * pageSize;
+
+
+  const supply = await getAllForDatePagination(
+    returnDateFormatted(formatedDateToPTBRforEnglish(data.date)), 
+    returnDateFormattedEnd(formatedDateToPTBRforEnglish(data.date)),
+    page, 
+    pageSize
+  )
+  
+  
   if (!supply) {
     res.status(401).json({ error: 'Erro ao carregar!' })
     return

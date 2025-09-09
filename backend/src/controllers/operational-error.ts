@@ -1,18 +1,31 @@
 import { RequestHandler } from "express"
-import { addError, delOperationalError, editOperationalError, getAllAtmPagination, getOperationErroForId } from "../services/operational-error";
+import { addError, delOperationalError, editOperationalError, getAllOperationalErrorPagination, getOperationErroForId } from "../services/operational-error";
 import { operationalErrorAddSchema } from "../schemas/operationalErrorAdd";
 
 export const getAllPagination: RequestHandler = async (req, res) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const pageSize = parseInt(req.query.pageSize as string) || 15;
-    const skip = (page - 1) * pageSize;
+   try {
+    // Sanitização
+    const pageRaw = Number(req.query.page);
+    const sizeRaw = Number(req.query.pageSize);
 
-    const operationalError = await getAllAtmPagination(page, pageSize)
-    if (!operationalError) {
-        res.status(401).json({ error: 'Erro ao carregar!' })
-        return
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+    const pageSize = Number.isFinite(sizeRaw) && sizeRaw > 0 ? Math.min(Math.floor(sizeRaw), 100) : 15;
+
+    // Chama o service
+    const result = await getAllOperationalErrorPagination(page, pageSize);
+
+    if (!result) {
+      res.status(401).json({ error: 'Erro ao carregar!' })
+    return
     }
-    res.json({ operationalError })
+
+      res.json({ operationalError : result })
+      return
+
+  } catch (err: any) {
+     res.status(500).json({ error: "Erro interno" });
+    return
+  }
 
 }
 
@@ -38,7 +51,6 @@ export const add: RequestHandler = async (req, res) => {
 }
 
 export const getOperationalErrorById: RequestHandler = async (req, res) => {
-    console.log("C  heguel dsdsddsd")
     const operationalErrorId = req.params.id
    if(!operationalErrorId){
         res.status(401).json({ error: 'Informar ID para continuar!' })

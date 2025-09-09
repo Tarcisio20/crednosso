@@ -35,7 +35,7 @@ export default function Atm() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 16;
+  const pageSize = 14;
 
   const handleAdd = () => {
     router.push("/atm/add");

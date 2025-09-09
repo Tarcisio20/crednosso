@@ -1,30 +1,28 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
-export const getAllAtmPagination = async (page: number, pageSize: number) => {
+export const getAllOperationalErrorPagination = async (page: number, pageSize: number) => {
     try {
-        const skip = (page - 1) * pageSize;
-        const [data, totalItems] = await prisma.$transaction([
-            prisma.operationalError.findMany({
-                skip: skip,
-                take: pageSize,
-                where: { status: true },
-                orderBy: { id: 'asc' }
-            }),
-            prisma.operationalError.count({
-                where: { status: true }
-            })
-        ])
+    const skip = (page - 1) * pageSize;
 
-        return {
-            data,
-            totalItems,
-            totalPages: Math.ceil(totalItems / pageSize)
-        };
-    } catch (error) {
-        console.error('Erro no service:', error);
-        return null;
-    }
+    const [data, totalItems] = await prisma.$transaction([
+      prisma.operationalError.findMany({
+        skip,
+        take: pageSize,
+        where: { status: true },
+        orderBy: { id: 'asc' }, // ajuste conforme sua necessidade
+      }),
+      prisma.operationalError.count({ where: { status: true } }),
+    ]);
+
+    return {
+      data,
+      totalItems,
+      totalPages : Math.ceil(totalItems / pageSize),
+    };
+  } catch (error) {
+    return null;
+  }
 }
 
 export const getOperationErroForId = async (id : number) => {

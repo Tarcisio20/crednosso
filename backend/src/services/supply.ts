@@ -34,6 +34,52 @@ export const getAllForDate = async (date: any, dateEnd: any) => {
   return null
 }
 
+export const getAllForDatePagination = async (date: any, dateEnd: any, page : number, pageSize : number) => {
+  try {
+    // Normaliza datas se vierem como string
+    const start = date instanceof Date ? date : new Date(date);
+    const end   = dateEnd   instanceof Date ? dateEnd   : new Date(dateEnd);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new Error("Parâmetros de data inválidos.");
+    }
+
+    const skip = (page - 1) * pageSize;
+
+    const where = {
+      date: {
+        gte: start,
+        lt: end,      // se quiser incluir o fim, troque para lte: end
+      },
+      // status: true, // descomente se precisar filtrar por status
+    } as const;
+
+    const [data, totalItems] = await prisma.$transaction([
+      prisma.supply.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { id : "asc" },
+         // ajuste se preferir outra ordenação
+         include: {
+          atm: {
+            select: { name: true, id_system: true }, // pega só o que precisa
+          },
+        },
+      }),
+      prisma.supply.count({ where }),
+    ]);
+    return {
+      data,
+      totalItems,
+      totalPages: Math.ceil(totalItems / pageSize)
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+
 export const getSupplyForIdTreasury = async (id: number) => {
   const suplly = await prisma.supply.findMany({
     where: {

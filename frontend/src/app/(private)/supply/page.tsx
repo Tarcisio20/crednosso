@@ -6,8 +6,10 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getSuppliesForDay } from "@/app/service/supply";
+import { getSuppliesForDay, getSuppliesForDayPagination } from "@/app/service/supply";
+import { getNameAtmForIdSystem } from "@/app/utils/getNameAtmForIdSystem";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
+import { returnDayAtualForInput } from "@/app/utils/returnDayAtualForInput";
 import { supplyType } from "@/types/supplyType";
 import { faParachuteBox } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
@@ -32,9 +34,10 @@ export default function Supply() {
   useEffect(() => {
     document.title = "Pedidos | CredNosso";
     const day = returnDayAtual()
+    const dayForInput = returnDayAtualForInput()
     if (day) {
       setCurrentDay(day)
-      setDateSupply(day)
+      setDateSupply(dayForInput)
     }
   }, [])
 
@@ -55,16 +58,18 @@ export default function Supply() {
       date: currentDay
     }
     
-    const supplayDay = await getSuppliesForDay(data)
-    
+    const supplayDay = await getSuppliesForDayPagination(data, currentPage, pageSize)
+    console.log("supplayDay", supplayDay)
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setLoading(false)
       toast.error('Erro na requisição, tentenovamente!') 
 
     }
 
-    if (supplayDay.data.supply && supplayDay.data.supply.length > 0) {
-      setSupplies(supplayDay.data.supply)
+    if (supplayDay.data !== undefined && supplayDay.status === 200) {
+      console.log("Supply", supplayDay.dataa)
+      setSupplies(supplayDay.data.supply.data)
+      setTotalPages(supplayDay.data.supply.totalPages)
       setLoading(false)
       return
     }
@@ -76,7 +81,7 @@ export default function Supply() {
     if (!currentDay) return
     handleDaySupplies()
 
-  }, [currentDay])
+  }, [currentDay, currentPage])
 
   const handleSuppliesDay = async () => {
 
@@ -117,11 +122,13 @@ export default function Supply() {
             </tr>
           </thead>
           <tbody className=" text-xl">
-            {supplies && supplies.map((item) => (
-              <tr key={item.id}>
+            {supplies && supplies.map((item, index) => (
+             <tr key={index}
+                  className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                    } hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id}</td>
                 <td>{item.id_atm}</td>
-                <td>Nome</td>
+                <td>{item.atm?.name ?? '-'}</td>
                 <td>{item.cassete_A}</td>
                 <td>{item.cassete_B}</td>
                 <td>{item.cassete_C}</td>
@@ -132,7 +139,7 @@ export default function Supply() {
             ))}
           </tbody>
         </table>
-        {true && totalPages > 1 &&
+        {supplies && totalPages > 1 &&
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

@@ -2,6 +2,7 @@
 
 import { Button } from "@/app/components/ui/Button";
 import { Page } from "@/app/components/ux/Page";
+import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { del, getAllPagination } from "@/app/service/operational-error";
 import { getAll } from "@/app/service/treasury";
@@ -10,6 +11,7 @@ import { OperationalErrorType } from "@/types/operationalErrorType";
 import { treasuryType } from "@/types/treasuryType";
 import { faBomb, faCheck, faPenToSquare, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { error } from "console";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -25,7 +27,7 @@ export default function OperationalError() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 16;
+  const pageSize = 14;
 
   useEffect(() => {
     document.title = "Erro Operacional | CredNosso";
@@ -125,7 +127,7 @@ export default function OperationalError() {
                 className={`h-12 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'
                   } hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id}</td>
-                <td>{ returnNameTreasury(treasuries, item.id_treasury)}</td>
+                <td>{returnNameTreasury(treasuries, item.id_treasury)}</td>
                 <td>{item.num_os}</td>
                 <td>{item.description}</td>
                 <td>
@@ -163,6 +165,13 @@ export default function OperationalError() {
             ))}
         </tbody>
       </table>
+      {erros && totalPages > 1 &&
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page: number) => setCurrentPage(page)}
+        />
+      }
     </div>
   </Page>
 }
