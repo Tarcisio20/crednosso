@@ -26,9 +26,11 @@ type pdfProps = {
 export const PdfGeneratorPayment = ({ data, banks, onClose }: pdfProps) => {
 
   const [abaAtiva, setAbaAtiva] = useState(1)
-  const dadosMateus = data.filter(item => item.id_type_store === 1 && item.id_type_operation === 1 || item.id_type_operation === 2);
+  const dadosMateus = data.filter(item =>  item.id_type_store === 1 && (item.id_type_operation === 1 || item.id_type_operation === 2));
   const dadosPosterus = data.filter(item => item.id_type_store === 2)
   const dadosSantander = data.filter(item => item.id_type_operation === 4)
+
+  console.log("dadosMateus", dadosMateus)
 
   const arrayForArchives = GenerateArrays(banks , data) 
 

@@ -359,7 +359,7 @@ export default function SupplyAdd() {
       total_exchange: trocaTotal,
       date: orderInUse?.date_order as Date,
     }
-    console.log("itens para salvar", data)
+
     const saveSupply = await saveIndividualSupply(data)
     if (saveSupply.status === 400 || saveSupply.status === 500 || saveSupply.status === 300) {
       toast.error(saveSupply.message)
