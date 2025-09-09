@@ -74,12 +74,13 @@ export const add: RequestHandler = async (req, res) => {
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
+
   const newTAtm = await addAtm({
     id_system: safeData.data.id_system,
     name: safeData.data.name,
     short_name: safeData.data.short_name,
     treasury: {
-      connect: { id: safeData.data.id_treasury }
+      connect: { id_system: safeData.data.id_treasury }
 
     },
     number_store: safeData.data.number_store,
@@ -89,6 +90,7 @@ export const add: RequestHandler = async (req, res) => {
     cassete_D: safeData.data.cassete_D,
 
   })
+
   if (!newTAtm) {
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
