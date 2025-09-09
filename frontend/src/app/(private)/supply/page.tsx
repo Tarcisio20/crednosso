@@ -6,8 +6,7 @@ import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getSuppliesForDay, getSuppliesForDayPagination } from "@/app/service/supply";
-import { getNameAtmForIdSystem } from "@/app/utils/getNameAtmForIdSystem";
+import { getSuppliesForDayPagination } from "@/app/service/supply";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
 import { returnDayAtualForInput } from "@/app/utils/returnDayAtualForInput";
 import { supplyType } from "@/types/supplyType";
@@ -43,7 +42,6 @@ export default function Supply() {
 
   const handleGenerateOrders = async () => {
     setLoading(true)
-    console.log(supplies)
     setLoading(true)
   }
 
@@ -59,7 +57,6 @@ export default function Supply() {
     }
     
     const supplayDay = await getSuppliesForDayPagination(data, currentPage, pageSize)
-    console.log("supplayDay", supplayDay)
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setLoading(false)
       toast.error('Erro na requisição, tentenovamente!') 
@@ -67,7 +64,6 @@ export default function Supply() {
     }
 
     if (supplayDay.data !== undefined && supplayDay.status === 200) {
-      console.log("Supply", supplayDay.dataa)
       setSupplies(supplayDay.data.supply.data)
       setTotalPages(supplayDay.data.supply.totalPages)
       setLoading(false)
@@ -80,7 +76,6 @@ export default function Supply() {
   useEffect(() => {
     if (!currentDay) return
     handleDaySupplies()
-
   }, [currentDay, currentPage])
 
   const handleSuppliesDay = async () => {
