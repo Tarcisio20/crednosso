@@ -22,7 +22,6 @@ export default function Supply() {
 
   const router = useRouter()
 
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
   const [currentDay, setCurrentDay] = useState('')
   const [dateSupply, setDateSupply] = useState('')
@@ -141,9 +140,6 @@ export default function Supply() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
-        )}
         {loading &&
           <Loading />
         }
