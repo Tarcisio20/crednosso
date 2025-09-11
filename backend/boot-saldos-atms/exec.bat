@@ -2,17 +2,20 @@
 setlocal
 
 REM Notifica início
-curl.exe -X POST http://localhost:3001/tarefa-iniciada
+curl.exe -X POST http://172.16.98.170:5555/tarefa-iniciada
 
-REM Executa o script Python e captura o código de saída
-cd /d C:\Users\tarci\Documents\projetos\crednosso\backend\boot-saldos-atms
-C:\Python312\python.exe index.py >> logs\log_execucao.txt 2>&1
+REM Muda para o diretório do projeto
+cd /d C:\crednosso\backend\boot-saldos-atms
+
+REM Executa com o Python da venv
+venv\Scripts\python.exe index.py >> logs\log_execucao.txt 2>&1
+
+REM Verifica se houve erro
 IF %ERRORLEVEL% NEQ 0 (
-    REM Notifica erro se o script falhar
-    curl.exe -X POST http://localhost:3001/tarefa-erro
+    curl.exe -X POST http://172.16.98.170:5555/tarefa-erro
 )
 
-REM Notifica término
-curl.exe -X POST http://localhost:3001/tarefa-finalizada
+REM Notifica fim
+curl.exe -X POST http://172.16.98.170:5555/tarefa-finalizada
 
 endlocal
