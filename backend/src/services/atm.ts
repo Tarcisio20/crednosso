@@ -51,7 +51,10 @@ export const getForId = async (id: number) => {
 
 export const getForIdTreasury = async (id: number) => {
     const atm = await prisma.atm.findMany({
-        where: { id_treasury: id },
+        where: { 
+            id_treasury: id,
+            status: true
+         },
         select : {
             id_system : true,
             id_treasury : true,
