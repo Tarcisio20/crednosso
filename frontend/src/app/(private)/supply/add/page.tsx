@@ -256,6 +256,11 @@ export default function SupplyAdd() {
   const selectedAtmsForChangeTreasury = (value: string) => {
     if (!atms) return;
     const selecionados = atms.filter((atm) => atm.id_treasury === Number(value));
+    if(selecionados.length === 0) {
+      setAtmsTreasurySelected([]);
+      setIdAtm("")
+      return
+    }
     setAtmsTreasurySelected(selecionados)
     setIdAtm(selecionados[0].id_system.toString());
   }
