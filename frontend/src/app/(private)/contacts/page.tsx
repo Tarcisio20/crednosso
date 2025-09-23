@@ -108,6 +108,7 @@ export default function Contacts() {
       return;
     }
     const deleteContact = await del(id)
+    console.log("Response", deleteContact);
     if (deleteContact.status === 300 || deleteContact.status === 400 || deleteContact.status === 500) {
       setLoading(false);
       toast.error('Erro de requisição, tente novamente');

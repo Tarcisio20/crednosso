@@ -87,7 +87,6 @@ export const update: RequestHandler = async (req, res) => {
 
 export const del: RequestHandler = async (req, res) => {
     const contactId = req.params.id
-
     if(!contactId){
         res.status(401).json({ error: 'Informar ID para continuar!' })
         return

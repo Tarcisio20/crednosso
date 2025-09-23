@@ -75,10 +75,10 @@ mainRouter.post('/type-order/update/:id',verifyJWT, typeOrderController.update)
 //contact
 mainRouter.get('/contact',verifyJWT, contactController.getAll)
 mainRouter.get('/contact/treasury/:id',verifyJWT, contactController.getByIdTreasury)
+mainRouter.get('/contact/del/:id',verifyJWT, contactController.del)
 mainRouter.get('/contact/:id',verifyJWT, contactController.getById)
 mainRouter.post('/contact/add',verifyJWT, contactController.add)
 mainRouter.post('/contact/update/:id',verifyJWT, contactController.update)
-mainRouter.post('/contact/del/:id',verifyJWT, contactController.del)
 
 // card-operator
 mainRouter.get('/card-operator',verifyJWT, cardOperatorController.getAll)

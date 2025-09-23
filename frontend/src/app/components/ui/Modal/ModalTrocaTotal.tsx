@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "../../ux/Loading";
 import { add } from "@/app/service/supply";
 import { toast } from "sonner";
+import { treasuryType } from "@/types/treasuryType";
 
 type AtmType = {
   id_system: number;
@@ -16,9 +17,11 @@ type ModalTrocaTotalProps = {
   atmsSelected: atmForSupplyProps[];
   orderUsed: ordersWithTreasuriesProps | null
   onClose: () => void;
+  treasuries: treasuryType[];
+  changeTreasuries: (treasuries: treasuryType[]) => void;
 };
 
-export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose }: ModalTrocaTotalProps) => {
+export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose, treasuries, changeTreasuries }: ModalTrocaTotalProps) => {
 
   const [cloneAtmSelected, setCloneAtmSelected] = useState<supplyProps[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -71,6 +74,8 @@ export const ModalTrocaTotal = ({ dateForOS, atmsSelected, orderUsed, onClose }:
     const addSupply = await add(novosDados)
     if(addSupply.data.erros.length === 0) {
       toast.success("Abastecimento adicionado com sucesso!");
+      const newSelected = treasuries.filter((t) => t.id_system !== atmsSelected[0].id_treasury);
+      changeTreasuries(newSelected);
     }else {
       toast.error("Erro ao adicionar abastecimento: " + addSupply.data.erros);
     }

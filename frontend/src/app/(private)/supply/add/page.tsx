@@ -368,6 +368,8 @@ export default function SupplyAdd() {
     const saveSupply = await saveIndividualSupply(data)
     if (saveSupply.status === 400 || saveSupply.status === 500 || saveSupply.status === 300) {
       toast.error(saveSupply.message)
+      const newTreasuries = treasuries.filter(item => item.id_system !== orderInUse?.id_treasury_destin)
+      setTreasuries(newTreasuries) 
       setLoading(false);
       return
     }
@@ -871,6 +873,8 @@ export default function SupplyAdd() {
         atmsSelected={atmsTreasurySelected}
         orderUsed={orderInUse}
         onClose={handleCloseModal}
+        treasuries={treasuries}
+        changeTreasuries={setTreasuries}
       />
     }
     {
