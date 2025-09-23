@@ -59,12 +59,16 @@ export default function ContactsEdit() {
   const getById = useCallback(async () => {
     setLoading(true);
     const cont = await getContactById(id as string);
+
+
+
     if (cont.status === 300 || cont.status === 400 || cont.status === 500) {
       setLoading(false);
       toast.error('Erro de conexão, tente novamente!');
       return;
     }
     if (cont.data.contact && cont.data.contact?.id > 0) {
+
       setContact(cont.data.contact);
       setNameContact(cont.data.contact.name);
       setPhoneContact(cont.data.contact.phone);
@@ -113,6 +117,8 @@ export default function ContactsEdit() {
       status: statusContact,
     };
 
+
+
     const editedContact = await update(parseInt(id as string), data);
     if (editedContact.status === 300 || editedContact.status === 400 || editedContact.status === 500) {
       setLoading(false);
@@ -131,6 +137,10 @@ export default function ContactsEdit() {
     }
   };
 
+  const handleChangeIdTreasury = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setIdTreasury(e.target.value);
+  };
+
   return (
     <Page>
       <TitlePages linkBack="/contacts" icon={faPenToSquare}>
@@ -147,13 +157,13 @@ export default function ContactsEdit() {
             <select
               className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
               value={idTreasury}
-              onChange={(e) => setIdTreasury(e.target.value)}
+              onChange={handleChangeIdTreasury}
             >
               {treasuries &&
                 treasuries.map((item, index) => (
                   <option
                     className="uppercase bg-slate-700 text-white"
-                    value={item.id}
+                    value={item.id_system}
                     key={index}
                   >
                     {item.name}

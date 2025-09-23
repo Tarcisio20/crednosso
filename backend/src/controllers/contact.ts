@@ -71,6 +71,9 @@ export const getByIdTreasury: RequestHandler = async (req, res) => {
 
 export const update: RequestHandler = async (req, res) => {
   const contactId = req.params.id;
+
+  console.log("Id no backend", contactId);
+
   const safeData = contactAddSchema.safeParse(req.body);
   if (!safeData.success) {
     res.json({ error: safeData.error.flatten().fieldErrors });
