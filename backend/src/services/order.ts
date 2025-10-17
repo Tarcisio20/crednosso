@@ -238,7 +238,8 @@ export const confirmTotalByIds = async (ids: number[]) => {
             confirmed_value_B: order.requested_value_B,
             confirmed_value_C: order.requested_value_C,
             confirmed_value_D: order.requested_value_D,
-            status_order: 2
+            status_order: 2,
+            for_release: true,
           },
         });
         results.push({ id, status: "success", message: "Pedido atualizado com sucesso." })

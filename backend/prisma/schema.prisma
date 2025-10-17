@@ -113,7 +113,7 @@ model OperatorCard {
 }
 
 model Order {
- id                 Int      @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   id_type_operation  Int
   id_treasury_origin Int
   id_treasury_destin Int
@@ -129,6 +129,8 @@ model Order {
   confirmed_value_C  Int      @default(0)
   confirmed_value_D  Int      @default(0)
   observation        String   @default("")
+  for_payment        Boolean? @default(false)
+  for_release        Boolean? @default(false)
   status_order       Int
 
   createdAt DateTime @default(now())

@@ -235,6 +235,8 @@ export default function Order() {
           id_type_operation: item.id_type_operation,
           id_order: item.id,
           id: item.id_treasury_destin,
+          for_release: item.for_release,
+          for_payment: item.for_payment,
           status: false
         })
         value = (item.requested_value_A * 10) + (item.requested_value_B * 20) + (item.requested_value_C * 50) + (item.requested_value_D * 100)
@@ -465,7 +467,8 @@ export default function Order() {
       confirmed_value_C: valueAddC,
       confirmed_value_D: valueAddD,
       status_order: 3,
-      composition_change: true
+      composition_change: true,
+      for_release: true
     }
 
     const orderConfirmPartialReturn = await confirmPartialOrderById(orderIndivudual?.id as number, data)
@@ -477,7 +480,7 @@ export default function Order() {
     if (orderConfirmPartialReturn.data.order && orderConfirmPartialReturn.data.order?.id > 0) {
       setLoading(false)
       handleSearch()
-      toast.success('Confirmação parcial realizada com sucesso!') 
+      toast.success('Confirmação parcial realizada com sucesso!')
       return
     }
     setLoading(false)
@@ -1002,6 +1005,7 @@ export default function Order() {
             <div className="w-full flex items-center justify-center gap-2 ">
               <div className="w-20 text-center">R$ 10,00</div>
               <input
+                readOnly={orderIndivudual?.for_release === true ? true : false}
                 className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
                 value={valueAddA}
                 onChange={(e) => {
@@ -1017,6 +1021,7 @@ export default function Order() {
             <div className="w-full flex items-center justify-center gap-2 ">
               <div className="w-20 text-center">R$ 20,00</div>
               <input
+                readOnly={orderIndivudual?.for_release === true ? true : false}
                 className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
                 value={valueAddB}
                 onChange={(e) => {
@@ -1032,6 +1037,7 @@ export default function Order() {
             <div className="w-full flex items-center justify-center gap-2 ">
               <div className="w-20 text-center">R$ 50,00</div>
               <input
+                readOnly={orderIndivudual?.for_release === true ? true : false}
                 className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
                 value={valueAddC}
                 onChange={(e) => {
@@ -1047,6 +1053,7 @@ export default function Order() {
             <div className="w-full flex items-center justify-center gap-2 ">
               <div className="w-20 text-center">R$ 100,00</div>
               <input
+                readOnly={orderIndivudual?.for_release === true ? true : false}
                 className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
                 value={valueAddD}
                 onChange={(e) => {

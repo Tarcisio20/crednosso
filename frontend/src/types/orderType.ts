@@ -14,6 +14,8 @@ export type orderType = {
     confirmed_value_B ?: number;
     confirmed_value_C ?: number;
     confirmed_value_D ?: number;
+    for_payment ?: boolean;
+    for_release ?: boolean;
     status_order : number;
     observation : string;
 }
