@@ -2,16 +2,17 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
 export const getAllOrder = async () => {
-  const order = await prisma.order.findMany()
-  if (order) {
-    return order
+  try {
+    return await prisma.order.findMany()
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ALL_ORDER] *** ERROR =>", err)
+    return null;
   }
-  return null
 }
 
 export const getOrderById = async (id: number) => {
   try {
-    const order = await prisma.order.findMany({
+    return await prisma.order.findMany({
       where: {
         id,
         status_order: {
@@ -19,53 +20,53 @@ export const getOrderById = async (id: number) => {
         }
       }
     })
-    if (order) {
-      return order
-    }
-    return null
-  } catch (error) {
+
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ORDER_BY_ID] *** ERROR =>", err)
     return null
   }
 
 }
 
 export const getOrderByIds = async (ids: number[]) => {
-  const order = await prisma.order.findMany({
-    where: {
-      id: {
-        in: ids,
-      },
-    }
-  })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ORDER_BY_IDS] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const getOrderByIdsForPaymment = async (ids: number[]) => {
-  const order = await prisma.order.findMany({
-    where: {
-      id: {
-        in: ids,
-      },
-      id_type_operation: {
-        notIn: [5],
-      },
-      status_order: {
-        notIn: [5]
+  try {
+    return await prisma.order.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+        id_type_operation: {
+          notIn: [5],
+        },
+        status_order: {
+          notIn: [5]
+        }
       }
-    }
-  })
-  if (order) {
-    return order
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ORDER_BY_IDS_FOR_PAYMMENT] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const getIdTreasuriesOrderByDate = async (date: string) => {
   try {
-    const order = await prisma.order.findMany({
+    return await prisma.order.findMany({
       where: {
         date_order: new Date(date),
         status_order: { not: 5 }
@@ -89,22 +90,20 @@ export const getIdTreasuriesOrderByDate = async (date: string) => {
         date_order: true,
       }
     })
-    if (order) {
-      return order
-    }
-    return null
-  } catch (error) {
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ID_TREASURIES_ORDER_BY_DATE] *** ERROR =>", err)
     return null
 
   }
 }
 
 export const addOrder = async (data: Prisma.OrderCreateInput) => {
-  const order = await prisma.order.create({ data })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.create({ data })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [ADD_ORDER] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 type alterRequestsOrderType = {
@@ -115,38 +114,39 @@ type alterRequestsOrderType = {
   observation?: string
 }
 export const alterRequestsOrderForID = async (id: number, data: alterRequestsOrderType) => {
-  const order = await prisma.order.update({
-    where: {
-      id
-    },
-    data
-  })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.update({
+      where: {
+        id
+      },
+      data
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [ALTER_REQUESTS_ORDER_FOR_ID] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const searchByOrderDate = async (data: { date_initial: Date, date_final: Date }) => {
-  const order = await prisma.order.findMany({
-    where: {
-      date_order: {
-        gte: data.date_initial,
-        lte: data.date_final
-      },
-      status_order: {
-        not: 5
+  try {
+    return await prisma.order.findMany({
+      where: {
+        date_order: {
+          gte: data.date_initial,
+          lte: data.date_final
+        },
+        status_order: {
+          not: 5
+        }
       }
-    }
-  })
-  if (order) {
-    return order
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [SEARCH_BY_ORDER_DATE] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const searchByOrderDatePagination = async (data: { date_initial: Date, date_final: Date, page: number, pageSize: number }) => {
-
   try {
     const [orders, totalItems] = await prisma.$transaction([
       prisma.order.findMany({
@@ -189,87 +189,93 @@ export const searchByOrderDatePagination = async (data: { date_initial: Date, da
     };
 
   } catch (error) {
-    console.error("Erro na busca paginada:", error);
+    console.log("SERVICE => [ORDER] *** FUNCTION => [SEARCH_BY_ORDER_DATE_PAGINATION] *** ERROR =>", error);
     return null;
   }
 
 }
 
 export const delOrderById = async (id: number) => {
-  const order = await prisma.order.update({
-    where: {
-      id,
-      status_order: {
+  try {
+    return await prisma.order.update({
+      where: {
+        id,
+        status_order: {
+        }
+      },
+      data: {
+        status_order: 5
       }
-    },
-    data: {
-      status_order: 5
-    }
-  })
-  if (order) {
-    return order
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [DEL_ORDER_BY_ID] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const confirmTotalByIds = async (ids: number[]) => {
-  const results = []
-  for (const id of ids) {
-    try {
-      const order = await prisma.order.findUnique({
-        where: {
-          id,
-        },
-        select: {
-          requested_value_A: true,
-          requested_value_B: true,
-          requested_value_C: true,
-          requested_value_D: true,
-        },
-      });
-
-      if (order) {
-        await prisma.order.update({
+  try {
+    const results = []
+    for (const id of ids) {
+      try {
+        const order = await prisma.order.findUnique({
           where: {
             id,
           },
-          data: {
-            confirmed_value_A: order.requested_value_A,
-            confirmed_value_B: order.requested_value_B,
-            confirmed_value_C: order.requested_value_C,
-            confirmed_value_D: order.requested_value_D,
-            status_order: 2,
-            for_release: true,
+          select: {
+            requested_value_A: true,
+            requested_value_B: true,
+            requested_value_C: true,
+            requested_value_D: true,
           },
         });
-        results.push({ id, status: "success", message: "Pedido atualizado com sucesso." })
-      } else {
-        results.push({ id, status: "failed", message: "Pedido não encontrado." });
+
+        if (order) {
+          await prisma.order.update({
+            where: {
+              id,
+            },
+            data: {
+              confirmed_value_A: order.requested_value_A,
+              confirmed_value_B: order.requested_value_B,
+              confirmed_value_C: order.requested_value_C,
+              confirmed_value_D: order.requested_value_D,
+              status_order: 2,
+              for_release: true,
+            },
+          });
+          results.push({ id, status: "success", message: "Pedido atualizado com sucesso." })
+        } else {
+          results.push({ id, status: "failed", message: "Pedido não encontrado." });
+        }
+      } catch (error: any) {
+        results.push({ id, status: "failed", message: `Erro ao atualizar: ${error.message}` });
       }
-    } catch (error: any) {
-      results.push({ id, status: "failed", message: `Erro ao atualizar: ${error.message}` });
+
     }
-
+    const allSuccess = results.every(result => result.status === "success");
+    if (allSuccess) {
+      return allSuccess
+    } else {
+      return results.filter(result => result.status === "failed");
+    }
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [CONFIRM_TOTAL_BY_IDS] *** ERROR =>", err)
+    return null
   }
-  const allSuccess = results.every(result => result.status === "success");
-  if (allSuccess) {
-    return allSuccess
-  } else {
-    return results.filter(result => result.status === "failed");
-  }
-
 }
 
 export const getInfosOrders = async (id: number) => {
-  const order = await prisma.order.findUnique({
-    where: {
-      id,
-    }
-  });
-  if (order) {
-    return order
+  try {
+    return await prisma.order.findUnique({
+      where: {
+        id,
+      }
+    });
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_INFOS_ORDERS] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 type alterConfirmPartialOrderType = {
@@ -280,65 +286,64 @@ type alterConfirmPartialOrderType = {
   status_order: number;
 }
 export const alterConfirmPatialById = async (id: number, data: alterConfirmPartialOrderType) => {
-  const order = await prisma.order.update({
-    where: {
-      id
-    },
-    data
-  })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.update({
+      where: {
+        id
+      },
+      data
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [ALTER_CONFIRM_PATIAL_BY_ID] *** ERROR =>", err)
+    return null
   }
-  return null
-
 }
 
 export const alterDateOrderById = async (id: number, data: { date_order: Date }) => {
-  const order = await prisma.order.update({
-    where: {
-      id
-    },
-    data
-  })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.update({
+      where: {
+        id
+      },
+      data
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [ALTER_DATE_ORDER_BY_ID] *** ERROR =>", err)
+    return null
   }
-  return null
-
 }
 
 export const updateOrder = async (id: number, data: Prisma.OrderUpdateInput) => {
-  const order = await prisma.order.update({
-    where: {
-      id
-    },
-    data
-  })
-  if (order) {
-    return order
+  try {
+    return await prisma.order.update({
+      where: {
+        id
+      },
+      data
+    })
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [UPDATE_ORDER] *** ERROR =>", err)
+    return null
   }
-  return null
-
 }
 
 export const confirmPaymantAllIds = async (ids: number[]) => {
-  const order = await prisma.order.updateMany({
-    where: {
-      id: { in: ids },
-      id_type_operation: {
-        notIn: [3, 4, 5, 6]
-      }
-    },
-    data: {
-      status_order: 4,
-    },
-  });
-
-  if (order) {
-    return order
+  try {
+    return await prisma.order.updateMany({
+      where: {
+        id: { in: ids },
+        id_type_operation: {
+          notIn: [3, 4, 5, 6]
+        }
+      },
+      data: {
+        status_order: 4,
+      },
+    });
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [CONFIRM_PAYMANT_ALL_IDS] *** ERROR =>", err)
+    return null
   }
-
-  return null
 }
 
 export const getMediasYears = async () => {
@@ -405,9 +410,7 @@ export const getMediasYears = async () => {
 
     return agrupadoPorAno
   } catch (error) {
-    console.error('Erro em getMediasYears:', error)
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_MEDIAS_YEARS] *** ERROR =>", error)
     return null
   }
 }
-
-

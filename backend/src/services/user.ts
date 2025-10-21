@@ -11,7 +11,7 @@ export const getAllUserPagination = async (page: number, pageSize: number) => {
         take: pageSize,
         where: { status: true },
         orderBy: { id: 'asc' },
-          select: {
+        select: {
           id: true,
           email: true,
           name: true,
@@ -30,99 +30,103 @@ export const getAllUserPagination = async (page: number, pageSize: number) => {
       totalPages: Math.ceil(totalItems / pageSize)
     };
   } catch (error) {
-    console.error('Erro no service:', error);
+    console.log("SERVICE => [USER] *** FUNCTION => [GET_ALL_USER_PAGINATION] *** ERROR =>", error)
     return null;
   }
 }
 
 export const getForId = async (id: number) => {
-    const user = await prisma.user.findFirst({
-        where: { id: id },
-        select : {
-          id: true,
-          name: true,
-          slug: true,
-          email: true,
-          status: true
-        }
+  try {
+    return await prisma.user.findFirst({
+      where: { id: id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        email: true,
+        status: true
+      }
     })
-    if (user) {
-        return user
-    }
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [GET_FOR_ID] *** ERROR =>", err)
     return null
+  }
 }
 
 export const findUserByEmail = async (email: string) => {
-  const user = await prisma.user.findFirst({
-    where: { email }
-  })
-  if (user) {
-    return user;
+  try {
+    return await prisma.user.findFirst({
+      where: { email }
+    })
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [FIND_USER_BY_EMAIL] *** ERROR =>", err)
+    return null
   }
-  return null;
 }
 
-
 export const findUserBySlug = async (slug: string) => {
-  const user = await prisma.user.findFirst({
-    select: {
-      name: true,
-      email: true,
-      slug: true
-    },
-    where: { slug }
-  })
-  if (user) {
-    return user;
+  try {
+    return await prisma.user.findFirst({
+      select: {
+        name: true,
+        email: true,
+        slug: true
+      },
+      where: { slug }
+    })
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [FIND_USER_BY_SLUG] *** ERROR =>", err)
+    return null
   }
-  return null;
 }
 
 export const createUser = async (data: Prisma.UserCreateInput) => {
-  const user = await prisma.user.create({ data })
-  if (user) {
-    return user
+  try {
+    return await prisma.user.create({ data })
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [CREATE_USER] *** ERROR =>", err)
+    return null
   }
-
-  return null
 }
 
 export const updateUser = async (id: number, data: Prisma.UserUpdateInput) => {
-    const editUser = await prisma.user.update({
-        where: {
-            id: id
-        },
-        data,
-        select : {
-          id: true,
-          name: true,
-          slug: true,
-          email: true,
-          status: true
-        }
+  try {
+    return await prisma.user.update({
+      where: {
+        id: id
+      },
+      data,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        email: true,
+        status: true
+      }
     })
-    if (editUser) {
-        return editUser
-    }
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [UPDATE_USER] *** ERROR =>", err)
     return null
+  }
 }
 
 export const changePasswordFromId = async (id: number, data: Prisma.UserUpdateInput) => {
-    const editUser = await prisma.user.update({
-        where: {
-            id: id
-        },
-        data,
-        select : {
-          id: true,
-          name: true,
-          slug: true,
-          email: true,
-          status: true
-        }
+  try {
+    return await prisma.user.update({
+      where: {
+        id: id
+      },
+      data,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        email: true,
+        status: true
+      }
     })
-    if (editUser) {
-        return editUser
-    }
+  } catch (err) {
+    console.log("SERVICE => [USER] *** FUNCTION => [CHANGE_PASSWORD_FROM_ID] *** ERROR =>", err)
     return null
+  }
 }

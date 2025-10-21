@@ -28,14 +28,14 @@ export const sendEmailOfOrder = async (emails: string, orders: any) => {
       });
     }
     return true
-  } catch (error) {
-    return error
+  } catch (err) {
+    console.log("SERVICE => [EMAIL] *** FUNCTION => [SEND_EMAIL_OF_ORDER] *** ERROR =>", err)
+    return err
   }
 }
 
 export const sendEmailOdCreateUser = async (name: string, email: string, password: string) => {
   try {
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
@@ -55,7 +55,8 @@ export const sendEmailOdCreateUser = async (name: string, email: string, passwor
     });
 
     return true
-  } catch (error) {
-    return error
+  } catch (err) {
+    console.log("SERVICE => [EMAIL] *** FUNCTION => [SEND_EMAIL_OF_ORDER] *** ERROR =>", err)
+    return err
   }
 }

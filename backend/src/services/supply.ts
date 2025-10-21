@@ -2,43 +2,44 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
 export const getAllSupply = async () => {
-  const supply = await prisma.supply.findMany()
-  if (supply) {
-    return supply
+  try {
+    return await prisma.supply.findMany()
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ALL_SUPPLY] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const addSupply = async (data: Prisma.SupplyCreateInput) => {
   try {
     return await prisma.supply.create({ data })
   } catch (error) {
-    console.error("Erro ao adicionar abastecimento:", error);
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [ADD_SUPPLY] *** ERROR =>", error)
     return null
-   }
- 
+  }
 }
 
 export const getAllForDate = async (date: any, dateEnd: any) => {
-  const suplly = await prisma.supply.findMany({
-    where: {
-      date: {
-        gte: date,
-        lt: dateEnd,
+  try {
+    return await prisma.supply.findMany({
+      where: {
+        date: {
+          gte: date,
+          lt: dateEnd,
+        }
       }
-    }
-  })
-  if (suplly) {
-    return suplly
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ALL_FOR_DATE] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
-export const getAllForDatePagination = async (date: any, dateEnd: any, page : number, pageSize : number) => {
+export const getAllForDatePagination = async (date: any, dateEnd: any, page: number, pageSize: number) => {
   try {
     // Normaliza datas se vierem como string
     const start = date instanceof Date ? date : new Date(date);
-    const end   = dateEnd   instanceof Date ? dateEnd   : new Date(dateEnd);
+    const end = dateEnd instanceof Date ? dateEnd : new Date(dateEnd);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       throw new Error("Parâmetros de data inválidos.");
@@ -59,9 +60,9 @@ export const getAllForDatePagination = async (date: any, dateEnd: any, page : nu
         where,
         skip,
         take: pageSize,
-        orderBy: { id : "asc" },
-         // ajuste se preferir outra ordenação
-         include: {
+        orderBy: { id: "asc" },
+        // ajuste se preferir outra ordenação
+        include: {
           atm: {
             select: { name: true, id_system: true }, // pega só o que precisa
           },
@@ -74,75 +75,78 @@ export const getAllForDatePagination = async (date: any, dateEnd: any, page : nu
       totalItems,
       totalPages: Math.ceil(totalItems / pageSize)
     };
-  } catch (error) {
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ALL_FOR_DATE_PAGINATION] *** ERROR =>", err)
     return null;
   }
 }
 
-
 export const getSupplyForIdTreasury = async (id: number) => {
-  const suplly = await prisma.supply.findMany({
-    where: {
-      id_treasury: id
-    }
-  })
-  if (suplly) {
-    return suplly
+  try {
+    return await prisma.supply.findMany({
+      where: {
+        id_treasury: id
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_FOR_ID_TREASURY] *** ERROR =>", err)
+    return null
   }
-  return []
 }
 
 export const getAtmWitSupplyForIdAndDate = async (id: number, data: { date: string }) => {
-  const suplly = await prisma.supply.findMany({
-    where: {
-      id_treasury: id
-    }
-  })
-  if (suplly) {
-    return suplly
+  try {
+    return await prisma.supply.findMany({
+      where: {
+        id_treasury: id
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ATM_WIT_SUPPLY_FOR_ID_AND_DATE] *** ERROR =>", err)
+    return null
   }
-  return []
 }
 
 export const lastRegister = async () => {
-  const supply = await prisma.supply.findFirst({
-    orderBy: {
-      id: 'desc', // ou 'createdAt' se você tiver essa coluna
-    },
-  });
-  if (supply) {
-    return supply
+  try {
+    return await prisma.supply.findFirst({
+      orderBy: {
+        id: 'desc', // ou 'createdAt' se você tiver essa coluna
+      },
+    });
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [LAST_REGISTER] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const getAllForDateAndTreasury = async (date: any, dateEnd: any, id_treasury: number) => {
-  const suplly = await prisma.supply.findMany({
-    where: {
-      date: {
-        gte: date,
-        lt: dateEnd,
-      },
-      id_treasury
-    }
-  })
-  if (suplly) {
-    return suplly
+  try {
+    return await prisma.supply.findMany({
+      where: {
+        date: {
+          gte: date,
+          lt: dateEnd,
+        },
+        id_treasury
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ALL_FOR_DATE_AND_TREASURY] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const getSupplyByOrder = async (numOrder: number) => {
-  try { 
-    const supply = await prisma.supply.findMany({
+  try {
+    return await prisma.supply.findMany({
       where: {
         id_order: numOrder,
         status: true // ou outro status que você queira filtrar
       }
     })
-    return supply
-  }catch (error) {
-   
-    return []
-  } 
+  } catch (error) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_BY_ORDER] *** ERROR =>", error)
+    return null
+  }
 }

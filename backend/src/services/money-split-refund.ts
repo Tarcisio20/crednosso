@@ -9,21 +9,23 @@ type OrderWhereInput = {
   };
 };
 export const getRefusedForIdOrder = async (id : number) => {
-  const moneySplitRefused = await prisma.mOneySplitRefund.findMany({
+  try{
+    return await prisma.mOneySplitRefund.findMany({
     where : {
       id_order : id
     }
    })
-  if (moneySplitRefused) {
-    return moneySplitRefused
+  }catch(err){
+    console.log("SERVICE => [MONEY_SPLIT_REFUND] *** FUNCTION => [GET_REFUSED_FOR_ID_ORDER] *** ERROR =>", err)
+    return null
   }
-  return null
 }
 
 export const addRefund = async (data: Prisma.MOneySplitRefundCreateInput) => {
-  const moneySplitRefused = await prisma.mOneySplitRefund.create({ data })
-  if (moneySplitRefused) {
-    return moneySplitRefused
+  try{
+    return await prisma.mOneySplitRefund.create({ data })
+  }catch(err){
+    console.log("SERVICE => [MONEY_SPLIT_REFUND] *** FUNCTION => [ADD_REFUND] *** ERROR =>", err)
+    return null
   }
-  return null
 }
