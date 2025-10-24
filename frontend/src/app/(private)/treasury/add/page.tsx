@@ -20,7 +20,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function TreasuryAdd() {
@@ -84,19 +83,12 @@ const getTypeStore = async () => {
     toast.error('Sem dados a mostrar, tente novamente!');
     return;
   }
-
   setTypeStores(tStore.typeStore);
   setIdTypeStore(tStore.typeStore[0].id?.toString() || '');
   setLoading(false);
 };
-
-
-
   const cadTeasury = async () => {
-    setError({ type: '', title: '', messege: '' });
-    setLoading(false);
     setLoading(true);
-
     if (
       idSystemTreasury === "" ||
       !validateField(nameTreasury) ||
@@ -128,7 +120,7 @@ const getTypeStore = async () => {
       name_for_email : nameForEmailTreasury.toUpperCase(),
       account_number_for_transfer : `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
     };
-    console.log(data)
+
     const treasury = await add(data);
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
       setIdTypeSupply("1");
@@ -374,10 +366,6 @@ const getTypeStore = async () => {
           </div>
          
         </div>
-        
-        {error.messege && (
-            <Messeger type={error.type} title={error.title} messege={error.messege} />
-          )}
           {loading && <Loading />}
       </div>
      

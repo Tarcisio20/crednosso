@@ -12,14 +12,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
 import { del, getAllTreasuryPagination } from "@/app/service/treasury";
 import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { Loading } from "@/app/components/ux/Loading";
 import { Pagination } from "@/app/components/ux/Pagination";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function Treasury() {
@@ -27,8 +26,6 @@ export default function Treasury() {
 
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>();
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,7 +87,7 @@ export default function Treasury() {
         <div className="flex flex-col gap-3 items-center justify-center mb-4">
           <Button
             color="#2E8B57"
-           variant={"primary"}
+            variant={"primary"}
             textColor="white"
             onClick={handleAdd}
             size="medium"
@@ -168,10 +165,6 @@ export default function Treasury() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

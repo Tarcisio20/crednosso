@@ -3,7 +3,6 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages"
 import { add } from "@/app/service/account-bank";
@@ -18,16 +17,12 @@ import { toast } from "sonner";
 
 export default function AccountBankAdd() {
 
-
   const [nameAccount, setNameAccount] = useState("");
   const [bankBranch, setBankBranch] = useState("");
   const [bankBranchDigit, setBankBranchDigit] = useState("");
   const [account, setAccount] = useState("");
   const [accountDigit, setAccountDigit] = useState("");
   const [typeAccount, setTypeAccount] = useState("mateus");
- 
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +32,7 @@ export default function AccountBankAdd() {
   const addAccount = async () => {
 
     setLoading(true);
-    if (  nameAccount === "" || bankBranch === "" || bankBranchDigit === "" || account === "" || accountDigit === "" ) {
+    if (nameAccount === "" || bankBranch === "" || bankBranchDigit === "" || account === "" || accountDigit === "") {
       setLoading(false);
       toast.error('Para continuar, Prencher todos os campos');
       return;
@@ -49,11 +44,11 @@ export default function AccountBankAdd() {
       bank_branch_digit: bankBranchDigit.trim(),
       account: account.trim(),
       account_digit: accountDigit.trim(),
-      type : typeAccount.toLowerCase(),
-      hash : bankBranch+bankBranchDigit+account+accountDigit
+      type: typeAccount.toLowerCase(),
+      hash: bankBranch + bankBranchDigit + account + accountDigit
     };
 
-   const addNewAccount = await add(data);
+    const addNewAccount = await add(data);
 
     if (addNewAccount.data !== undefined && addNewAccount.data.account.id > 0) {
       setNameAccount("");
@@ -118,7 +113,7 @@ export default function AccountBankAdd() {
             />
           </div>
 
-           <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               N Conta
             </label>
@@ -151,7 +146,7 @@ export default function AccountBankAdd() {
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
                 value={typeAccount}
-                onChange={(e)=>setTypeAccount(e.target.value)}
+                onChange={(e) => setTypeAccount(e.target.value)}
               >
                 <option className="uppercase bg-slate-700 text-white" value="mateus">
                   Mateus
@@ -162,11 +157,11 @@ export default function AccountBankAdd() {
               </select>
             </div>
           </div>
-         
 
-          <div className="flex flex-col gap-4">    
+
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-5"></div>
-          <Button
+            <Button
               color="#2E8B57"
               onClick={addAccount}
               size="medium"
@@ -175,11 +170,7 @@ export default function AccountBankAdd() {
             >
               Cadastrar
             </Button>
-
-             {error.messege && 
-            <Messeger type={error.type} title={error.title} messege={error.messege} />
-          }
-          {loading && <Loading />}
+            {loading && <Loading />}
           </div>
         </div>
       </div>

@@ -21,12 +21,10 @@ export default function TypeStoreAdd() {
   const router = useRouter();
 
   const [nameTypeStore, setNameTypeStore] = useState("");
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const addTypeStore = async () => {
     setLoading(true);
-
     if (!validateField(nameTypeStore)) {
       setLoading(false);
       toast.error('Para continuar, preencha todos os campos corretamente!');
@@ -39,15 +37,13 @@ export default function TypeStoreAdd() {
 
     try {
       const newTypeStore = await add(data) as any;
-
-      if (newTypeStore?.data?.typeStore?.length > 0) {
+      if (newTypeStore?.data?.typeStore?.id > 0) {
         toast.success('Tipo de Loja salva com sucesso!');
         router.push("/type-store");
       } else {
         toast.error('Erro ao salvar, tente novamente!');
       }
     } catch (error) {
-      console.error("Erro ao salvar Tipo de Loja:", error);
       toast.error('Erro inesperado, tente novamente!');
     } finally {
       setLoading(false);
@@ -84,11 +80,6 @@ export default function TypeStoreAdd() {
             Cadastrar
           </Button>
         </div>
-
-        {error.messege && (
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        )}
-
         {loading && <Loading />}
       </div>
     </Page>

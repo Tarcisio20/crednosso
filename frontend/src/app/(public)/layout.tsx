@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <div className="flex items-center justify-center min-h-screen min-w-screen "  >
           {children}
-          <Toaster richColors duration={4000} />
+          <Toaster richColors duration={4000}  position="bottom-center" />
         </div>
       </body>
     </html>

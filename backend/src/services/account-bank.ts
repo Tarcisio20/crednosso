@@ -1,6 +1,8 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
+import { createLog } from "./logService";
+
 
 export async function getAllAccountPagination(page: number, pageSize: number) {
   try {
@@ -21,6 +23,7 @@ export async function getAllAccountPagination(page: number, pageSize: number) {
 
     const totalPages = Math.max(1, Math.ceil(totalItems / safePageSize));
 
+
     return {
       data,
       page: safePage,
@@ -30,9 +33,9 @@ export async function getAllAccountPagination(page: number, pageSize: number) {
     };
   } catch (err) {
     console.log("SERVICE => [ACCOUNT_BANK] *** FUNCTION => [GET_ALL_ACCOUNT_PAGINATION] *** ERROR =>", err)
+  
     return null
   }
-  // saneamento de entrada
 }
 
 export const addAccountBank = async (data: Prisma.AccountBankCreateInput) => {

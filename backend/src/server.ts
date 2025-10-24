@@ -5,6 +5,7 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { mainRouter } from "./routers/main";
 import * as socketEventController from "./controllers/socket-event";
+import { requestLogger } from "./middlewares/requestLogger";
 
 // Cria o app Express e o servidor HTTP
 const app = express();
@@ -25,6 +26,7 @@ app.use(helmet());
 app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
+app.use(requestLogger);
 
 // Roteador principal
 app.use(mainRouter);

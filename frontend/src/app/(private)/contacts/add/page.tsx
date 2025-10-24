@@ -11,7 +11,6 @@ import { treasuryType } from '@/types/treasuryType';
 import { getAll } from '@/app/service/treasury';
 import { validateField } from '@/app/utils/validateField';
 import { add } from '@/app/service/contact';
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function ContactsAdd() {
@@ -21,8 +20,6 @@ export default function ContactsAdd() {
   const [nameContact, setNameContact] = useState('')
   const [phoneContact, setPhoneContact] = useState('')
   const [emailContact, setEmailContact] = useState('')
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -146,21 +143,14 @@ export default function ContactsAdd() {
             value={emailContact} onChange={(e) => setEmailContact(e.target.value)} icon={faEnvelope} />
         </div>
         <div>
-          <Button 
-            color="#2E8B57" 
-            onClick={addContact} 
-            size="medium" 
+          <Button
+            color="#2E8B57"
+            onClick={addContact}
+            size="medium"
             textColor="white"
             variant="primary"
           >Adicionar</Button>
         </div>
-        {error &&
-          <div className="text-white">
-            {error.messege &&
-              <Messeger type={error.type} title={error.title} messege={error.messege} />
-            }
-          </div>
-        }
         {loading &&
           <Loading />
         }

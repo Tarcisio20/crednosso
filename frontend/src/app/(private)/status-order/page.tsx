@@ -8,11 +8,9 @@ import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
-import { del, getAll, getAllPagination } from "@/app/service/status-order";
+import { del, getAllPagination } from "@/app/service/status-order";
 import { statusOrderType } from "@/types/statusOrder";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { toast } from "sonner";
 
@@ -21,7 +19,6 @@ export default function StatusOrder() {
   const router = useRouter()
 
   const [statusOrders, setStatusOrders] = useState<statusOrderType[]>()
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,9 +139,6 @@ export default function StatusOrder() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
-        )}
         {loading &&
           <Loading />
         }

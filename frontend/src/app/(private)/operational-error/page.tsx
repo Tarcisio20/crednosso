@@ -11,7 +11,6 @@ import { OperationalErrorType } from "@/types/operationalErrorType";
 import { treasuryType } from "@/types/treasuryType";
 import { faBomb, faCheck, faPenToSquare, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { error } from "console";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -58,7 +57,6 @@ export default function OperationalError() {
       setLoading(false)
       return
     }
-
     setLoading(false)
     toast.error('Sem dados a carregar!')
     return

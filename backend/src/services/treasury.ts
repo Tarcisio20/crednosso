@@ -137,7 +137,7 @@ export const updateTreasury = async (id: number, data: Prisma.TreasuryUpdateInpu
   try {
     return await prisma.treasury.update({
       where: {
-        id
+        id_system: id
       },
       data
     })

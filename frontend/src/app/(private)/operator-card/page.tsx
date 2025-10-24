@@ -19,9 +19,7 @@ import { getAll } from "@/app/service/treasury";
 import { treasuryType } from "@/types/treasuryType";
 import { del, getByIdTreasury } from "@/app/service/card-operator";
 import { cardOperatorType } from "@/types/cardOperatorType";
-import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function OperatorCard() {
@@ -29,10 +27,7 @@ export default function OperatorCard() {
 
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
   const [idTreasury, setIdTreasury] = useState("0");
-
   const [cardOperators, setCardOperators] = useState<cardOperatorType[]>([]);
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -129,7 +124,7 @@ export default function OperatorCard() {
         <div className="flex flex-col gap-3 items-center justify-center mb-4">
           <Button
             color="#2E8B57"
-            variant="primary" 
+            variant="primary"
             textColor="white"
             onClick={handleAdd}
             size="medium"
@@ -238,9 +233,6 @@ export default function OperatorCard() {
               ))}
           </tbody>
         </table>
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

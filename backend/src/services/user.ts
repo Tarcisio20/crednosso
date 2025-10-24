@@ -80,6 +80,7 @@ export const findUserBySlug = async (slug: string) => {
   }
 }
 
+
 export const createUser = async (data: Prisma.UserCreateInput) => {
   try {
     return await prisma.user.create({ data })

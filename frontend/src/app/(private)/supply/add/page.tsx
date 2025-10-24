@@ -5,19 +5,15 @@ import { Page } from "@/app/components/ux/Page";;
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { getSupliesForNums, getTreasuriesForDate, saveIndividualSupply } from "@/app/service/supply";
 import { Button } from "@/app/components/ui/Button";
-import { faBroom, faDivide, faEdit, faParachuteBox, faReceipt, faSave, faTable, faTrashCan } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { faBroom, faDivide, faEdit, faParachuteBox, faSave, faTable, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import {  useState } from "react";
 import { toast } from "sonner";
-import { OrderWithTreasuryProps } from "@/types/ordersSearchtype";
 import { isValidDateString } from "@/app/utils/isValidDateString";
 import { removeDuplicateInOrders } from "@/app/utils/removeDuplicateInOrders";
 import { getAtmsForIdsTreasury } from "@/app/service/atm";
-import { Input } from "@/app/components/ui/Input"
 import { treasuryType } from "@/types/treasuryType";
-import { getAll, getTreasuriesForIds } from "@/app/service/treasury";
-import { getOrderForTreasuryId } from "@/app/service/order";
+import {  getTreasuriesForIds } from "@/app/service/treasury";
 import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
-import { generateCurrency } from "@/app/utils/generateCurrency";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateFullReal } from "@/app/utils/generateFullReal";
 import { ModalTrocaTotal } from "@/app/components/ui/Modal/ModalTrocaTotal";
@@ -311,7 +307,6 @@ export default function SupplyAdd() {
     } else {
       setOrderInUse(null);
     }
-
   };
 
   {/** ação dos botoes  */ }
@@ -341,7 +336,6 @@ export default function SupplyAdd() {
 
   const handleSaveIndovidual = async () => {
     setLoading(true)
-
     if (valueA === 0 && valueB === 0 && valueC === 0 && valueD === 0) {
       toast.error("Preencha pelo menos um valor para continuar!")
       setLoading(false);
@@ -405,7 +399,6 @@ export default function SupplyAdd() {
         setValueB(digitado);
         return
       }
-
     } else if (type === 50) {
       let solicitado = ((orderInUse?.confirmed_value_C ?? 0 > 0) ? orderInUse?.confirmed_value_C : orderInUse?.requested_value_C) as number
       let digitado = parseInt(e.target.value !== "" ? e.target.value : "0")

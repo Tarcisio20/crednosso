@@ -3,7 +3,6 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/status-order";
@@ -25,7 +24,6 @@ export default function TypeOperationAdd() {
   const router = useRouter();
 
   const [nameStatusOrder, setNameStatusOrder] = useState("");
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const addStatusOrder = async () => {
@@ -78,9 +76,6 @@ export default function TypeOperationAdd() {
             Cadastrar
           </Button>
         </div>
-        {error.messege && (
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

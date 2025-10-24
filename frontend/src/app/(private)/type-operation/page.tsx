@@ -17,8 +17,6 @@ import { useEffect, useState } from "react";
 import { typeOperationType } from "@/types/typeOperationType";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAllPagination } from "@/app/service/type-operation";
-import { generateStatus } from "@/app/utils/generateStatus";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { toast } from "sonner";
 
@@ -26,7 +24,6 @@ export default function TypeOperation() {
   const router = useRouter();
 
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([]);
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,9 +116,6 @@ export default function TypeOperation() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
-        )}
         {loading &&
           <Loading />
         }

@@ -21,7 +21,6 @@ import { Loading } from "@/app/components/ux/Loading";
 import { treasuryType } from "@/types/treasuryType";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { returnDefault } from "@/app/utils/returnDefault";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { toast } from "sonner";
 
@@ -30,9 +29,7 @@ export default function Atm() {
 
   const [atms, setAtms] = useState<atmType[]>([]);
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 14;
@@ -85,7 +82,6 @@ export default function Atm() {
       return;
     }
     const deleteAtm = await del(id)
-    console.log("Deletado", deleteAtm);
     if (deleteAtm.status === 300 || deleteAtm.status === 400 || deleteAtm.status === 500) {
       toast.error('Erro de requisição, tente novamente')
       setLoading(false);
@@ -188,9 +184,6 @@ export default function Atm() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-        {error.messege && (
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

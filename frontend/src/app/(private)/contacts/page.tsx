@@ -19,9 +19,7 @@ import { treasuryType } from "@/types/treasuryType";
 import { getAll } from "@/app/service/treasury";
 import { del, getByIdTreasury } from "@/app/service/contact";
 import { ContactType } from "@/types/contactType";
-import { generateStatus } from "@/app/utils/generateStatus";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function Contacts() {
@@ -30,8 +28,6 @@ export default function Contacts() {
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
   const [idTreasury, setIdTreasury] = useState("1");
   const [contacts, setContacts] = useState<ContactType[]>([]);
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -108,7 +104,6 @@ export default function Contacts() {
       return;
     }
     const deleteContact = await del(id)
-    console.log("Response", deleteContact);
     if (deleteContact.status === 300 || deleteContact.status === 400 || deleteContact.status === 500) {
       setLoading(false);
       toast.error('Erro de requisição, tente novamente');
@@ -174,7 +169,7 @@ export default function Contacts() {
               <Button
                 color="#1E90FF "
                 onClick={search}
-                variant="primary" 
+                variant="primary"
                 size="small"
                 textColor="white"
               >
@@ -243,9 +238,6 @@ export default function Contacts() {
                 ))}
             </tbody>
           </table>
-          {error.messege &&
-            <Messeger type={error?.type} title={error.title} messege={error.messege} />
-          }
           {loading && <Loading />}
         </div>
       </div>

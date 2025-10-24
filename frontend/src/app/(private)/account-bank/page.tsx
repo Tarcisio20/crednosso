@@ -15,10 +15,6 @@ import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Loading } from "@/app/components/ux/Loading";
-import { treasuryType } from "@/types/treasuryType";
-import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
-import { returnDefault } from "@/app/utils/returnDefault";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { del, getAllPagination } from "@/app/service/account-bank";
 import { accountBankType } from "@/types/accountBankType";
@@ -28,7 +24,6 @@ export default function AccountBank() {
   const router = useRouter();
 
   const [accounts, setAccouhnts] = useState<accountBankType[]>([]);
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,7 +43,6 @@ export default function AccountBank() {
     setLoading(true);
     const allAcounts = await getAllPagination(currentPage, pageSize);
     if (allAcounts.data !== undefined && allAcounts.data.account.data.length > 0) {
-      console.log("Dados", allAcounts.data.account.data)
       setAccouhnts(allAcounts.data.account.data);
       setTotalPages(allAcounts.data.account.totalPages);
       setLoading(false);
@@ -58,7 +52,6 @@ export default function AccountBank() {
       toast.error('Sem dados a carregar, tente novamente!');
       return;
     }
-    setLoading(false);
   }, [currentPage]);
 
 
@@ -75,6 +68,7 @@ export default function AccountBank() {
       return;
     }
     const deleteAccountBank = await del(id)
+    console.log(deleteAccountBank)
     if (deleteAccountBank.status === 300 || deleteAccountBank.status === 400 || deleteAccountBank.status === 500) {
       setLoading(false);
       toast.error('Erro de requisição, tente novamente');
@@ -172,9 +166,6 @@ export default function AccountBank() {
             onPageChange={(page: number) => setCurrentPage(page)}
           />
         }
-        {error.messege && (
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

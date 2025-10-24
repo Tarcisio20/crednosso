@@ -24,7 +24,6 @@ export default function SignIn() {
 
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
-  const [error, setError] = useState({ type: '', title: '', messege: '' })
   const [loading, setLoading] = useState(false)
 
   const onLoading = async () => {
@@ -121,10 +120,6 @@ export default function SignIn() {
             </Link>
             !
           </p> */}
-
-          {error.messege &&
-            <Messeger type={error.type} title={error.title} messege={error.messege} />
-          }
           {loading && (
             <Loading />
           )}

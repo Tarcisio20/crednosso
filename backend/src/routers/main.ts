@@ -165,9 +165,9 @@ mainRouter.post('/money-split-refund/add',verifyJWT, moneySplitRefundController.
 // account bank
 mainRouter.get('/account-bank-pagination',verifyJWT, accountBankController.getAllPagination)
 mainRouter.post('/account-bank/add',verifyJWT, accountBankController.add)
-mainRouter.get('/account-bank/:id',verifyJWT, accountBankController.getById)
+mainRouter.get('/account-bank/del/:id',verifyJWT, accountBankController.del)
 mainRouter.post('/account-bank/update/:id',verifyJWT, accountBankController.update)
-mainRouter.post('/account-bank/del/:id',verifyJWT, accountBankController.del)
+mainRouter.get('/account-bank/:id',verifyJWT, accountBankController.getById)
 
 //opperational-error
 mainRouter.get('/operational-error-pagination',verifyJWT, operationalErrorController.getAllPagination)

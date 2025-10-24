@@ -6,41 +6,153 @@ import { hash } from "bcrypt-ts";
 import { generateHash } from "../utils/generateHash";
 import { sendEmailOdCreateUser } from "../services/email";
 import { changePasswordSchema } from "../schemas/changePasswordSchema";
+import { createLog } from "services/logService";
 
 export const getAllPagination: RequestHandler = async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;
   const pageSize = parseInt(req.query.pageSize as string) || 15;
   const skip = (page - 1) * pageSize;
-
-  const users = await getAllUserPagination(page, pageSize)
-  if (!users) {
-    res.status(401).json({ error: 'Erro ao carregar!' })
+  try {
+    const users = await getAllUserPagination(page, pageSize)
+    if (!users) {
+      await createLog({
+        level: 'ERROR',
+        action: 'GET_ALL_USER_PAGINATION',
+        message: 'Erro ao carregar!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao carregar!' }
+      })
+      res.status(401).json({ error: 'Erro ao carregar!' })
+      return
+    }
+    await createLog({
+      level: 'INFO',
+      action: 'GET_ALL_USER_PAGINATION',
+      message: 'Sucesso ao carregar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao carregar!' }
+    })
+    res.status(200).json({ users })
     return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_ALL_USER_PAGINATION',
+      message: 'Erro ao carregar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao carregar!' }
+    })
   }
-  res.json({ users })
-
 }
 
 export const getById: RequestHandler = async (req, res) => {
-    const userId = req.params.id
+  const userId = req.params.id
+  if (!userId || isNaN(parseInt(userId))) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_USER_BY_ID',
+      message: 'Requisição sem ID!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Requisição sem ID!' }
+    })
+    res.status(401).json({ error: 'Requisição sem ID!' })
+    return
+  }
+  try {
     const user = await getForId(parseInt(userId))
     if (!user) {
-        res.status(401).json({ error: 'Erro ao salvar!' })
-        return
+      await createLog({
+        level: 'ERROR',
+        action: 'GET_USER_BY_ID',
+        message: 'Erro ao carregar!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao carregar!' }
+      })
+      res.status(401).json({ error: 'Erro ao salvar!' })
+      return
     }
+    await createLog({
+      level: 'INFO',
+      action: 'GET_USER_BY_ID',
+      message: 'Sucesso ao carregar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao carregar!' }
+    })
+    res.status(200).json({ user })
+    return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_USER_BY_ID',
+      message: 'Erro ao carregar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao carregar!' }
+    })
+    res.status(401).json({ error: 'Erro ao carregar!' })
+    return
+  }
 
-    res.json({ user })
 }
 
 export const add: RequestHandler = async (req, res) => {
   const safeData = AddUserSchema.safeParse(req.body)
   if (!safeData.success) {
+    await createLog({
+      level: 'ERROR',
+      action: 'ADD_USER',
+      message: 'Erro ao salvar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'user',
+      meta: { error: safeData.error.flatten().fieldErrors }
+    })
     res.json({ error: safeData.error.flatten().fieldErrors })
     return
   }
 
   const emailExists = await findUserByEmail(safeData.data.email)
   if (emailExists) {
+    await createLog({
+      level: 'ERROR',
+      action: 'ADD_USER',
+      message: 'Email já cadastrado!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Email já cadastrado!' }
+    })
     res.status(401).json({ error: 'Email já cadastrado!' })
     return
   }
@@ -61,58 +173,218 @@ export const add: RequestHandler = async (req, res) => {
 
   const hasPassword = await hash(genHash, 10)
 
-  const newUser = await createUser({
-    name: safeData.data.name,
-    slug: userSlug,
-    email: safeData.data.email,
-    password: hasPassword
-  })
+  try {
+    const newUser = await createUser({
+      name: safeData.data.name,
+      slug: userSlug,
+      email: safeData.data.email,
+      password: hasPassword
+    })
 
 
-  const sendEmail = await sendEmailOdCreateUser(safeData.data.name, safeData.data.email, genHash)
+    const sendEmail = await sendEmailOdCreateUser(safeData.data.name, safeData.data.email, genHash)
 
-  if (!newUser) {
+    if (!newUser) {
+      await createLog({
+        level: 'ERROR',
+        action: 'ADD_USER',
+        message: 'Erro ao salvar!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao salvar!' }
+      })
+      res.status(401).json({ error: 'Erro ao salvar!' })
+      return
+    }
+    await createLog({
+      level: 'INFO',
+      action: 'ADD_USER',
+      message: 'Sucesso ao salvar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao salvar!' }
+    })
+    res.status(200).json({ user: newUser })
+    return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'ADD_USER',
+      message: 'Erro ao salvar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao salvar!' }
+    })
     res.status(401).json({ error: 'Erro ao salvar!' })
     return
   }
-
-  res.json({ user: newUser })
 }
 
 export const update: RequestHandler = async (req, res) => {
-    const userId = req.params.id
-    const safeData = AddUserSchema.safeParse(req.body)
-    if (!safeData.success) {
-        res.json({ error: safeData.error.flatten().fieldErrors })
-        return
-    }
+  const userId = req.params.id
+  if (!userId || isNaN(parseInt(userId))) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Requisição sem ID!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Requisição sem ID!' },
+    })
+    res.status(401).json({ error: 'Requisição sem ID!' })
+    return
+  }
+  const safeData = AddUserSchema.safeParse(req.body)
+  if (!safeData.success) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Erro ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'user',
+      meta: { error: safeData.error.flatten().fieldErrors }
+    })
+    res.json({ error: safeData.error.flatten().fieldErrors })
+    return
+  }
+  try {
     const updateU = await updateUser(parseInt(userId), safeData.data)
     if (!updateU) {
-        res.status(401).json({ error: 'Erro ao Editar!' })
-        return
+      await createLog({
+        level: 'ERROR',
+        action: 'UPDATE_USER',
+        message: 'Erro ao Editar!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao Editar!' }
+      })
+      res.status(401).json({ error: 'Erro ao Editar!' })
+      return
     }
-
-    res.json({ user : updateU })
-
+    await createLog({
+      level: 'INFO',
+      action: 'UPDATE_USER',
+      message: 'Sucesso ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao Editar!' }
+    })
+    res.status(200).json({ user: updateU })
+    return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Erro ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao Editar!' }
+    })
+    res.status(401).json({ error: 'Erro ao Editar!' })
+    return
+  }
 }
 
 export const changePassword: RequestHandler = async (req, res) => {
-    const userId = req.params.id
-    const safeData = changePasswordSchema.safeParse(req.body)
-    if(!userId){
-        res.status(401).json({ error: 'Erro ao Editar!' })
-        return
-    }
-    if (!safeData.success) {
-        res.json({ error: safeData.error.flatten().fieldErrors })
-        return
-    }
+  const userId = req.params.id
+  if (!userId || isNaN(parseInt(userId))) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Requisição sem ID!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Requisição sem ID!' },
+    })
+    res.status(401).json({ error: 'Requisição sem ID!' })
+    return
+  }
+  const safeData = changePasswordSchema.safeParse(req.body)
+  if (!safeData.success) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Erro ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'user',
+      meta: { error: safeData.error.flatten().fieldErrors }
+    })
+    res.json({ error: safeData.error.flatten().fieldErrors })
+    return
+  }
+  try {
     const change = await changePasswordFromId(parseInt(userId), safeData.data)
     if (!change) {
-        res.status(401).json({ error: 'Erro ao Editar!' })
-        return
+      await createLog({
+        level: 'ERROR',
+        action: 'UPDATE_USER',
+        message: 'Erro ao Editar!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao Editar!' }
+      })
+      res.status(401).json({ error: 'Erro ao Editar!' })
+      return
     }
-
-    res.json({ user : change })
-
+    await createLog({
+      level: 'INFO',
+      action: 'UPDATE_USER',
+      message: 'Sucesso ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao Editar!' }
+    })
+    res.status(200).json({ user: change })
+    return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'UPDATE_USER',
+      message: 'Erro ao Editar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao Editar!' }
+    })
+    res.status(401).json({ error: 'Erro ao Editar!' })
+    return
+  }
 }

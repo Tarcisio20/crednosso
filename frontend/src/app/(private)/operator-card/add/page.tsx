@@ -11,7 +11,6 @@ import { treasuryType } from "@/types/treasuryType";
 import { getAll } from "@/app/service/treasury";
 import { validateField } from "@/app/utils/validateField";
 import { add } from "@/app/service/card-operator";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { toast } from "sonner";
 
 export default function OperationCardAdd() {
@@ -21,8 +20,6 @@ export default function OperationCardAdd() {
   const [nameOperatorCard, setNameOperatorCard] = useState("");
   const [numOperatorCard, setNumOperatorCard] = useState("");
   const [inUseOperatorCard, setInUseOperadorCard] = useState(false)
-
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -173,10 +170,6 @@ export default function OperationCardAdd() {
             Adicionar
           </Button>
         </div>
-
-        {error.messege &&
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        }
         {loading && <Loading />}
       </div>
     </Page>

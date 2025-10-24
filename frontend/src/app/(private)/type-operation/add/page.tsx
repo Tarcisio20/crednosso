@@ -3,7 +3,6 @@
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Loading } from "@/app/components/ux/Loading";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
 import { add } from "@/app/service/type-operation";
@@ -28,7 +27,6 @@ export default function TypeOperationAdd() {
 
   const [idSystemTypeOperation, setIdSystemTypeOperation] = useState("");
   const [nameTypeOperation, setNameTypeOperation] = useState("");
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const addTypeOperation = async () => {
@@ -78,14 +76,11 @@ export default function TypeOperationAdd() {
             onClick={addTypeOperation}
             size="medium"
             textColor="white"
-            variant={"primary"} 
+            variant={"primary"}
           >
             Cadastrar
           </Button>
         </div>
-        {error.messege && (
-          <Messeger type={error.type} title={error.title} messege={error.messege} />
-        )}
         {loading && <Loading />}
       </div>
     </Page>

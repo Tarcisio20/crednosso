@@ -2,7 +2,6 @@
 
 import { Button } from "@/app/components/ui/Button";
 import { Loading } from "@/app/components/ux/Loading";
-import { Messeger } from "@/app/components/ux/Messeger";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
@@ -19,9 +18,7 @@ import { toast } from "sonner";
 export default function Supply() {
 
   const [supplies, setSupplies] = useState<supplyType[]>()
-
   const router = useRouter()
-
   const [loading, setLoading] = useState(false)
   const [currentDay, setCurrentDay] = useState('')
   const [dateSupply, setDateSupply] = useState('')

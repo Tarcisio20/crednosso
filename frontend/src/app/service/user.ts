@@ -148,3 +148,4 @@ export const changePassword = async (id: number, data : {   password: string }) 
     }
   }
 }
+

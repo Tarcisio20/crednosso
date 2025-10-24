@@ -8,7 +8,6 @@ import Link from "next/link";
 import { Button } from "@/app/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { generateStatus } from "@/app/utils/generateStatus";
 import { Loading } from "@/app/components/ux/Loading";
 import { typeStoreType } from "@/types/typeStoreType";
 import { getAllTypeStorePagination } from "@/app/service/type-store";
@@ -20,7 +19,6 @@ export default function TypeStore() {
   const router = useRouter();
 
   const [typeStores, setTypeStores] = useState<typeStoreType[]>();
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +36,6 @@ export default function TypeStore() {
   const loadTypeStorePagination = useCallback(async () => {
     setLoading(true);
     const tStores = await getAllTypeStorePagination(currentPage, pageSize);
-
     if ("status" in tStores && [300, 400, 500].includes(tStores.status)) {
       setLoading(false);
       toast.error('Erro na requisição, tente novamente!');
@@ -109,9 +106,6 @@ export default function TypeStore() {
             totalPages={totalPages}
             onPageChange={(page: number) => setCurrentPage(page)}
           />
-        )}
-        {error.messege && (
-          <Messeger type={error?.type} title={error.title} messege={error.messege} />
         )}
         {loading && <Loading />}
       </div>
