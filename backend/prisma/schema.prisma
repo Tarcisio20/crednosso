@@ -101,7 +101,7 @@ model OperationalError {
 model OperatorCard {
    id          Int     @id @default(autoincrement())
   id_treasury Int
-  name        String  @unique
+  name        String  
   number_card String  @unique
   inUse       Boolean @default(false)
   status      Boolean @default(true)

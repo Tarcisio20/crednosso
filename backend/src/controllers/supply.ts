@@ -1,12 +1,12 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
 import { Prisma } from "@prisma/client"
 import { createLog } from "services/logService"
-import { date, z } from "zod"
+import {  z } from "zod"
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -110,6 +110,7 @@ export const getForNumOrder: RequestHandler = async (req, res) => {
 
 export const getAllDay: RequestHandler = async (req, res) => {
   const day = req.params.day
+  console.log("day", day)
   if (!day) {
     await createLog({
       level: "ERROR",
@@ -759,6 +760,54 @@ export const addIndivudual: RequestHandler = async (req, res) => {
       meta: { error },
     })
     res.status(400).json({ error })
+    return
+  }
+}
+
+export const getAllSupliesByDate: RequestHandler = async (req, res) => {
+  const date = req.body.date
+  if (!date) {
+    await createLog({
+      level: "ERROR",
+      action: "GET_SUPPLY_FOR_DATE",
+      message: "Requisição sem DATE!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "supply",
+    })
+    res.status(400).json({ error: 'Erro ao receber data!' })
+    return
+  }
+  try {
+    const supply = await getSupplyByDate(date)
+    await createLog({
+      level: "INFO",
+      action: "GET_SUPPLY_FOR_DAY_AND_TREASURY",
+      message: "Sucesso ao salvar!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: "supply",
+      meta: { payload: supply },
+    })
+    res.status(200).json({ supply })
+    return
+
+  } catch (error) {
+    await createLog({
+      level: "ERROR",
+      action: "GET_SUPPLY_FOR_DATE",
+      message: "Erro ao receber dados do banco!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "supply",
+    })
+    res.status(400).json({ error: 'Erro ao carregar!' })
     return
   }
 }

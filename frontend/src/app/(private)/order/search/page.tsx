@@ -113,7 +113,6 @@ export default function Order() {
       await statusOderFunction()
       await getAllBanksF()
     }
-
     allLoading()
   }, [orders])
 
@@ -135,7 +134,6 @@ export default function Order() {
       toast.error('Sem dados a carregar')
       return
     }
-    setLoading(false)
   }
 
   const treasuriesFunction = async () => {
@@ -157,8 +155,6 @@ export default function Order() {
       toast.error('Sem dados a retornar!')
       return
     }
-    setLoading(false)
-    return
   }
 
   const typeOrderFunction = async () => {
@@ -179,8 +175,6 @@ export default function Order() {
       toast.error('Sem dados a retornar!')
       return
     }
-    setLoading(false)
-    return
   }
 
   const statusOderFunction = async () => {
@@ -541,7 +535,6 @@ export default function Order() {
       setLoading(false)
       toast.error('Para essa ação só pode haver 1 item selecionado')
       return
-
     }
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
         ${itemsChecks
@@ -568,7 +561,6 @@ export default function Order() {
         setValidated(rValue.data.order)
         setModalValidated(true)
       }
-
     } else if (id_operation[0] === 3) {
       setLoading(false)
       toast.error('Tipo de operação não necessita de confirmação!')

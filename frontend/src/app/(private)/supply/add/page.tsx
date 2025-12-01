@@ -323,12 +323,13 @@ export default function SupplyAdd() {
         if (validatorDate(dateForOS)) {
           setShowModal(true);
         } else {
-          toast.error('Digite uma data váldia para conntinuar!')
+          toast.error('Digite uma data válida para conntinuar!')
           setLoading(false);
           return
         }
       } else {
         toast.error('Os valores precisam ser par para essa função!')
+        return
       }
     }
 

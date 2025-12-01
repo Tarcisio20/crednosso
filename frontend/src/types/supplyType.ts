@@ -10,5 +10,5 @@ export type supplyType = {
     status ?: boolean;
     id_treasury : number;
     id_order : number;
-    date_on_suply ?: string;
+    date_on_supply ?: string;
 } 

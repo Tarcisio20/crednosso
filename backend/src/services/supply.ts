@@ -150,3 +150,27 @@ export const getSupplyByOrder = async (numOrder: number) => {
     return null
   }
 }
+
+export const getSupplyByDate = async (date: string) => {
+  try {
+    const base = new Date(date); // vira um Date válido
+
+    const start = new Date(base);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(base);
+    end.setHours(23, 59, 59, 999);
+
+    return await prisma.supply.findMany({
+      where: {
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+  } catch (error) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_BY_DATE] *** ERROR =>", error)
+    return null
+  }
+}

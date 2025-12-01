@@ -135,6 +135,7 @@ mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
 
 // e-mail
 mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
+mainRouter.post('/email/send-to-os',verifyJWT, emailController.sendEmailToOS)
 
 // Supply
 mainRouter.get('/supply',verifyJWT, supplyController.getAll)
@@ -147,6 +148,7 @@ mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
 mainRouter.post('/supply/add_all',verifyJWT, supplyController.addAll)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)
 mainRouter.post('/supply/for-day-treasury/:id',verifyJWT, supplyController.getForDayAndTreasury)
+mainRouter.post('/supply/get/get-all-by-date/',verifyJWT, supplyController.getAllSupliesByDate)
 mainRouter.post('/supply/supply/get-supply-open/:id',verifyJWT, supplyController.getAtmsWithSupply)
 
 // bank

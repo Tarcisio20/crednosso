@@ -5,7 +5,8 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getSuppliesForDayPagination } from "@/app/service/supply";
+import { getAll } from "@/app/service/atm";
+import { getSuppliesByDate, getSuppliesForDay, getSuppliesForDayPagination, getTreasuriesForDate, toSendEmail } from "@/app/service/supply";
 import { returnDayAtual } from "@/app/utils/returnDayAtual";
 import { returnDayAtualForInput } from "@/app/utils/returnDayAtualForInput";
 import { supplyType } from "@/types/supplyType";
@@ -23,7 +24,7 @@ export default function Supply() {
   const [currentDay, setCurrentDay] = useState('')
   const [dateSupply, setDateSupply] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);  
   const pageSize = 15;
 
   useEffect(() => {
@@ -37,8 +38,24 @@ export default function Supply() {
   }, [])
 
   const handleGenerateOrders = async () => {
-    setLoading(true)
-    setLoading(true)
+    setLoading(true)  
+    try {
+      const response = await toSendEmail({ date : dateSupply })
+      console.log("Response", response)
+      if(response.status === 300 || response.status === 400 || response.status === 500){
+        toast.error('Erro ao gerar email, tente novamente!')
+        return
+      } else if(response.status === 200 && response.data.success === false){
+        toast.error('Erro ao gerar email, tente novamente!')
+        return
+      }
+      toast.success('Email com sucesso!')
+      return
+    }catch(error){
+      toast.error('Erro ao gerar email, tente novamente!')
+    }finally{
+      setLoading(false)
+    }  
   }
 
   const handleAdd = () => {
@@ -56,7 +73,7 @@ export default function Supply() {
     if (supplayDay.Status === 300 || supplayDay.Status === 400 || supplayDay.Status === 500) {
       setLoading(false)
       toast.error('Erro na requisição, tentenovamente!') 
-
+      return
     }
 
     if (supplayDay.data !== undefined && supplayDay.status === 200) {
@@ -75,7 +92,27 @@ export default function Supply() {
   }, [currentDay, currentPage])
 
   const handleSuppliesDay = async () => {
-
+    try {
+      const response = await getSuppliesByDate({date : dateSupply})
+      if(response.status === 300 || response.status === 400 || response.status === 500){
+        toast.error("Sem abastecimentos a listar!")
+        setSupplies([])
+        return
+      }
+      if(response.status === 200 && response.data.supply.length === 0){
+        toast.error("Sem abastecimentos a listar!")
+        setSupplies([])
+        return
+      }
+      if(response.data.supply.length > 0){
+        setSupplies(response.data.supply)
+        return
+      } 
+    }catch(error){
+      toast.error("Sem abastecimentos a listar!")
+      setSupplies([])
+      return
+    }
   }
 
   return (
