@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getMediasYears, getOrderById, getOrderByIds, getOrderByIdsForPaymment, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getMediasYears, getOrderById, getOrderByIds, getOrderByIdsForPaymment, getOrdersFiltereds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -1656,3 +1656,40 @@ export const getOrderMediasForYear: RequestHandler = async (req, res) => {
   }
 }
 
+export type FilterOrdersDTO = {
+  transportadora?: string | null;
+  statusPedido?: number[] | string | null; // aceita array OU string "1,2,3"
+  datas?: {
+    inicial?: string | null;
+    final?: string | null;
+  };
+};
+
+export const filtersOrders : RequestHandler = async ( req, res): Promise<void> => {
+  try {
+    const data = req.body as FilterOrdersDTO;
+
+    const filters = await getOrdersFiltereds(data);
+
+    // erro real (ex.: erro no Prisma)
+    if (filters === null) {
+      res.status(500).json({
+        message: "Erro ao buscar pedidos.",
+      });
+      return;
+    }
+
+    // requisição válida: retorna filtros (pode ser [] mesmo)
+    res.status(200).json({
+      filters,
+      total: filters.length,
+    });
+  } catch (err) {
+    console.error("CONTROLLER /order/filters ERROR =>", err);
+
+    // ⚠️ AQUI NADA DE ANINHAR res.status DENTRO DE OUTRO
+    res.status(500).json({
+      message: "Erro interno no servidor.",
+    });
+  }
+};

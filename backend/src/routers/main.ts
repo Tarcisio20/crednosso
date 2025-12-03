@@ -123,6 +123,7 @@ mainRouter.post('/order/generate-release',verifyJWT, orderController.generateRel
 mainRouter.post('/order/generate-payment',verifyJWT, orderController.generatePayment)
 mainRouter.post('/order/order-for-report',verifyJWT, orderController.generateReports)
 mainRouter.post('/order/edit-order-for-id/:id',verifyJWT, orderController.alterOrderByIdOrder)
+mainRouter.post('/order/filters',verifyJWT, orderController.filtersOrders)
 
 
 // type store

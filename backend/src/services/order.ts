@@ -1,6 +1,38 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../utils/prisma"
 
+export type FilterOrdersDTO = {
+  transportadora?: string | null;
+  statusPedido?: number[] | string | null; // aceita array OU string "1,2,3"
+  datas?: {
+    inicial?: string | null;
+    final?: string | null;
+  };
+};
+
+function normalizeStatusPedido(input: unknown): number[] {
+  // Caso já venha array: [1, 2, 3] ou ['1', '2', '3']
+  if (Array.isArray(input)) {
+    return input
+      .map((v) => Number(v))
+      .filter((n) => Number.isFinite(n));
+  }
+
+  // Caso venha string: "1,2,3"
+  if (typeof input === "string") {
+    const trimmed = input.trim();
+    if (!trimmed) return [];
+
+    return trimmed
+      .split(",")
+      .map((p) => Number(p.trim()))
+      .filter((n) => Number.isFinite(n));
+  }
+
+  // Qualquer outra coisa → ignora
+  return [];
+}
+
 export const getAllOrder = async () => {
   try {
     return await prisma.order.findMany()
@@ -414,3 +446,76 @@ export const getMediasYears = async () => {
     return null
   }
 }
+
+export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
+  try {
+    const where: Prisma.OrderWhereInput = {};
+
+    // -------- 1) Transportadora -> id_treasury_origin --------
+    const transportadora = (data.transportadora ?? "").trim();
+    if (transportadora !== "") {
+      const idTreasury = Number(transportadora);
+      if (!Number.isNaN(idTreasury)) {
+        where.id_treasury_origin = idTreasury;
+      }
+    }
+
+    // -------- 2) Status do pedido -> status_order IN [] --------
+    const statusArray = normalizeStatusPedido(data.statusPedido);
+
+    if (statusArray.length > 0) {
+      where.status_order = {
+        in: statusArray,
+      };
+    }
+
+    // -------- 3) Datas -> date_order entre inicial e final --------
+    const inicial = (data.datas?.inicial ?? "").trim();
+    const final = (data.datas?.final ?? "").trim();
+
+    if (inicial !== "" || final !== "") {
+      where.date_order = {};
+
+      if (inicial !== "") {
+        (where.date_order as Prisma.DateTimeFilter).gte = new Date(
+          `${inicial}T00:00:00`,
+        );
+      }
+
+      if (final !== "") {
+        (where.date_order as Prisma.DateTimeFilter).lte = new Date(
+          `${final}T23:59:59`,
+        );
+      }
+    }
+
+    // 🔍 DEBUG – ver exatamente o que está indo para o Prisma
+    console.log(
+      "WHERE PRISMA (getOrdersFiltereds):",
+      JSON.stringify(where, null, 2),
+    );
+
+    const result = await prisma.order.findMany({
+      where,
+      orderBy: { date_order: "desc" },
+    });
+
+    // 🔍 DEBUG – ver distribuição de status
+    const contagemPorStatus = result.reduce<Record<number, number>>(
+      (acc, cur) => {
+        acc[cur.status_order] = (acc[cur.status_order] || 0) + 1;
+        return acc;
+      },
+      {},
+    );
+    console.log("RESUMO STATUS ENCONTRADOS:", contagemPorStatus);
+
+    return result;
+  } catch (err) {
+    console.log(
+      "SERVICE => [ORDER] *** FUNCTION => [GET_ORDERS_FILTEREDS] *** ERROR =>",
+      err,
+    );
+    return null;
+  }
+};

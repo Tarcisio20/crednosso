@@ -196,6 +196,11 @@ export default function Order() {
     setIdTreasuryDestin(event.target.value.toString());
   };
 
+  const dashboardOrder = () => {
+    router.push('/order/dashboard')
+    return
+  }
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faCoins} >Pedidos</TitlePages>
@@ -416,6 +421,7 @@ export default function Order() {
       <div className="mt-5 flex flex-row gap-3">
         <Button color="#2E8B57" onClick={saveOrder} size="large" textColor="white" variant={"primary"}  >Salvar</Button>
         <Button color="#2E8B57" onClick={searchOrder} size="large" textColor="white" variant={"primary"}  >Pesquisar</Button>
+        <Button color="#2E8B57" onClick={dashboardOrder} size="large" textColor="white" variant={"primary"}  >Dashboard</Button>
         <div className="mt-5 flex flex-row gap-3">
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />
