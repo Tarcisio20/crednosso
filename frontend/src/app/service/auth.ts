@@ -1,13 +1,14 @@
 import axios from "axios";
 import { userType } from "@/types/userType";
 import jwt from "jsonwebtoken"
+import { useAuthStore } from "../store/useAuthStore";
 
-// Definindo o tipo de resposta esperado
+
 interface LoginResponse {
   success: boolean;
-  token?: string; // 'token' é opcional pois pode não existir em um erro
+  token?: string; 
   message: string;
-  data?: any; // Dados adicionais que podem ser retornados
+  data?: any; 
 }
 
 export const register = async (data: userType) => {
@@ -52,6 +53,12 @@ export const login = async (data: {
         headers: { "Content-Type": "application/json" },
       }
     );
+
+    useAuthStore.getState().setAuth({
+      token : response.data.token,
+      user : response.data.user
+    })
+
     return {
       success: true,
       data: response.data,

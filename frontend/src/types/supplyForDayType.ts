@@ -8,4 +8,10 @@ export type supplyForDayType = {
     cassete_D : number;
     total_exchange : boolean;
     status : boolean;
+
+    createdAt ?: string;
+    updatedAt ?: string;
+    date ?: string;
+    date_on_supply ?: string;
+    id_order ?: number;
 }

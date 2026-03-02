@@ -25,7 +25,7 @@ type SupplyWithExchange = supplyProps & {
 type ModalTrocaTotalProps = {
   dateForOS: string;
   atmsSelected: atmForSupplyProps[];
-  orderUsed: ordersWithTreasuriesProps | null; // 👈 usa o mesmo aqui
+  orderUsed: ordersWithTreasuriesProps | null; 
   onClose: () => void;
   treasuries: treasuryType[];
   changeTreasuries: (treasuries: treasuryType[]) => void;

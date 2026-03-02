@@ -13,6 +13,8 @@ import { Loading } from "@/app/components/ux/Loading";
 import { Messeger } from "@/app/components/ux/Messeger";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Separator } from "@radix-ui/react-select";
 
 export default function SignIn() {
 
@@ -65,6 +67,7 @@ export default function SignIn() {
   };
 
   return (
+
     <>
       <div>
         <Image
@@ -74,6 +77,24 @@ export default function SignIn() {
           height={150}
         />
       </div>
+
+      {/* <Card>
+        <CardHeader className="flex flex-row mb-3  items-center" >
+            <h3 className="text-2xl mr-2 text-zinc-400  " >Login</h3>
+            <Separator aria-orientation="vertical" className="h-full w-1" />
+            <p className="text-sm text-zinc-600" >
+              Faça login com as suas credenciais
+            </p>
+        </CardHeader>
+        
+        <CardContent className="flex flex-col">
+
+        </CardContent>
+        <CardFooter>
+
+        </CardFooter>
+      </Card> */}
+
       <div className="flex flex-col gap-3 p-5  rounded-md"  >
         <div className="flex mb-3  items-center" >
           <h3 className="text-2xl mr-2 text-zinc-400  " >Sign In  |</h3>
@@ -112,14 +133,14 @@ export default function SignIn() {
           >
             Logar
           </Button>
-          {/*           
-          <p className="text-sm" >
+                   
+          {/* <p className="text-sm" >
             Não possui usuario?{" "}
             <Link href="/register" className="text-zinc-400"  >
               Registre-se
             </Link>
             !
-          </p> */}
+          </p>  */}
           {loading && (
             <Loading />
           )}

@@ -16,6 +16,7 @@ import { getAll as getAllTypeOperation } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
 import { getAll as getAllTypeStore } from "@/app/service/type-store";
 import { getAll as getAllTypeSupply } from "@/app/service/type-supply";
+import { useAuthStore } from "@/app/store/useAuthStore";
 import { atmType } from "@/types/atmType";
 import { cardOperatorType } from "@/types/cardOperatorType";
 import { ContactType } from "@/types/contactType";
@@ -110,11 +111,17 @@ export default function Dashboard() {
     setLoading(false)
   }
 
+  const user = useAuthStore((state) => state.user);
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faGauge} >Dahsboard</TitlePages>
       <main className="h-screen w-full flex flex-col">
+        <div>
+          bem vindo: {user?.name}
+        </div>
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 border-b border-gray-200">
+
 
           {treasuries && treasuries.length > 0 &&
             <CardDash title="Tesourarias" value={treasuries.length.toString()} icon={faSackDollar} />

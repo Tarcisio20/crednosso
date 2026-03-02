@@ -58,8 +58,10 @@ export default function AtmAdd() {
       cassete_C: parseInt(casseteCAtm),
       cassete_D: parseInt(casseteDAtm),
     };
-
+    //console.log("Payment", data);
+    //return
     const addNewAtm = await add(data);
+    console.log("Retorno API", addAtm)
     if (addNewAtm.data.atm && addNewAtm.data.atm.id > 0) {
       toast.success("Atm adicionado com sucesso!");
       setIdSystemAtm("");

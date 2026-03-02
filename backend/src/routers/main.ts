@@ -124,6 +124,7 @@ mainRouter.post('/order/generate-payment',verifyJWT, orderController.generatePay
 mainRouter.post('/order/order-for-report',verifyJWT, orderController.generateReports)
 mainRouter.post('/order/edit-order-for-id/:id',verifyJWT, orderController.alterOrderByIdOrder)
 mainRouter.post('/order/filters',verifyJWT, orderController.filtersOrders)
+mainRouter.post('/order/for-day',verifyJWT, orderController.getOrderForDay)
 
 
 // type store
@@ -142,6 +143,8 @@ mainRouter.post('/email/send-to-os',verifyJWT, emailController.sendEmailToOS)
 mainRouter.get('/supply',verifyJWT, supplyController.getAll)
 mainRouter.get('/supply/treasury/:id',verifyJWT, supplyController.getForIDTreasury)
 mainRouter.post('/supply/add_individual',verifyJWT, supplyController.addIndivudual)
+mainRouter.post('/supply/edit_individual/:id',verifyJWT, supplyController.editIndivudual)
+mainRouter.get('/supply/del_individual/:id',verifyJWT, supplyController.delIndivudual)
 mainRouter.post('/supply/for-day',verifyJWT, supplyController.forDate)
 mainRouter.post('/supply/for-day-pagination',verifyJWT, supplyController.forDatePagination)
 mainRouter.post('/supply/for-num-order',verifyJWT, supplyController.getForNumOrder)

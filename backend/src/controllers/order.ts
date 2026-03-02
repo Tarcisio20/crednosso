@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { orderAddSchema } from "../schemas/orderAddSchema"
-import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getMediasYears, getOrderById, getOrderByIds, getOrderByIdsForPaymment, getOrdersFiltereds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
+import { addOrder, alterConfirmPatialById, alterRequestsOrderForID, confirmPaymantAllIds, confirmTotalByIds, delOrderById, getAllOrder, getIdTreasuriesOrderByDate, getInfosOrders, getMediasYears, getOrderById, getOrderByIds, getOrderByIdsForPaymment, getOrdersByDay, getOrdersFiltereds, searchByOrderDate, searchByOrderDatePagination, updateOrder } from "../services/order"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { orderSearchDateSchema } from "../schemas/orderSearchDate"
 import { alterRequestsOrderSchema } from "../schemas/alterRequestsOrderSchema"
@@ -16,6 +16,7 @@ import { returnDate } from "../utils/returnDate"
 import { orderEditSchema } from "../schemas/orderEditSchema"
 import { createLog } from "services/logService"
 import { diffObjects, sanitizeOrder, sanitizeOrderPayload } from "utils/audit/audit-order"
+import { getForIdTreasury } from "services/atm"
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -1658,14 +1659,14 @@ export const getOrderMediasForYear: RequestHandler = async (req, res) => {
 
 export type FilterOrdersDTO = {
   transportadora?: string | null;
-  statusPedido?: number[] | string | null; // aceita array OU string "1,2,3"
+  statusPedido?: number[] | string | null;
   datas?: {
     inicial?: string | null;
     final?: string | null;
   };
 };
 
-export const filtersOrders : RequestHandler = async ( req, res): Promise<void> => {
+export const filtersOrders: RequestHandler = async (req, res): Promise<void> => {
   try {
     const data = req.body as FilterOrdersDTO;
 
@@ -1693,3 +1694,104 @@ export const filtersOrders : RequestHandler = async ( req, res): Promise<void> =
     });
   }
 };
+
+
+function toRows<T = any>(r: any): T[] {
+  if (!r) return [];
+  if (Array.isArray(r) && r.length === 2 && Array.isArray(r[0])) {
+    return r[0] as T[];
+  }
+  if (Array.isArray(r)) return r as T[];
+  return [r as T];
+}
+export const getOrderForDay: RequestHandler = async (req, res): Promise<void> => {
+  try {
+    const date = req.body.date;
+    // TODO - validar date
+
+    const orders = await getOrdersByDay(date);
+
+    const OrderItems = (orders ?? []).map((item: any) => ({
+      id_order: item.id,
+      type_operation: item.id_type_operation,
+      treasury: item.id_treasury_destin,
+      date_order: item.date_order,
+      type_order: item.id_type_order,
+      change: item.composition_change,
+      obs: item.observation,
+      status_order: item.status_order,
+      for_payment: item.for_payment,
+      for_release: item.for_release,
+
+      cassete_a:  item.requested_value_A,
+      cassete_b:  item.requested_value_B,
+      cassete_c: item.requested_value_C,
+      cassete_d:  item.requested_value_D,
+    }));
+
+    const treasuryIds = [
+      ...new Set(
+        OrderItems.map((i: any) => i.treasury).filter((v: any) => v !== null && v !== undefined)
+      ),
+    ];
+
+    const treasurySystemsRaw = await Promise.all(
+      treasuryIds.map((idTreasury) => getForIdSystem(String(idTreasury)))
+    );
+
+    const treasuryNameById = new Map<number, string | null>();
+    treasuryIds.forEach((idTreasury, idx) => {
+      const rows = toRows(treasurySystemsRaw[idx]);
+      const row = rows[0];
+      treasuryNameById.set(Number(idTreasury), row?.short_name ?? null);
+    });
+
+    const atmsRaw = await Promise.all(
+      treasuryIds.map(async (idTreasury) => getForIdTreasury(idTreasury))
+    );
+
+    const atmsByTreasury = new Map<number, any[]>();
+
+    treasuryIds.forEach((idTreasury, idx) => {
+      const r = atmsRaw[idx];
+      const list = toRows(r); 
+
+      const normalized = list.map((a: any) => ({
+        id_system: a.id_system,
+        id_treasury: a.id_treasury,
+        name: a.name,
+        cassete_a: a.cassete_A,
+        cassete_b: a.cassete_B,
+        cassete_c: a.cassete_C,
+        cassete_d: a.cassete_D,
+      }));
+
+      atmsByTreasury.set(Number(idTreasury), normalized);
+    });
+
+    const orderWithAtm = OrderItems.map((item: any) => {
+      const atm = atmsByTreasury.get(Number(item.treasury)) ?? [];
+      const treasury_name = treasuryNameById.get(Number(item.treasury)) ?? null;
+
+      return {
+        ...item,
+        treasury_name,
+        atm,
+      };
+    });
+
+    const allowedStatus = new Set([1, 2, 3, 4]);
+    const allowedTypeOp = new Set([2, 3]);
+
+    const ordersFiltered = orderWithAtm.filter((o: any) =>
+      allowedStatus.has(Number(o.status_order)) &&
+      allowedTypeOp.has(Number(o.type_operation))
+    );
+
+    res.status(200).json({ orders: ordersFiltered });
+  } catch (err: any) {
+    console.error("getOrderForDay error:", err);
+    res.status(500).json({ error: "Erro ao buscar pedidos do dia." });
+  }
+};
+

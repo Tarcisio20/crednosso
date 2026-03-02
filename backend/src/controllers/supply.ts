@@ -1,12 +1,12 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { addSupply, delSupply, editSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
 import { Prisma } from "@prisma/client"
 import { createLog } from "services/logService"
-import {  z } from "zod"
+import { z } from "zod"
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -320,8 +320,10 @@ export const forDate: RequestHandler = async (req, res) => {
     res.status(400).json({ error: 'Erro ao carregar!' })
     return
   }
+
+
   try {
-    const supply = await getAllForDate(returnDateFormatted(formatedDateToPTBRforEnglish(data.date)), returnDateFormattedEnd(formatedDateToPTBRforEnglish(data.date)))
+    const supply = await getAllForDate(data.date)
     if (!supply) {
       await createLog({
         level: "ERROR",
@@ -764,6 +766,48 @@ export const addIndivudual: RequestHandler = async (req, res) => {
   }
 }
 
+type SupplyEdit = {
+  cassete_A?: number;
+  cassete_B?: number;
+  cassete_C?: number;
+  cassete_D?: number;
+  total_exchange?: boolean;
+}
+export const editIndivudual: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  if (!id) {
+    res.status(400).json({ error: 'Preciso de um ID para continuar!' })
+    return
+  }
+  const safeData: SupplyEdit = req.body;
+  if (!safeData) {
+    res.status(400).json({ error: 'Sem dados para editar!' })
+    return
+  }
+
+  try {
+    const supply = await editSupply(Number(id), safeData)
+    res.status(200).json({ supply })
+    return
+  } catch (error) { }
+
+}
+
+export const delIndivudual: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  if (!id) {
+    res.status(400).json({ error: 'Preciso de um ID para continuar!' })
+    return
+  }
+
+  try {
+    const supply = await delSupply(Number(id))
+    res.status(200).json({ supply })
+    return
+  } catch (error) { }
+
+}
+
 export const getAllSupliesByDate: RequestHandler = async (req, res) => {
   const date = req.body.date
   if (!date) {
@@ -782,6 +826,7 @@ export const getAllSupliesByDate: RequestHandler = async (req, res) => {
   }
   try {
     const supply = await getSupplyByDate(date)
+
     await createLog({
       level: "INFO",
       action: "GET_SUPPLY_FOR_DAY_AND_TREASURY",

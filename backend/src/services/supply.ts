@@ -19,7 +19,45 @@ export const addSupply = async (data: Prisma.SupplyCreateInput) => {
   }
 }
 
-export const getAllForDate = async (date: any, dateEnd: any) => {
+export const editSupply = async (id: number, data: Prisma.SupplyUpdateInput) => {
+  try {
+    return await prisma.supply.update({ where: { id }, data })
+  } catch (error) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [EDIT_SUPPLY] *** ERROR =>", error)
+    return null
+  }
+}
+
+export const delSupply = async (id: number) => {
+  try {
+    return await prisma.supply.update({ where: { id }, data : {
+      status : false
+    } })
+  } catch (error) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [EDIT_SUPPLY] *** ERROR =>", error)
+    return null
+  }
+}
+
+export const getAllForDate = async (date: any, dateEnd ?: any) => {
+  try {
+    const { start, end } = dayRangeUTC(date);
+    return await prisma.supply.findMany({
+      where: {
+        date: {
+          gte: start,
+          lt: end,
+        },
+        status : true
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_ALL_FOR_DATE] *** ERROR =>", err)
+    return null
+  }
+}
+
+export const getAllForDate1 = async (date: any, dateEnd: any) => {
   try {
     return await prisma.supply.findMany({
       where: {
@@ -153,24 +191,32 @@ export const getSupplyByOrder = async (numOrder: number) => {
 
 export const getSupplyByDate = async (date: string) => {
   try {
-    const base = new Date(date); // vira um Date válido
+    const [y, m, d] = date.split("-").map(Number);
 
-    const start = new Date(base);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(base);
-    end.setHours(23, 59, 59, 999);
+    const start = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
+    const nextDay = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0, 0));
 
     return await prisma.supply.findMany({
       where: {
         date: {
           gte: start,
-          lte: end,
+          lt: nextDay,
         },
       },
     });
   } catch (error) {
-    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_BY_DATE] *** ERROR =>", error)
-    return null
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_BY_DATE] *** ERROR =>", error);
+    return null;
   }
+};
+
+
+function dayRangeUTC(dateStr: string) {
+  // dateStr: "2026-02-25"
+  const [y, m, d] = dateStr.split("-").map(Number);
+
+  const start = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
+  const end = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0, 0));
+
+  return { start, end };
 }

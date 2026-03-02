@@ -153,8 +153,10 @@ export const add = async (data: atmType) => {
           Authorization: `Bearer ${token}`
         },
       })
+      console.log("resposta", response)
     return response
   } catch (error: any) {
+    console.log("Error",error)
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
       const { message } = error.response.data; // Captura a mensagem de erro

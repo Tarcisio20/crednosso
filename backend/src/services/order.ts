@@ -519,3 +519,13 @@ export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
     return null;
   }
 };
+
+export const getOrdersByDay = async (date : string) => {
+  try{
+    return await prisma.order.findMany({
+      where: {
+        date_order: new Date(date)
+      }
+    })
+  }catch(error){}
+}

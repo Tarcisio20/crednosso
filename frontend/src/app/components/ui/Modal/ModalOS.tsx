@@ -1,36 +1,26 @@
-"use client"
+"use client";
 
 import { supplyProps } from "@/app/(private)/supply/add/page";
 import { formatDateToString } from "@/app/utils/formatDateToString";
 import { generateExcelOs } from "@/app/utils/generateExcelOs";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
-import { atmType } from "@/types/atmType";
-import { treasuryType } from "@/types/treasuryType";
 import { useEffect, useState } from "react";
 
 type ModalOSProps = {
   close: () => void;
-  data: Partial<supplyProps[]>;
-  atms: atmType[];
-  treasuries: treasuryType[];
+  data: Partial<supplyProps>[];         
+  atmMap: Map<number, string>;           
+  treasuryMap: Map<number, string>;      
 };
 
-const getAtmName = (id: number, atms: atmType[]) => {
-  const atm = atms.find((atm) => atm.id_system === id);
-  return atm ? atm.short_name : "ATM Inválido!";
-};
-
-const getTreasuryName = (id: number, treasuries: treasuryType[]) => {
-  const treasury = treasuries.find((treasury) => treasury.id_system === id);
-  return treasury ? treasury.name : "Tesouraria Inválida!";
-};
-
-export const ModalOS = ({ close, data, atms, treasuries }: ModalOSProps) => {
+export const ModalOS = ({ close, data, atmMap, treasuryMap }: ModalOSProps) => {
   const [checkedIds, setCheckedIds] = useState<number[]>([]);
+  const getAtmName = (id: number) => atmMap.get(id) ?? "ATM Inválido!";
+  const getTreasuryName = (id: number) => treasuryMap.get(id) ?? "Tesouraria Inválida!";
 
   useEffect(() => {
     const allIds = data.map((s) => s?.id).filter((id): id is number => Boolean(id));
-    setCheckedIds(allIds);
+    setCheckedIds(allIds); 
   }, [data]);
 
   const toggleCheckbox = (id: number) => {
@@ -41,7 +31,8 @@ export const ModalOS = ({ close, data, atms, treasuries }: ModalOSProps) => {
 
   const handleGenerateOss = async () => {
     const selectedSupplies = data.filter(
-      (supply): supply is supplyProps => supply?.id !== undefined && checkedIds.includes(supply.id)
+      (supply): supply is supplyProps =>
+        supply?.id !== undefined && checkedIds.includes(supply.id)
     );
     await generateExcelOs(selectedSupplies);
   };
@@ -66,42 +57,43 @@ export const ModalOS = ({ close, data, atms, treasuries }: ModalOSProps) => {
                 <th className="px-4 py-2">Data</th>
               </tr>
             </thead>
+
             <tbody className="text-zinc-200 text-sm">
-              {data.map((supply) => (
-                <tr
-                  key={supply?.id ?? Math.random()}
-                  className="hover:bg-zinc-800 border-b border-zinc-700 transition-colors"
-                >
-                  <td className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={checkedIds.includes(supply?.id ?? -1)}
-                      onChange={() => toggleCheckbox(supply?.id ?? -1)}
-                    />
-                  </td>
-                  <td className="px-4 py-2">{supply?.id}</td>
-                  <td className="px-4 py-2">
-                    {getAtmName(supply?.id_atm ?? -1, atms)}
-                  </td>
-                  <td className="px-4 py-2">
-                    {supply?.total_exchange ? "Sim" : "Não"}
-                  </td>
-                  <td className="px-4 py-2">
-                    {getTreasuryName(supply?.id_treasury ?? -1, treasuries)}
-                  </td>
-                  <td className="px-4 py-2">
-                    {generateRealTotal(
-                      supply?.cassete_A ?? 0,
-                      supply?.cassete_B ?? 0,
-                      supply?.cassete_C ?? 0,
-                      supply?.cassete_D ?? 0
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {formatDateToString(supply?.date_on_supply ?? "")}
-                  </td>
-                </tr>
-              ))}
+              {data.map((supply, idx) => {
+                const id = supply?.id ?? idx;
+                const checked = supply?.id ? checkedIds.includes(supply.id) : false;
+
+                return (
+                  <tr
+                    key={id}
+                    className="hover:bg-zinc-800 border-b border-zinc-700 transition-colors"
+                  >
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={!supply?.id}
+                        onChange={() => toggleCheckbox(supply?.id ?? -1)}
+                      />
+                    </td>
+                    <td className="px-4 py-2">{supply?.id ?? "-"}</td>
+                    <td className="px-4 py-2">{getAtmName(Number(supply?.id_atm ?? -1))}</td>
+                    <td className="px-4 py-2">{supply?.total_exchange ? "Sim" : "Não"}</td>
+                    <td className="px-4 py-2">{getTreasuryName(Number(supply?.id_treasury ?? -1))}</td>
+                    <td className="px-4 py-2">
+                      {generateRealTotal(
+                        supply?.cassete_A ?? 0,
+                        supply?.cassete_B ?? 0,
+                        supply?.cassete_C ?? 0,
+                        supply?.cassete_D ?? 0
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
+                      {formatDateToString(String(supply?.date_on_supply ?? ""))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

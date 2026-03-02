@@ -149,6 +149,7 @@ model Order {
 model StatusOrder {
   id        Int      @id @default(autoincrement())
   name      String   @unique(map: "StatusOrder_name_key")
+  slug      String   @default("")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -219,6 +220,7 @@ model TypeOperation {
   id        Int      @id @default(autoincrement())
   id_system Int
   name      String   @unique(map: "TypeOperation_name_key")
+  slug      String   @default("")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -229,6 +231,7 @@ model TypeOrder {
   id        Int      @id @default(autoincrement())
   id_system Int
   name      String   @unique(map: "TypeOrder_name_key")
+  slug      String   @default("")
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -238,6 +241,7 @@ model TypeOrder {
 model typeStore {
   id     Int     @id @default(autoincrement())
   name   String  @unique
+  slug   String  @default("")
   status Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -249,6 +253,7 @@ model typeStore {
 model TypeSupply {
   id     Int     @id @default(autoincrement())
   name   String  @unique
+  slug   String  @default("")
   status Boolean @default(true)
 
   createdAt DateTime @default(now())

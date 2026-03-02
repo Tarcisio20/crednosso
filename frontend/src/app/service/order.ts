@@ -55,27 +55,27 @@ export const add = async (data: orderType) => {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
       const { message } = error.response.data; // Captura a mensagem de erro
-       console.log("Erro na requisição:", message); // Exibe a mensagem de erro
+      console.log("Erro na requisição:", message); // Exibe a mensagem de erro
       return { error: message, status: 400, data: undefined } as any;
     } else if (error.request) {
       // Erro de conexão (não houve resposta do servidor)
-        console.log("Erro de conexão:", error.request);
+      console.log("Erro de conexão:", error.request);
       return { error: error.request, status: 500, data: undefined } as any;
     } else {
       // Erro genérico (ex: erro ao configurar a requisição)
-        console.log("Erro:", error.message);
+      console.log("Erro:", error.message);
       return { error: error.message, status: 300, data: undefined } as any;
     }
   }
 }
 
 type alterValueOrderType = {
-  requested_value_A : number;
-  requested_value_B : number;
-  requested_value_C : number;
-  requested_value_D : number;
+  requested_value_A: number;
+  requested_value_B: number;
+  requested_value_C: number;
+  requested_value_D: number;
 }
-export const alterValueOrder = async (id : number, data: alterValueOrderType) => {
+export const alterValueOrder = async (id: number, data: alterValueOrderType) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -104,7 +104,7 @@ export const alterValueOrder = async (id : number, data: alterValueOrderType) =>
   }
 }
 
-export const searchOrdersForDate = async (data : { date_initial : string, date_final : string }) => {
+export const searchOrdersForDate = async (data: { date_initial: string, date_final: string }) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -133,7 +133,7 @@ export const searchOrdersForDate = async (data : { date_initial : string, date_f
   }
 }
 
-export const searchOrdersForDatePagination = async (data : { date_initial : string, date_final : string} , page: number, pageSize: number) => {
+export const searchOrdersForDatePagination = async (data: { date_initial: string, date_final: string }, page: number, pageSize: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -148,13 +148,13 @@ export const searchOrdersForDatePagination = async (data : { date_initial : stri
         }
       })
 
-      return {
-        data : response.data.order.data,
-        meta: {
-          totalItems :  response.data.order.totalItems,
-          totalPages : response.data.order.totalPages
-        }
+    return {
+      data: response.data.order.data,
+      meta: {
+        totalItems: response.data.order.totalItems,
+        totalPages: response.data.order.totalPages
       }
+    }
   } catch (error: any) {
     if (error.response) {
       // Erro retornado pela API (ex: status 400, 500, etc.)
@@ -173,7 +173,7 @@ export const searchOrdersForDatePagination = async (data : { date_initial : stri
   }
 }
 
-export const getOrderById = async (id : number) => {
+export const getOrderById = async (id: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -202,7 +202,7 @@ export const getOrderById = async (id : number) => {
   }
 }
 
-export const getTreasuriesInOrder = async (date : string) => {
+export const getTreasuriesInOrder = async (date: string) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -231,7 +231,7 @@ export const getTreasuriesInOrder = async (date : string) => {
   }
 }
 
-export const getAllOrdersForDate = async (date : string) => {
+export const getAllOrdersForDate = async (date: string) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -260,7 +260,7 @@ export const getAllOrdersForDate = async (date : string) => {
   }
 }
 
-export const getOrderByIdForReport = async (data : number[]) => {
+export const getOrderByIdForReport = async (data: number[]) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -289,7 +289,7 @@ export const getOrderByIdForReport = async (data : number[]) => {
   }
 }
 
-export const delOrderById = async (id : number) => {
+export const delOrderById = async (id: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -318,7 +318,7 @@ export const delOrderById = async (id : number) => {
   }
 }
 
-export const getOrderForTreasuryId = async (id : number) => {
+export const getOrderForTreasuryId = async (id: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -348,7 +348,7 @@ export const getOrderForTreasuryId = async (id : number) => {
 }
 
 
-export const ConfirmOrderById = async (ids : number[]) => {
+export const ConfirmOrderById = async (ids: number[]) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -377,7 +377,7 @@ export const ConfirmOrderById = async (ids : number[]) => {
   }
 }
 
-export const getInfosOrder = async (id : number) => {
+export const getInfosOrder = async (id: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -407,16 +407,16 @@ export const getInfosOrder = async (id : number) => {
 }
 
 type confirmPartialType = {
-  confirmed_value_A : number;
-  confirmed_value_B : number;
-  confirmed_value_C : number;
-  confirmed_value_D : number;
+  confirmed_value_A: number;
+  confirmed_value_B: number;
+  confirmed_value_C: number;
+  confirmed_value_D: number;
 }
-export const confirmPartialOrderById = async (id : number, data : confirmPartialType) => {
+export const confirmPartialOrderById = async (id: number, data: confirmPartialType) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/order/confirm-partial/${id}`, data,  {
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/order/confirm-partial/${id}`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -441,7 +441,7 @@ export const confirmPartialOrderById = async (id : number, data : confirmPartial
   }
 }
 
-export const alterDateInOrder = async (id : number, data : { date_order : string }) => {
+export const alterDateInOrder = async (id: number, data: { date_order: string }) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -470,7 +470,7 @@ export const alterDateInOrder = async (id : number, data : { date_order : string
   }
 }
 
-export const genrerateRelaseById = async (data : number[],) => {
+export const genrerateRelaseById = async (data: number[],) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -500,7 +500,7 @@ export const genrerateRelaseById = async (data : number[],) => {
   }
 }
 
-export const genreratePaymmentById = async (data : number[],) => {
+export const genreratePaymmentById = async (data: number[],) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -532,7 +532,7 @@ export const genreratePaymmentById = async (data : number[],) => {
 
 type UpdateOrderType = Partial<orderType>
 
-export const alterOrderById = async (id :number, data : UpdateOrderType) => {
+export const alterOrderById = async (id: number, data: UpdateOrderType) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -562,7 +562,7 @@ export const alterOrderById = async (id :number, data : UpdateOrderType) => {
   }
 }
 
-export const getAuxOrderById = async (id : number) => {
+export const getAuxOrderById = async (id: number) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -602,7 +602,7 @@ export const getMediasYears = async () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log("response medias", response)
+    console.log("response medias", response)
     return response
   } catch (error: any) {
     console.log("error medias", error)
@@ -623,7 +623,7 @@ export const getMediasYears = async () => {
   }
 }
 
-export const getWitchFilters = async (data : filterType) => {
+export const getWitchFilters = async (data: filterType) => {
   try {
     const token = Cookies.get('tokenSystemCredNosso')
     const response = await axios
@@ -633,7 +633,7 @@ export const getWitchFilters = async (data : filterType) => {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log("response medias", response)
+    console.log("response medias", response)
     return response
   } catch (error: any) {
     console.log("error medias", error)
@@ -649,6 +649,29 @@ export const getWitchFilters = async (data : filterType) => {
     } else {
       // Erro genérico (ex: erro ao configurar a requisição)
       //  console.error("Erro:", error.message);
+      return { error: error.message, status: 300, data: undefined } as any;
+    }
+  }
+}
+
+export const getOrderForDay = async (date: string) => {
+  console.log("date", date)
+  try {
+    const token = Cookies.get('tokenSystemCredNosso')
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/for-day`, { date }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    return response
+  } catch (error: any) {
+    if (error.response) {
+      const { message } = error.response.data; 
+      return { error: message, status: 400, data: undefined } as any;
+    } else if (error.request) {
+      return { error: error.request, status: 500, data: undefined } as any;
+    } else {
       return { error: error.message, status: 300, data: undefined } as any;
     }
   }
