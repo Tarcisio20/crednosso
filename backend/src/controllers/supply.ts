@@ -1,12 +1,19 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
 import { addSupply, delSupply, editSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { getForIdTreasury as getContactsForTreasury } from "../services/contact";
+import { getForIdTreasury as getOperatorCardForTreasury, normalizeOperatorCard } from "../services/cardOperator";
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
 import { returnDateFormatted } from "../utils/returnDateFormatted"
 import { returnDateFormattedEnd } from "../utils/returnDateFormattedEnd"
 import { Prisma } from "@prisma/client"
 import { createLog } from "services/logService"
 import { z } from "zod"
+import { normalizeEmails } from "./email"
+import { runOpenOsPython } from "../utils/runOpenOsPython";
+import { addOs } from "services/os-open";
+import { sendEmailOnOS } from "services/email";
+import { SendEmailPayload } from "utils/generateHTMLOS";
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -856,3 +863,235 @@ export const getAllSupliesByDate: RequestHandler = async (req, res) => {
     return
   }
 }
+
+export type openOSProps = {
+  id_supply: number;
+  id_atm: number;
+  id_treasury: number;
+  treasury_name: string;
+  atm_name: string;
+  total_exchange: boolean;
+  date_on_supply: string;
+  cassete_A: number;
+  cassete_B: number;
+  cassete_C: number;
+  cassete_D: number;
+};
+
+type OsGerada = {
+  terminal: string;
+  os: string;
+  situacao: string;
+  valor: string;
+};
+
+type openOSResponseItem = openOSProps & {
+  emails: string[];
+  operator_card: string | null;
+};
+
+type OsFrontItem = {
+  id_supply: number;
+  id_treasury: number;
+  treasury_name: string;
+  date_on_supply: string;
+  id_atm: number;
+  atm_name: string;
+  total_exchange: boolean;
+  cassete_A: number;
+  cassete_B: number;
+  cassete_C: number;
+  cassete_D: number;
+  os: string | null;
+  situacao: string | null;
+  valor: string | null;
+  status: boolean;
+};
+
+export const openOS: RequestHandler = async (req, res) => {
+  const data = req.body as openOSProps[];
+
+  if (!Array.isArray(data) || data.length === 0) {
+    res.status(400).json({ ok: false, error: "Erro ao receber data!" });
+    return;
+  }
+
+  const emailCache = new Map<number, string[]>();
+  const operatorCache = new Map<number, string | null>();
+
+  const supplyWithExtras: openOSResponseItem[] = await Promise.all(
+    data.map(async (item) => {
+      const tid = Number(item.id_treasury);
+
+      if (!tid) return { ...item, emails: [], operator_card: null };
+
+      if (!emailCache.has(tid) || !operatorCache.has(tid)) {
+        try {
+          const [contacts, ops] = await Promise.all([
+            getContactsForTreasury(tid),
+            getOperatorCardForTreasury(tid),
+          ]);
+
+          if (!emailCache.has(tid)) emailCache.set(tid, normalizeEmails(contacts));
+          if (!operatorCache.has(tid)) operatorCache.set(tid, normalizeOperatorCard(ops));
+        } catch {
+          if (!emailCache.has(tid)) emailCache.set(tid, []);
+          if (!operatorCache.has(tid)) operatorCache.set(tid, null);
+        }
+      }
+
+      return {
+        ...item,
+        emails: emailCache.get(tid) ?? [],
+        operator_card: operatorCache.get(tid) ?? null,
+      };
+    })
+  );
+
+  if (supplyWithExtras.length === 0) {
+    res.status(200).json({ ok: true, data: supplyWithExtras, os: [] });
+    return;
+  }
+
+  const pyPayload = supplyWithExtras.map((s) => ({
+    terminal: Number(s.id_atm),
+    troca_total: (s.total_exchange ? "S" : "N") as "S" | "N",
+    data_atendimento: String(s.date_on_supply),
+    cassete_A: Number(s.cassete_A ?? 0),
+    cassete_B: Number(s.cassete_B ?? 0),
+    cassete_C: Number(s.cassete_C ?? 0),
+    cassete_D: Number(s.cassete_D ?? 0),
+  }));
+
+  try {
+    console.log("chamando openOS (python)");
+    const osGeradas = (await runOpenOsPython(pyPayload, {
+      timeoutMs: 300000,
+      debug: true,
+    })) as OsGerada[];
+
+    const osMap = new Map<number, OsGerada>();
+    for (const item of osGeradas ?? []) {
+      const term = Number(item?.terminal);
+      if (Number.isFinite(term) && term > 0) osMap.set(term, item);
+    }
+
+    const os: OsFrontItem[] = supplyWithExtras.map((s) => {
+      const term = Number(s.id_atm);
+      const info = osMap.get(term);
+      const ok = Boolean(info?.os);
+
+      return {
+        id_supply: Number(s.id_supply),
+        id_treasury: Number(s.id_treasury),
+        treasury_name: String(s.treasury_name ?? ""),
+        date_on_supply: String(s.date_on_supply ?? ""),
+
+        id_atm: Number(s.id_atm),
+        atm_name: String(s.atm_name ?? ""),
+
+        total_exchange: Boolean(s.total_exchange),
+        cassete_A: Number(s.cassete_A ?? 0),
+        cassete_B: Number(s.cassete_B ?? 0),
+        cassete_C: Number(s.cassete_C ?? 0),
+        cassete_D: Number(s.cassete_D ?? 0),
+
+        os: ok ? String(info!.os) : null,
+        situacao: ok ? String(info!.situacao) : null,
+        valor: ok ? String(info!.valor) : null,
+
+        status: ok,
+      };
+    });
+
+    await Promise.all(
+      os.map((row) =>
+        addOs({
+          id_supply: row.id_supply,
+          id_atm: String(row.id_atm),
+          os: row.os ?? "",
+          situacao: row.situacao ?? "",
+          valor: row.valor ?? "",
+          status: row.status,
+        } as any)
+      )
+    );
+
+    const byTreasury = new Map<number, SendEmailPayload>();
+
+    for (const s of supplyWithExtras) {
+      const tid = Number(s.id_treasury);
+      if (!tid) continue;
+
+      const row = os.find((x) => Number(x.id_supply) === Number(s.id_supply));
+      const ok = Boolean(row?.status);
+
+      if (!ok) continue;
+
+      if (!byTreasury.has(tid)) {
+        byTreasury.set(tid, {
+          email: Array.isArray(s.emails) ? s.emails : [],
+          id_treasury: tid,
+          treasury_name: String(s.treasury_name ?? ""),
+          date_on_supply: String(s.date_on_supply ?? ""),
+          atms: [],
+        });
+      }
+
+      const bucket = byTreasury.get(tid)!;
+
+      // merge emails sem duplicar
+      for (const e of (Array.isArray(s.emails) ? s.emails : [])) {
+        const clean = String(e).trim();
+        if (clean && !bucket.email.includes(clean)) bucket.email.push(clean);
+      }
+
+      bucket.atms.push({
+        id_supply: Number(s.id_supply),
+        total_exchange: Boolean(s.total_exchange),
+        cassete_a: Number(s.cassete_A ?? 0),
+        cassete_b: Number(s.cassete_B ?? 0),
+        cassete_c: Number(s.cassete_C ?? 0),
+        cassete_d: Number(s.cassete_D ?? 0),
+        id_atm: Number(s.id_atm),
+        atm_name: String(s.atm_name ?? ""),
+      });
+
+      if (!bucket.date_on_supply) bucket.date_on_supply = String(s.date_on_supply ?? "");
+    }
+
+    const emailPayloads = Array.from(byTreasury.values());
+
+    for (const payload of emailPayloads) {
+      if (!payload.email?.length) {
+        console.log("[EMAIL][SKIP] sem emails:", payload.id_treasury, payload.treasury_name);
+        continue;
+      }
+      if (!payload.atms?.length) {
+        console.log("[EMAIL][SKIP] sem atms OK:", payload.id_treasury, payload.treasury_name);
+        continue;
+      }
+
+      console.log("[EMAIL] enviando tesouraria:", payload.id_treasury, payload.treasury_name);
+      await sendEmailOnOS(payload);
+    }
+
+    const allOk = os.every((x) => x.status === true);
+
+    res.status(200).json({
+      ok: allOk,
+      data: supplyWithExtras,
+      os,
+    });
+    return;
+  } catch (e: any) {
+    res.status(500).json({
+      ok: false,
+      error: "Falha ao gerar OS via automação",
+      details: e?.message ?? String(e),
+      data: supplyWithExtras,
+      os: [],
+    });
+    return;
+  }
+};

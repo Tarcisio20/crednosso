@@ -1,23 +1,11 @@
 "use client";
 
-import {
-  atmForSupplyProps,
-  ordersWithTreasuriesProps, // 👈 nome correto aqui
-  supplyProps,
-} from "@/app/(private)/supply/add/page";
-import { useEffect, useState } from "react";
+import { atmForSupplyProps, supplyProps } from "@/app/(private)/supply/add/page";
+import { useEffect, useMemo, useState } from "react";
 import { Loading } from "../../ux/Loading";
 import { add } from "@/app/service/supply";
 import { toast } from "sonner";
-import { treasuryType } from "@/types/treasuryType";
 
-// (se não usar, pode remover esse type)
-type AtmType = {
-  id_system: number;
-  name: string;
-};
-
-// extendendo o tipo para garantir que temos o campo `exchange`
 type SupplyWithExchange = supplyProps & {
   exchange?: boolean;
 };
@@ -25,140 +13,139 @@ type SupplyWithExchange = supplyProps & {
 type ModalTrocaTotalProps = {
   dateForOS: string;
   atmsSelected: atmForSupplyProps[];
-  orderUsed: ordersWithTreasuriesProps | null; 
+
+  // ✅ valores por terminal (saldo tesouraria / qtTerminais)
+  perTerminal: { a: number; b: number; c: number; d: number };
+
+  orderId: number;
+  treasuryId: number;
+  dateOrder: Date;
+
+  onApplied: (createdList: Partial<supplyProps>[]) => void;
   onClose: () => void;
-  treasuries: treasuryType[];
-  changeTreasuries: (treasuries: treasuryType[]) => void;
 };
 
 export const ModalTrocaTotal = ({
   dateForOS,
   atmsSelected,
-  orderUsed,
+  perTerminal,
+  orderId,
+  treasuryId,
+  dateOrder,
+  onApplied,
   onClose,
-  treasuries,
-  changeTreasuries,
 }: ModalTrocaTotalProps) => {
   const [cloneAtmSelected, setCloneAtmSelected] = useState<SupplyWithExchange[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    setLoading(true);
+  const totalPorTerminal = useMemo(() => {
+    return perTerminal.a * 10 + perTerminal.b * 20 + perTerminal.c * 50 + perTerminal.d * 100;
+  }, [perTerminal]);
 
-    const includeFiled: SupplyWithExchange[] = atmsSelected.map((atm) => ({
+  useEffect(() => {
+    const base: SupplyWithExchange[] = atmsSelected.map((atm) => ({
       id_atm: atm.id_system,
-      id_treasury: atm.id_treasury,
+      id_treasury: treasuryId,
+      id_order: orderId,
+
       name: atm.name,
       short_name: atm.short_name,
-      cassete_A: atm.cassete_A,
-      cassete_B: atm.cassete_B,
-      cassete_C: atm.cassete_C,
-      cassete_D: atm.cassete_D,
-      // inicialmente não é troca total
+
+      cassete_A: 0,
+      cassete_B: 0,
+      cassete_C: 0,
+      cassete_D: 0,
+
       total_exchange: false,
       exchange: false,
-      date: orderUsed?.date_order as Date,
+
+      date: dateOrder,
       date_on_supply: dateForOS,
     }));
 
-    setCloneAtmSelected(includeFiled);
-    setLoading(false);
-  }, [atmsSelected, dateForOS, orderUsed]);
+    setCloneAtmSelected(base);
+  }, [atmsSelected, dateForOS, dateOrder, orderId, treasuryId]);
 
-  const handleMarcar = (id: number) => {
+  const handleMarcar = (idSystem: number) => {
     setCloneAtmSelected((prev) =>
       prev.map((atm) => {
-        if (atm.id_atm !== id) return atm;
-
-        const newExchange = !atm.exchange; // inverte
-        return {
-          ...atm,
-          exchange: newExchange,
-          total_exchange: newExchange, // mantém os dois em sincronia
-        };
+        if (atm.id_atm !== idSystem) return atm;
+        const newExchange = !atm.exchange;
+        return { ...atm, exchange: newExchange, total_exchange: newExchange };
       })
     );
   };
 
   const onSave = async () => {
+    if (!orderId || !treasuryId) return toast.error("Dados inválidos para salvar.");
+    if (!atmsSelected || atmsSelected.length <= 1) return toast.error("Precisa ter mais de 1 terminal.");
+
     setLoading(true);
 
-    const qtAtms = atmsSelected?.length ?? 1;
-
-    const valueA =
-      (orderUsed?.confirmed_value_A ?? 0) > 0
-        ? orderUsed?.confirmed_value_A
-        : (orderUsed?.requested_value_A as number);
-
-    const valueB =
-      (orderUsed?.confirmed_value_B ?? 0) > 0
-        ? orderUsed?.confirmed_value_B
-        : (orderUsed?.requested_value_B as number);
-
-    const valueC =
-      (orderUsed?.confirmed_value_C ?? 0) > 0
-        ? orderUsed?.confirmed_value_C
-        : (orderUsed?.requested_value_C as number);
-
-    const valueD =
-      (orderUsed?.confirmed_value_D ?? 0) > 0
-        ? orderUsed?.confirmed_value_D
-        : (orderUsed?.requested_value_D as number);
-
-    // monta payload final, mantendo exchange / total_exchange já marcados
     const novosDados: SupplyWithExchange[] = cloneAtmSelected.map((atm) => ({
       ...atm,
-      id_order: orderUsed?.id_order as number,
-      cassete_A: valueA! / qtAtms,
-      cassete_B: valueB! / qtAtms,
-      cassete_C: valueC! / qtAtms,
-      cassete_D: valueD! / qtAtms,
+      id_order: orderId,
+      id_treasury: treasuryId,
+
+      // ✅ VALORES REAIS (saldo em tesouraria dividido)
+      cassete_A: perTerminal.a,
+      cassete_B: perTerminal.b,
+      cassete_C: perTerminal.c,
+      cassete_D: perTerminal.d,
+
+      total_exchange: Boolean(atm.total_exchange),
     }));
 
     try {
-      const addSupply = await add(novosDados);
+      const resp = await add(novosDados);
 
-      if (addSupply.data.erros.length === 0) {
-        toast.success("Abastecimento adicionado com sucesso!");
-        const newSelected = treasuries.filter(
-          (t) => t.id_system !== atmsSelected[0].id_treasury
-        );
-        changeTreasuries(newSelected);
-      } else {
-        toast.error("Erro ao adicionar abastecimento: " + addSupply.data.erros);
+      if (resp?.data?.erros && Array.isArray(resp.data.erros) && resp.data.erros.length > 0) {
+        toast.error("Erro ao adicionar abastecimento: " + resp.data.erros.join(", "));
+        setLoading(false);
+        return;
       }
+
+      // tenta pegar lista criada; se não vier, usa payload mesmo (já com valores corretos)
+      const createdFromApi: any[] =
+        resp?.data?.supply ?? resp?.data?.supplies ?? resp?.data?.created ?? resp?.data?.data ?? [];
+
+      const createdList: Partial<supplyProps>[] =
+        Array.isArray(createdFromApi) && createdFromApi.length > 0 ? createdFromApi : novosDados;
+
+      toast.success("Abastecimento dividido e salvo com sucesso!");
+      onApplied(createdList);
+      onClose();
     } catch (e) {
       toast.error("Erro ao adicionar abastecimento.");
     } finally {
       setLoading(false);
-      onClose();
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-zinc-800 p-6 rounded shadow-lg w-96 border-2 border-b-gray-300">
-        <h2 className="text-sm font-bold mb-4 text-center uppercase">
-          Deseja troca total para algum terminal?
+        <h2 className="text-sm font-bold mb-2 text-center uppercase">
+          Dividir saldo em tesouraria por {atmsSelected.length} terminais
         </h2>
+
+        <div className="text-xs text-center mb-4 text-zinc-200">
+          Por terminal: A={perTerminal.a} | B={perTerminal.b} | C={perTerminal.c} | D={perTerminal.d}
+          <br />
+          Total por terminal:{" "}
+          {totalPorTerminal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </div>
+
+        <h3 className="text-sm font-bold mb-2 text-center uppercase">Marque troca total</h3>
 
         <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
           {atmsSelected.map((atm) => {
-            const selected = cloneAtmSelected.find(
-              (a) => a.id_atm === atm.id_system
-            );
+            const selected = cloneAtmSelected.find((a) => a.id_atm === atm.id_system);
             const checked = !!selected?.exchange;
 
             return (
-              <label
-                key={atm.id_system}
-                className="flex items-center gap-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => handleMarcar(atm.id_system)}
-                />
+              <label key={atm.id_system} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={checked} onChange={() => handleMarcar(atm.id_system)} />
                 {atm.id_system} - {atm.name}
               </label>
             );

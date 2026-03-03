@@ -287,18 +287,18 @@ enum LogLevel {
 model Log {
   id         Int       @id @default(autoincrement())
   level      LogLevel
-  action     String    @db.VarChar(100)   // ex.: "TREASURY_ADD", "HTTP_REQUEST"
-  message    String?   @db.Text           // texto maior de descrição/erro
-  userSlug   String?   @db.VarChar(191)   // preenchido pelo verifyJWT (quando tiver)
-  route      String?   @db.VarChar(255)   // req.originalUrl
-  method     String?   @db.VarChar(10)    // GET/POST/PUT/DELETE...
-  statusCode Int?                          // res.statusCode
-  resource   String?   @db.VarChar(100)   // ex.: "treasury", "order"
-  resourceId String?   @db.VarChar(100)   // ex.: "123"
-  meta       Json?                         // payloads reduzidos/sanitizados (MySQL 5.7+)
+  action     String    @db.VarChar(100)   
+  message    String?   @db.Text         
+  userSlug   String?   @db.VarChar(191)  
+  route      String?   @db.VarChar(255)  
+  method     String?   @db.VarChar(10)   
+  statusCode Int?                          
+  resource   String?   @db.VarChar(100)   
+  resourceId String?   @db.VarChar(100)   
+  meta       Json?                        
   createdAt  DateTime  @default(now())
 
-  // Índices úteis para filtros/ordenação
+ 
   @@index([createdAt])
   @@index([userSlug])
   @@index([level, createdAt])
@@ -307,3 +307,13 @@ model Log {
   @@index([resource, resourceId])
 }
 
+
+model OsOpen {
+  id         Int       @id @default(autoincrement())
+  id_supply  Int
+  id_atm     String
+  os         String
+  situacao   String
+  valor      String
+  status     Boolean @default(true)
+}

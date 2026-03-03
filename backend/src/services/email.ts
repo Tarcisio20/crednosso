@@ -1,6 +1,7 @@
 import { generateTableOS } from "utils/generateTableOS";
 import transporter from "../utils/emailConfig";
 import { generateEmailTableHTML } from "../utils/generateHtml";
+import { generateHTMLOS } from "utils/generateHTMLOS";
 
 export const sendEmailOfOrder = async (emails: string, orders: any) => {
   const html = generateEmailTableHTML(orders)
@@ -45,8 +46,6 @@ export async function sendOsEmail(params: {
   const { date, treasuryId, treasuryName, to, records } = params;
 
   const main = records[0] ?? {};
-
-  // agora só olhamos para `exchange`, que foi setado no controller
   const isExchange = main.exchange === true;
 
   const tipoOs = isExchange
@@ -126,3 +125,61 @@ export const sendEmailOdCreateUser = async (name: string, email: string, passwor
     return err
   }
 }
+
+export type SendEmailAtmItem = {
+  id_supply: number;
+
+  total_exchange: boolean;
+  cassete_a: number;
+  cassete_b: number;
+  cassete_c: number;
+  cassete_d: number;
+
+  id_atm: number;
+  atm_name: string;
+
+  os?: string;
+  situacao?: string;
+  valor?: string;
+  operator_card?: string | null;
+};
+
+export type SendEmailPayload = {
+  email: string[];
+  date_on_supply: string;
+  id_treasury: number;
+  treasury_name: string;
+  atms: SendEmailAtmItem[];
+};
+
+export const sendEmailOnOS = async (payload: SendEmailPayload) => {
+  if (!payload?.email?.length) return { ok: false, error: "Sem emails." };
+  if (!payload?.atms?.length) return { ok: false, error: "Sem ATMs." };
+
+  const dateBR = new Date(payload.date_on_supply).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+
+  const anyExchange = payload.atms.some((a) => a.total_exchange === true);
+  const tipoOs = anyExchange ? "CREDNOSSO - TROCA TOTAL" : "CREDNOSSO - ABASTECIMENTO COMPLEMENTAR";
+  const subject = `${tipoOs} - ${payload.treasury_name} - ${dateBR}`;
+
+  const html = generateHTMLOS(payload);
+
+  const ccFixed =
+    "tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,kalebe.marques@crednosso.com.br";
+
+  try {
+    const toList = payload.email.map((e) => e.trim()).filter(Boolean).join(",");
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: `${toList},${ccFixed}`,
+      subject,
+      html,
+    });
+
+    return { ok: true };
+  } catch (err: any) {
+    console.log("SERVICE => [EMAIL] *** FUNCTION => [SEND_EMAIL_ON_OS] *** ERROR =>", err);
+    return { ok: false, error: err?.message ?? String(err) };
+  }
+};

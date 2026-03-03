@@ -360,6 +360,45 @@ export const saveIndividualSupply = async (data : Partial<supplyProps>) => {
   }
 }
 
+export type openOSProps = {
+  id_supply : number;
+  id_atm : number;
+  id_treasury : number;
+  total_exchange : boolean;
+  date_on_supply : string;
+  cassete_A : number;
+  cassete_B : number;
+  cassete_C : number;
+  cassete_D : number;
+}
+export const openOS = async (data : openOSProps[]) => {
+   const token = Cookies.get('tokenSystemCredNosso')
+    try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/open-os/`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    })
+    //console.log("resposta", response)
+    return response
+  } catch (error: any) {
+    if (error.response) {
+      // Erro retornado pela API (ex: status 400, 500, etc.)
+      const { message } = error.response.data; // Captura a mensagem de erro
+      //   console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return { error: message, status: 400, data: undefined } as any;
+    } else if (error.request) {
+      // Erro de conexão (não houve resposta do servidor)
+      // console.error("Erro de conexão:", error.request);
+      return { error: error.request, status: 500, data: undefined } as any;
+    } else {
+      // Erro genérico (ex: erro ao configurar a requisição)
+      //console.error("Erro:", error.message);
+      return { error: error.message, status: 300, data: undefined } as any;
+    }
+  }
+}
 
 export const editIndividualSupply = async (id : number, data : Partial<supplyProps>) => {
   const token = Cookies.get('tokenSystemCredNosso')

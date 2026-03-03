@@ -1,10 +1,20 @@
 "use client";
 
+import React, { useEffect, useMemo, useState } from "react";
+
 import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
+
 import { delIndividualSupply, getSuppliesForDay, saveIndividualSupply } from "@/app/service/supply";
+import { getOrderForDay } from "@/app/service/order";
+
 import { Button } from "@/app/components/ui/Button";
+import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
+import { ModalTrocaTotal } from "@/app/components/ui/Modal/ModalTrocaTotal";
+import { ModalOS } from "@/app/components/ui/Modal/ModalOS";
+import ModalEditSupply from "@/app/components/ui/Modal/ModalEditSupply";
+
 import {
   faBroom,
   faDivide,
@@ -14,22 +24,18 @@ import {
   faTable,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useMemo, useState } from "react";
+
 import { toast } from "sonner";
+
 import { isValidDateString } from "@/app/utils/isValidDateString";
-import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder";
+import { validatorDate } from "@/app/utils/validatorDate";
+import { formatDateToString } from "@/app/utils/formatDateToString";
 import { generateReal } from "@/app/utils/generateReal";
 import { generateFullReal } from "@/app/utils/generateFullReal";
-import { ModalTrocaTotal } from "@/app/components/ui/Modal/ModalTrocaTotal";
-import { validatorDate } from "@/app/utils/validatorDate";
-import { isPar } from "@/app/utils/isPar";
-import { formatDateToString } from "@/app/utils/formatDateToString";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
-import { ModalOS } from "@/app/components/ui/Modal/ModalOS";
-import { getOrderForDay } from "@/app/service/order";
+
 import { orderToSupplyType } from "@/types/orderToSupply";
 import { treasuryType } from "@/types/treasuryType";
-import ModalEditSupply from "@/app/components/ui/Modal/ModalEditSupply";
 
 export type supplyProps = {
   id?: number;
@@ -62,10 +68,10 @@ export type atmForSupplyProps = {
 export default function SupplyAdd() {
   const [treasuries, setTreasuries] = useState<treasuryType[]>([]);
   const [orders, setOrders] = useState<orderToSupplyType[] | null>(null);
-  const [atms, setAtms] = useState<atmForSupplyProps[] | null>(null);
 
   const [ordersSelected, setOrdersSelected] = useState<orderToSupplyType[] | null>(null);
   const [atmsTreasurySelected, setAtmsTreasurySelected] = useState<atmForSupplyProps[]>([]);
+
   const [idAtm, setIdAtm] = useState<string>("0");
   const [idTreasury, setIdTreasury] = useState<string>("0");
 
@@ -76,11 +82,13 @@ export default function SupplyAdd() {
   const [valueB, setValueB] = useState<number>(0);
   const [valueC, setValueC] = useState<number>(0);
   const [valueD, setValueD] = useState<number>(0);
+
   const [trocaTotal, setTrocaTotal] = useState<boolean>(false);
   const [dateForOS, setDateForOS] = useState<string>("");
 
   const [dateSelected, setDateSelected] = useState<string>("");
   const [orderInUse, setOrderInUse] = useState<orderToSupplyType | null>(null);
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -88,6 +96,11 @@ export default function SupplyAdd() {
 
   const [orderFiltered, setOrderFiltered] = useState<orderToSupplyType[]>([]);
   const [modalEditSupply, setModalEditSupply] = useState<Partial<supplyProps> | null>(null);
+
+ const observationText = useMemo(() => {
+  const o: any = orderInUse ?? {};
+  return String(o.obs ?? o.observation ?? "").trim() || "Sem observação!";
+}, [orderInUse]);
 
   const getOrderByIdSystem = (id: number) => {
     const encontrados = orderFiltered.filter((o) => Number((o as any).treasury) === Number(id));
@@ -134,7 +147,6 @@ export default function SupplyAdd() {
   const availableC = Math.max(0, handleGenerateEmTesouraria((orderInUse as any)?.cassete_c ?? 0, 50));
   const availableD = Math.max(0, handleGenerateEmTesouraria((orderInUse as any)?.cassete_d ?? 0, 100));
 
-  // o que aparece no “Em Tesouraria” enquanto digita a OS nova
   const displayA = Math.max(0, availableA - (valueA ?? 0));
   const displayB = Math.max(0, availableB - (valueB ?? 0));
   const displayC = Math.max(0, availableC - (valueC ?? 0));
@@ -142,13 +154,14 @@ export default function SupplyAdd() {
 
   const getTreasuriesInorder = async () => {
     setLoading(true);
+
     setValueA(0);
     setValueB(0);
     setValueC(0);
     setValueD(0);
     setTrocaTotal(false);
 
-    if (!dateSelected || dateSelected === "") {
+    if (!dateSelected) {
       setOrders(null);
       setAtmsTreasurySelected([]);
       setOrderInUse(null);
@@ -159,18 +172,17 @@ export default function SupplyAdd() {
 
     if (isValidDateString(dateSelected) === false) {
       setOrders(null);
-      setAtms(null);
       setOrderInUse(null);
       setAtmsTreasurySelected([]);
-      toast.error("Data inválida, verifique o formato (DD/MM/YYYY).");
+      toast.error("Data inválida, verifique o formato.");
       setLoading(false);
       return;
     }
 
     const ordersBack = await getOrderForDay(dateSelected);
-    if (ordersBack.data.orders.length === 0) {
+    console.log("orders", ordersBack);
+    if ((ordersBack as any)?.data?.orders?.length === 0) {
       setOrders(null);
-      setAtms(null);
       setOrderInUse(null);
       setAtmsTreasurySelected([]);
       toast.error("Nenhum pedido encontrado para a data selecionada.");
@@ -179,12 +191,13 @@ export default function SupplyAdd() {
     }
 
     const or = ordersBack.data.orders ?? [];
-    setOrders(ordersBack.data.orders);
+    setOrders(or);
 
     const supplyBack = await getSuppliesForDay({ date: dateSelected });
     setSuplies((supplyBack.data.supply ?? []) as any);
 
     const su = supplyBack.data.supply ?? [];
+
     const ordersComRestante = or.map((order: orderToSupplyType) => {
       const suppliesDaOrder = su.filter(
         (s: any) =>
@@ -219,8 +232,6 @@ export default function SupplyAdd() {
     });
 
     setOrderFiltered(ordersComRestante as any);
-
-    setAtms(null);
     setLoading(false);
   };
 
@@ -254,57 +265,41 @@ export default function SupplyAdd() {
     );
   }, [orderFiltered, idTreasury]);
 
-  // ✅ mapa: tesouraria -> tem sobra?
-  const treasuryHasSobraMap = useMemo(() => {
-    const m = new Map<number, boolean>();
+  const qtTerminais = useMemo(() => atmOptions.length, [atmOptions]);
 
-    for (const o of orderFiltered as any[]) {
-      const tid = Number(o.treasury);
-      const r = o.restante ?? { a: 0, b: 0, c: 0, d: 0 };
+  const divideBase = useMemo(() => {
+    return {
+      a: Number(availableA ?? 0),
+      b: Number(availableB ?? 0),
+      c: Number(availableC ?? 0),
+      d: Number(availableD ?? 0),
+    };
+  }, [availableA, availableB, availableC, availableD]);
 
-      const has =
-        Number(r.a ?? 0) > 0 ||
-        Number(r.b ?? 0) > 0 ||
-        Number(r.c ?? 0) > 0 ||
-        Number(r.d ?? 0) > 0;
+  const perTerminal = useMemo(() => {
+    if (qtTerminais <= 1) return { a: 0, b: 0, c: 0, d: 0 };
+    return {
+      a: divideBase.a / qtTerminais,
+      b: divideBase.b / qtTerminais,
+      c: divideBase.c / qtTerminais,
+      d: divideBase.d / qtTerminais,
+    };
+  }, [divideBase, qtTerminais]);
 
-      if (!m.has(tid)) m.set(tid, has);
-      else if (has) m.set(tid, true);
-    }
+  const canDivide = useMemo(() => {
+    if (!orderInUse) return false;
+    if (qtTerminais <= 1) return false;
 
-    return m;
-  }, [orderFiltered]);
+    const isDivisible = (n: number) => n % qtTerminais === 0;
 
-  const selectedTreasuryHasSobra = useMemo(() => {
-    const tid = Number(idTreasury);
-    if (!tid) return false;
-    return treasuryHasSobraMap.get(tid) ?? false;
-  }, [idTreasury, treasuryHasSobraMap]);
+    return (
+      isDivisible(divideBase.a) &&
+      isDivisible(divideBase.b) &&
+      isDivisible(divideBase.c) &&
+      isDivisible(divideBase.d)
+    );
+  }, [orderInUse, qtTerminais, divideBase]);
 
-  // Mapas para ModalOS (nomes vindos das ORDERS)
-  const treasuryMap = useMemo(() => {
-    const m = new Map<number, string>();
-    for (const o of orders ?? []) {
-      const id = Number((o as any).treasury);
-      const name = String((o as any).treasury_name ?? "").trim();
-      if (id) m.set(id, name || `Tesouraria ${id}`);
-    }
-    return m;
-  }, [orders]);
-
-  const atmMap = useMemo(() => {
-    const m = new Map<number, string>();
-    for (const o of orders ?? []) {
-      for (const a of (((o as any).atm ?? []) as any[])) {
-        const id = Number(a.id_system);
-        const name = String(a.short_name ?? a.name ?? "").trim();
-        if (id) m.set(id, name || `ATM ${id}`);
-      }
-    }
-    return m;
-  }, [orders]);
-
-  // auto-select 1ª tesouraria
   useEffect(() => {
     if (treasuryOptions.length === 0) return;
 
@@ -323,17 +318,53 @@ export default function SupplyAdd() {
       setSuppliesSelected([]);
       setIdAtm("0");
     }
-  }, [treasuryOptions, orderFiltered]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [treasuryOptions, orderFiltered]);
 
-  // auto-select 1º ATM
   useEffect(() => {
-    if (atmOptions.length === 0) return;
+    if (atmOptions.length === 0) {
+      setIdAtm("0");
+      return;
+    }
     const firstAtm = String(atmOptions[0].id_system);
     const currentValid = atmOptions.some((a) => String(a.id_system) === String(idAtm));
     if (!currentValid || idAtm === "0") setIdAtm(firstAtm);
-  }, [atmOptions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [atmOptions, idAtm]);
 
-  // mantém suppliesSelected sincronizado (dia + tesouraria + lote)
+  useEffect(() => {
+    const tid = Number(idTreasury);
+    if (!tid) {
+      setAtmsTreasurySelected([]);
+      return;
+    }
+
+    const ordersDaTesouraria = orderFiltered.filter((o) => Number((o as any).treasury) === tid);
+    const map = new Map<number, atmForSupplyProps>();
+
+    for (const o of ordersDaTesouraria as any[]) {
+      for (const a of ((o as any).atm ?? []) as any[]) {
+        const id_system = Number(a.id_system);
+        if (!id_system) continue;
+
+        if (!map.has(id_system)) {
+          map.set(id_system, {
+            id: Number(a.id ?? id_system),
+            id_treasury: tid,
+            cassete_A: Number(a.cassete_A ?? 0),
+            cassete_B: Number(a.cassete_B ?? 0),
+            cassete_C: Number(a.cassete_C ?? 0),
+            cassete_D: Number(a.cassete_D ?? 0),
+            id_system,
+            name: String(a.name ?? "").trim() || `ATM ${id_system}`,
+            short_name:
+              String(a.short_name ?? "").trim() || String(a.name ?? "").trim() || `ATM ${id_system}`,
+          });
+        }
+      }
+    }
+
+    setAtmsTreasurySelected(Array.from(map.values()).sort((x, y) => x.id_system - y.id_system));
+  }, [idTreasury, orderFiltered]);
+
   useEffect(() => {
     if (!orderInUse) {
       setSuppliesSelected([]);
@@ -390,9 +421,7 @@ export default function SupplyAdd() {
     setTrocaTotal(false);
   };
 
-  const handleSelectChangeAtm = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setIdAtm(event.target.value);
-  };
+  const handleSelectChangeAtm = (event: React.ChangeEvent<HTMLSelectElement>) => setIdAtm(event.target.value);
 
   const handleInputChangeAtm = (event: React.ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;
@@ -407,7 +436,6 @@ export default function SupplyAdd() {
 
     if (encontrado) {
       setOrderInUse(encontrado);
-
       setValueA(0);
       setValueB(0);
       setValueC(0);
@@ -419,41 +447,54 @@ export default function SupplyAdd() {
     }
   };
 
+  const handleApplyDividedSupplies = (createdList: Partial<supplyProps>[]) => {
+    if (!createdList?.length) return;
+
+    setSuplies((prev) => {
+      const list = prev ?? [];
+      const existingIds = new Set(list.map((x: any) => Number(x.id)));
+      const merged = [...createdList, ...list].filter((x: any) => {
+        const id = Number(x?.id ?? 0);
+        if (!id) return true;
+        if (existingIds.has(id)) return false;
+        existingIds.add(id);
+        return true;
+      });
+      return merged as any;
+    });
+
+    setSuppliesSelected((prev) => {
+      const list = prev ?? [];
+      const existingIds = new Set(list.map((x: any) => Number((x as any).id)));
+      const merged = [...createdList, ...list].filter((x: any) => {
+        const id = Number(x?.id ?? 0);
+        if (!id) return true;
+        if (existingIds.has(id)) return false;
+        existingIds.add(id);
+        return true;
+      });
+      return merged as any;
+    });
+  };
+
   const handleButtonDivider = () => {
-    setLoading(true);
-    const qtAtms = atmsTreasurySelected?.length ?? 1;
+    if (!orderInUse) return toast.error("Selecione um lote para continuar!");
 
-    const vA =
-      (orderInUse as any)?.confirmed_value_A > 0
-        ? (orderInUse as any)?.confirmed_value_A
-        : (orderInUse as any)?.requested_value_A;
-    const vB =
-      (orderInUse as any)?.confirmed_value_B > 0
-        ? (orderInUse as any)?.confirmed_value_B
-        : (orderInUse as any)?.requested_value_B;
-    const vC =
-      (orderInUse as any)?.confirmed_value_C > 0
-        ? (orderInUse as any)?.confirmed_value_C
-        : (orderInUse as any)?.requested_value_C;
-    const vD =
-      (orderInUse as any)?.confirmed_value_D > 0
-        ? (orderInUse as any)?.confirmed_value_D
-        : (orderInUse as any)?.requested_value_D;
-
-    if (qtAtms > 1) {
-      if (isPar(vA as number) && isPar(vB as number) && isPar(vC as number) && isPar(vD as number)) {
-        if (validatorDate(dateForOS)) {
-          setShowModal(true);
-        } else {
-          toast.error("Digite uma data válida para conntinuar!");
-          setLoading(false);
-          return;
-        }
-      } else {
-        toast.error("Os valores precisam ser par para essa função!");
-        return;
-      }
+    if (!validatorDate(dateForOS)) {
+      toast.error("Digite uma data válida para continuar!");
+      return;
     }
+
+    if (!canDivide) {
+      toast.error(
+        qtTerminais <= 1
+          ? "Essa transportadora não possui mais de 1 terminal para dividir."
+          : `Não é possível dividir: o saldo em tesouraria precisa ser divisível por ${qtTerminais} (sem sobra).`
+      );
+      return;
+    }
+
+    setShowModal(true);
   };
 
   const handleChangeSuplies = (e: React.ChangeEvent<HTMLInputElement>, type: number) => {
@@ -542,25 +583,8 @@ export default function SupplyAdd() {
       date_on_supply: createdRaw?.date_on_supply ?? payload.date_on_supply,
     };
 
-    setSuplies((prev) => {
-      const list = prev ?? [];
-      const id = (created as any).id;
-      if (id && list.some((x: any) => Number(x.id) === Number(id))) return list;
-      return [created as any, ...list];
-    });
-
-    const same =
-      Number((created as any).id_treasury) === Number(idTreasury) &&
-      Number((created as any).id_order) === Number((orderInUse as any).id_order);
-
-    if (same) {
-      setSuppliesSelected((prev) => {
-        const list = prev ?? [];
-        const id = (created as any).id;
-        if (id && list.some((x: any) => Number((x as any).id) === Number(id))) return list;
-        return [created as any, ...list];
-      });
-    }
+    setSuplies((prev) => [created as any, ...(prev ?? [])]);
+    setSuppliesSelected((prev) => [created as any, ...(prev ?? [])]);
 
     setValueA(0);
     setValueB(0);
@@ -577,12 +601,6 @@ export default function SupplyAdd() {
     setDateForOS(e.target.value);
   };
 
-  const handleCloseModal = () => {
-    setLoading(false);
-    setShowModal(false);
-    getTreasuriesInorder();
-  };
-
   const handleDelSupply = async (id: number) => {
     const ok = window.confirm("Tem certeza que deseja excluir esta OS?");
     if (!ok) return;
@@ -596,6 +614,7 @@ export default function SupplyAdd() {
       setLoading(false);
       return;
     }
+
     setSuplies((prev) => (prev ?? []).filter((s: any) => Number(s.id) !== Number(id)));
     setSuppliesSelected((prev) => (prev ?? []).filter((s: any) => Number((s as any).id) !== Number(id)));
 
@@ -621,13 +640,9 @@ export default function SupplyAdd() {
     setShowModalOS(false);
   };
 
-  const handleCloseModalEditSupply = () => {
-    setModalEditSupply(null);
-  };
+  const handleCloseModalEditSupply = () => setModalEditSupply(null);
 
-  const handleOpenEditSupply = (s: Partial<supplyProps>) => {
-    setModalEditSupply(s);
-  };
+  const handleOpenEditSupply = (s: Partial<supplyProps>) => setModalEditSupply(s);
 
   const handleApplySupplyUpdate = (updated: Partial<supplyProps>) => {
     const id = Number((updated as any).id);
@@ -643,7 +658,7 @@ export default function SupplyAdd() {
 
     setSuppliesSelected((prev) => {
       const list = prev ?? [];
-      return list.map((s: any) => (Number(s.id) === id ? ({ ...s, ...updated } as any) : s));
+      return list.map((s: any) => (Number((s as any).id) === id ? ({ ...s, ...updated } as any) : s));
     });
 
     setModalEditSupply(null);
@@ -660,9 +675,7 @@ export default function SupplyAdd() {
           <div className="flex flex-col gap-5 max-w-[300px]">
             <label className="uppercase leading-3 font-bold">Data do Pedido</label>
             <input
-              color="#DDDD"
               className="border border-gray-300 rounded p-2 w-full text-black text-center max-w-[300px]"
-              placeholder="(DD/MM/YYYY)"
               type="date"
               value={dateSelected}
               onChange={(e) => setDateSelected(e.target.value)}
@@ -670,13 +683,7 @@ export default function SupplyAdd() {
           </div>
 
           <div className="flex flex-col gap-5 max-w-[300px]">
-            <Button
-              color="#2E8B57"
-              variant="primary"
-              textColor="white"
-              onClick={getTreasuriesInorder}
-              size="medium"
-            >
+            <Button color="#2E8B57" variant="primary" textColor="white" onClick={getTreasuriesInorder} size="medium">
               Pesquisar
             </Button>
           </div>
@@ -698,22 +705,14 @@ export default function SupplyAdd() {
                           />
                         </div>
 
-                        {/* ✅ BORDA VERDE SE TEM SOBRA / VERMELHA SE NÃO TEM */}
-                        <div
-                          className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 w-80 h-11 text-lg ${selectedTreasuryHasSobra ? "border-green-600" : "border-red-600"
-                            }`}
-                        >
+                        <div className="flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 w-80 h-11 text-lg">
                           <select
                             className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                             value={idTreasury}
                             onChange={handleSelectChange}
                           >
                             {treasuryOptions.map((t) => (
-                              <option
-                                key={t.id}
-                                value={String(t.id)}
-                                className="uppercase bg-slate-700 text-white"
-                              >
+                              <option key={t.id} value={String(t.id)} className="uppercase bg-slate-700 text-white">
                                 {t.name}
                               </option>
                             ))}
@@ -817,10 +816,10 @@ export default function SupplyAdd() {
                       <div className="flex gap-2 p-0.5 justify-between bg-zinc-800 w-full font-bold">
                         <div className="text-xl">TOTAL</div>
                         <div className="text-xl">
-                          {(displayA * 10 + displayB * 20 + displayC * 50 + displayD * 100).toLocaleString(
-                            "pt-BR",
-                            { style: "currency", currency: "BRL" }
-                          )}
+                          {(displayA * 10 + displayB * 20 + displayC * 50 + displayD * 100).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
                         </div>
                       </div>
                     </div>
@@ -832,7 +831,7 @@ export default function SupplyAdd() {
                     <textarea
                       className="flex-1 w-full outline-none border-2 border-zinc-600 bg-zinc-700 p-2 rounded-md font-bold text-white"
                       readOnly
-                      value={(orderInUse as any)?.observation ?? "Sem observação!"}
+                      value={observationText}
                     />
                   </div>
 
@@ -842,11 +841,7 @@ export default function SupplyAdd() {
                       <h4 className="font-bold text-xl uppercase">Abastecimento</h4>
 
                       <div className="flex gap-2 p-1 items-center bg-zinc-800 w-full">
-                        <input
-                          type="checkbox"
-                          checked={trocaTotal}
-                          onChange={(e) => setTrocaTotal(e.target.checked)}
-                        />
+                        <input type="checkbox" checked={trocaTotal} onChange={(e) => setTrocaTotal(e.target.checked)} />
                         <label className="uppercase text-sm">Troca total</label>
                       </div>
 
@@ -869,7 +864,7 @@ export default function SupplyAdd() {
                           max={availableB}
                           onChange={(e) => handleChangeSuplies(e, 20)}
                         />
-                        <div className="text-xl">{generateReal(valueB as number, 10)}</div>
+                        <div className="text-xl">{generateReal(valueB as number, 20)}</div>
                       </div>
 
                       <div className="flex gap-2 p-0.5 justify-between bg-zinc-800 w-full">
@@ -880,7 +875,7 @@ export default function SupplyAdd() {
                           max={availableC}
                           onChange={(e) => handleChangeSuplies(e, 50)}
                         />
-                        <div className="text-xl">{generateReal(valueC as number, 10)}</div>
+                        <div className="text-xl">{generateReal(valueC as number, 50)}</div>
                       </div>
 
                       <div className="flex gap-2 p-0.5 justify-between w-full">
@@ -891,7 +886,7 @@ export default function SupplyAdd() {
                           max={availableD}
                           onChange={(e) => handleChangeSuplies(e, 100)}
                         />
-                        <div className="text-xl">{generateReal(valueD as number, 10)}</div>
+                        <div className="text-xl">{generateReal(valueD as number, 100)}</div>
                       </div>
 
                       <div className="flex gap-2 p-0.5 justify-between bg-zinc-800 w-full font-bold">
@@ -906,7 +901,7 @@ export default function SupplyAdd() {
 
                 {/* linha de botões */}
                 <div className="flex flex-row justify-center gap-5">
-                  {atmsTreasurySelected.length > 1 && (
+                  {canDivide && (
                     <ButtonScreenOrder
                       size="btn-icon-text"
                       color="#1E3A8A"
@@ -961,6 +956,7 @@ export default function SupplyAdd() {
                     <input type="checkbox" className="mr-2" />
                     <label className="font-bold text-lg">Ver todas</label>
                   </div>
+
                   <div>
                     <table className="w-full border border-gray-300 text-left">
                       <thead className="bg-gray-800 text-center">
@@ -978,15 +974,14 @@ export default function SupplyAdd() {
                           <th className="border border-gray-300 px-4 py-2">Ações</th>
                         </tr>
                       </thead>
+
                       <tbody>
                         {suppliesSelected.map((supply: any, index) => (
                           <tr key={index} className="text-center hover:bg-zinc-800">
                             <td className="border border-gray-300 px-2 py-1">{supply.id}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.id_order}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.id_atm}</td>
-                            <td className="border border-gray-300 px-2 py-1">
-                              {supply.total_exchange === true ? "Sim" : "Nao"}
-                            </td>
+                            <td className="border border-gray-300 px-2 py-1">{supply.total_exchange ? "Sim" : "Nao"}</td>
                             <td className="border border-gray-300 px-2 py-1">
                               {formatDateToString(String(supply.date_on_supply))}
                             </td>
@@ -1033,24 +1028,22 @@ export default function SupplyAdd() {
         </div>
       </div>
 
+      {/* ✅ MODAL DIVIDIR */}
       {showModal && (
         <ModalTrocaTotal
           dateForOS={dateForOS}
           atmsSelected={atmsTreasurySelected}
-          orderUsed={orderInUse}
-          onClose={handleCloseModal}
-          treasuries={treasuries}
-          changeTreasuries={setTreasuries}
+          orderId={Number((orderInUse as any)?.id_order)}
+          treasuryId={Number(idTreasury)}
+          dateOrder={(orderInUse as any)?.date_order as Date}
+          perTerminal={perTerminal}
+          onApplied={handleApplyDividedSupplies}
+          onClose={() => setShowModal(false)}
         />
       )}
 
       {showModalOS && (
-        <ModalOS
-          close={handleCloseModalOS}
-          data={(suplies ?? []) as any}
-          atmMap={atmMap}
-          treasuryMap={treasuryMap}
-        />
+        <ModalOS close={handleCloseModalOS} data={(suplies ?? []) as any} atmMap={new Map()} treasuryMap={new Map()} />
       )}
 
       {modalEditSupply && (

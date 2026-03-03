@@ -9,6 +9,11 @@ import { getForIdTreasury as Id_contact } from "services/contact";
 import { getForId } from "services/atm";
 import { getForIdTreasury as Id_Card } from "services/cardOperator"
 
+
+type TreasuryEmailResp =
+  | { emails?: string[] | string | null; email?: string | null }
+  | any;
+
 export const sendEmailToOrder: RequestHandler = async (req, res) => {
   const idsOrder = req.body
   if (!Array.isArray(idsOrder) || idsOrder.length === 0) {
@@ -379,3 +384,17 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
     return;
   }
 };
+
+export const normalizeEmails = (contacts: any): string[] => {
+  if (!Array.isArray(contacts)) return [];
+
+  return Array.from(
+    new Set(
+      contacts
+        .map((c) => c?.email)         
+        .filter(Boolean)
+        .map((e) => String(e).trim().toLowerCase())
+        .filter((e) => e.includes("@"))
+    )
+  );
+}

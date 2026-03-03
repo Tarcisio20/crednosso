@@ -76,3 +76,13 @@ export const delCardOperator = async (id: number) => {
     return null
   }
 }
+
+
+export const normalizeOperatorCard = (ops: any): string | null => {
+  if (!Array.isArray(ops) || ops.length === 0) return null;
+
+  const op = ops[0];
+  const raw = op?.name ?? null;
+
+  return raw ? String(raw).trim() : null;
+};
