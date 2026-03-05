@@ -11,7 +11,7 @@ import { createLog } from "services/logService"
 import { z } from "zod"
 import { normalizeEmails } from "./email"
 import { runOpenOsPython } from "../utils/runOpenOsPython";
-import { addOs } from "services/os-open";
+import { addOs, delOS } from "services/os-open";
 import { sendEmailOnOS } from "services/email";
 import type { SendEmailPayload } from "services/email";
 
@@ -809,8 +809,10 @@ export const delIndivudual: RequestHandler = async (req, res) => {
     res.status(400).json({ error: 'Preciso de um ID para continuar!' })
     return
   }
-
   try {
+
+    await delOS(Number(id))
+    
     const supply = await delSupply(Number(id))
     res.status(200).json({ supply })
     return

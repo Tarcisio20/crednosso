@@ -9,3 +9,18 @@ export const addOs = async (data : Prisma.OsOpenCreateInput) => {
     return null
   }
 }
+
+export const delOS = async ( id_supply : number) => {
+  //console.log("id_atm", id_atm, "id_supply", id_supply)
+  try {
+    return await prisma.osOpen.updateMany({
+      where : {
+        id_supply
+      },
+      data : { status : false }
+    })
+  }catch (err) {
+    console.log("SERVICE => [DEL OS] *** FUNCTION => [DEL_OS] *** ERROR =>", err)
+    return null
+  }
+}
