@@ -7,35 +7,37 @@ import { mainRouter } from "./routers/main";
 import * as socketEventController from "./controllers/socket-event";
 import { requestLogger } from "./middlewares/requestLogger";
 
-// Cria o app Express e o servidor HTTP
+import { setIO } from "./utils/socket-event";
+
+
 const app = express();
 const httpServer = createServer(app);
 
-// Cria o Socket.IO com configuração de CORS
+
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: "*", // ajuste isso para seu frontend real se necessário
+    origin: "*", 
   },
 });
 
-// Registra o socket.io dentro do controller
-socketEventController.setIO(io);
 
-// Middlewares padrão
+setIO(io);
+
+
 app.use(helmet());
 app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 app.use(requestLogger);
 
-// Roteador principal
+
 app.use(mainRouter);
 
 app.use(cors({
-  exposedHeaders: ['Content-Disposition'], // necessário para downloads
+  exposedHeaders: ['Content-Disposition'],
 }));
 
-// Evento de conexão via socket
+
 io.on("connection", (socket) => {
   console.log("🟢 Cliente conectado via Socket.IO");
 });

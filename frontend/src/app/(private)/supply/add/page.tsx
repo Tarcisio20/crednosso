@@ -97,10 +97,10 @@ export default function SupplyAdd() {
   const [orderFiltered, setOrderFiltered] = useState<orderToSupplyType[]>([]);
   const [modalEditSupply, setModalEditSupply] = useState<Partial<supplyProps> | null>(null);
 
- const observationText = useMemo(() => {
-  const o: any = orderInUse ?? {};
-  return String(o.obs ?? o.observation ?? "").trim() || "Sem observação!";
-}, [orderInUse]);
+  const observationText = useMemo(() => {
+    const o: any = orderInUse ?? {};
+    return String(o.obs ?? o.observation ?? "").trim() || "Sem observação!";
+  }, [orderInUse]);
 
   const getOrderByIdSystem = (id: number) => {
     const encontrados = orderFiltered.filter((o) => Number((o as any).treasury) === Number(id));
@@ -180,7 +180,6 @@ export default function SupplyAdd() {
     }
 
     const ordersBack = await getOrderForDay(dateSelected);
-    console.log("orders", ordersBack);
     if ((ordersBack as any)?.data?.orders?.length === 0) {
       setOrders(null);
       setOrderInUse(null);
@@ -260,9 +259,7 @@ export default function SupplyAdd() {
       }
     }
 
-    return Array.from(map, ([id, name]) => ({ id_system: id, name })).sort(
-      (a, b) => a.id_system - b.id_system
-    );
+    return Array.from(map, ([id, name]) => ({ id_system: id, name })).sort((a, b) => a.id_system - b.id_system);
   }, [orderFiltered, idTreasury]);
 
   const qtTerminais = useMemo(() => atmOptions.length, [atmOptions]);
@@ -292,13 +289,31 @@ export default function SupplyAdd() {
 
     const isDivisible = (n: number) => n % qtTerminais === 0;
 
-    return (
-      isDivisible(divideBase.a) &&
-      isDivisible(divideBase.b) &&
-      isDivisible(divideBase.c) &&
-      isDivisible(divideBase.d)
-    );
+    return isDivisible(divideBase.a) && isDivisible(divideBase.b) && isDivisible(divideBase.c) && isDivisible(divideBase.d);
   }, [orderInUse, qtTerminais, divideBase]);
+
+  // ✅ MAPAS PARA O MODAL (NOMES CORRETOS)
+  const treasuryMap = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const o of orderFiltered as any[]) {
+      const tid = Number((o as any).treasury);
+      const name = String((o as any).treasury_name ?? "").trim();
+      if (tid && name) map.set(tid, name);
+    }
+    return map;
+  }, [orderFiltered]);
+
+  const atmMap = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const o of orderFiltered as any[]) {
+      for (const a of ((o as any).atm ?? []) as any[]) {
+        const id = Number(a.id_system);
+        const name = String(a.name ?? "").trim();
+        if (id && name) map.set(id, name);
+      }
+    }
+    return map;
+  }, [orderFiltered]);
 
   useEffect(() => {
     if (treasuryOptions.length === 0) return;
@@ -355,8 +370,7 @@ export default function SupplyAdd() {
             cassete_D: Number(a.cassete_D ?? 0),
             id_system,
             name: String(a.name ?? "").trim() || `ATM ${id_system}`,
-            short_name:
-              String(a.short_name ?? "").trim() || String(a.name ?? "").trim() || `ATM ${id_system}`,
+            short_name: String(a.short_name ?? "").trim() || String(a.name ?? "").trim() || `ATM ${id_system}`,
           });
         }
       }
@@ -373,9 +387,7 @@ export default function SupplyAdd() {
 
     const list = suplies ?? [];
     const selecionados = list.filter(
-      (s: any) =>
-        Number(s.id_treasury) === Number(idTreasury) &&
-        Number(s.id_order) === Number((orderInUse as any).id_order)
+      (s: any) => Number(s.id_treasury) === Number(idTreasury) && Number(s.id_order) === Number((orderInUse as any).id_order)
     );
 
     setSuppliesSelected(selecionados);
@@ -891,9 +903,7 @@ export default function SupplyAdd() {
 
                       <div className="flex gap-2 p-0.5 justify-between bg-zinc-800 w-full font-bold">
                         <div className="text-xl">TOTAL</div>
-                        <div className="text-xl">
-                          {generateFullReal(valueA * 10 + valueB * 20 + valueC * 50 + valueD * 100)}
-                        </div>
+                        <div className="text-xl">{generateFullReal(valueA * 10 + valueB * 20 + valueC * 50 + valueD * 100)}</div>
                       </div>
                     </div>
                   </div>
@@ -982,20 +992,13 @@ export default function SupplyAdd() {
                             <td className="border border-gray-300 px-2 py-1">{supply.id_order}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.id_atm}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.total_exchange ? "Sim" : "Nao"}</td>
-                            <td className="border border-gray-300 px-2 py-1">
-                              {formatDateToString(String(supply.date_on_supply))}
-                            </td>
+                            <td className="border border-gray-300 px-2 py-1">{formatDateToString(String(supply.date_on_supply))}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.cassete_A}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.cassete_B}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.cassete_C}</td>
                             <td className="border border-gray-300 px-2 py-1">{supply.cassete_D}</td>
                             <td className="border border-gray-300 px-2 py-1">
-                              {generateRealTotal(
-                                supply.cassete_A ?? 0,
-                                supply.cassete_B ?? 0,
-                                supply.cassete_C ?? 0,
-                                supply.cassete_D ?? 0
-                              )}
+                              {generateRealTotal(supply.cassete_A ?? 0, supply.cassete_B ?? 0, supply.cassete_C ?? 0, supply.cassete_D ?? 0)}
                             </td>
                             <td className="border border-gray-300 px-2 py-1 flex items-center justify-center gap-4">
                               <ButtonScreenOrder
@@ -1003,7 +1006,7 @@ export default function SupplyAdd() {
                                 color="#1E3A8A"
                                 secondaryColor="#3B82F6"
                                 textColor="white"
-                                onClick={() => handleOpenEditSupply(supply)}
+                                onClick={() => setModalEditSupply(supply)}
                                 icon={faEdit}
                               />
 
@@ -1028,7 +1031,6 @@ export default function SupplyAdd() {
         </div>
       </div>
 
-      {/* ✅ MODAL DIVIDIR */}
       {showModal && (
         <ModalTrocaTotal
           dateForOS={dateForOS}
@@ -1043,7 +1045,12 @@ export default function SupplyAdd() {
       )}
 
       {showModalOS && (
-        <ModalOS close={handleCloseModalOS} data={(suplies ?? []) as any} atmMap={new Map()} treasuryMap={new Map()} />
+        <ModalOS
+          close={handleCloseModalOS}
+          data={(suplies ?? []) as any}
+          atmMap={atmMap}
+          treasuryMap={treasuryMap}
+        />
       )}
 
       {modalEditSupply && (
@@ -1051,7 +1058,7 @@ export default function SupplyAdd() {
           supply={modalEditSupply}
           saldo={{ a: availableA, b: availableB, c: availableC, d: availableD }}
           onApply={handleApplySupplyUpdate}
-          onClose={handleCloseModalEditSupply}
+          onClose={() => setModalEditSupply(null)}
         />
       )}
 

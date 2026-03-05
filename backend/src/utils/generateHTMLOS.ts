@@ -1,31 +1,4 @@
-export type SendEmailAtmItem = {
-  id_supply: number; // ✅ por ATM
-
-  total_exchange: boolean;
-
-  cassete_a: number;
-  cassete_b: number;
-  cassete_c: number;
-  cassete_d: number;
-
-  id_atm: number;
-  atm_name: string;
-
-  os?: string;
-  situacao?: string;
-  valor?: string;
-  operator_card?: string | null;
-};
-
-export type SendEmailPayload = {
-  email: string[];
-  date_on_supply: string;
-
-  id_treasury: number;
-  treasury_name: string;
-
-  atms: SendEmailAtmItem[];
-};
+import type { SendEmailPayload, SendEmailAtmItem } from "services/email";
 
 function formatDateBR(dateStr: string) {
   const d = new Date(dateStr);
@@ -83,76 +56,35 @@ function renderCasseteTable(a: SendEmailAtmItem) {
   `;
 }
 
-function renderAtmBlock(a: SendEmailAtmItem, dateBR: string) {
+function renderAtmBlock(a: SendEmailAtmItem) {
   const anyCass = hasAnyCassete(a);
+  const isRecolhimentoTotal = a.total_exchange === true && !anyCass;
 
-  // Caso 2: total_exchange true e tudo zero => RECOLHIMENTO TOTAL (imagem 2)
-  if (a.total_exchange === true && !anyCass) {
-    return `
-      <div style="margin-top: 14px;">
-        <div style="font-family: Arial, sans-serif; font-size: 14px;">
-          <b>OS:</b><br/>
-          ${a.os ? `${a.os} - ${a.id_atm} - ${a.atm_name}` : `${a.id_atm} - ${a.atm_name}`}
-        </div>
+  const tipoTexto = isRecolhimentoTotal
+    ? "RECOLHIMENTO TOTAL"
+    : a.total_exchange
+      ? "TROCA TOTAL"
+      : "ABASTECIMENTO COMPLEMENTAR";
 
-        ${
-          a.operator_card
-            ? `<div style="margin-top: 12px; font-family: Arial, sans-serif; font-size: 14px;"><b>OPERADOR:</b> ${a.operator_card}</div>`
-            : ""
-        }
-      </div>
-    `;
-  }
-
-  // Caso 1: troca total com valores (imagem 1)
-  if (a.total_exchange === true && anyCass) {
-    return `
-      <div style="margin-top: 14px;">
-        <div style="background: #FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-          ${a.id_atm} - ${a.atm_name} - ${dateBR}
-        </div>
-
-        <div style="margin-top: 8px; background:#FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-          OS - ${a.os ?? "-"} - TROCA TOTAL
-        </div>
-
-        <div style="margin-top: 8px;">
-          ${renderCasseteTable(a)}
-        </div>
-
-        ${
-          a.operator_card
-            ? `<div style="margin-top: 10px; background:#FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-                ${a.operator_card}
-              </div>`
-            : ""
-        }
-      </div>
-    `;
-  }
-
-  // Caso 3: abastecimento complementar (imagem 3)
   return `
     <div style="margin-top: 14px;">
-      ${
-        a.operator_card
-          ? `<div style="background:#FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-              ${a.operator_card}
-            </div>`
-          : ""
-      }
-
-      <div style="margin-top: 10px; background: #FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-        ${a.id_atm} - ${a.atm_name} - ${dateBR}
+      <!-- Linha ATM (SEM DATA) -->
+      <div style="background: #FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
+        ${a.id_atm} - ${a.atm_name}
       </div>
 
+      <!-- Linha OS com id_supply -->
       <div style="margin-top: 8px; background:#FFFF00; display:inline-block; padding:6px 10px; font-family: Arial, sans-serif; font-weight: bold;">
-        OS - ${a.os ?? "-"} - ABASTECIMENTO COMPLEMENTAR
+        OS ${a.os} - ${tipoTexto}
       </div>
 
-      <div style="margin-top: 8px;">
-        ${renderCasseteTable(a)}
+      <!-- Linha Cartão Operador (sempre) -->
+      <div style="margin-top: 8px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">
+        CARTAO OPERADOR: ${a.operator_card ? a.operator_card : "-"}
       </div>
+
+      <!-- Tabela só quando tiver valores -->
+      ${anyCass ? `<div style="margin-top: 8px;">${renderCasseteTable(a)}</div>` : ""}
     </div>
   `;
 }
@@ -160,15 +92,21 @@ function renderAtmBlock(a: SendEmailAtmItem, dateBR: string) {
 export const generateHTMLOS = (payload: SendEmailPayload): string => {
   const dateBR = formatDateBR(payload.date_on_supply);
 
-  const treasuryName = String(payload.treasury_name ?? "TESOURARIA").trim() || "TESOURARIA";
+  // Texto inicial (não usa "Tesouraria {id}", usa o treasury_name se quiser mostrar)
+  const hasTroca = (payload.atms ?? []).some((a) => a.total_exchange === true && hasAnyCassete(a));
+  const hasRecolh = (payload.atms ?? []).some((a) => a.total_exchange === true && !hasAnyCassete(a));
+  const hasCompl = (payload.atms ?? []).some((a) => a.total_exchange === false);
 
-  const isTrocaTotal = (payload.atms ?? []).some((a) => a.total_exchange === true);
+  const title =
+    hasTroca && (hasRecolh || hasCompl)
+      ? `Segue OS para serem atendidas em ${dateBR}.`
+      : hasTroca
+        ? `Segue OS de - TROCA TOTAL para serem atendidas em ${dateBR}.`
+        : hasRecolh
+          ? `Segue OS de - RECOLHIMENTO TOTAL para serem atendidas em ${dateBR}.`
+          : `Segue OS de - ABASTECIMENTO COMPLEMENTAR para serem atendidas em ${dateBR}.`;
 
-  const title = isTrocaTotal
-    ? `Segue OS de - TROCA TOTAL para serem atendidas em ${dateBR}.`
-    : `Segue OS de - ABASTECIMENTO COMPLEMENTAR para serem atendidas em ${dateBR}.`;
-
-  // bloco de passos (imagem 1) — só mostra se existir pelo menos 1 troca total com valores
+  // Bloco de passos (mantém sua regra: só mostra se existir troca total COM valores)
   const showSteps = (payload.atms ?? []).some((a) => a.total_exchange === true && hasAnyCassete(a));
 
   const stepsHTML = showSteps
@@ -199,16 +137,12 @@ export const generateHTMLOS = (payload: SendEmailPayload): string => {
   const atmsHTML = (payload.atms ?? [])
     .map((a, idx) => {
       const spacer = idx === 0 ? "" : `<div style="height: 28px;"></div>`;
-      return spacer + renderAtmBlock(a, dateBR);
+      return spacer + renderAtmBlock(a);
     })
     .join("");
 
   return `
     <div style="font-family: Arial, sans-serif; color: #000;">
-      <div style="font-size: 15px; font-weight: bold;">
-        ${treasuryName} - ${dateBR}
-      </div>
-
       <div style="margin-top: 18px; font-size: 14px;">
         Prezados,<br/><br/>
         ${title}

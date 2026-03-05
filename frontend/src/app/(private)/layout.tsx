@@ -6,6 +6,7 @@ import '../../lib/fontawesome';
 import { cn } from '@/lib/utils';
 import { Sidebar } from '../components/ui/Sidebar';
 import { SocketProvider } from '../context/SocketContext';
+import { OpenOSSocketListener } from '../provider/OpenOSSocketListener';
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
         <SocketProvider>
           <Sidebar />
           {children}
+          <OpenOSSocketListener />
           <Toaster richColors duration={4000} />
         </SocketProvider>
       </body>

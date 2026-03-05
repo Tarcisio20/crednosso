@@ -138,7 +138,7 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
   try {
     const supply = await getSupplyByDate(date);
 
-    console.log("Supplies encontrados para a data:", date, supply?.length ?? 0);
+    //console.log("Supplies encontrados para a data:", date, supply?.length ?? 0);
 
     if (!supply || supply.length === 0) {
       await createLog({
@@ -159,7 +159,6 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
       return;
     }
 
-    // 2) Monta array com TODOS os dados + e-mails + nome da tesouraria + nome do ATM + cardOperator
     const dataWithEmail = await Promise.all(
       supply.map(async (item) => {
         const treasuryId = (item as any).id_treasury;
@@ -172,7 +171,6 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
           Id_Card(treasuryId),
         ]);
 
-        // ----- CONTATOS: só status true / active -----
         const contactListRaw = Array.isArray(contacts)
           ? contacts
           : contacts
@@ -190,7 +188,7 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
 
         const to = emails.join(",");
 
-        // ----- Nome da tesouraria -----
+  
         const treasuryName =
           (treasury as any)?.name ??
           (treasury as any)?.treasury_name ??
@@ -198,7 +196,6 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
             ? treasury[0]?.name ?? treasury[0]?.treasury_name
             : undefined);
 
-        // ----- Nome do ATM -----
         const atmName =
           (atm as any)?.name ??
           (atm as any)?.atm_name ??
@@ -206,7 +203,7 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
             ? atm[0]?.name ?? atm[0]?.atm_name
             : undefined);
 
-        // ----- CARD-OPERATOR: só status true, pega o primeiro -----
+  
         const cardOpArrayRaw = Array.isArray(cardOperatorRaw)
           ? cardOperatorRaw
           : cardOperatorRaw
@@ -220,54 +217,45 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
         const cardOperator = cardOpEnabled[0] ?? null;
         const cardOpAny = cardOperator as any;
 
-        // usando o shape real: name + number_card
         const operatorCardNumber = cardOpAny?.number_card ?? null;
         const operatorName = cardOpAny?.name ?? null;
 
         const exchangeFlag = Boolean((item as any).total_exchange);
 
         const row = {
-          // campos do supply
           id_supply: (item as any).id,
           id_atm: atmId,
           atmName,
           id_order: item.id_order,
-          total_exchange: item.total_exchange, // campo original do banco
-          exchange: exchangeFlag,             // usado para template
+          total_exchange: item.total_exchange, 
+          exchange: exchangeFlag,            
           date_on_supply: item.date_on_supply,
           cassete_A: item.cassete_A,
           cassete_B: item.cassete_B,
           cassete_C: item.cassete_C,
           cassete_D: item.cassete_D,
           status: item.status,
-
-          // relacionamento
           id_treasury: treasuryId,
           treasuryName,
-
-          // cardOperator (cartão do operador da transportadora)
           operatorCardNumber,
           operatorName,
-
-          // e-mails (apenas contatos ativos)
           emails,
           to,
         };
 
-        console.log(
-          "[ROW EMAIL OS]",
-          `supply=${row.id_supply}`,
-          `atm=${row.id_atm}`,
-          `treasury=${row.id_treasury}`,
-          `exchange=${row.exchange}`,
-          `to=${row.to}`
-        );
+        // console.log(
+        //   "[ROW EMAIL OS]",
+        //   `supply=${row.id_supply}`,
+        //   `atm=${row.id_atm}`,
+        //   `treasury=${row.id_treasury}`,
+        //   `exchange=${row.exchange}`,
+        //   `to=${row.to}`
+        // );
 
         return row;
       })
     );
 
-    // 3) Agrupa por tesouraria para mandar 1 e-mail por tesouraria
     type Grouped = {
       to: string;
       treasuryName?: string;
@@ -290,7 +278,6 @@ export const sendEmailToOS: RequestHandler = async (req, res) => {
       groupedByTreasury[key].records.push(row);
     }
 
-    // 4) Envia 1 e-mail por tesouraria
     let allOk = true;
 
     for (const treasuryId of Object.keys(groupedByTreasury)) {

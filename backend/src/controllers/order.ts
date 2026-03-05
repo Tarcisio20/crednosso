@@ -1743,7 +1743,7 @@ export const getOrderForDay: RequestHandler = async (req, res): Promise<void> =>
     treasuryIds.forEach((idTreasury, idx) => {
       const rows = toRows(treasurySystemsRaw[idx]);
       const row = rows[0];
-      treasuryNameById.set(Number(idTreasury), row?.short_name ?? null);
+      treasuryNameById.set(Number(idTreasury), row?.name ?? null);
     });
 
     const atmsRaw = await Promise.all(

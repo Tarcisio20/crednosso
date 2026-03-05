@@ -134,10 +134,8 @@ export type SendEmailAtmItem = {
   cassete_b: number;
   cassete_c: number;
   cassete_d: number;
-
   id_atm: number;
   atm_name: string;
-
   os?: string;
   situacao?: string;
   valor?: string;
@@ -152,14 +150,37 @@ export type SendEmailPayload = {
   atms: SendEmailAtmItem[];
 };
 
+function formatDateBR(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
+
+
+function hasAnyCassete(a: SendEmailAtmItem) {
+  return (
+    Number(a.cassete_a || 0) > 0 ||
+    Number(a.cassete_b || 0) > 0 ||
+    Number(a.cassete_c || 0) > 0 ||
+    Number(a.cassete_d || 0) > 0
+  );
+}
+
 export const sendEmailOnOS = async (payload: SendEmailPayload) => {
   if (!payload?.email?.length) return { ok: false, error: "Sem emails." };
   if (!payload?.atms?.length) return { ok: false, error: "Sem ATMs." };
 
-  const dateBR = new Date(payload.date_on_supply).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  const dateBR = formatDateBR(payload.date_on_supply);
 
-  const anyExchange = payload.atms.some((a) => a.total_exchange === true);
-  const tipoOs = anyExchange ? "CREDNOSSO - TROCA TOTAL" : "CREDNOSSO - ABASTECIMENTO COMPLEMENTAR";
+  const hasTroca = payload.atms.some((a) => a.total_exchange === true && hasAnyCassete(a));
+  const hasRecolh = payload.atms.some((a) => a.total_exchange === true && !hasAnyCassete(a));
+
+  const tipoOs = hasTroca
+    ? "CREDNOSSO - TROCA TOTAL"
+    : hasRecolh
+      ? "CREDNOSSO - RECOLHIMENTO TOTAL"
+      : "CREDNOSSO - ABASTECIMENTO COMPLEMENTAR";
+
+
   const subject = `${tipoOs} - ${payload.treasury_name} - ${dateBR}`;
 
   const html = generateHTMLOS(payload);

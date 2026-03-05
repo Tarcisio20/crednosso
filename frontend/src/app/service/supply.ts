@@ -371,7 +371,7 @@ export type openOSProps = {
   cassete_C : number;
   cassete_D : number;
 }
-export const openOS = async (data : openOSProps[]) => {
+export const openOS = async (data : {socketId: string | undefined, data : openOSProps[]}) => {
    const token = Cookies.get('tokenSystemCredNosso')
     try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/open-os/`, data, {
