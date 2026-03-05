@@ -989,10 +989,7 @@ export const openOS: RequestHandler = async (req, res) => {
 
       emit("openos:progress", { jobId, step: "python", message: "Gerando OS via automação..." });
 
-      const osGeradas = (await runOpenOsPython(pyPayload, {
-        timeoutMs: 300000,
-        debug: true,
-      })) as OsGerada[];
+      const osGeradas = (await runOpenOsPython(pyPayload)) as OsGerada[];
 
       const osMap = new Map<number, OsGerada>();
       for (const item of osGeradas ?? []) {

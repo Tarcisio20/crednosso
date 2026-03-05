@@ -13,13 +13,13 @@ export type PythonInputRow = {
 };
 
 type RunOpts = {
-  timeoutMs?: number;
+  timeoutMs?: number;          // 0 ou undefined = sem timeout
   debug?: boolean;
   scriptPathOverride?: string;
 };
 
 export function runOpenOsPython(rows: PythonInputRow[], opts: RunOpts = {}) {
-  const { timeoutMs = 180000, debug = true, scriptPathOverride } = opts;
+  const { timeoutMs = 0, debug = true, scriptPathOverride } = opts;
 
   console.log("[PY] runOpenOsPython called. rows=", rows?.length);
 
@@ -30,39 +30,42 @@ export function runOpenOsPython(rows: PythonInputRow[], opts: RunOpts = {}) {
         process.env.OPEN_OS_PY_PATH ||
         "src/script/bot-os.py";
 
-      console.log("[PY] rawPath =", rawPath);
-      console.log("[PY] cwd =", process.cwd());
-
       const scriptPath = path.isAbsolute(rawPath)
         ? rawPath
         : path.resolve(process.cwd(), rawPath);
 
-      console.log("[PY] resolved scriptPath =", scriptPath);
-
-      const exists = fs.existsSync(scriptPath);
-      console.log("[PY] existsSync =", exists);
-
-      if (!exists) {
-        return reject(new Error(`Script python não encontrado: ${scriptPath} (raw: ${rawPath})`));
+      if (!fs.existsSync(scriptPath)) {
+        return reject(
+          new Error(`Script python não encontrado: ${scriptPath} (raw: ${rawPath})`)
+        );
       }
 
       const cmd = process.env.PYTHON_CMD || "python";
       const args = [scriptPath];
-
-      console.log("[PY] cmd =", cmd);
-      console.log("[PY] spawn =", cmd, args.join(" "));
-      console.log("[PY] starting process...");
 
       const py = spawn(cmd, args, { stdio: ["pipe", "pipe", "pipe"], env: process.env });
 
       let out = "";
       let err = "";
 
-      const timer = setTimeout(() => {
-        console.log("[PY] timeout, matando processo...");
-        try { py.kill("SIGKILL"); } catch {}
-        reject(new Error(`Python timeout após ${timeoutMs}ms.\nSTDERR:\n${err}\nSTDOUT:\n${out}`));
-      }, timeoutMs);
+      // ✅ timer opcional
+      let timer: NodeJS.Timeout | null = null;
+      const clearTimer = () => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+      };
+
+      if (timeoutMs && timeoutMs > 0) {
+        timer = setTimeout(() => {
+          console.log("[PY] timeout, matando processo...");
+          try { py.kill("SIGKILL"); } catch {}
+          reject(
+            new Error(`Python timeout após ${timeoutMs}ms.\nSTDERR:\n${err}\nSTDOUT:\n${out}`)
+          );
+        }, timeoutMs);
+      }
 
       py.on("spawn", () => console.log("[PY] processo iniciado pid:", py.pid));
 
@@ -79,12 +82,12 @@ export function runOpenOsPython(rows: PythonInputRow[], opts: RunOpts = {}) {
       });
 
       py.on("error", (e) => {
-        clearTimeout(timer);
+        clearTimer();
         reject(new Error(`[PY] erro ao iniciar: ${e.message}`));
       });
 
       py.on("close", (code) => {
-        clearTimeout(timer);
+        clearTimer();
         console.log("[PY] finalizou code:", code);
 
         if (code !== 0) {
