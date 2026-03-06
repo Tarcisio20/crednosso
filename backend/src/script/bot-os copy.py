@@ -65,79 +65,72 @@ def validate_payload(rows):
     return True, ""
 
 
-def mark_checkbox_if_needed(navegador, xpath):
-    el = WebDriverWait(navegador, 10).until(
-        EC.presence_of_element_located((By.XPATH, xpath))
-    )
-    try:
-        aria_checked = el.get_attribute("aria-checked")
-        if aria_checked != "true":
-            el.click()
-    except Exception:
-        try:
-            cls = el.get_attribute("class") or ""
-            if "ui-state-active" not in cls:
-                el.click()
-        except Exception:
-            el.click()
-    time.sleep(1)
+def recover_num_os(navegador, terminais):
+    numOSs = []
+    for terminal in terminais:
+        elementNumAtm = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/input'))
+        )
+        time.sleep(1)
+        elementNumAtm.clear()
+        time.sleep(1)
 
+        elementNumAtm.send_keys(str(terminal.get('terminal', '')))
+        time.sleep(1)
+        elementNumAtm.send_keys(Keys.TAB)
+        time.sleep(1)
 
-def recover_num_os_single(navegador, terminal):
-    elementNumAtm = WebDriverWait(navegador, 10).until(
-        EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/input'))
-    )
-    time.sleep(1)
-    elementNumAtm.clear()
-    time.sleep(1)
+        checkboxTranspValores = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[6]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]'))
+        )
+        if not checkboxTranspValores.is_selected():
+            checkboxTranspValores.click()
+        time.sleep(1)
 
-    elementNumAtm.send_keys(str(terminal))
-    time.sleep(1)
-    elementNumAtm.send_keys(Keys.TAB)
-    time.sleep(1)
+        checkboxPendente = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[7]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]'))
+        )
+        if not checkboxPendente.is_selected():
+            checkboxPendente.click()
+        time.sleep(1)
 
-    mark_checkbox_if_needed(
-        navegador,
-        '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[6]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]'
-    )
+        checkboxEmAtendimento = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[7]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[3]/div/div[2]'))
+        )
+        if not checkboxEmAtendimento.is_selected():
+            checkboxEmAtendimento.click()
+        time.sleep(1)
 
-    mark_checkbox_if_needed(
-        navegador,
-        '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[7]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]'
-    )
+        buttonSearch = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/table/tbody/tr/td[1]/button'))
+        )
+        buttonSearch.click()
+        time.sleep(5)
 
-    mark_checkbox_if_needed(
-        navegador,
-        '/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[7]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[3]/div/div[2]'
-    )
+        numOS = navegador.find_element(
+            'xpath', '/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[4]/span')
+        situacao = navegador.find_element(
+            'xpath', '/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[8]/span')
 
-    buttonSearch = WebDriverWait(navegador, 10).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, '/html/body/div[2]/div[2]/form/span[1]/table/tbody/tr/td[1]/button'))
-    )
-    buttonSearch.click()
-    time.sleep(5)
+        valorOS = WebDriverWait(navegador, 10).until(
+            EC.presence_of_element_located(
+                (By.ID, 'formularioOrdemServicoAtmConsultar:tabelaDataTable:0:tabelavalortarefaSuprimentoordemNumerarioTOvlExibido'))
+        )
 
-    numOS = WebDriverWait(navegador, 10).until(
-        EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[4]/span'))
-    )
-    situacao = WebDriverWait(navegador, 10).until(
-        EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[8]/span'))
-    )
-    valorOS = WebDriverWait(navegador, 10).until(
-        EC.presence_of_element_located(
-            (By.ID, 'formularioOrdemServicoAtmConsultar:tabelaDataTable:0:tabelavalortarefaSuprimentoordemNumerarioTOvlExibido'))
-    )
+        numOSs.append({
+            'terminal': str(terminal.get('terminal', '')),
+            'os': numOS.text,
+            'situacao': situacao.text,
+            'valor': valorOS.text
+        })
+        time.sleep(1)
 
-    return {
-        'terminal': str(terminal),
-        'os': numOS.text,
-        'situacao': situacao.text,
-        'valor': valorOS.text
-    }
+    return numOSs
 
 
 def main():
@@ -236,8 +229,6 @@ def main():
 
         time.sleep(2)
 
-        result = []
-
         for os_item in normalized:
             elementHidden = navegador.find_element('xpath', '/html/body/div[2]/div[2]/form/table[2]/tbody/tr/td[2]')
             navegador.execute_script("arguments[0].style.display = 'block'", elementHidden)
@@ -248,7 +239,7 @@ def main():
             ).click()
             time.sleep(1)
 
-            print(f"[PY] >> INFORMANDO ATM {os_item.get('terminal', '')}", file=sys.stderr, flush=True)
+            print("[PY] >> INFORMANDO ATM", file=sys.stderr, flush=True)
 
             inputAtm = WebDriverWait(navegador, 15).until(
                 EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div[1]/div[2]/form/span/div/table/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/input'))
@@ -310,7 +301,7 @@ def main():
             def is_zero_or_nan(v):
                 try:
                     return v == 0 or math.isnan(v)
-                except Exception:
+                except:
                     return v == 0
 
             if not (is_zero_or_nan(cassA) and is_zero_or_nan(cassB) and is_zero_or_nan(cassC) and is_zero_or_nan(cassD)):
@@ -380,16 +371,14 @@ def main():
 
             time.sleep(6)
 
-            print(f"[PY] >> RECUPERANDO OS DO TERMINAL {os_item.get('terminal', '')}", file=sys.stderr, flush=True)
-            os_info = recover_num_os_single(navegador, os_item.get("terminal", ""))
-            result.append(os_info)
+        result = recover_num_os(navegador, normalized)
 
         sys.stdout.write(json.dumps(result, ensure_ascii=False))
 
     finally:
         try:
             navegador.quit()
-        except Exception:
+        except:
             pass
 
 

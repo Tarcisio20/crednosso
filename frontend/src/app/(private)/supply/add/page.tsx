@@ -292,7 +292,6 @@ export default function SupplyAdd() {
     return isDivisible(divideBase.a) && isDivisible(divideBase.b) && isDivisible(divideBase.c) && isDivisible(divideBase.d);
   }, [orderInUse, qtTerminais, divideBase]);
 
-  // ✅ MAPAS PARA O MODAL (NOMES CORRETOS)
   const treasuryMap = useMemo(() => {
     const map = new Map<number, string>();
     for (const o of orderFiltered as any[]) {

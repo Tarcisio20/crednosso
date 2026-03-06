@@ -315,5 +315,7 @@ model OsOpen {
   os         String
   situacao   String
   valor      String
+  date_os    DateTime @default(now())
+  send_email  Boolean @default(false)
   status     Boolean @default(true)
 }

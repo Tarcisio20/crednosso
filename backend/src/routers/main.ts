@@ -21,6 +21,7 @@ import * as operationalErrorController from '../controllers/operational-error'
 import * as userController from '../controllers/user'
 import * as socketEventController from '../controllers/socket-event';
 import * as downloadController from '../controllers/download'
+import * as openOSController from '../controllers/open-os'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -199,4 +200,9 @@ mainRouter.get('/download/:page/:pageSize',verifyJWT, downloadController.getAllP
 mainRouter.post('/tarefa-iniciada', socketEventController.notifyScheduler);
 mainRouter.post('/tarefa-finalizada', socketEventController.notifyFinished);
 mainRouter.post('/tarefa-erro', socketEventController.notifySchedulerError);
+
+
+//os
+
+mainRouter.get('/open-os/day/:date', openOSController.getOsOpenForDay)
 

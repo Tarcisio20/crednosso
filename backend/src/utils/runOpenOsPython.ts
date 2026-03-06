@@ -48,7 +48,6 @@ export function runOpenOsPython(rows: PythonInputRow[], opts: RunOpts = {}) {
       let out = "";
       let err = "";
 
-      // ✅ timer opcional
       let timer: NodeJS.Timeout | null = null;
       const clearTimer = () => {
         if (timer) {

@@ -101,7 +101,7 @@ export const ModalOS = ({ close, data, atmMap, treasuryMap }: ModalOSProps) => {
         return;
       }
 
-      await generateExcelOs(selectedSupplies);
+      //await generateExcelOs(selectedSupplies);
 
       const dataItem: openOSProps[] = selectedSupplies.map((item) => ({
         id_supply: Number(item.id),
