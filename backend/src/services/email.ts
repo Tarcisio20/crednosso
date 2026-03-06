@@ -127,8 +127,9 @@ export const sendEmailOdCreateUser = async (name: string, email: string, passwor
 }
 
 export type SendEmailAtmItem = {
-  id_supply: number;
+  os_open_id?: number;
 
+  id_supply: number;
   total_exchange: boolean;
   cassete_a: number;
   cassete_b: number;

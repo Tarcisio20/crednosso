@@ -11,7 +11,7 @@ import { createLog } from "services/logService"
 import { z } from "zod"
 import { normalizeEmails } from "./email"
 import { runOpenOsPython } from "../utils/runOpenOsPython";
-import { addOs, delOS } from "services/os-open";
+import { addOs, delOS, updateOS  } from "services/os-open";
 import { sendEmailOnOS } from "services/email";
 import type { SendEmailPayload } from "services/email";
 
@@ -812,7 +812,7 @@ export const delIndivudual: RequestHandler = async (req, res) => {
   try {
 
     await delOS(Number(id))
-    
+
     const supply = await delSupply(Number(id))
     res.status(200).json({ supply })
     return
@@ -896,6 +896,9 @@ type openOSResponseItem = openOSProps & {
 };
 
 type OsFrontItem = {
+  id?: number | null;
+  send_email?: boolean;
+
   id_supply: number;
   id_treasury: number;
   treasury_name: string;
@@ -941,13 +944,19 @@ export const openOS: RequestHandler = async (req, res) => {
       const emailCache = new Map<number, string[]>();
       const operatorCache = new Map<number, string | null>();
 
-      emit("openos:progress", { jobId, step: "extras", message: "Carregando contatos e cartão operador..." });
+      emit("openos:progress", {
+        jobId,
+        step: "extras",
+        message: "Carregando contatos e cartão operador...",
+      });
 
       const supplyWithExtras: openOSResponseItem[] = await Promise.all(
         data.map(async (item) => {
           const tid = Number(item.id_treasury);
 
-          if (!tid) return { ...item, emails: [], operator_card: null };
+          if (!tid) {
+            return { ...item, emails: [], operator_card: null };
+          }
 
           if (!emailCache.has(tid) || !operatorCache.has(tid)) {
             try {
@@ -956,8 +965,13 @@ export const openOS: RequestHandler = async (req, res) => {
                 getOperatorCardForTreasury(tid),
               ]);
 
-              if (!emailCache.has(tid)) emailCache.set(tid, normalizeEmails(contacts));
-              if (!operatorCache.has(tid)) operatorCache.set(tid, normalizeOperatorCard(ops));
+              if (!emailCache.has(tid)) {
+                emailCache.set(tid, normalizeEmails(contacts));
+              }
+
+              if (!operatorCache.has(tid)) {
+                operatorCache.set(tid, normalizeOperatorCard(ops));
+              }
             } catch {
               if (!emailCache.has(tid)) emailCache.set(tid, []);
               if (!operatorCache.has(tid)) operatorCache.set(tid, null);
@@ -987,14 +1001,20 @@ export const openOS: RequestHandler = async (req, res) => {
         cassete_D: Number(s.cassete_D ?? 0),
       }));
 
-      emit("openos:progress", { jobId, step: "python", message: "Gerando OS via automação..." });
+      emit("openos:progress", {
+        jobId,
+        step: "python",
+        message: "Gerando OS via automação...",
+      });
 
       const osGeradas = (await runOpenOsPython(pyPayload)) as OsGerada[];
 
       const osMap = new Map<number, OsGerada>();
       for (const item of osGeradas ?? []) {
         const term = Number(item?.terminal);
-        if (Number.isFinite(term) && term > 0) osMap.set(term, item);
+        if (Number.isFinite(term) && term > 0) {
+          osMap.set(term, item);
+        }
       }
 
       const os: OsFrontItem[] = supplyWithExtras.map((s) => {
@@ -1021,9 +1041,14 @@ export const openOS: RequestHandler = async (req, res) => {
         };
       });
 
-      emit("openos:progress", { jobId, step: "db", message: "Salvando OS no banco..." });
+      emit("openos:progress", {
+        jobId,
+        step: "db",
+        message: "Salvando OS no banco...",
+      });
       console.log("[OPENOS][PROGRESS] Salvando OS no banco...");
-      await Promise.all(
+
+      const savedOs = await Promise.all(
         os.map((row) =>
           addOs({
             id_supply: row.id_supply,
@@ -1036,15 +1061,31 @@ export const openOS: RequestHandler = async (req, res) => {
         )
       );
 
-      emit("openos:progress", { jobId, step: "email", message: "Montando e enviando e-mails..." });
+      const osWithDbId: OsFrontItem[] = os.map((row, index) => ({
+        ...row,
+        id: savedOs[index]?.id ?? null,
+        send_email: savedOs[index]?.send_email ?? false,
+      }));
+
+      emit("openos:progress", {
+        jobId,
+        step: "email",
+        message: "Montando e enviando e-mails...",
+      });
       console.log("[OPENOS][PROGRESS] Montando e enviando e-mails...");
+
       const byTreasury = new Map<number, SendEmailPayload>();
 
       for (const s of supplyWithExtras) {
         const tid = Number(s.id_treasury);
         if (!tid) continue;
 
-        const row = os.find((x) => Number(x.id_supply) === Number(s.id_supply));
+        const row = osWithDbId.find(
+          (x) =>
+            Number(x.id_supply) === Number(s.id_supply) &&
+            Number(x.id_atm) === Number(s.id_atm)
+        );
+
         const ok = Boolean(row?.status);
         if (!ok) continue;
 
@@ -1060,12 +1101,15 @@ export const openOS: RequestHandler = async (req, res) => {
 
         const bucket = byTreasury.get(tid)!;
 
-        for (const e of (Array.isArray(s.emails) ? s.emails : [])) {
+        for (const e of Array.isArray(s.emails) ? s.emails : []) {
           const clean = String(e).trim();
-          if (clean && !bucket.email.includes(clean)) bucket.email.push(clean);
+          if (clean && !bucket.email.includes(clean)) {
+            bucket.email.push(clean);
+          }
         }
 
         bucket.atms.push({
+          os_open_id: row?.id ?? undefined,
           id_supply: Number(s.id_supply),
           total_exchange: Boolean(s.total_exchange),
           cassete_a: Number(s.cassete_A ?? 0),
@@ -1075,9 +1119,11 @@ export const openOS: RequestHandler = async (req, res) => {
           id_atm: Number(s.id_atm),
           atm_name: String(s.atm_name ?? ""),
           os: row?.os ?? undefined,
-        });
+        } as any);
 
-        if (!bucket.date_on_supply) bucket.date_on_supply = String(s.date_on_supply ?? "");
+        if (!bucket.date_on_supply) {
+          bucket.date_on_supply = String(s.date_on_supply ?? "");
+        }
       }
 
       const emailPayloads = Array.from(byTreasury.values());
@@ -1105,14 +1151,32 @@ export const openOS: RequestHandler = async (req, res) => {
           message: `Enviando: ${payload.id_treasury} - ${payload.treasury_name}`,
         });
 
-        await sendEmailOnOS(payload);
+        const sendResult = await sendEmailOnOS(payload);
+
+        if (sendResult?.ok) {
+          const idsToUpdate = [
+            ...new Set(
+              payload.atms
+                .map((atm: any) => Number(atm.os_open_id))
+                .filter((id: number) => Number.isFinite(id) && id > 0)
+            ),
+          ];
+
+          await Promise.all(
+            idsToUpdate.map((id) =>
+              updateOS(id, {
+                send_email: true,
+              })
+            )
+          );
+        }
       }
 
       const allOk = os.every((x) => x.status === true);
       console.log("[OPENOS][DONE] Finalizado com sucesso!");
-      emit("openos:done", { jobId, ok: allOk, os });
+      emit("openos:done", { jobId, ok: allOk, os: osWithDbId });
     } catch (e: any) {
-       console.log("[OPENOS][DONE] Erro ao finalizar!");
+      console.log("[OPENOS][DONE] Erro ao finalizar!");
       emit("openos:error", {
         jobId,
         ok: false,
