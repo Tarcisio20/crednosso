@@ -10,7 +10,7 @@ import {
 } from "../services/cardOperator";
 import { createLog } from "../services/logService";
 import { diffObjects, sanitizeCardOperator, sanitizeCardOperatorPayload, } from "utils/audit/audit-card-operation";
-import { cardOperatorEditSchema } from "schemas/cardOperatorEditSchema copy";
+import { cardOperatorEditSchema } from "schemas/cardOperatorEditSchema";
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
