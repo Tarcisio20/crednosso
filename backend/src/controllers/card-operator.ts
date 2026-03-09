@@ -10,6 +10,7 @@ import {
 } from "../services/cardOperator";
 import { createLog } from "../services/logService";
 import { diffObjects, sanitizeCardOperator, sanitizeCardOperatorPayload, } from "utils/audit/audit-card-operation";
+import { cardOperatorEditSchema } from "schemas/cardOperatorEditSchema copy";
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -284,7 +285,7 @@ export const update: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "Requisição sem ID!" });
     return
   }
-  const safeData = cardOperatorAddSchema.safeParse(req.body);
+  const safeData = cardOperatorEditSchema.safeParse(req.body);
   if (!safeData.success) {
     await createLog({
       level: "ERROR",
@@ -364,6 +365,7 @@ export const update: RequestHandler = async (req, res) => {
 
 export const del: RequestHandler = async (req, res) => {
   const cardOperatorId = req.params.id;
+  console.log("ID", cardOperatorId)
   if (!cardOperatorId || isNaN(parseInt(cardOperatorId))) {
     await createLog({
       level: "ERROR",

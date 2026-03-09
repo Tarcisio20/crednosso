@@ -162,9 +162,9 @@ export const update = async (id: number, data: cardOperatorType) => {
 export const del = async (id: number) => {
   try {
     const token = Cookies.get("tokenSystemCredNosso");
+    const data = { status : false }
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/card-operator/update/${id}`,
-
+      `${process.env.NEXT_PUBLIC_API_URL}/card-operator/del/${id}`,
       {
         headers: {
           "Content-Type": "application/json",

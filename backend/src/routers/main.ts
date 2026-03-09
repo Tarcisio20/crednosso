@@ -88,7 +88,7 @@ mainRouter.get('/card-operator/:id',verifyJWT, cardOperatorController.getById)
 mainRouter.get('/card-operator/treasury/:id',verifyJWT, cardOperatorController.getByIdTreasury)
 mainRouter.post('/card-operator/add',verifyJWT, cardOperatorController.add)
 mainRouter.post('/card-operator/update/:id',verifyJWT, cardOperatorController.update)
-mainRouter.post('/card-operator/del/:id',verifyJWT, cardOperatorController.del)
+mainRouter.get('/card-operator/del/:id',verifyJWT, cardOperatorController.del)
 
 
 // type-supply

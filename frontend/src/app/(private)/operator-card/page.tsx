@@ -94,6 +94,7 @@ export default function OperatorCard() {
   };
 
   const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+
     e.preventDefault()
     setLoading(true);
     if (!id) {
@@ -102,12 +103,13 @@ export default function OperatorCard() {
       return;
     }
     const deleteCard = await del(id)
+  
     if (deleteCard.status === 300 || deleteCard.status === 400 || deleteCard.status === 500) {
       setLoading(false);
       toast.error('Erro de requisição, tente novamente');
       return;
     }
-    if (deleteCard.status === 200) {
+    if (deleteCard.status === 200 || deleteCard.status === 201) {
       setLoading(false);
       search();
       toast.success('Cartão deletado com sucesso!');
@@ -219,7 +221,7 @@ export default function OperatorCard() {
                         color="#6C8EBF"
                       />
                     </Link>
-                    <a href={`/operator-card/del/${item.id}`}
+                    <a 
                       onClick={(e) => { handleDelete(e, item.id as number) }}
                     >
                       <FontAwesomeIcon
