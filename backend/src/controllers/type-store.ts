@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
-import { addTypeStore, deleteTypeStore, getAllTypeStores, getAllTypeStoresPagination, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
+import { addTypeStore, deleteTypeStore, getAllTypeStores, getAllTypeStoresPagination, getTypeStoreBySlug, getTypeStoreForId, updateTypeStore } from "../services/typeStore";
 import { typeStoreAddSchema } from "../schemas/typeStoreAddSchema";
 import { createLog } from "services/logService";
+import { generateBaseSlug } from "utils/generateBaseSlug";
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -101,9 +102,28 @@ export const getAllPagination: RequestHandler = async (req, res) => {
   }
 };
 
+const generateUniqueSlug = async (name: string): Promise<string> => {
+  const baseSlug = generateBaseSlug(name);
+
+  let slug = baseSlug;
+  let count = 1;
+
+  while (true) {
+    const exists = await getTypeStoreBySlug(slug);
+
+    if (!exists) {
+      return slug;
+    }
+
+    slug = `${baseSlug}_${count}`;
+    count++;
+  }
+};
+
 
 export const add: RequestHandler = async (req, res) => {
   const safeData = typeStoreAddSchema.safeParse(req.body);
+
   if (!safeData.success) {
     await createLog({
       level: "ERROR",
@@ -115,14 +135,20 @@ export const add: RequestHandler = async (req, res) => {
       statusCode: 400,
       resource: "typeStore",
       meta: { error: safeData.error.flatten().fieldErrors },
-    })
-    res.json({ error: safeData.error.flatten().fieldErrors });
+    });
+
+    res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     return;
   }
+
   try {
+    const slug = await generateUniqueSlug(safeData.data.name);
+
     const newTStore = await addTypeStore({
       name: safeData.data.name,
+      slug,
     });
+
     if (!newTStore) {
       await createLog({
         level: "ERROR",
@@ -131,13 +157,15 @@ export const add: RequestHandler = async (req, res) => {
         userSlug: req.userSlug ?? null,
         route: req.route?.path ?? null,
         method: req.method ?? null,
-        statusCode: 401,
+        statusCode: 500,
         resource: "typeStore",
         meta: { error: "Erro ao salvar!" },
-      })
-      res.status(401).json({ error: "Erro ao salvar!" });
+      });
+
+      res.status(500).json({ error: "Erro ao salvar!" });
       return;
     }
+
     await createLog({
       level: "INFO",
       action: "ADD_TYPE_STORE",
@@ -145,12 +173,13 @@ export const add: RequestHandler = async (req, res) => {
       userSlug: req.userSlug ?? null,
       route: req.route?.path ?? null,
       method: req.method ?? null,
-      statusCode: 200,
+      statusCode: 201,
       resource: "typeStore",
       meta: { message: "Sucesso ao salvar!" },
-    })
-    res.status(200).json({ typeStore: newTStore });
-    return
+    });
+
+    res.status(201).json({ typeStore: newTStore });
+    return;
   } catch (error) {
     await createLog({
       level: "ERROR",
@@ -159,12 +188,15 @@ export const add: RequestHandler = async (req, res) => {
       userSlug: req.userSlug ?? null,
       route: req.route?.path ?? null,
       method: req.method ?? null,
-      statusCode: 401,
+      statusCode: 500,
       resource: "typeStore",
-      meta: { error: "Erro ao salvar!" },
-    })
-    res.status(401).json({ error: "Erro ao salvar!" });
-    return
+      meta: {
+        error: error instanceof Error ? error.message : "Erro ao salvar!",
+      },
+    });
+
+    res.status(500).json({ error: "Erro ao salvar!" });
+    return;
   }
 };
 

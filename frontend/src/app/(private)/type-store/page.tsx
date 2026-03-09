@@ -68,6 +68,7 @@ export default function TypeStore() {
             <tr>
               <th>ID</th>
               <th>Nome</th>
+              <th>Slug</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
@@ -77,6 +78,7 @@ export default function TypeStore() {
               <tr key={key} className={`h-12 ${key % 2 === 0 ? 'bg-gray-800' : 'bg-gray-600'} hover:bg-zinc-300 transition-colors hover:text-black`}>
                 <td>{item.id}</td>
                 <td>{item.name}</td>
+                <td>{item.slug}</td>
                 <td>
                   {item.status ? (
                     <FontAwesomeIcon icon={faCheck} size="2x" color="#2E8B57" />

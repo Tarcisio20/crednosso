@@ -13,6 +13,17 @@ export const getAllTreasury = async () => {
   }
 }
 
+export const getAllTreasuryConditional = async () => {
+  try {
+    return await prisma.treasury.findMany({
+      where: { status: true,  id_type_store: { not: 3 },}
+    })
+  } catch (err) {
+    console.log("SERVICE => [TREASURY] *** FUNCTION => [GET_ALL_TREASURY] *** ERROR =>", err)
+    return null
+  }
+}
+
 export const getAllTreasuryPagination = async (page: number, pageSize: number) => {
   try {
     const skip = (page - 1) * pageSize;

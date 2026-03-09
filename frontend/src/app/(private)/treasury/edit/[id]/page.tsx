@@ -39,7 +39,6 @@ export default function TreasuryEdit() {
   const { id } = useParams();
   const router = useRouter();
 
-  // Redirecionamento seguro com useEffect
   useEffect(() => {
     if (!id) {
       router.push("/treasury");
@@ -82,6 +81,7 @@ export default function TreasuryEdit() {
   const getTreasuryByIdSystem = async () => {
     setLoading(true);
     const treasuryOne = await getByIdSystem(id as string);
+    console.log("treasuryOne", treasuryOne);
     if ([300, 400, 500].includes(treasuryOne.status)) {
       setError({ type: "error", title: "Error", messege: "Erro na requisição, tentar novamente!" });
       toast.error("Erro na requisição, tentar novamente!");
@@ -99,7 +99,7 @@ export default function TreasuryEdit() {
       setNameForEmailTreasury(t.name_for_email);
       setNumGMCoreTreasury(t.gmcore_number);
       setEnanbledGMcoreTreasury(t.enabled_gmcore);
-      setIdTypeStore(t.id_type_store);
+      setIdTypeStore(String(t.id_type_store));
       setIdTypeSupply(t.id_type_supply);
       setRegionTreasury(t.region);
       setSaldoTreasury(generateValueTotal(t.bills_10, t.bills_20, t.bills_50, t.bills_100));
@@ -160,7 +160,19 @@ export default function TreasuryEdit() {
 
 
     setTypeStores(tStore.typeStore);
-    setIdTypeStore(tStore.typeStore[0].id?.toString() || '');
+    const getTypeStore = async () => {
+      setLoading(true);
+      const tStore: any = await getllTypeStore();
+
+      if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
+        setLoading(false);
+        toast.error("Sem dados a mostrar, tente novamente!");
+        return;
+      }
+
+      setTypeStores(tStore.typeStore);
+      setLoading(false);
+    };
     setLoading(false);
 
 
@@ -362,16 +374,15 @@ export default function TreasuryEdit() {
                 value={idTypeStore}
                 onChange={(e) => setIdTypeStore(e.target.value)}
               >
-                {typeStores &&
-                  typeStores.map((item, index) => (
-                    <option
-                      className="uppercase bg-slate-700 text-white"
-                      value={item.id}
-                      key={index}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
+                {typeStores?.map((item) => (
+                  <option
+                    className="uppercase bg-slate-700 text-white"
+                    value={String(item.id)}
+                    key={item.id}
+                  >
+                    {item.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

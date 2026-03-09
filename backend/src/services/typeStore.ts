@@ -88,3 +88,14 @@ export const deleteTypeStore = async (id: number) => {
     return null
   }
 }
+
+export const getTypeStoreBySlug = async (slug: string) => {
+  try {
+    return await prisma.typeStore.findFirst({
+      where: { slug },
+    });
+  } catch (err) {
+    console.log("SERVICE => [GET TYPE STORE BY SLUG] ERROR =>", err);
+    return null;
+  }
+};

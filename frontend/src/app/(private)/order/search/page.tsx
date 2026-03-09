@@ -31,7 +31,7 @@ import { returnNameTypeOperation } from "@/app/utils/returnNameTypeOperation";
 import { generateTotalInReal } from "@/app/utils/generateTotalinReal";
 import { returnIfMateus } from "@/app/utils/returnIfMateus";
 import { pdfGeneratorPaymentType } from "@/types/pdfGeneratorPaymentType";
-import { sendEmailToOrder } from "@/app/service/email";
+import { sendEmailToOrder, sendEmailToOrderAsync } from "@/app/service/email";
 import { generateMultiTableExcel } from "@/app/utils/generateMultiTableExcel";
 import { ModalMessege } from "@/app/components/ux/ModalMessege";
 import { getTextColorLine } from "@/app/utils/getTextColorLine";
@@ -39,6 +39,8 @@ import { bankType } from "@/types/bankType";
 import { getAllBanks } from "@/app/service/bank";
 import { ModalValidated } from "@/app/components/ux/ModalValidated";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { socket } from "@/lib/socket";
 
 type OrderType = orderType & {
   confirmed_total?: number;
@@ -46,6 +48,8 @@ type OrderType = orderType & {
 }
 
 export default function Order() {
+
+  const router = useRouter()
 
   const [typeOperations, setTypeOperations] = useState<typeOperationType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
@@ -209,7 +213,7 @@ export default function Order() {
     }
     // const orderSarch = await searchOrdersForDatePagination(data, currentPage, pageSize)
     const orderSarch = await searchOrdersForDate(data)
-
+    console.log("orders", orderSarch)
     if (orderSarch.status === 300 || orderSarch.status === 400 || orderSarch.status === 500) {
       setLoading(false)
       toast.error('Erro de requisição, tentar novamente!')
@@ -719,42 +723,96 @@ export default function Order() {
     setLoading(false)
   }
 
-  const sendEmail = async () => {
+  // const sendEmailA = async () => {
 
-    setLoading(true)
-    const countTrue = itemsChecks.filter(item => item.status === true).length
-    if (countTrue === 0) {
-      setLoading(false)
-      toast.error('Selecione 1 item para continuar')
-      return
+  //   setLoading(true)
+  //   const countTrue = itemsChecks.filter(item => item.status === true).length
+  //   if (countTrue === 0) {
+  //     setLoading(false)
+  //     toast.error('Selecione 1 item para continuar')
+  //     return
+  //   }
+  //   const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
+  //       ${itemsChecks
+  //       .filter(item => item.status === true)
+  //       .map(item => item.id)
+  //       .join(',')}
+  //     `);
+  //   if (!confirmAlter) {
+  //     setLoading(false)
+  //     toast.error('Cancelado a operação')
+  //     return
+  //   }
+  //   const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
+  //   const emails = await sendEmailToOrder(idsSelected)
+  //   if (emails.status === 300 || emails.status === 400 || emails.status === 500) {
+  //     setLoading(false)
+  //     toast.error('Erro na requisição, tentar novamente!')
+  //     return
+  //   }
+  //   if (emails.data.email) {
+  //     setLoading(false)
+  //     toast.success('E-mail enviado com sucesso')
+  //     return
+  //   }
+  //   setLoading(false)
+  //   toast.error('Erro ao Enviar e-mail, tentar novamente!')
+  //   return
+  // }
+
+  const sendEmail = async () => {
+    setLoading(true);
+
+    const selectedItems = itemsChecks.filter((item) => item.status === true);
+
+    if (selectedItems.length === 0) {
+      setLoading(false);
+      toast.error("Selecione 1 item para continuar");
+      return;
     }
+
     const confirmAlter = window.confirm(`Tem certeza que deseja Confirmar total este(s) id(s)?
-        ${itemsChecks
-        .filter(item => item.status === true)
-        .map(item => item.id)
-        .join(',')}
-      `);
+${selectedItems.map((item) => item.id).join(",")}`);
+
     if (!confirmAlter) {
-      setLoading(false)
-      toast.error('Cancelado a operação')
-      return
+      setLoading(false);
+      toast.error("Cancelado a operação");
+      return;
     }
-    const idsSelected = itemsChecks.filter(item => item.status === true).map(item => item.id_order)
-    const emails = await sendEmailToOrder(idsSelected)
-    if (emails.status === 300 || emails.status === 400 || emails.status === 500) {
-      setLoading(false)
-      toast.error('Erro na requisição, tentar novamente!')
-      return
+
+    try {
+      const idsSelected = selectedItems.map((item) => item.id_order);
+
+      const response = await sendEmailToOrderAsync({
+        idsOrder: idsSelected,
+        socketId: socket.id,
+        date: dateInitial,
+      });
+
+      if (response.status !== 202) {
+        setLoading(false);
+        toast.error("Erro ao iniciar envio, tente novamente!");
+        return;
+      }
+
+      sessionStorage.setItem(
+        `email-job:${response.data.jobId}`,
+        JSON.stringify(idsSelected)
+      );
+
+      setLoading(false);
+      toast.success("Processamento iniciado com sucesso!");
+
+      router.push(
+        `/order/email-status/?date=${dateInitial}&jobId=${response.data.jobId}`
+      );
+    } catch (error) {
+      setLoading(false);
+      toast.error("Erro ao iniciar envio, tente novamente!");
     }
-    if (emails.data.email) {
-      setLoading(false)
-      toast.success('E-mail enviado com sucesso')
-      return
-    }
-    setLoading(false)
-    toast.error('Erro ao Enviar e-mail, tentar novamente!')
-    return
-  }
+  };
+
+
 
   const generateReport = async () => {
     setLoading(true)

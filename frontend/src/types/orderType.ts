@@ -17,5 +17,6 @@ export type orderType = {
     for_payment ?: boolean;
     for_release ?: boolean;
     status_order : number;
+    send_email_status ?: string;
     observation : string;
 }

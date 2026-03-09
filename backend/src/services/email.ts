@@ -2,39 +2,72 @@ import { generateTableOS } from "utils/generateTableOS";
 import transporter from "../utils/emailConfig";
 import { generateEmailTableHTML } from "../utils/generateHtml";
 import { generateHTMLOS } from "utils/generateHTMLOS";
+import { alterRequestsOrderForID } from "./order";
+import { OrderLevel } from "@prisma/client";
 
-export const sendEmailOfOrder = async (emails: string, orders: any) => {
-  const html = generateEmailTableHTML(orders)
-  const dt = new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })
-  const emailList = emails.split(',').map(email => email.trim());
+export const sendEmailOfOrder = async (emails: string, orders: any[]) => {
+  if (!orders || orders.length === 0) {
+    return { ok: false, error: "Sem pedidos para enviar." };
+  }
+
+  const html = generateEmailTableHTML(orders);
+
+  const ccFixed = [
+    "tarcisio.silva@crednosso.com.br",
+    "dillan.sousa@crednosso.com.br",
+    "luis.lopes@crednosso.com.br",
+    "joao.rocha@crednosso.com.br",
+    "kalebe.marques@crednosso.com.br",
+  ];
+
+  const toList = [
+    ...new Set(
+      emails
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean)
+    ),
+  ];
+
+  const ccList = [...new Set(ccFixed)];
+
+  if (toList.length === 0) {
+    return { ok: false, error: "Sem e-mails de destino." };
+  }
+
+  const dateBR = new Date(orders[0].date).toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
 
   try {
-    for (const email of emailList) {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email + ',tarcisio.silva@crednosso.com.br,dillan.sousa@crednosso.com.br,luis.lopes@crednosso.com.br,joao.rocha@crednosso.com.br,kalebe.marques@crednosso.com.br',
-        subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`,
-        html: `
-      Prezados, <br><br><br>
-
-      Segue valores solicitados para abastecimentos dos terminais Crednosso.
-      <br><br><br>
-      Os valore devem ser provisionados até a data ${new Date(orders[0].date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}.
-      <br><br><br>
-      Acusar recebimento deste Email.
-      <br><br>
-      ${html} 
-      <br><br><br>
-      Atenciosamente,
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: toList.join(","),
+      cc: ccList.join(","),
+      subject: `Solicitação de numerario para abastecimento dos terminais Crednosso - ${dateBR}`,
+      html: `
+        Prezados, <br><br><br>
+        Segue valores solicitados para abastecimentos dos terminais Crednosso.
+        <br><br><br>
+        Os valores devem ser provisionados até a data ${dateBR}.
+        <br><br><br>
+        Acusar recebimento deste Email.
+        <br><br>
+        ${html}
+        <br><br><br>
+        Atenciosamente,
       `,
-      });
-    }
-    return true
+    });
+
+    return { ok: true };
   } catch (err) {
-    console.log("SERVICE => [EMAIL] *** FUNCTION => [SEND_EMAIL_OF_ORDER] *** ERROR =>", err)
-    return err
+    console.log(
+      "SERVICE => [EMAIL] *** FUNCTION => [SEND_EMAIL_OF_ORDER] *** ERROR =>",
+      err
+    );
+    return { ok: false, error: err };
   }
-}
+};
 
 export async function sendOsEmail(params: {
   date: string;
@@ -128,7 +161,6 @@ export const sendEmailOdCreateUser = async (name: string, email: string, passwor
 
 export type SendEmailAtmItem = {
   os_open_id?: number;
-
   id_supply: number;
   total_exchange: boolean;
   cassete_a: number;
@@ -205,3 +237,4 @@ export const sendEmailOnOS = async (payload: SendEmailPayload) => {
     return { ok: false, error: err?.message ?? String(err) };
   }
 };
+

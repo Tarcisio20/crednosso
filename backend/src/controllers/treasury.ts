@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { treasuryAddSchema } from "../schemas/treasuryAdd";
-import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, getTreasuriesInOrderForDate, updateTreasury } from "../services/treasury";
+import { addBalanceInTreasuryByIdSystem, addTreasury, delTreasury, getAllTreasury, getAllTreasuryConditional, getAllTreasuryPagination, getForIdSystem, getForIdSystemEdit, getTreasuriesInOrderForDate, updateTreasury } from "../services/treasury";
 import { treasuryAddBalanceSchema } from "../schemas/treasuryAddBalance";
 import { getIdTreasuriesOrderByDate } from "../services/order";
 import { createLog } from "services/logService";
@@ -8,6 +8,54 @@ import { createLog } from "services/logService";
 export const getAll: RequestHandler = async (req, res) => {
   try {
     const treasury = await getAllTreasury()
+    if (!treasury) {
+      await createLog({
+        level: "ERROR",
+        action: "GET_ALL_TREASURY",
+        message: "Erro ao carregar!",
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: "treasury",
+        meta: { error: "Erro ao carregar!" },
+      })
+      res.status(401).json({ error: 'Erro ao carregar!' })
+      return
+    }
+    await createLog({
+      level: "INFO",
+      action: "GET_ALL_TREASURY",
+      message: "Sucesso ao carregar!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: "treasury",
+      meta: { message: "Sucesso ao carregar!" },
+    })
+    res.status(200).json({ treasury })
+    return
+  } catch (error) {
+    await createLog({
+      level: "ERROR",
+      action: "GET_ALL_TREASURY",
+      message: "Erro ao carregar!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: "treasury",
+      meta: { error: "Erro ao carregar!" },
+    })
+    res.status(401).json({ error: 'Erro ao carregar!' })
+    return
+  }
+}
+
+export const getAllConditional: RequestHandler = async (req, res) => {
+  try {
+    const treasury = await getAllTreasuryConditional()
     if (!treasury) {
       await createLog({
         level: "ERROR",

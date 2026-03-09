@@ -8,7 +8,7 @@ import { Button } from "@/app/components/ui/Button";
 import { Loading } from "@/app/components/ux/Loading";
 import { getAll } from "@/app/service/type-operation";
 import { getAll as getAllTypeOrder } from "@/app/service/type-order";
-import { getAll as getAllTreasury } from "@/app/service/treasury";
+import { getAllConditional } from "@/app/service/treasury";
 import { typeOperationType } from "@/types/typeOperationType";
 import { treasuryType } from "@/types/treasuryType";
 import { typeOrderType } from "@/types/typeOrderType";
@@ -78,7 +78,7 @@ export default function Order() {
 
   const treasuriesFunction = async () => {
     setLoading(true)
-    const t = await getAllTreasury()
+    const t = await getAllConditional()
     if (t.status === 300 || t.status === 400 || t.status === 500) {
       setLoading(false)
       toast.error('Erro na requisição, tentar novamente!')

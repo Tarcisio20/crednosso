@@ -3,7 +3,7 @@ import { prisma } from "../utils/prisma"
 
 export type FilterOrdersDTO = {
   transportadora?: string | null;
-  statusPedido?: number[] | string | null; // aceita array OU string "1,2,3"
+  statusPedido?: number[] | string | null; 
   datas?: {
     inicial?: string | null;
     final?: string | null;
@@ -139,13 +139,14 @@ export const addOrder = async (data: Prisma.OrderCreateInput) => {
 }
 
 type alterRequestsOrderType = {
-  requested_value_A: number;
-  requested_value_B: number;
-  requested_value_C: number;
-  requested_value_D: number;
+  requested_value_A?: number;
+  requested_value_B?: number;
+  requested_value_C?: number;
+  requested_value_D?: number;
   observation?: string
+  send_email_status?: string
 }
-export const alterRequestsOrderForID = async (id: number, data: alterRequestsOrderType) => {
+export const alterRequestsOrderForID = async (id: number, data: Prisma.OrderUpdateInput) => {
   try {
     return await prisma.order.update({
       where: {

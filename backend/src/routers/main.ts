@@ -37,6 +37,7 @@ mainRouter.get('/privateping',verifyJWT, pingController.privatePing)
 
 // TREASURY
 mainRouter.get('/treasury',verifyJWT, treasuryController.getAll)
+mainRouter.get('/treasury-conditional',verifyJWT, treasuryController.getAllConditional)
 mainRouter.get('/treasury-pagination',verifyJWT, treasuryController.getAllPagination)
 mainRouter.get('/treasury/:id',verifyJWT, treasuryController.getByIdSystem)
 mainRouter.post('/treasury/add',verifyJWT, treasuryController.add)
@@ -137,8 +138,9 @@ mainRouter.post('/type-store/update/:id',verifyJWT, typeStoreController.update)
 mainRouter.post('/type-store/delete/:id',verifyJWT, typeStoreController.del)
 
 // e-mail
-mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrder)
+mainRouter.post('/email/send-order',verifyJWT, emailController.sendEmailToOrderAsync)
 mainRouter.post('/email/send-to-os',verifyJWT, emailController.sendEmailToOS)
+mainRouter.get("/order/email-status/:date", verifyJWT, emailController.getEmailStatusForDate)
 
 // Supply
 mainRouter.get('/supply',verifyJWT, supplyController.getAll)

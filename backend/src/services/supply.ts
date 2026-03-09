@@ -220,3 +220,96 @@ function dayRangeUTC(dateStr: string) {
 
   return { start, end };
 }
+
+export const getEmailStatusByDate = async (
+  date: string,
+  ids: number[] = []
+) => {
+  try {
+    const start = new Date(`${date}T00:00:00.000Z`);
+    const nextDay = new Date(start);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+
+    const where: Prisma.OrderWhereInput = {
+      date_order: {
+        gte: start,
+        lt: nextDay,
+      },
+    };
+
+    if (ids.length > 0) {
+      where.id = {
+        in: ids,
+      };
+    }
+
+    const orders = await prisma.order.findMany({
+      where,
+      include: {
+        treasuryDestin: {
+          select: {
+            id_system: true,
+            name_for_email: true,
+          },
+        },
+      },
+      orderBy: {
+        id_treasury_destin: "asc",
+      },
+    });
+
+    const grouped = new Map<
+      number,
+      {
+        id_treasury: number;
+        treasury_name: string;
+        total_orders: number;
+        pending: number;
+        sent: number;
+        error: number;
+      }
+    >();
+
+    for (const order of orders) {
+      const treasuryId = Number(order.id_treasury_destin);
+
+      if (!grouped.has(treasuryId)) {
+        grouped.set(treasuryId, {
+          id_treasury: treasuryId,
+          treasury_name: order.treasuryDestin?.name_for_email ?? "",
+          total_orders: 0,
+          pending: 0,
+          sent: 0,
+          error: 0,
+        });
+      }
+
+      const bucket = grouped.get(treasuryId)!;
+      bucket.total_orders += 1;
+
+      if (order.send_email_status === "ENVIADO") {
+        bucket.sent += 1;
+      } else if (order.send_email_status === "ERROR") {
+        bucket.error += 1;
+      } else {
+        bucket.pending += 1;
+      }
+    }
+
+    return Array.from(grouped.values()).map((item) => ({
+      ...item,
+      status:
+        item.error > 0
+          ? "ERROR"
+          : item.pending > 0
+          ? "PENDENTE"
+          : "ENVIADO",
+    }));
+  } catch (err) {
+    console.log(
+      "SERVICE => [ORDER] *** FUNCTION => [GET_EMAIL_STATUS_BY_DATE] *** ERROR =>",
+      err
+    );
+    return null;
+  }
+};

@@ -1,0 +1,3 @@
+ALTER TABLE `order`
+CHANGE COLUMN `send_email` `send_email_status`
+ENUM('PENDENTE', 'ENVIADO', 'ERROR') NOT NULL DEFAULT 'PENDENTE';
