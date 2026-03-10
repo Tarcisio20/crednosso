@@ -62,8 +62,8 @@ export default function OperationCardAdd() {
 
     const data = {
       id_treasury: parseInt(idTreasury),
-      name: nameOperatorCard.toUpperCase(),
-      number_card: numOperatorCard,
+      name: nameOperatorCard.toUpperCase().trim(),
+      number_card: numOperatorCard.trim(),
       inUse: inUseOperatorCard
     };
 
