@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import { supplyAddSchema } from "../schemas/supplyAddSchema"
-import { addSupply, delSupply, editSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
+import { addSupply, delSupply, editSupply, getAllForDate, getAllForDateAndTreasury, getAllForDatePagination, getAllSupply, getAtmWitSupplyForIdAndDate, getSupplyByDate, getSupplyByIdOs, getSupplyByOrder, getSupplyForIdTreasury, lastRegister } from "../services/supply"
 import { getForIdTreasury as getContactsForTreasury } from "../services/contact";
 import { getForIdTreasury as getOperatorCardForTreasury, normalizeOperatorCard } from "../services/cardOperator";
 import { formatedDateToPTBRforEnglish } from "../utils/formatedDateToPTBRforEnglish"
@@ -10,13 +10,17 @@ import { Prisma } from "@prisma/client"
 import { createLog } from "services/logService"
 import { z } from "zod"
 import { normalizeEmails } from "./email"
-import { runOpenOsPython } from "../utils/runOpenOsPython";
-import { addOs, delOS, updateOS  } from "services/os-open";
+import { runPythonScript } from "../utils/runOpenOsPython";
+import { addOs, delOS, updateOS } from "services/os-open";
 import { sendEmailOnOS } from "services/email";
 import type { SendEmailPayload } from "services/email";
 
 import { v4 as uuid } from "uuid";
 import { getIO } from "utils/socket-event";
+import { get } from "http";
+import { getForId as getAtm } from "services/atm";
+import { getForIdSystem } from "services/treasury";
+import { getOrderById } from "services/order";
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -360,6 +364,87 @@ export const forDate: RequestHandler = async (req, res) => {
       meta: { supply },
     })
     res.status(200).json({ supply })
+    return
+  } catch (error) {
+    await createLog({
+      level: "ERROR",
+      action: "GET_SUPPLY_FOR_ID_TREASURY",
+      message: "Erro ao carregar!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "supply",
+      meta: { error },
+    })
+    res.status(400).json({ error: 'Erro ao carregar!' })
+    return
+  }
+}
+
+export const getSupplyForIdOs: RequestHandler = async (req, res) => {
+
+  const { id_supply } = req.params
+  if (!id_supply || isNaN(parseInt(id_supply))) {
+    await createLog({
+      level: "ERROR",
+      action: "GET_SUPPLY_FOR_ID_OS",
+      message: "Requisição sem ID!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "supply",
+    })
+    res.status(400).json({ error: 'Preciso de um id do abastecimento para continuar!' })
+    return
+  }
+  try {
+    const supply = await getSupplyByIdOs(Number(id_supply))
+
+    const suppyComplet = await Promise.all(
+      (supply ?? []).map(async (item) => {
+        const atm = await getAtm(item.id_atm);
+        const treasury = await getForIdSystem(String(item.id_treasury));
+        const order = (await getOrderById(item.id_order))?.[0];
+        return {
+          ...item,
+          cassete_A_confirmed: order?.confirmed_value_A ?? null,
+          cassete_B_confirmed: order?.confirmed_value_B ?? null,
+          cassete_C_confirmed: order?.confirmed_value_C ?? null,
+          cassete_D_confirmed: order?.confirmed_value_D ?? null,
+          atm_name: atm?.name ?? "",
+          treasury_name: treasury?.short_name ?? "",
+        };
+      })
+    );
+
+    if (!supply) {
+      await createLog({
+        level: "ERROR",
+        action: "GET_SUPPLY_FOR_ID_TREASURY",
+        message: "Erro ao carregar!",
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 400,
+        resource: "supply",
+      })
+      res.status(400).json({ error: 'Erro ao carregar!' })
+      return
+    }
+    await createLog({
+      level: "INFO",
+      action: "GET_SUPPLY_FOR_ID_TREASURY",
+      message: "Sucesso ao carregar!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: "supply",
+      meta: { supply },
+    })
+    res.status(200).json({ supply: suppyComplet })
     return
   } catch (error) {
     await createLog({
@@ -1007,7 +1092,10 @@ export const openOS: RequestHandler = async (req, res) => {
         message: "Gerando OS via automação...",
       });
 
-      const osGeradas = (await runOpenOsPython(pyPayload)) as OsGerada[];
+      const osGeradas = (await runPythonScript(
+        pyPayload,
+        "src/script/bot-os.py"
+      )) as OsGerada[];
 
       const osMap = new Map<number, OsGerada>();
       for (const item of osGeradas ?? []) {

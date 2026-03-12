@@ -4,7 +4,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type PropsInput = {
-    size: 'small' | 'meddium' | 'large' | 'extra-large';
+    size: 'mini' | 'small' | 'meddium' | 'large' | 'extra-large';
     color: string;
     placeholder: string;
     value: string;
@@ -40,15 +40,15 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
     };
 
     const formatEmail = (input: string) => {
-    const cleaned = input.replace(/\s/g, ''); 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const cleaned = input.replace(/\s/g, ''); 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (cleaned === '' || emailRegex.test(cleaned)) {
-        return cleaned;
-    }
+        if (cleaned === '' || emailRegex.test(cleaned)) {
+            return cleaned;
+        }
 
-    return input;
-};
+        return input;
+    };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const input = event.target.value;
@@ -65,7 +65,7 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
                 newValue = formatEmail(input);
                 break;
             default:
-                newValue = input; // Sem máscara, usa valor original
+                newValue = input;
         }
 
         const syntheticEvent = {
@@ -76,11 +76,12 @@ export const Input = ({ size, placeholder, value, onChange, password, icon, read
             }
         };
 
-        onChange(syntheticEvent);
+        onChange(syntheticEvent as React.ChangeEvent<HTMLInputElement>);
     };
 
     return (
-        <div className={`flex items-center bg-slate-700 pt-2 pb-2  pl-2 rounded-md border-4 border-slate-600
+        <div className={`flex items-center bg-slate-700 pt-2 pb-2 pl-2 rounded-md border-4 border-slate-600
+            ${size === 'mini' ? 'w-20 h-11 text-sm' : ''}
             ${size === 'small' ? 'w-64 h-11 text-sm' : ''}
             ${size === 'meddium' ? 'w-72 h-11 text-base' : ''}
             ${size === 'large' ? 'w-80 h-11 text-lg' : ''}

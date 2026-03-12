@@ -155,6 +155,7 @@ mainRouter.post('/supply/day/:day',verifyJWT, supplyController.getAllDay)
 mainRouter.post('/supply/add_all',verifyJWT, supplyController.addAll)
 mainRouter.post('/supply/add_supply',verifyJWT, supplyController.add)
 mainRouter.post('/supply/open-os',verifyJWT, supplyController.openOS)
+mainRouter.get('/supply/get-os-by-supply/:id_supply',verifyJWT, supplyController.getSupplyForIdOs)
 mainRouter.post('/supply/for-day-treasury/:id',verifyJWT, supplyController.getForDayAndTreasury)
 mainRouter.post('/supply/get/get-all-by-date/',verifyJWT, supplyController.getAllSupliesByDate)
 mainRouter.post('/supply/supply/get-supply-open/:id',verifyJWT, supplyController.getAtmsWithSupply)
@@ -207,4 +208,6 @@ mainRouter.post('/tarefa-erro', socketEventController.notifySchedulerError);
 //os
 
 mainRouter.get('/open-os/day/:date', openOSController.getOsOpenForDay)
+mainRouter.get('/open-os/get-os-id/:id', openOSController.getAllById)
+mainRouter.post('/open-os/alter-os', openOSController.alterOS)
 

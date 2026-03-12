@@ -114,7 +114,6 @@ export default function SupplyAdd() {
     return ordersArr.find((order) => Number((order as any).treasury) === Number(id)) || null;
   };
 
-  // saldo atual (já descontando suppliesSelected)
   function handleGenerateEmTesouraria(valorTesouraria: number, typeCassete: number) {
     let valor = 0;
 

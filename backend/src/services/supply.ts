@@ -145,6 +145,19 @@ export const getAtmWitSupplyForIdAndDate = async (id: number, data: { date: stri
   }
 }
 
+export const getSupplyByIdOs = async (id_supply: number) => {
+  try {
+    return await prisma.supply.findMany({
+      where: {
+        id : id_supply
+      }
+    })
+  } catch (err) {
+    console.log("SERVICE => [SUPPLY] *** FUNCTION => [GET_SUPPLY_BY_ID_OS] *** ERROR =>", err)
+    return null
+  }
+}
+
 export const lastRegister = async () => {
   try {
     return await prisma.supply.findFirst({

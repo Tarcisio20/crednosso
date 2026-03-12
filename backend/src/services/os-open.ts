@@ -1,6 +1,15 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
+
+export const getOsForId = async (id : number) => {
+  try{
+    return await prisma.osOpen.findUnique({ where : { id } })
+  }catch(error){
+    console.log("SERVICE => [OPEN OS] *** FUNCTION => [GET_OS_FOR_ID_SUPPLY] *** ERROR =>", error)
+    return null
+  }
+}
 export const addOs = async (data : Prisma.OsOpenCreateInput) => {
  try {
     return await prisma.osOpen.create({ data })
