@@ -44,12 +44,25 @@ export default function Supply() {
     try {
       setLoading(true);
 
-      if (!supplies || supplies.length === 0) {
+      const response = await getSuppliesByDate({ date: dateSupply });
+
+      if (
+        response.status === 300 ||
+        response.status === 400 ||
+        response.status === 500
+      ) {
+        toast.error("Sem abastecimentos para gerar excel!");
+        return;
+      }
+
+      const allSupplies = response?.data?.supply ?? [];
+
+      if (!allSupplies || allSupplies.length === 0) {
         toast.error("Nenhum abastecimento para gerar excel!");
         return;
       }
 
-      const ok = await generateExcelOs(supplies);
+      const ok = await generateExcelOs(allSupplies);
 
       if (!ok) {
         toast.error("Erro ao gerar excel!");
