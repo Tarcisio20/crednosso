@@ -1040,7 +1040,11 @@ export const openOS: RequestHandler = async (req, res) => {
           const tid = Number(item.id_treasury);
 
           if (!tid) {
-            return { ...item, emails: [], operator_card: null };
+            return {
+              ...item,
+              emails: [],
+              operator_card: null,
+            };
           }
 
           if (!emailCache.has(tid) || !operatorCache.has(tid)) {
@@ -1077,13 +1081,29 @@ export const openOS: RequestHandler = async (req, res) => {
       }
 
       const pyPayload = supplyWithExtras.map((s) => ({
+        job_id: jobId,
+        socket_id: socketId ?? null,
+
+        id_supply: Number(s.id_supply),
+        id_treasury: Number(s.id_treasury),
+        treasury_name: String(s.treasury_name ?? ""),
+        date_on_supply: String(s.date_on_supply ?? ""),
+
+        id_atm: Number(s.id_atm),
+        atm_name: String(s.atm_name ?? ""),
         terminal: Number(s.id_atm),
+
+        total_exchange: Boolean(s.total_exchange),
         troca_total: (s.total_exchange ? "S" : "N") as "S" | "N",
-        data_atendimento: String(s.date_on_supply),
+        data_atendimento: String(s.date_on_supply ?? ""),
+
         cassete_A: Number(s.cassete_A ?? 0),
         cassete_B: Number(s.cassete_B ?? 0),
         cassete_C: Number(s.cassete_C ?? 0),
         cassete_D: Number(s.cassete_D ?? 0),
+
+        emails: Array.isArray(s.emails) ? s.emails : [],
+        operator_card: s.operator_card ?? null,
       }));
 
       emit("openos:progress", {
@@ -1092,25 +1112,47 @@ export const openOS: RequestHandler = async (req, res) => {
         message: "Gerando OS via automação...",
       });
 
-      const osGeradas = (await runPythonScript(
-        pyPayload,
-        "src/script/bot-os.py"
-      )) as OsGerada[];
+      const pyResult = await runPythonScript(pyPayload, "src/script/bot-os.py");
 
-      const osMap = new Map<number, OsGerada>();
-      for (const item of osGeradas ?? []) {
+      if (!Array.isArray(pyResult)) {
+        throw new Error("Resposta inválida do script Python.");
+      }
+
+      const osGeradas = pyResult as Array<{
+        terminal?: string | number;
+        os?: string;
+        situacao?: string;
+        valor?: string;
+        error?: string;
+        ok?: boolean;
+        api_response?: {
+          ok?: boolean;
+          id?: number | null;
+          send_email?: boolean;
+          error?: string;
+          details?: string;
+        };
+      }>;
+
+      const osMap = new Map<number, (typeof osGeradas)[number]>();
+      for (const item of osGeradas) {
         const term = Number(item?.terminal);
         if (Number.isFinite(term) && term > 0) {
           osMap.set(term, item);
         }
       }
 
-      const os: OsFrontItem[] = supplyWithExtras.map((s) => {
+      const osWithResult: OsFrontItem[] = supplyWithExtras.map((s) => {
         const term = Number(s.id_atm);
         const info = osMap.get(term);
-        const ok = Boolean(info?.os);
+        const api = info?.api_response;
+
+        const hasOs = Boolean(info?.os);
+        const savedOk = api ? api.ok !== false : true;
+        const status = hasOs && savedOk;
 
         return {
+          id: api?.id ?? null,
           id_supply: Number(s.id_supply),
           id_treasury: Number(s.id_treasury),
           treasury_name: String(s.treasury_name ?? ""),
@@ -1122,147 +1164,23 @@ export const openOS: RequestHandler = async (req, res) => {
           cassete_B: Number(s.cassete_B ?? 0),
           cassete_C: Number(s.cassete_C ?? 0),
           cassete_D: Number(s.cassete_D ?? 0),
-          os: ok ? String(info!.os) : null,
-          situacao: ok ? String(info!.situacao) : null,
-          valor: ok ? String(info!.valor) : null,
-          status: ok,
+          os: hasOs ? String(info?.os ?? "") : null,
+          situacao: hasOs ? String(info?.situacao ?? "") : null,
+          valor: hasOs ? String(info?.valor ?? "") : null,
+          status,
+          send_email: api?.send_email ?? false,
         };
       });
 
-      emit("openos:progress", {
-        jobId,
-        step: "db",
-        message: "Salvando OS no banco...",
-      });
-      console.log("[OPENOS][PROGRESS] Salvando OS no banco...");
+      const allOk =
+        osWithResult.length > 0 && osWithResult.every((item) => item.status);
 
-      const savedOs = await Promise.all(
-        os.map((row) =>
-          addOs({
-            id_supply: row.id_supply,
-            id_atm: String(row.id_atm),
-            os: row.os ?? "",
-            situacao: row.situacao ?? "",
-            valor: row.valor ?? "",
-            status: row.status,
-          } as any)
-        )
-      );
-
-      const osWithDbId: OsFrontItem[] = os.map((row, index) => ({
-        ...row,
-        id: savedOs[index]?.id ?? null,
-        send_email: savedOs[index]?.send_email ?? false,
-      }));
-
-      emit("openos:progress", {
-        jobId,
-        step: "email",
-        message: "Montando e enviando e-mails...",
-      });
-      console.log("[OPENOS][PROGRESS] Montando e enviando e-mails...");
-
-      const byTreasury = new Map<number, SendEmailPayload>();
-
-      for (const s of supplyWithExtras) {
-        const tid = Number(s.id_treasury);
-        if (!tid) continue;
-
-        const row = osWithDbId.find(
-          (x) =>
-            Number(x.id_supply) === Number(s.id_supply) &&
-            Number(x.id_atm) === Number(s.id_atm)
-        );
-
-        const ok = Boolean(row?.status);
-        if (!ok) continue;
-
-        if (!byTreasury.has(tid)) {
-          byTreasury.set(tid, {
-            email: Array.isArray(s.emails) ? s.emails : [],
-            id_treasury: tid,
-            treasury_name: String(s.treasury_name ?? ""),
-            date_on_supply: String(s.date_on_supply ?? ""),
-            atms: [],
-          });
-        }
-
-        const bucket = byTreasury.get(tid)!;
-
-        for (const e of Array.isArray(s.emails) ? s.emails : []) {
-          const clean = String(e).trim();
-          if (clean && !bucket.email.includes(clean)) {
-            bucket.email.push(clean);
-          }
-        }
-
-        bucket.atms.push({
-          os_open_id: row?.id ?? undefined,
-          id_supply: Number(s.id_supply),
-          total_exchange: Boolean(s.total_exchange),
-          cassete_a: Number(s.cassete_A ?? 0),
-          cassete_b: Number(s.cassete_B ?? 0),
-          cassete_c: Number(s.cassete_C ?? 0),
-          cassete_d: Number(s.cassete_D ?? 0),
-          id_atm: Number(s.id_atm),
-          atm_name: String(s.atm_name ?? ""),
-          os: row?.os ?? undefined,
-        } as any);
-
-        if (!bucket.date_on_supply) {
-          bucket.date_on_supply = String(s.date_on_supply ?? "");
-        }
-      }
-
-      const emailPayloads = Array.from(byTreasury.values());
-
-      let idx = 0;
-      for (const payload of emailPayloads) {
-        idx++;
-
-        if (!payload.email?.length || !payload.atms?.length) {
-          emit("openos:progress", {
-            jobId,
-            step: "email-skip",
-            current: idx,
-            total: emailPayloads.length,
-            message: `Pulando ${payload.id_treasury} (sem emails/atms)`,
-          });
-          continue;
-        }
-
-        emit("openos:progress", {
-          jobId,
-          step: "email-send",
-          current: idx,
-          total: emailPayloads.length,
-          message: `Enviando: ${payload.id_treasury} - ${payload.treasury_name}`,
-        });
-
-        const sendResult = await sendEmailOnOS(payload);
-
-        if (sendResult?.ok) {
-          const idsToUpdate = [
-            ...new Set(
-              payload.atms
-                .map((atm: any) => Number(atm.os_open_id))
-                .filter((id: number) => Number.isFinite(id) && id > 0)
-            ),
-          ];
-
-          await Promise.all(
-            idsToUpdate.map((id) =>
-              updateOS(id, {
-                send_email: true,
-              })
-            )
-          );
-        }
-      }
-
-      const allOk = os.every((x) => x.status === true);
       console.log("[OPENOS][DONE] Finalizado com sucesso!");
-      emit("openos:done", { jobId, ok: allOk, os: osWithDbId });
+      emit("openos:done", {
+        jobId,
+        ok: allOk,
+        os: osWithResult,
+      });
     } catch (e: any) {
       console.log("[OPENOS][DONE] Erro ao finalizar!");
       emit("openos:error", {
