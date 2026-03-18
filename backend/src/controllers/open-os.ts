@@ -2,10 +2,13 @@ import { RequestHandler } from "express"
 import { getForIdTreasury } from "services/cardOperator";
 import { sendEmailOnOS } from "services/email";
 import { createLog } from "services/logService"
-import { getOsOpenInTableForDay } from "services/open-os"
-import { addOs, getOsForId, updateOS } from "services/os-open";
+import { addOs, getAllOsOpenInTableForDay, getOsForId, getOsOpenInTableForDay, updateOS } from "services/os-open";
 import { runPythonScript } from "utils/runOpenOsPython";
 import { getIO } from "utils/socket-event";
+import { v4 as uuid } from "uuid";
+import { getForId as getAtm } from "services/atm";
+import { getForIdSystem as getOperadorCard } from "services/treasury";
+
 
 export const getOsOpenForDay: RequestHandler = async (req, res) => {
   const { date } = req.params;
@@ -331,6 +334,625 @@ export const addOS: RequestHandler = async (req, res) => {
   }
 };
 
+type AttendOsForIdsBody = {
+  socketId?: string;
+  ids?: number[];
+};
+
+type OsItem = {
+  id: number;
+  number_card: string | null;
+  [key: string]: any;
+};
+
+type EnrichedOsItem = OsItem & {
+  number_card: string | null;
+  enrichError: string | null;
+};
+
+export const atenderOsForIds: RequestHandler = async (req, res) => {
+  const body = req.body as AttendOsForIdsBody;
+
+  const socketId = body?.socketId;
+  const ids = Array.isArray(body?.ids)
+    ? [...new Set(
+      body.ids
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id) && id > 0)
+    )]
+    : [];
+
+  if (ids.length === 0) {
+    await createLog({
+      level: "ERROR",
+      action: "ATTEND_OS_FOR_IDS",
+      message: "Nenhum ID válido foi informado.",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "atm",
+    });
+
+    res.status(400).json({
+      ok: false,
+      error: "Nenhum ID válido foi informado.",
+    });
+    return;
+  }
+
+  const jobId = uuid();
+
+  res.status(202).json({
+    ok: true,
+    jobId,
+  });
+
+  setImmediate(async () => {
+    const io = getIO();
+
+    const emit = (event: string, payload: any) => {
+      try {
+        if (socketId) io.to(socketId).emit(event, payload);
+      } catch (error) {
+        console.log("[ATTENDOS] erro ao emitir socket:", error);
+      }
+    };
+
+    const normalizeOsResult = (value: any): OsItem[] => {
+      if (!value) return [];
+      if (Array.isArray(value)) {
+        return value.filter(
+          (item): item is OsItem =>
+            !!item && typeof item.id === "number"
+        );
+      }
+      if (typeof value === "object" && typeof value.id === "number") {
+        return [value as OsItem];
+      }
+      return [];
+    };
+
+    try {
+      emit("attendos:started", {
+        jobId,
+        total: ids.length,
+      });
+
+      emit("attendos:progress", {
+        jobId,
+        step: "load",
+        message: "Buscando OSs selecionadas...",
+      });
+
+      const fetched = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const result = await getOsForId(id);
+            return normalizeOsResult(result);
+          } catch (error) {
+            console.log(`[ATTENDOS] erro ao buscar OS ${id}:`, error);
+            return [];
+          }
+        })
+      );
+
+      const osList = fetched
+        .flat()
+        .filter(
+          (item, index, arr) =>
+            typeof item?.id === "number" &&
+            arr.findIndex((x) => x.id === item.id) === index &&
+            item.situacao === "Pendente"
+        );
+
+      if (osList.length === 0) {
+        await createLog({
+          level: "ERROR",
+          action: "ATTEND_OS_FOR_IDS",
+          message: "Nenhuma OS encontrada para os IDs informados.",
+          userSlug: req.userSlug ?? null,
+          route: req.route?.path ?? null,
+          method: req.method ?? null,
+          statusCode: 404,
+          resource: "atm",
+        });
+
+        emit("attendos:error", {
+          jobId,
+          ok: false,
+          error: "Nenhuma OS encontrada para os IDs informados.",
+        });
+        return;
+      }
+
+      emit("attendos:progress", {
+        jobId,
+        step: "enrich",
+        message: "Buscando ATM, tesouraria e operadora...",
+      });
+
+      const enrichedOsList: EnrichedOsItem[] = await Promise.all(
+        osList.map(async (item): Promise<EnrichedOsItem> => {
+          try {
+            const idAtm = Number(item.id_atm);
+
+            if (!Number.isFinite(idAtm) || idAtm <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: "id_atm inválido.",
+              };
+            }
+
+            const atm = await getAtm(idAtm);
+
+            if (!atm) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `ATM ${idAtm} não encontrado.`,
+              };
+            }
+
+            const idTreasury = Number(atm.id_treasury);
+
+            if (!Number.isFinite(idTreasury) || idTreasury <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `ATM ${idAtm} sem id_treasury válido.`,
+              };
+            }
+
+            const treasury = await getOperadorCard(String(idTreasury));
+
+            if (!treasury) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `Tesouraria ${idTreasury} não encontrada.`,
+              };
+            }
+
+            const idSystem = Number(treasury.id_system);
+
+            if (!Number.isFinite(idSystem) || idSystem <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `Tesouraria ${idTreasury} sem id_system válido.`,
+              };
+            }
+
+            const cardOperators = await getForIdTreasury(idSystem);
+            const selectedCardOperator = cardOperators?.[0] ?? null;
+
+            return {
+              ...item,
+              number_card: selectedCardOperator?.number_card ?? null,
+              enrichError: null,
+            };
+          } catch (error: any) {
+            return {
+              ...item,
+              number_card: null,
+              enrichError: error?.message ?? String(error),
+            };
+          }
+        })
+      );
+
+      console.log("enrichedOsList", enrichedOsList);
+
+      const pyPayload = enrichedOsList.map((item) => ({
+        id: Number(item.id),
+        os: String(item.os ?? ""),
+        number_card: item.number_card ?? null,
+      }));
+
+      const pyResult = await runPythonScript(
+        pyPayload,
+        "src/script/bot-atender-os.py"
+      );
+
+      emit("attendos:progress", {
+        jobId,
+        step: "process",
+        message: "Atendendo OSs...",
+      });
+
+      let processed = 0;
+      const results: Array<{
+        id: number | null;
+        ok: boolean;
+        error?: string;
+      }> = [];
+
+      for (const item of enrichedOsList) {
+        try {
+          await updateOS(Number(item.id), {
+            // exemplo:
+            // operator_card: item.cardOperator?.operator_card ?? null,
+            // id_treasury: item.id_treasury ?? null,
+            // situacao: "ATENDIDA",
+          } as any);
+
+          const result = {
+            id: Number(item.id),
+            ok: true,
+          };
+
+          processed += 1;
+          results.push(result);
+
+          emit("attendos:progress", {
+            jobId,
+            step: "item",
+            current: processed,
+            total: enrichedOsList.length,
+            message: `OS ${item.id} atendida (${processed}/${enrichedOsList.length})`,
+          });
+        } catch (error: any) {
+          processed += 1;
+
+          results.push({
+            id: Number(item.id),
+            ok: false,
+            error: error?.message ?? String(error),
+          });
+
+          emit("attendos:progress", {
+            jobId,
+            step: "item-error",
+            current: processed,
+            total: enrichedOsList.length,
+            message: `Falha ao atender OS ${item.id} (${processed}/${enrichedOsList.length})`,
+          });
+        }
+      }
+
+      const allOk = results.every((item) => item.ok === true);
+
+      await createLog({
+        level: allOk ? "INFO" : "ERROR",
+        action: "ATTEND_OS_FOR_IDS",
+        message: allOk
+          ? `Atendimento concluído com sucesso. Total: ${results.length}`
+          : `Atendimento concluído com falhas. Total: ${results.length}`,
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: allOk ? 200 : 207,
+        resource: "atm",
+      });
+
+      emit("attendos:done", {
+        jobId,
+        ok: allOk,
+        total: enrichedOsList.length,
+        processed,
+        results,
+        pyResult,
+      });
+    } catch (e: any) {
+      console.log("[ATTENDOS] erro geral:", e);
+
+      await createLog({
+        level: "ERROR",
+        action: "ATTEND_OS_FOR_IDS",
+        message: e?.message ?? "Erro ao atender OSs.",
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 500,
+        resource: "atm",
+      });
+
+      emit("attendos:error", {
+        jobId,
+        ok: false,
+        error: "Erro ao atender OSs.",
+        details: e?.message ?? String(e),
+      });
+    }
+  });
+};
+
+type AttendOsForDateBody = {
+  socketId?: string;
+  date?: string;
+};
+export const atenderOsForDate: RequestHandler = async (req, res) => {
+  const body = req.body as AttendOsForDateBody;
+
+  const socketId = String(body?.socketId ?? "").trim() || undefined;
+  const date = String(body?.date ?? "").trim();
+
+  if (!date) {
+    await createLog({
+      level: "ERROR",
+      action: "ATTEND_OS_FOR_DATE",
+      message: "Data não informada.",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "atm",
+    });
+
+    res.status(400).json({
+      ok: false,
+      error: "Data não informada.",
+    });
+    return;
+  }
+
+  const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(date);
+  if (!isValidDate) {
+    await createLog({
+      level: "ERROR",
+      action: "ATTEND_OS_FOR_DATE",
+      message: "Data inválida. Use o formato YYYY-MM-DD.",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "atm",
+    });
+
+    res.status(400).json({
+      ok: false,
+      error: "Data inválida. Use o formato YYYY-MM-DD.",
+    });
+    return;
+  }
+
+  const jobId = uuid();
+
+  res.status(202).json({
+    ok: true,
+    jobId,
+  });
+
+  setImmediate(async () => {
+    const io = getIO();
+
+    const emit = (event: string, payload: any) => {
+      try {
+        if (socketId) io.to(socketId).emit(event, payload);
+      } catch (error) {
+        console.log("[ATTENDOS-DATE] erro ao emitir socket:", error);
+      }
+    };
+
+    try {
+      emit("attendos:started", {
+        jobId,
+        date,
+      });
+
+      emit("attendos:progress", {
+        jobId,
+        step: "load",
+        message: `Buscando OSs abertas da data ${date}...`,
+      });
+
+      const osOpenResult = await getAllOsOpenInTableForDay(date);
+
+      const osList = Array.isArray(osOpenResult?.data)
+        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente")
+        : [];
+
+      if (osList.length === 0) {
+        await createLog({
+          level: "ERROR",
+          action: "ATTEND_OS_FOR_DATE",
+          message: `Nenhuma OS pendente encontrada para a data ${date}.`,
+          userSlug: req.userSlug ?? null,
+          route: req.route?.path ?? null,
+          method: req.method ?? null,
+          statusCode: 404,
+          resource: "atm",
+        });
+
+        emit("attendos:error", {
+          jobId,
+          ok: false,
+          error: `Nenhuma OS pendente encontrada para a data ${date}.`,
+        });
+        return;
+      }
+
+      emit("attendos:progress", {
+        jobId,
+        step: "enrich",
+        message: "Buscando ATM, tesouraria e operadora...",
+      });
+
+      const enrichedOsList: EnrichedOsItem[] = await Promise.all(
+        osList.map(async (item): Promise<EnrichedOsItem> => {
+          try {
+            const idAtm = Number(item.id_atm);
+
+            if (!Number.isFinite(idAtm) || idAtm <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: "id_atm inválido.",
+              };
+            }
+
+            const atm = await getAtm(idAtm);
+
+            if (!atm) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `ATM ${idAtm} não encontrado.`,
+              };
+            }
+
+            const idTreasury = Number(atm.id_treasury);
+
+            if (!Number.isFinite(idTreasury) || idTreasury <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `ATM ${idAtm} sem id_treasury válido.`,
+              };
+            }
+
+            const treasury = await getOperadorCard(String(idTreasury));
+
+            if (!treasury) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `Tesouraria ${idTreasury} não encontrada.`,
+              };
+            }
+
+            const idSystem = Number(treasury.id_system);
+
+            if (!Number.isFinite(idSystem) || idSystem <= 0) {
+              return {
+                ...item,
+                number_card: null,
+                enrichError: `Tesouraria ${idTreasury} sem id_system válido.`,
+              };
+            }
+
+            const cardOperators = await getForIdTreasury(idSystem);
+            const selectedCardOperator = cardOperators?.[0] ?? null;
+
+            return {
+              ...item,
+              number_card: selectedCardOperator?.number_card ?? null,
+              enrichError: null,
+            };
+          } catch (error: any) {
+            return {
+              ...item,
+              number_card: null,
+              enrichError: error?.message ?? String(error),
+            };
+          }
+        })
+      );
+
+      console.log("enrichedOsList", enrichedOsList);
+
+      const pyPayload = enrichedOsList.map((item) => ({
+        id: Number(item.id),
+        os: String(item.os ?? ""),
+        number_card: item.number_card ?? null,
+      }));
+
+      emit("attendos:progress", {
+        jobId,
+        step: "process",
+        message: "Atendendo OSs...",
+      });
+
+      const pyResult = await runPythonScript(
+        pyPayload,
+        "src/script/bot-atender-os.py"
+      );
+
+      let processed = 0;
+      const results: Array<{
+        id: number | null;
+        ok: boolean;
+        error?: string;
+      }> = [];
+
+      for (const item of enrichedOsList) {
+        try {
+          await updateOS(Number(item.id), {} as any);
+
+          const result = {
+            id: Number(item.id),
+            ok: true,
+          };
+
+          processed += 1;
+          results.push(result);
+
+          emit("attendos:progress", {
+            jobId,
+            step: "item",
+            current: processed,
+            total: enrichedOsList.length,
+            message: `OS ${item.id} atendida (${processed}/${enrichedOsList.length})`,
+          });
+        } catch (error: any) {
+          processed += 1;
+
+          results.push({
+            id: Number(item.id),
+            ok: false,
+            error: error?.message ?? String(error),
+          });
+
+          emit("attendos:progress", {
+            jobId,
+            step: "item-error",
+            current: processed,
+            total: enrichedOsList.length,
+            message: `Falha ao atender OS ${item.id} (${processed}/${enrichedOsList.length})`,
+          });
+        }
+      }
+
+      const allOk = results.every((item) => item.ok === true);
+
+      await createLog({
+        level: allOk ? "INFO" : "ERROR",
+        action: "ATTEND_OS_FOR_DATE",
+        message: allOk
+          ? `Atendimento por data concluído com sucesso. Data: ${date}. Total: ${results.length}`
+          : `Atendimento por data concluído com falhas. Data: ${date}. Total: ${results.length}`,
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: allOk ? 200 : 207,
+        resource: "atm",
+      });
+
+      emit("attendos:done", {
+        jobId,
+        ok: allOk,
+        date,
+        total: enrichedOsList.length,
+        processed,
+        results,
+        pyResult,
+      });
+    } catch (e: any) {
+      console.log("[ATTENDOS-DATE] erro geral:", e);
+
+      await createLog({
+        level: "ERROR",
+        action: "ATTEND_OS_FOR_DATE",
+        message: e?.message ?? "Erro ao atender OSs por data.",
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 500,
+        resource: "atm",
+      });
+
+      emit("attendos:error", {
+        jobId,
+        ok: false,
+        error: "Erro ao atender OSs por data.",
+        details: e?.message ?? String(e),
+      });
+    }
+  });
+};
+
 export const alterOS: RequestHandler = async (req, res) => {
   const data = req.body;
   console.log("data", data);
@@ -373,7 +995,7 @@ export const alterOS: RequestHandler = async (req, res) => {
   try {
 
     const dataComplet = data
-    const  cardperator = await getForIdTreasury(data.id_treasury)
+    const cardperator = await getForIdTreasury(data.id_treasury)
 
     dataComplet.cardperator = cardperator?.[0]?.name ?? "";
 
@@ -409,3 +1031,30 @@ export const alterOS: RequestHandler = async (req, res) => {
     return;
   }
 };
+
+type AtenderOsHookBody = {
+  id: number;
+  situacao: string;
+};
+export const atenderOsHook: RequestHandler = async (req, res) => {
+  const data = req.body as AtenderOsHookBody;
+
+  if (!data) {
+    await createLog({
+      level: "ERROR",
+      action: "ALTER_OS",
+      message: "Erro no corpo do envio!",
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: "atm",
+    });
+    res.status(400).json({ error: "Erro no corpo do envio!" });
+    return;
+  }
+
+  await updateOS(data.id, { situacao: data.situacao });
+
+  res.status(200).json({ ok: true });
+}

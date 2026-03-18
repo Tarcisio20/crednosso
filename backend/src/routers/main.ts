@@ -22,6 +22,7 @@ import * as userController from '../controllers/user'
 import * as socketEventController from '../controllers/socket-event';
 import * as downloadController from '../controllers/download'
 import * as openOSController from '../controllers/open-os'
+import * as telegramController from '../controllers/telegram'
 
 import { verifyJWT } from '../utils/jwt'
 
@@ -211,4 +212,10 @@ mainRouter.get('/open-os/day/:date', openOSController.getOsOpenForDay)
 mainRouter.get('/open-os/get-os-id/:id', openOSController.getAllById)
 mainRouter.post('/open-os/alter-os', openOSController.alterOS)
 mainRouter.post('/open-os/add-os', openOSController.addOS)
+mainRouter.post('/open-os/atender-os-for-ids', openOSController.atenderOsForIds)
+mainRouter.post('/open-os/atender-os-for-ids-return', openOSController.atenderOsHook)
+mainRouter.post('/open-os/atender-os-for-date', openOSController.atenderOsForDate)
+
+
+mainRouter.post("/telegram/webhook", telegramController.webhook);
 

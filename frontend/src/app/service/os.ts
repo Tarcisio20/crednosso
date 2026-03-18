@@ -103,3 +103,55 @@ export const AlterSupply = async (data: OpenOSEditPayload) => {
     }
   }
 }
+
+export const atenderOsForIds = async (data : { socketId: string; ids: number[];} ) => {
+  const token = Cookies.get("tokenSystemCredNosso");
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/open-os/atender-os-for-ids`, data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      const { message } = error.response.data;
+      return { error: message, status: 400, data: undefined } as any;
+    } else if (error.request) {
+      return { error: error.request, status: 500, data: undefined } as any;
+    } else {
+      return { error: error.message, status: 300, data: undefined } as any;
+    }
+  }
+}
+
+export const atenderOsForDate = async (data: { socketId: string; date: string; }) => {
+  const token = Cookies.get("tokenSystemCredNosso");
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/open-os/atender-os-for-date`, data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      const { message } = error.response.data;
+      return { error: message, status: 400, data: undefined } as any;
+    } else if (error.request) {
+      return { error: error.request, status: 500, data: undefined } as any;
+    } else {
+      return { error: error.message, status: 300, data: undefined } as any;
+    }
+  }
+}
