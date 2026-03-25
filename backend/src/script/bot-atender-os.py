@@ -324,10 +324,22 @@ def open_os_from_first_row(navegador):
         1.0,
     )
 
-
+# cLICAR NO BOTAO DE ATENDER
 def click_secondary_confirmation_if_exists(navegador):
-    
+    xpath = "/html/body/div[2]/div[2]/div[3]/div[2]/form/span/table/tbody/tr/td[1]/button[2]"
+    if does_element_exist(navegador, By.XPATH, xpath):
+        safe_click(navegador, By.XPATH, xpath, 15, 1.0)
+        time.sleep(2)
+
+
+def click_save_confirmation_if_exists(navegador):
     xpath = "/html/body/div[2]/div[2]/div[4]/div[2]/form/center/button[1]"
+    if does_element_exist(navegador, By.XPATH, xpath):
+        safe_click(navegador, By.XPATH, xpath, 15, 1.0)
+        time.sleep(2)
+
+def click_close_confirmation_if_exists(navegador):
+    xpath = "/html/body/div[2]/div[2]/div[3]/div[2]/form/span/table/tbody/tr/td[2]/button"
     if does_element_exist(navegador, By.XPATH, xpath):
         safe_click(navegador, By.XPATH, xpath, 15, 1.0)
         time.sleep(2)
@@ -527,9 +539,9 @@ def main():
                 number_card_alvo = normalize_card(os_item.get("number_card"))
 
                 print(f"[PY] >> PROCESSANDO OS {os_numero}", file=sys.stderr, flush=True)
-
+                # Procurando a OS
                 search_os(navegador, os_numero)
-
+                # Achando a linha da OS  na tabela
                 linha_os = get_first_os_row(navegador)
                 if not linha_os:
                     result.append(
@@ -542,7 +554,7 @@ def main():
                         }
                     )
                     continue
-
+                #PEGANDO A SITUAÇÃO
                 situacao = get_os_status_from_row(linha_os)
                 print(f"[PY] Situação da OS {os_numero}: {situacao}", file=sys.stderr, flush=True)
 
@@ -564,7 +576,7 @@ def main():
 
                 open_os_from_first_row(navegador)
                 time.sleep(2)
-
+                # cLICAR NO BOTAO DE ATENDER 
                 click_secondary_confirmation_if_exists(navegador)
 
                 encontrou_cartao = find_and_select_card_row(navegador, number_card_alvo)
@@ -600,13 +612,14 @@ def main():
                     )
                     continue
 
-                click_secondary_confirmation_if_exists(navegador)
+                click_save_confirmation_if_exists(navegador)
 
                 api_response = post_atender_os_for_ids_return(
                     item_id=item_id,
                     situacao="Em atendimento",
                 )
 
+                click_close_confirmation_if_exists(navegador)
                 result.append(
                     {
                         "id": item_id,
