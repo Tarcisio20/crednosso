@@ -395,15 +395,95 @@ def finalize_card_selection(navegador):
         1.0,
     )
 
-    time.sleep(5)
+    time.sleep(2)
 
-    safe_click(
-        navegador,
-        By.XPATH,
-        "/html/body/div[2]/div[2]/div[3]/div[2]/form/span/table/tbody/tr/td[2]/button",
-        15,
-        1.0,
-    )
+
+def get_form3_modal(navegador, timeout=5):
+    modal_xpath = "/html/body/div[2]/form[3]/div"
+    try:
+        return WebDriverWait(navegador, timeout).until(
+            EC.visibility_of_element_located((By.XPATH, modal_xpath))
+        )
+    except TimeoutException:
+        return None
+
+
+def get_form3_modal_message(navegador, timeout=5):
+    msg_xpath = "/html/body/div[2]/form[3]/div/div[2]/table/tbody/tr[1]/td/div/div/ul/li/span"
+    try:
+        modal = get_form3_modal(navegador, timeout)
+        if not modal:
+            return None
+
+        msg_el = WebDriverWait(navegador, timeout).until(
+            EC.visibility_of_element_located((By.XPATH, msg_xpath))
+        )
+        return msg_el.text.strip()
+    except TimeoutException:
+        return None
+    except Exception:
+        return None
+
+
+def close_form3_modal(navegador):
+    modal_xpath = "/html/body/div[2]/form[3]/div"
+    if not does_element_exist(navegador, By.XPATH, modal_xpath):
+        return False
+
+    candidatos = [
+        "/html/body/div[2]/form[3]/div/div[1]/a",
+        "/html/body/div[2]/form[3]/div/div[3]/button[1]",
+        "/html/body/div[2]/form[3]/div/div[3]/button[2]",
+        "/html/body/div[2]/form[3]/div//button",
+        "/html/body/div[2]/form[3]/div//a",
+    ]
+
+    for xpath in candidatos:
+        try:
+            elementos = navegador.find_elements(By.XPATH, xpath)
+            for el in elementos:
+                if el.is_displayed():
+                    safe_click_element(navegador, el, 0.8)
+                    time.sleep(1)
+                    return True
+        except Exception:
+            pass
+
+    try:
+        ActionChains(navegador).send_keys(Keys.ESCAPE).perform()
+        time.sleep(1)
+        return True
+    except Exception:
+        return False
+
+
+def handle_post_finalize_modal(navegador, item_id):
+    """
+    Retorno:
+      - "saldo_insuficiente" -> tratou e deve pular para próxima OS
+      - "normal" -> seguir fluxo normal
+    """
+    time.sleep(2)
+
+    mensagem = get_form3_modal_message(navegador, timeout=5)
+
+    if not mensagem:
+        return "normal"
+
+    mensagem_normalizada = normalize_text(mensagem)
+
+    if mensagem_normalizada == normalize_text(
+        "Saldo insuficiente na conta tesouraria da transportadora de valores."
+    ):
+        post_atender_os_for_ids_return(
+            item_id=item_id,
+            situacao="Saldo insuficiente!",
+        )
+
+        close_form3_modal(navegador)
+        return "saldo_insuficiente"
+
+    return "normal"
 
 
 def main():
@@ -437,10 +517,11 @@ def main():
         result = []
 
         for os_item in openOSs:
+            item_id = os_item.get("id")
+
             try:
                 os_numero = str(os_item.get("os", "")).strip()
                 number_card_alvo = normalize_card(os_item.get("number_card"))
-                item_id = os_item.get("id")
 
                 print(f"[PY] >> PROCESSANDO OS {os_numero}", file=sys.stderr, flush=True)
 
@@ -463,9 +544,9 @@ def main():
                 print(f"[PY] Situação da OS {os_numero}: {situacao}", file=sys.stderr, flush=True)
 
                 if normalize_text(situacao) != "pendente":
-                    api_response = post_atender_os_for_ids_return(
-                    item_id=item_id,
-                    situacao=normalize_text(situacao),
+                    post_atender_os_for_ids_return(
+                        item_id=item_id,
+                        situacao=normalize_text(situacao),
                     )
                     result.append(
                         {
@@ -494,13 +575,29 @@ def main():
                             "id": item_id,
                             "os": os_numero,
                             "terminal": str(os_item.get("terminal", "")),
-                            "ok": False,
+                            "ok": api_response.get("ok"),
                             "error": f"Cartão {number_card_alvo} não encontrado na tabela.",
                         }
                     )
                     continue
 
                 finalize_card_selection(navegador)
+
+                modal_result = handle_post_finalize_modal(navegador, item_id)
+
+                if modal_result == "saldo_insuficiente":
+                    result.append(
+                        {
+                            "id": item_id,
+                            "os": os_numero,
+                            "terminal": str(os_item.get("terminal", "")),
+                            "ok": False,
+                            "error": "Saldo insuficiente!",
+                        }
+                    )
+                    continue
+
+                click_secondary_confirmation_if_exists(navegador)
 
                 api_response = post_atender_os_for_ids_return(
                     item_id=item_id,
@@ -518,7 +615,7 @@ def main():
                 )
 
             except Exception as e:
-                api_response = post_atender_os_for_ids_return(
+                post_atender_os_for_ids_return(
                     item_id=item_id,
                     situacao=str(e),
                 )
