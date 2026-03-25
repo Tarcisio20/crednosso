@@ -741,10 +741,9 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
       const osOpenResult = await getAllOsOpenInTableForDay(date);
     
       const osList = Array.isArray(osOpenResult?.data)
-        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente")
+        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente" || item?.situacao === "Cartão não encontrado!")
         : [];
 
-      
       if (osList.length === 0) {
         await createLog({
           level: "ERROR",

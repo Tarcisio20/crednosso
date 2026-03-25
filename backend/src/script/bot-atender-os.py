@@ -274,7 +274,9 @@ def search_os(navegador, os_number):
 
     mark_checkbox_if_needed(
         navegador,
-        "/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[6]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]",
+        # "/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[6]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[2]",
+        "/html/body/div[2]/div[2]/form/span[1]/div/table/tbody/tr[6]/td[2]/span/table/tbody/tr/td/table/tbody/tr/td[1]/div/div[1]/input"
+    
     )
 
     mark_checkbox_if_needed(
