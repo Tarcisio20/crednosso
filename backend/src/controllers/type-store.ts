@@ -7,6 +7,7 @@ import { generateBaseSlug } from "utils/generateBaseSlug";
 export const getAll: RequestHandler = async (req, res) => {
   try {
     const typeStore = await getAllTypeStores();
+    console.log("typeStore", typeStore)
     if (!typeStore) {
       await createLog({
         level: "ERROR",

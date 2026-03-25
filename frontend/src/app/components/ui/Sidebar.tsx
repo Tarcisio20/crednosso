@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { faBars, faBomb, faBoxOpen, faBuildingColumns, faCloudArrowDown, faCoins, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faRightFromBracket, faSackDollar, faShieldHalved, faStore, faThumbTack, faUserTie, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBomb, faBoxOpen, faBuildingColumns, faCloudArrowDown, faCoins, faComputerMouse, faCreditCard, faGauge, faGears, faIdCardClip, faParachuteBox, faRightFromBracket, faSackDollar, faShieldHalved, faStore, faThumbTack, faUserTie, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { Nav } from "./Menu";
@@ -26,7 +26,7 @@ export const Sidebar = () => {
   const [onLoadingStart, setOnLoadingStart] = useState(false)
 
   const menu = [
-    { label: 'Inicio', icon: faGauge, link: '/' },
+    // { label: 'Inicio', icon: faGauge, link: '/' },
     { label: 'Atm', icon: faBoxOpen, link: '/atm' },
     { label: 'Abastecimento', icon: faParachuteBox, link: '/supply' },
     { label: 'Cartão Operador', icon: faCreditCard, link: '/operator-card' },
@@ -41,6 +41,7 @@ export const Sidebar = () => {
     { label: 'Tipo de Pedido', icon: faThumbTack, link: '/type-order' },
     { label: 'Tipo de Loja', icon: faStore, link: '/type-store' },
     { label: 'Tipo de Abastecimento', icon: faSupple, link: '/type-supply' },
+    { label: 'Parametrização', icon: faComputerMouse, link: '/parameterization' },
     { label: 'Usuários', icon: faUserTie, link: '/user' },
 
   ]

@@ -1,4 +1,4 @@
-"use client0"
+"use client"
 
 import { faRightFromBracket, faShieldHalved, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

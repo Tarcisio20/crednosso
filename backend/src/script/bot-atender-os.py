@@ -463,6 +463,10 @@ def main():
                 print(f"[PY] Situação da OS {os_numero}: {situacao}", file=sys.stderr, flush=True)
 
                 if normalize_text(situacao) != "pendente":
+                    api_response = post_atender_os_for_ids_return(
+                    item_id=item_id,
+                    situacao=normalize_text(situacao),
+                    )
                     result.append(
                         {
                             "id": item_id,
@@ -481,6 +485,10 @@ def main():
 
                 encontrou_cartao = find_and_select_card_row(navegador, number_card_alvo)
                 if not encontrou_cartao:
+                    api_response = post_atender_os_for_ids_return(
+                        item_id=item_id,
+                        situacao="Cartão não encontrado!",
+                    )
                     result.append(
                         {
                             "id": item_id,
@@ -510,6 +518,10 @@ def main():
                 )
 
             except Exception as e:
+                api_response = post_atender_os_for_ids_return(
+                    item_id=item_id,
+                    situacao=str(e),
+                )
                 result.append(
                     {
                         "id": os_item.get("id"),

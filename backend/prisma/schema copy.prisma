@@ -14,7 +14,7 @@ model AccountBank {
   account           String   @default("")
   status            Boolean  @default(true)
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @default(now()) @updatedAt
+  updatedAt         DateTime @default(now())
   account_digit     String   @default("")
   bank_branch_digit String   @default("")
   hash              String?
@@ -71,7 +71,7 @@ model MoneySplit {
   treasuryRating Treasury @relation("RatingRelation", fields: [id_treasury_rating], references: [id])
 }
 
-model MoneySplitRefund {
+model MOneySplitRefund {
   id                 Int     @id @default(autoincrement())
   id_order           Int
   id_treasury_origin Int
@@ -143,14 +143,14 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  moneySplitRefunds MoneySplitRefund[]
+  moneySplitRefunds MOneySplitRefund[]
   moneySplits       MoneySplit[]
   supply            Supply[]
-  typeOperation     TypeOperation @relation(fields: [id_type_operation], references: [id])
-  treasuryOrigin    Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
-  treasuryDestin    Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
-  typeOrder         TypeOrder     @relation(fields: [id_type_order], references: [id])
-  statusOrder       StatusOrder   @relation(fields: [status_order], references: [id])
+  typeOperation     TypeOperation      @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin    Treasury           @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
+  treasuryDestin    Treasury           @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
+  typeOrder         TypeOrder          @relation(fields: [id_type_order], references: [id])
+  statusOrder       StatusOrder        @relation(fields: [status_order], references: [id])
 
   @@map("order")
 }
@@ -212,7 +212,7 @@ model Treasury {
   typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
   typeStore  typeStore  @relation(fields: [id_type_store], references: [id])
 
-  moneySplitRefunds MoneySplitRefund[]
+  moneySplitRefunds MOneySplitRefund[]
   originMoneySplits MoneySplit[]       @relation("OriginRelation")
   ratingMoneySplits MoneySplit[]       @relation("RatingRelation")
   atms              Atm[]
@@ -221,7 +221,8 @@ model Treasury {
   operatorCards     OperatorCard[]
   OrdersOrigin      Order[]            @relation("TreasuryOrigin")
   OrdersDestin      Order[]            @relation("TreasuryDestin")
-  OperationalError  OperationalError[]
+
+  OperationalError OperationalError[]
 }
 
 model TypeOperation {
@@ -283,6 +284,7 @@ model User {
   updatedAt DateTime @default(now())
 }
 
+// --------- ENUM ---------
 enum LogLevel {
   INFO
   WARN
@@ -324,12 +326,11 @@ model OsOpen {
   status     Boolean  @default(true)
 }
 
-model EmailParametrization {
-  id            Int      @id @default(autoincrement())
-  name          String?
-  email         String   @unique
-  for_send_slug String
-  status        Boolean  @default(true)
 
-  @@index([for_send_slug], map: "EmailParametrization_for_send_slug_idx")
+model EmailParametrization {
+  id         Int      @id @default(autoincrement())
+  name       String?
+  email      String
+  for_send   String
+  status     Boolean @default(true)
 }

@@ -739,11 +739,12 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
       });
 
       const osOpenResult = await getAllOsOpenInTableForDay(date);
-
+    
       const osList = Array.isArray(osOpenResult?.data)
         ? osOpenResult.data.filter((item) => item?.situacao === "Pendente")
         : [];
 
+      
       if (osList.length === 0) {
         await createLog({
           level: "ERROR",
@@ -841,7 +842,7 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
         })
       );
 
-      console.log("enrichedOsList", enrichedOsList);
+     //console.log("enrichedOsList", enrichedOsList);
 
       const pyPayload = enrichedOsList.map((item) => ({
         id: Number(item.id),
