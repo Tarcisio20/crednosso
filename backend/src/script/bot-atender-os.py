@@ -326,7 +326,8 @@ def open_os_from_first_row(navegador):
 
 
 def click_secondary_confirmation_if_exists(navegador):
-    xpath = "/html/body/div[2]/div[2]/div[3]/div[2]/form/span/table/tbody/tr/td[1]/button[2]"
+    
+    xpath = "/html/body/div[2]/div[2]/div[4]/div[2]/form/center/button[1]"
     if does_element_exist(navegador, By.XPATH, xpath):
         safe_click(navegador, By.XPATH, xpath, 15, 1.0)
         time.sleep(2)
