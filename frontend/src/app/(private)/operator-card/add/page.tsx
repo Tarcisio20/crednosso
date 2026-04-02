@@ -66,7 +66,7 @@ export default function OperationCardAdd() {
       number_card: numOperatorCard.trim(),
       inUse: inUseOperatorCard
     };
-
+    console.log("data", data);
     const newCardOperator = await add(data);
 
     if (newCardOperator.status === 300 || newCardOperator.status === 400 || newCardOperator.status === 500) {

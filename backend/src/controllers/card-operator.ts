@@ -207,6 +207,9 @@ export const add: RequestHandler = async (req, res) => {
     res.status(400).json({ error: safeData.error.flatten().fieldErrors });
     return;
   }
+
+  console.log("safeData", safeData.data)
+
   try {
     const newCardOperator = await addCardOperator({
       treasury: {
