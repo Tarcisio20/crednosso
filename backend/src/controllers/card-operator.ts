@@ -210,7 +210,7 @@ export const add: RequestHandler = async (req, res) => {
   try {
     const newCardOperator = await addCardOperator({
       treasury: {
-        connect: { id: safeData.data.id_treasury },
+        connect: { id_system: safeData.data.id_treasury },
       },
       name: safeData.data.name,
       number_card: safeData.data.number_card,

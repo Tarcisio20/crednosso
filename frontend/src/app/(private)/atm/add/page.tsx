@@ -61,7 +61,7 @@ export default function AtmAdd() {
     //console.log("Payment", data);
     //return
     const addNewAtm = await add(data);
-    console.log("Retorno API", addAtm)
+    console.log("Retorno API", addNewAtm)
     if (addNewAtm.data.atm && addNewAtm.data.atm.id > 0) {
       toast.success("Atm adicionado com sucesso!");
       setIdSystemAtm("");
