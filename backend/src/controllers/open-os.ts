@@ -352,7 +352,6 @@ type EnrichedOsItem = OsItem & {
 
 export const atenderOsForIds: RequestHandler = async (req, res) => {
   const body = req.body as AttendOsForIdsBody;
-
   const socketId = body?.socketId;
   const ids = Array.isArray(body?.ids)
     ? [...new Set(
@@ -361,6 +360,8 @@ export const atenderOsForIds: RequestHandler = async (req, res) => {
         .filter((id) => Number.isFinite(id) && id > 0)
     )]
     : [];
+
+    console.log("Atender OS para IDs:", ids.length);
 
   if (ids.length === 0) {
     await createLog({
@@ -443,7 +444,7 @@ export const atenderOsForIds: RequestHandler = async (req, res) => {
           (item, index, arr) =>
             typeof item?.id === "number" &&
             arr.findIndex((x) => x.id === item.id) === index &&
-            item.situacao === "Pendente"
+            item.situacao === "Pendente" || item.situacao === "Cartão não encontrado!" || "Saldo insuficiente!"
         );
 
       if (osList.length === 0) {

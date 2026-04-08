@@ -211,6 +211,9 @@ export const add: RequestHandler = async (req, res) => {
   console.log("safeData", safeData.data)
 
   try {
+
+    const data = {}
+
     const newCardOperator = await addCardOperator({
       treasury: {
         connect: { id_system: safeData.data.id_treasury },
