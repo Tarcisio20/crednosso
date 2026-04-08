@@ -446,7 +446,7 @@ export const atenderOsForIds: RequestHandler = async (req, res) => {
             arr.findIndex((x) => x.id === item.id) === index &&
             item.situacao === "Pendente" || item.situacao === "Cartão não encontrado!" || "Saldo insuficiente!"
         );
-
+        console.log("OSs encontradas para atendimento:", osList);
       if (osList.length === 0) {
         await createLog({
           level: "ERROR",
@@ -742,7 +742,7 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
       const osOpenResult = await getAllOsOpenInTableForDay(date);
     
       const osList = Array.isArray(osOpenResult?.data)
-        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente" || item?.situacao === "Cartão não encontrado!")
+        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente" || item?.situacao === "Cartão não encontrado!" ||  item?.situacao === "Saldo insuficiente!")
         : [];
 
       if (osList.length === 0) {
