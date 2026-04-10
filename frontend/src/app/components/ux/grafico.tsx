@@ -28,9 +28,13 @@ export default function Grafico({ dados }: { dados: MediaAnual[] }) {
 
   useEffect(() => {
     if (!anoSelecionado && dados.length > 0) {
-      setAnoSelecionado(dados[0].ano)
+      const anoAtual = new Date().getFullYear()
+
+      const existeAnoAtualNosDados = dados.some((item) => item.ano === anoAtual)
+
+      setAnoSelecionado(existeAnoAtualNosDados ? anoAtual : dados[0].ano)
     }
-  }, [dados])
+  }, [anoSelecionado, dados])
 
   useEffect(() => {
     if (!anoSelecionado) return
@@ -47,7 +51,7 @@ export default function Grafico({ dados }: { dados: MediaAnual[] }) {
   }, [anoSelecionado, dados])
 
   return (
-    <Card className='max-h-2'>
+    <Card className=''>
       <CardHeader>
         <CardTitle className="text-center">Comparativo de Valores por Mês</CardTitle>
         <div className="mt-4">

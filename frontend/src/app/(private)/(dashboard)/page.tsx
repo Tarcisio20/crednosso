@@ -59,7 +59,9 @@ export default function Dashboard() {
   const loadingValues = async () => {
     setLoading(true)
     const mediasAnos = await getMediasYears()
+    console.log("Medias Ano", mediasAnos)
     if (mediasAnos.data !== undefined && mediasAnos.data.medias.length > 0) {
+      console.log("Medias", mediasAnos.data.medias)
       setMedias(mediasAnos.data.medias)
     }
     const t = await getAllTreasuries()
@@ -116,12 +118,12 @@ export default function Dashboard() {
   return (
     <Page>
       <TitlePages linkBack="/" icon={faGauge} >Dahsboard</TitlePages>
-      <main className="h-screen w-full flex flex-col">
+      <main className="h-screen w-full flex flex-col ">
         <div>
           bem vindo: {user?.name}
         </div>
-        <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 border-b border-gray-200">
-
+        {/* <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 border-b border-gray-200"> */}
+        <div className="flex gap-2 flex-wrap mt-4 mb-4">
 
           {treasuries && treasuries.length > 0 &&
             <CardDash title="Tesourarias" value={treasuries.length.toString()} icon={faSackDollar} />
@@ -158,6 +160,7 @@ export default function Dashboard() {
           }
 
         </div>
+        <div className="w-full h-1 bg-slate-400 rounded-sm"></div>
         <div className="w-full max-w-5xl p-4">
           {medias && medias.length > 0 && <Grafico dados={medias} />}
         </div>

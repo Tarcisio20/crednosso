@@ -3,7 +3,7 @@ import { prisma } from "../utils/prisma"
 
 export type FilterOrdersDTO = {
   transportadora?: string | null;
-  statusPedido?: number[] | string | null; 
+  statusPedido?: number[] | string | null;
   datas?: {
     inicial?: string | null;
     final?: string | null;
@@ -381,38 +381,69 @@ export const confirmPaymantAllIds = async (ids: number[]) => {
 
 export const getMediasYears = async () => {
   try {
+    const formatBRL = (value: number) =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(value)
+
     const medias = await prisma.$queryRaw<
       {
         ano: number
         mes: number
-        media_solicitada: number
-        media_confirmada: number
+        media_solicitada: number | string | null
+        media_confirmada: number | string | null
       }[]
     >`
       SELECT
         YEAR(date_order) AS ano,
         MONTH(date_order) AS mes,
-        AVG(
-          (requested_value_A * 10) +
-          (requested_value_B * 20) +
-          (requested_value_C * 50) +
-          (requested_value_D * 100)
+        ROUND(
+          AVG(
+            (requested_value_A * 10) +
+            (requested_value_B * 20) +
+            (requested_value_C * 50) +
+            (requested_value_D * 100)
+          ),
+          2
         ) AS media_solicitada,
-        AVG(
-          (confirmed_value_A * 10) +
-          (confirmed_value_B * 20) +
-          (confirmed_value_C * 50) +
-          (confirmed_value_D * 100)
+        ROUND(
+          AVG(
+            (confirmed_value_A * 10) +
+            (confirmed_value_B * 20) +
+            (confirmed_value_C * 50) +
+            (confirmed_value_D * 100)
+          ),
+          2
         ) AS media_confirmada
       FROM \`order\`
-      GROUP BY ano, mes
-      ORDER BY ano, mes;
+      GROUP BY YEAR(date_order), MONTH(date_order)
+      ORDER BY YEAR(date_order), MONTH(date_order)
     `
 
-    if (!medias) return null
+    if (!medias || medias.length === 0) return []
 
-    const agrupadoPorAno = medias.reduce((acc, item) => {
-      const { ano, mes, media_solicitada, media_confirmada } = item
+    const agrupadoPorAno = medias.reduce<
+      {
+        ano: number
+        total_solicitado: number
+        total_confirmado: number
+        total_solicitado_formatado: string
+        total_confirmado_formatado: string
+        meses: {
+          mes: number
+          media_solicitada: number
+          media_confirmada: number
+          media_solicitada_formatada: string
+          media_confirmada_formatada: string
+        }[]
+      }[]
+    >((acc, item) => {
+      const ano = Number(item.ano)
+      const mes = Number(item.mes)
+      const media_solicitada = Number(item.media_solicitada ?? 0)
+      const media_confirmada = Number(item.media_confirmada ?? 0)
+
       let anoExistente = acc.find((entry) => entry.ano === ano)
 
       if (!anoExistente) {
@@ -420,6 +451,8 @@ export const getMediasYears = async () => {
           ano,
           total_solicitado: 0,
           total_confirmado: 0,
+          total_solicitado_formatado: formatBRL(0),
+          total_confirmado_formatado: formatBRL(0),
           meses: [],
         }
         acc.push(anoExistente)
@@ -427,27 +460,30 @@ export const getMediasYears = async () => {
 
       anoExistente.total_solicitado += media_solicitada
       anoExistente.total_confirmado += media_confirmada
-      anoExistente.meses.push({ mes, media_solicitada, media_confirmada })
+
+      anoExistente.total_solicitado_formatado = formatBRL(anoExistente.total_solicitado)
+      anoExistente.total_confirmado_formatado = formatBRL(anoExistente.total_confirmado)
+
+      anoExistente.meses.push({
+        mes,
+        media_solicitada,
+        media_confirmada,
+        media_solicitada_formatada: formatBRL(media_solicitada),
+        media_confirmada_formatada: formatBRL(media_confirmada),
+      })
 
       return acc
-    }, [] as {
-      ano: number
-      total_solicitado: number
-      total_confirmado: number
-      meses: {
-        mes: number
-        media_solicitada: number
-        media_confirmada: number
-      }[]
-    }[])
+    }, [])
 
     return agrupadoPorAno
   } catch (error) {
-    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_MEDIAS_YEARS] *** ERROR =>", error)
-    return null
+    console.log(
+      "SERVICE => [ORDER] *** FUNCTION => [GET_MEDIAS_YEARS] *** ERROR =>",
+      error
+    )
+    return []
   }
 }
-
 export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
   try {
     const where: Prisma.OrderWhereInput = {};
@@ -521,12 +557,12 @@ export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
   }
 };
 
-export const getOrdersByDay = async (date : string) => {
-  try{
+export const getOrdersByDay = async (date: string) => {
+  try {
     return await prisma.order.findMany({
       where: {
         date_order: new Date(date)
       }
     })
-  }catch(error){}
+  } catch (error) { }
 }
