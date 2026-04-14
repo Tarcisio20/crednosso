@@ -96,7 +96,7 @@ export default function Dashboard() {
   // dispara busca com filtros atuais
   const handleSearchFilters = async () => {
     const data: filterType = {
-      transportadora: idTreasuryOrigin,
+      transportadora: idTreasuryOrigin === "0" ? "" : idTreasuryOrigin,
       statusPedido: statusSelected,
       datas: {
         inicial: dateInitial,

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { alterRequestsOrderForID, getOrderById } from "../services/order";
+import { alterRequestsOrderForID, getOrderById, getOrderByIdToSendEmail } from "../services/order";
 import { sendEmailOfOrder, sendOsEmail } from "../services/email";
 import { getForIdSystem } from "../services/treasury";
 import { createLog } from "services/logService";
@@ -238,7 +238,7 @@ export const sendEmailToOrderAsync: RequestHandler = async (req, res) => {
       >();
 
       for (let x = 0; x < idsOrder.length; x++) {
-        const orderResult: any = await getOrderById(Number(idsOrder[x]));
+        const orderResult: any = await getOrderByIdToSendEmail(Number(idsOrder[x]));
         const order = orderResult?.[0];
 
         if (!order) continue;
@@ -286,7 +286,7 @@ export const sendEmailToOrderAsync: RequestHandler = async (req, res) => {
       });
 
       let current = 0;
-
+     
       for (const [treasuryId, group] of groups) {
         current++;
 
@@ -310,6 +310,7 @@ export const sendEmailToOrderAsync: RequestHandler = async (req, res) => {
 
         const to = group.emails.join(",");
         const result: any = await sendEmailOfOrder(to, group.orders);
+        console.log("Resultado", result)
 
         if (result?.ok) {
           await Promise.all(

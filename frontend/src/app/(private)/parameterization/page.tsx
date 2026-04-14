@@ -1,7 +1,9 @@
 "use client"
 
+import { ButtonScreenOrder } from "@/app/components/ui/ButtonScreenOrder"
 import CardCustomizer from "@/app/components/ui/CardCustomizer"
 import ModalAddEmail from "@/app/components/ui/Modal/ModalAddEmail"
+import ModalSendEmailFinanceiro from "@/app/components/ui/Modal/ModalSendEmailFinanceiro"
 import { Loading } from "@/app/components/ux/Loading"
 import { Page } from "@/app/components/ux/Page"
 import { TitlePages } from "@/app/components/ux/TitlePages"
@@ -9,7 +11,7 @@ import { getAllEmailsControlForSlugTypeStore } from "@/app/service/parametrizati
 import { getAll } from "@/app/service/type-store"
 import { Button } from "@/components/ui/button"
 import { typeStoreType } from "@/types/typeStoreType"
-import { faAdd, faComputerMouse } from "@fortawesome/free-solid-svg-icons"
+import { faAdd, faComputerMouse, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -29,6 +31,7 @@ export default function Parameterization() {
 
   const [loading, setLoading] = useState(false)
   const [modalEmail, setModalEmail] = useState(false)
+  const [modalSendEmail, setModalSendEmail] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -70,11 +73,21 @@ export default function Parameterization() {
     setModalEmail(false)
   }
 
+  const handleModalSendEmail = () => {
+    setModalSendEmail(true)
+  }
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faComputerMouse}>
         Parametrização
       </TitlePages>
+
+      <div className="flex w-full flex-col gap-4 p-5">
+        <ButtonScreenOrder color="#415eff" onClick={handleModalSendEmail} size="btn-icon-text"
+                  textColor="white" secondaryColor="#546bec" icon={faEnvelope}
+                >Pedido Para Financeiro</ButtonScreenOrder>
+      </div>
 
       <div className="flex w-full flex-col gap-4 p-5">
         <CardCustomizer
@@ -148,6 +161,7 @@ export default function Parameterization() {
 
       {loading && <Loading />}
       {modalEmail && <ModalAddEmail close={closeModalEmail} />}
+      {modalSendEmail && <ModalSendEmailFinanceiro close={() => setModalSendEmail(false)} />}
     </Page>
   )
 }

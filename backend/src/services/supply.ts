@@ -248,6 +248,9 @@ export const getEmailStatusByDate = async (
         gte: start,
         lt: nextDay,
       },
+      id_type_operation: {
+        notIn: [3, 4, 5],
+      }
     };
 
     if (ids.length > 0) {

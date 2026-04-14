@@ -60,6 +60,27 @@ export const getOrderById = async (id: number) => {
 
 }
 
+export const getOrderByIdToSendEmail = async (id: number) => {
+  try {
+    return await prisma.order.findMany({
+      where: {
+        id,
+        status_order: {
+          not: 5
+        },
+        id_type_operation: {
+          notIn: [3, 4, 5]
+        }
+      }
+    })
+
+  } catch (err) {
+    console.log("SERVICE => [ORDER] *** FUNCTION => [GET_ORDER_BY_ID] *** ERROR =>", err)
+    return null
+  }
+
+}
+
 export const getOrderByIds = async (ids: number[]) => {
   try {
     return await prisma.order.findMany({

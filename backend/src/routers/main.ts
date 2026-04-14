@@ -223,6 +223,7 @@ mainRouter.post('/open-os/atender-os-for-date', openOSController.atenderOsForDat
 mainRouter.get('/parametrization/get-emails-control', parametrizationController.getAllEmailControl)
 mainRouter.get('/parametrization/get-emails-control-for-slug-type-store/:slug', parametrizationController.getAllEmailControlForSlugTypeStore)
 mainRouter.post('/parametrization/add-email-control', parametrizationController.addEmailControl)
+mainRouter.post('/parametrization/send-email-financeiro', parametrizationController.sendEmailFinanceiro)
 
 
 mainRouter.post("/telegram/webhook", telegramController.webhook);

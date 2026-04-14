@@ -17,7 +17,6 @@ export const sendEmailOfOrder = async (emails: string, orders: any[]) => {
     "dillan.sousa@crednosso.com.br",
     "luis.lopes@crednosso.com.br",
     "joao.rocha@crednosso.com.br",
-    "kalebe.marques@crednosso.com.br",
   ];
 
   const toList = [
