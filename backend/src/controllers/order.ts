@@ -1669,7 +1669,7 @@ export type FilterOrdersDTO = {
 export const filtersOrders: RequestHandler = async (req, res): Promise<void> => {
   try {
     const data = req.body as FilterOrdersDTO;
-
+    console.log("Received filter data:", data);
     const filters = await getOrdersFiltereds(data);
 
     // erro real (ex.: erro no Prisma)

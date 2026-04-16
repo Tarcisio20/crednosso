@@ -11,28 +11,39 @@ export type FilterOrdersDTO = {
 };
 
 function normalizeStatusPedido(input: unknown): number[] {
-  // Caso já venha array: [1, 2, 3] ou ['1', '2', '3']
   if (Array.isArray(input)) {
     return input
       .map((v) => Number(v))
       .filter((n) => Number.isFinite(n));
   }
 
-  // Caso venha string: "1,2,3"
   if (typeof input === "string") {
     const trimmed = input.trim();
     if (!trimmed) return [];
 
+    // 👉 tenta JSON primeiro
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((v) => Number(v))
+            .filter((n) => Number.isFinite(n));
+        }
+      } catch {
+        // continua
+      }
+    }
+
+    // 👉 fallback CSV
     return trimmed
       .split(",")
       .map((p) => Number(p.trim()))
       .filter((n) => Number.isFinite(n));
   }
 
-  // Qualquer outra coisa → ignora
   return [];
 }
-
 export const getAllOrder = async () => {
   try {
     return await prisma.order.findMany()

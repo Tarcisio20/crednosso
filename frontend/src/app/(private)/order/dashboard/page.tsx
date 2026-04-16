@@ -103,7 +103,7 @@ export default function Dashboard() {
         final: dateFinal,
       },
     };
-
+    console.log("Dados enviados para filtro:", data);
     const witchFilters = await getWitchFilters(data);
 
     if (
@@ -205,7 +205,7 @@ export default function Dashboard() {
                   <input
                     type="checkbox"
                     checked={statusSelected.includes(status.id as number)}
-                    onChange={() =>
+                    onChange={() => 
                       handleSelectedStatusOrder(status.id as number)
                     }
                   />
