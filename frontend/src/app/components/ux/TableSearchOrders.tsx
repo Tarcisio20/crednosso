@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import type { orderType } from "@/types/orderType";
+import { statusOrderType } from "@/types/statusOrder";
+import { getAll } from "@/app/service/status-order";
 
 type TableSearchOrdersProps = {
   orders: orderType[];
@@ -21,6 +23,8 @@ type SortField =
 
 type SortDirection = "asc" | "desc";
 
+
+
 export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
   orders,
 }) => {
@@ -33,6 +37,16 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [pageIndex, setPageIndex] = React.useState<number>(0);
 
+  const [statusOrder, setStatusOrder] = React.useState<statusOrderType[]>([]);
+
+  React.useEffect(() => {
+  (async function () {
+    const data = await getAll();
+    if (data.status === 200) {
+      setStatusOrder(data.data.statusOrder);
+    }
+  })();
+}, []);
   // sempre que mudar a lista ou o sort, volta pra página 1
   React.useEffect(() => {
     setPageIndex(0);
@@ -232,7 +246,8 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
                     {formatCurrency(order.requested_value_D)}
                   </td>
                   <td className="border-b px-2 py-1 text-center">
-                    {order.status_order}
+                    
+                    {statusOrder.find((s) => s.id === order.status_order)?.name ?? order.status_order}
                   </td>
                   <td className="border-b px-2 py-1 max-w-[220px] truncate">
                     {order.observation}
