@@ -209,6 +209,7 @@ mainRouter.post('/tarefa-erro', socketEventController.notifySchedulerError);
 
 //os
 
+mainRouter.get('/open-os/full/day/:date', openOSController.getOsOpenForDayFull)
 mainRouter.get('/open-os/day/:date', openOSController.getOsOpenForDay)
 mainRouter.get('/open-os/get-os-id/:id', openOSController.getAllById)
 mainRouter.post('/open-os/alter-os', openOSController.alterOS)

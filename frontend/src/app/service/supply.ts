@@ -87,7 +87,7 @@ export const getSupplyForIdTreasury = async (id: number) => {
     }
   }
 }
-export const getSuppliesWithSupplyInDateAndTreasury = async (id: number, data : {  date : string}) => {
+export const getSuppliesWithSupplyInDateAndTreasury = async (id: number, data: { date: string }) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/get-supply-open/${id}`, data, {
@@ -154,7 +154,7 @@ export const getSuppliesForDayPagination = async (data: DatePayload, page: numbe
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-       params: {
+      params: {
         page: page,
         pageSize: pageSize
       }
@@ -207,8 +207,8 @@ export const getSuppliesForDay = async (data: DatePayload) => {
   }
 }
 
-export const getSupplyForOS = async (id_supply : number) => {
-   const token = Cookies.get('tokenSystemCredNosso')
+export const getSupplyForOS = async (id_supply: number) => {
+  const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/supply/get-os-by-supply/${id_supply}`, {
       headers: {
@@ -303,7 +303,7 @@ export const saveAllSupplies = async (data: addAllSuppliesType[]) => {
   }
 }
 
-export const getSuppliesForNow = async (data : { date : string }, id_treasury : number) => {
+export const getSuppliesForNow = async (data: { date: string }, id_treasury: number) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/for-day-treasury/${id_treasury}`, data, {
@@ -331,7 +331,36 @@ export const getSuppliesForNow = async (data : { date : string }, id_treasury : 
   }
 }
 
-export const getSupliesForNums = async (data : number[]) => {
+
+export const getSuppliesForDate = async (data: { date: string }) => {
+  const token = Cookies.get('tokenSystemCredNosso')
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/for-day/`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response
+  } catch (error: any) {
+    if (error.response) {
+      // Erro retornado pela API (ex: status 400, 500, etc.)
+      const { message } = error.response.data; // Captura a mensagem de erro
+      //   console.error("Erro na requisição:", message); // Exibe a mensagem de erro
+      return { error: message, status: 400, data: undefined } as any;
+    } else if (error.request) {
+      // Erro de conexão (não houve resposta do servidor)
+      // console.error("Erro de conexão:", error.request);
+      return { error: error.request, status: 500, data: undefined } as any;
+    } else {
+      // Erro genérico (ex: erro ao configurar a requisição)
+      //console.error("Erro:", error.message);
+      return { error: error.message, status: 300, data: undefined } as any;
+    }
+  }
+}
+
+export const getSupliesForNums = async (data: number[]) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/for-num-order`, data, {
@@ -359,7 +388,7 @@ export const getSupliesForNums = async (data : number[]) => {
   }
 }
 
-export const saveIndividualSupply = async (data : Partial<supplyProps>) => {
+export const saveIndividualSupply = async (data: Partial<supplyProps>) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/add_individual`, data, {
@@ -389,19 +418,19 @@ export const saveIndividualSupply = async (data : Partial<supplyProps>) => {
 }
 
 export type openOSProps = {
-  id_supply : number;
-  id_atm : number;
-  id_treasury : number;
-  total_exchange : boolean;
-  date_on_supply : string;
-  cassete_A : number;
-  cassete_B : number;
-  cassete_C : number;
-  cassete_D : number;
+  id_supply: number;
+  id_atm: number;
+  id_treasury: number;
+  total_exchange: boolean;
+  date_on_supply: string;
+  cassete_A: number;
+  cassete_B: number;
+  cassete_C: number;
+  cassete_D: number;
 }
-export const openOS = async (data : {socketId: string | undefined, data : openOSProps[]}) => {
-   const token = Cookies.get('tokenSystemCredNosso')
-    try {
+export const openOS = async (data: { socketId: string | undefined, data: openOSProps[] }) => {
+  const token = Cookies.get('tokenSystemCredNosso')
+  try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/open-os/`, data, {
       headers: {
         "Content-Type": "application/json",
@@ -428,7 +457,7 @@ export const openOS = async (data : {socketId: string | undefined, data : openOS
   }
 }
 
-export const editIndividualSupply = async (id : number, data : Partial<supplyProps>) => {
+export const editIndividualSupply = async (id: number, data: Partial<supplyProps>) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/edit_individual/${id}`, data, {
@@ -457,7 +486,7 @@ export const editIndividualSupply = async (id : number, data : Partial<supplyPro
   }
 }
 
-export const delIndividualSupply = async (id : number) => {
+export const delIndividualSupply = async (id: number) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/supply/del_individual/${id}`, {
@@ -486,7 +515,7 @@ export const delIndividualSupply = async (id : number) => {
   }
 }
 
-export const getSuppliesByDate = async (data : DatePayload) => {
+export const getSuppliesByDate = async (data: DatePayload) => {
   const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/supply/get/get-all-by-date/`, data, {
@@ -514,8 +543,8 @@ export const getSuppliesByDate = async (data : DatePayload) => {
   }
 }
 
-export const toSendEmail = async (data : DatePayload) => {
-   const token = Cookies.get('tokenSystemCredNosso')
+export const toSendEmail = async (data: DatePayload) => {
+  const token = Cookies.get('tokenSystemCredNosso')
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/email/send-to-os/`, data, {
       headers: {

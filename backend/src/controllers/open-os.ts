@@ -54,6 +54,48 @@ export const getOsOpenForDay: RequestHandler = async (req, res) => {
   }
 };
 
+export const getOsOpenForDayFull: RequestHandler = async (req, res) => {
+  const { date } = req.params;
+  if (!date) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_OS_OPEN_FOR_DAY',
+      message: 'Preciso de uma data para continuar!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'atm',
+    });
+
+    res.status(400).json({ error: 'Preciso de uma data para continuar!' });
+    return;
+  }
+
+  try {
+    const os = await getOsOpenInTableForDay(date);
+
+    console.log("OSs encontradas para a data:", os);
+
+    res.status(200).json({ openos: os });
+    return;
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_OS_OPEN_FOR_DAY',
+      message: 'Erro ao buscar no banco!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'atm',
+    });
+
+    res.status(400).json({ error: 'Erro ao buscar no banco!' });
+    return;
+  }
+};
+
 export const getAllById: RequestHandler = async (req, res) => {
   const { id } = req.params;
   if (!id) {

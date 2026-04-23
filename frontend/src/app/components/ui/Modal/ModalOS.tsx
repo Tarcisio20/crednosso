@@ -3,12 +3,12 @@
 import { supplyProps } from "@/app/(private)/supply/add/page";
 import { openOS, openOSProps } from "@/app/service/supply";
 import { formatDateToString } from "@/app/utils/formatDateToString";
-import { generateExcelOs } from "@/app/utils/generateExcelOs";
 import { generateRealTotal } from "@/app/utils/generateRealTotal";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loading } from "../../ux/Loading";
 import { socket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
 
 type ModalOSProps = {
   close: () => void;
@@ -18,6 +18,9 @@ type ModalOSProps = {
 };
 
 export const ModalOS = ({ close, data, atmMap, treasuryMap }: ModalOSProps) => {
+
+  const router = useRouter();
+
   const [checkedIds, setCheckedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -73,112 +76,70 @@ export const ModalOS = ({ close, data, atmMap, treasuryMap }: ModalOSProps) => {
     };
   }, []);
 
-  const handleGenerateOss = async () => {
-    if (loading) return;
-    setLoading(true);
+ const handleGenerateOss = async () => {
+  if (loading) return;
+  setLoading(true);
 
-    try {
-      if (!socket.connected) {
-        socket.connect();
-        await new Promise<void>((resolve) => socket.once("connect", () => resolve()));
-      }
-
-      const socketId = socket.id;
-
-      if (atmMap.size === 0 || treasuryMap.size === 0) {
-        toast.error("Não foi possível carregar nomes de ATM/Tesouraria. Clique em Pesquisar novamente.");
-        setLoading(false);
-        return;
-      }
-
-      const selectedSupplies = data.filter(
-        (s): s is supplyProps => typeof s.id === "number" && checkedIds.includes(s.id)
-      );
-
-      if (selectedSupplies.length === 0) {
-        toast.error("Selecione pelo menos uma OS para gerar.");
-        setLoading(false);
-        return;
-      }
-
-      //await generateExcelOs(selectedSupplies);
-
-      const dataItem: openOSProps[] = selectedSupplies.map((item) => ({
-        id_supply: Number(item.id),
-        id_atm: Number(item.id_atm),
-        atm_name: getAtmName(Number(item.id_atm)),
-        id_treasury: Number(item.id_treasury),
-        treasury_name: getTreasuryName(Number(item.id_treasury)),
-        total_exchange: Boolean(item.total_exchange),
-        date_on_supply: String(item.date_on_supply ?? ""),
-        cassete_A: Number(item.cassete_A ?? 0),
-        cassete_B: Number(item.cassete_B ?? 0),
-        cassete_C: Number(item.cassete_C ?? 0),
-        cassete_D: Number(item.cassete_D ?? 0),
-      }));
-
-      const startResp: any = await openOS({ socketId, data: dataItem });
-
-      if (!startResp?.data?.ok || !startResp?.data?.jobId) {
-        toast.error(startResp?.error ?? "Erro ao iniciar geração de OS");
-        setLoading(false);
-        return;
-      }
-
-      const jobId = String(startResp.data.jobId);
-      activeJobIdRef.current = jobId;
-
-      toast.message("Processo iniciado. Você pode continuar usando o sistema.");
-      setLoading(false);
-
-      socket.off("openos:started");
-      socket.off("openos:progress");
-      socket.off("openos:done");
-      socket.off("openos:error");
-
-      const onStarted = (p: any) => {
-        if (String(p?.jobId) !== jobId) return;
-        toast.message("Iniciando geração...");
-      };
-
-      const onProgress = (p: any) => {
-        if (String(p?.jobId) !== jobId) return;
-        if (p?.message) console.log("[OPENOS][PROGRESS]", p.message);
-      };
-
-      const cleanup = () => {
-        socket.off("openos:started", onStarted);
-        socket.off("openos:progress", onProgress);
-        socket.off("openos:done", onDone);
-        socket.off("openos:error", onError);
-        if (activeJobIdRef.current === jobId) activeJobIdRef.current = null;
-      };
-
-      const onDone = (p: any) => {
-        if (String(p?.jobId) !== jobId) return;
-        cleanup();
-        toast.success(p?.ok ? "OSs geradas e e-mails enviados com sucesso!" : "Processo finalizado, mas houve falhas.");
-      };
-
-      const onError = (p: any) => {
-        if (String(p?.jobId) !== jobId) return;
-        cleanup();
-        toast.error(p?.details ?? p?.error ?? "Erro no processamento");
-      };
-
-      socket.on("openos:started", onStarted);
-      socket.on("openos:progress", onProgress);
-      socket.on("openos:done", onDone);
-      socket.on("openos:error", onError);
-
-      // se você quiser fechar o modal ao iniciar:
-      // close();
-    } catch (err: any) {
-      toast.error(err?.message ?? "Erro inesperado ao iniciar geração de OS");
-      setLoading(false);
+  try {
+    if (!socket.connected) {
+      socket.connect();
+      await new Promise<void>((resolve) => socket.once("connect", () => resolve()));
     }
-  };
 
+    const socketId = socket.id;
+
+    if (atmMap.size === 0 || treasuryMap.size === 0) {
+      toast.error("Não foi possível carregar nomes de ATM/Tesouraria. Clique em Pesquisar novamente.");
+      setLoading(false);
+      return;
+    }
+
+    const selectedSupplies = data.filter(
+      (s): s is supplyProps => typeof s.id === "number" && checkedIds.includes(s.id)
+    );
+
+    if (selectedSupplies.length === 0) {
+      toast.error("Selecione pelo menos uma OS para gerar.");
+      setLoading(false);
+      return;
+    }
+
+    const dataItem: openOSProps[] = selectedSupplies.map((item) => ({
+      id_supply: Number(item.id),
+      id_atm: Number(item.id_atm),
+      atm_name: getAtmName(Number(item.id_atm)),
+      id_treasury: Number(item.id_treasury),
+      treasury_name: getTreasuryName(Number(item.id_treasury)),
+      total_exchange: Boolean(item.total_exchange),
+      date_on_supply: String(item.date_on_supply ?? ""),
+      cassete_A: Number(item.cassete_A ?? 0),
+      cassete_B: Number(item.cassete_B ?? 0),
+      cassete_C: Number(item.cassete_C ?? 0),
+      cassete_D: Number(item.cassete_D ?? 0),
+    }));
+
+    const startResp: any = await openOS({ socketId, data: dataItem });
+
+    if (!startResp?.data?.ok || !startResp?.data?.jobId) {
+      toast.error(startResp?.error ?? "Erro ao iniciar geração de OS");
+      setLoading(false);
+      return;
+    }
+
+    const jobId = String(startResp.data.jobId);
+
+    const params = new URLSearchParams({
+      date: String(selectedSupplies[0].date_on_supply ?? ""),
+      jobId,
+    });
+
+    router.push(`/supply/status-supply?${params.toString()}`);
+    return;
+  } catch (err: any) {
+    toast.error(err?.message ?? "Erro inesperado ao iniciar geração de OS");
+    setLoading(false);
+  }
+};
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-zinc-900 p-6 rounded-xl shadow-lg w-11/12 max-w-5xl border border-zinc-700">
