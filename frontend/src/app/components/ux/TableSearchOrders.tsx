@@ -4,9 +4,11 @@ import * as React from "react";
 import type { orderType } from "@/types/orderType";
 import { statusOrderType } from "@/types/statusOrder";
 import { getAll } from "@/app/service/status-order";
+import { getTextColorLine } from "@/app/utils/getTextColorLine";
+import { OrderIncrementalType } from "@/app/(private)/order/dashboard/page";
 
 type TableSearchOrdersProps = {
-  orders: orderType[];
+  orders: OrderIncrementalType[];
 };
 
 type SortField =
@@ -28,6 +30,7 @@ type SortDirection = "asc" | "desc";
 export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
   orders,
 }) => {
+  console.log("Orders recebidos em TableSearchOrders:", orders);
   // campo usado para ordenar
   const [sortField, setSortField] = React.useState<SortField>("id");
   // direção: menor → maior (asc) ou maior → menor (desc)
@@ -53,7 +56,7 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
   }, [orders, sortField, sortDirection, pageSize]);
 
   // converte valor para algo comparável (number)
-  const getComparableValue = (row: orderType, field: SortField): number => {
+  const getComparableValue = (row: OrderIncrementalType, field: SortField): number => {
     const value = row[field];
 
     if (field === "date_order" && typeof value === "string") {
@@ -105,12 +108,14 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
     return sortedOrders.slice(start, end);
   }, [sortedOrders, currentPage, pageSize]);
 
-  const formatDate = (iso: string) => {
-    if (!iso) return "";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString("pt-BR");
-  };
+const formatDate = (iso: string) => {
+  if (!iso) return "";
+
+  const dateOnly = iso.split("T")[0]; // 2026-04-29
+  const [year, month, day] = dateOnly.split("-");
+
+  return `${day}/${month}/${year}`;
+};
 
   const formatCurrency = (v: number) =>
     (v ?? 0).toLocaleString("pt-BR", {
@@ -196,15 +201,21 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
           <thead className="bg-muted/60">
             <tr>
               <th className="border-b px-2 py-2 text-left">ID</th>
-              <th className="border-b px-2 py-2 text-left">Data</th>
+              <th className="border-b px-2 py-2 text-left">Tipo</th>
               <th className="border-b px-2 py-2 text-left">Origem</th>
               <th className="border-b px-2 py-2 text-left">Destino</th>
-              <th className="border-b px-2 py-2 text-right">Valor A</th>
-              <th className="border-b px-2 py-2 text-right">Valor B</th>
-              <th className="border-b px-2 py-2 text-right">Valor C</th>
-              <th className="border-b px-2 py-2 text-right">Valor D</th>
+              <th className="border-b px-2 py-2 text-left">Data</th>
+              <th className="border-b px-2 py-2 text-right">Sol. A</th>
+              <th className="border-b px-2 py-2 text-right">Sol. B</th>
+              <th className="border-b px-2 py-2 text-right">Sol. C</th>
+              <th className="border-b px-2 py-2 text-right">Sol. D</th>
+              <th className="border-b px-2 py-2 text-right">Sol. Total</th>
+              <th className="border-b px-2 py-2 text-right">Conf. A</th>
+              <th className="border-b px-2 py-2 text-right">Conf. B</th>
+              <th className="border-b px-2 py-2 text-right">Conf. C</th>
+              <th className="border-b px-2 py-2 text-right">Conf. D</th>
+              <th className="border-b px-2 py-2 text-right">Conf. Total</th>
               <th className="border-b px-2 py-2 text-center">Status</th>
-              <th className="border-b px-2 py-2 text-left">Obs.</th>
             </tr>
           </thead>
           <tbody>
@@ -224,33 +235,51 @@ export const TableSearchOrders: React.FC<TableSearchOrdersProps> = ({
                   className="hover:bg-muted/40 transition-colors"
                 >
                   <td className="border-b px-2 py-1">{order.id}</td>
+                  <td className="border-b px-2 py-1">{order.id_type_operation}-{order.type_operation_name}</td>
                   <td className="border-b px-2 py-1">
+                    {order.id_treasury_origin}-{order.treasury_origin_name}
+                  </td>
+                  <td className="border-b px-2 py-1">
+                    {order.id_treasury_destin}-{order.treasury_destin_name}
+                  </td>
+                    <td className="border-b px-2 py-1">
                     {formatDate(order.date_order)}
                   </td>
-                  <td className="border-b px-2 py-1">
-                    {order.id_treasury_origin}
-                  </td>
-                  <td className="border-b px-2 py-1">
-                    {order.id_treasury_destin}
+                  <td className="border-b px-2 py-1 text-right">
+                    {order.requested_value_A}
                   </td>
                   <td className="border-b px-2 py-1 text-right">
-                    {formatCurrency(order.requested_value_A)}
+                    {order.requested_value_B}
                   </td>
                   <td className="border-b px-2 py-1 text-right">
-                    {formatCurrency(order.requested_value_B)}
+                    {order.requested_value_C}
                   </td>
                   <td className="border-b px-2 py-1 text-right">
-                    {formatCurrency(order.requested_value_C)}
+                    {order.requested_value_D}
                   </td>
-                  <td className="border-b px-2 py-1 text-right">
-                    {formatCurrency(order.requested_value_D)}
+                  <td className="text-end">
+                    {formatCurrency((order.requested_value_A * 10 )+(order.requested_value_B * 20) +
+                     (order.requested_value_C * 50) + (order.requested_value_D * 100))}
                   </td>
-                  <td className="border-b px-2 py-1 text-center">
+                   <td className="border-b px-2 py-1 text-right">
+                    {order.confirmed_value_A}
+                  </td>
+                   <td className="border-b px-2 py-1 text-right">
+                    {order.confirmed_value_B}
+                  </td>
+                   <td className="border-b px-2 py-1 text-right">
+                    {order.confirmed_value_C}
+                  </td>
+                   <td className="border-b px-2 py-1 text-right">
+                    {order.confirmed_value_D}
+                  </td>
+                  <td className="text-end">
+                    {formatCurrency((order.confirmed_value_A as number * 10 )+(order.confirmed_value_B as number  * 20) +
+                     (order.confirmed_value_C as number  * 50) + (order.confirmed_value_D as number  * 100))}
+                  </td>
+                  <td className={`border-b px-2 py-1 text-center ${getTextColorLine(order.status_order as number)}`}>
                     
                     {statusOrder.find((s) => s.id === order.status_order)?.name ?? order.status_order}
-                  </td>
-                  <td className="border-b px-2 py-1 max-w-[220px] truncate">
-                    {order.observation}
                   </td>
                 </tr>
               ))

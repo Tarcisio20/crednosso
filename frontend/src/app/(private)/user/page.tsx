@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { userSaveType } from "@/types/userSaveType";
 import Link from "next/link";
 import { toast } from "sonner";
-import { getAllPagination } from "@/app/service/user";
+import { del, getAllPagination, update } from "@/app/service/user";
 
 export default function User() {
   const router = useRouter()
@@ -63,25 +63,25 @@ export default function User() {
   const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
     e.preventDefault()
     
-    // setLoading(false);
-    // setLoading(true);
-    // if (!id) {
-    //   toast.error('Selecione um Usuário, para continunar')
-    //   setLoading(false);
-    //   return;
-    // }
-    // const deleteAtm = await del(id)
-    // if (deleteAtm.status === 300 || deleteAtm.status === 400 || deleteAtm.status === 500) {
-    //   toast.error('Erro de requisição, tente novamente')
-    //   setLoading(false);
-    //   return;
-    // }
-    // if (deleteAtm.status === 200) {
-    //   toast.success('Atm deletado com sucesso!')
-    //   setLoading(false);
-    //   getAllAtmsPagination();
-    //   return;
-    // }
+     setLoading(true);
+     if(!id){
+      toast.error('Selecione um Usuário, para continunar')
+      setLoading(false);
+      return;   
+     }
+      const deleteAtm = await del(id, { status :  false})
+      if (deleteAtm.status === 300 || deleteAtm.status === 400 || deleteAtm.status === 500) {
+       toast.error('Erro de requisição, tente novamente')
+      setLoading(false);
+      return;
+     }
+   
+     if (deleteAtm.status === 200) {
+      toast.success('Atm deletado com sucesso!')
+       setLoading(false);
+       getAllUsersPagination()
+     return;
+   }
   };
 
 

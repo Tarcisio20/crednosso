@@ -17,6 +17,7 @@ import { orderEditSchema } from "../schemas/orderEditSchema"
 import { createLog } from "services/logService"
 import { diffObjects, sanitizeOrder, sanitizeOrderPayload } from "utils/audit/audit-order"
 import { getForIdTreasury } from "services/atm"
+import { getTypeOperationForId } from "services/typeOperation"
 
 export const getAll: RequestHandler = async (req, res) => {
   try {
@@ -1669,11 +1670,25 @@ export type FilterOrdersDTO = {
 export const filtersOrders: RequestHandler = async (req, res): Promise<void> => {
   try {
     const data = req.body as FilterOrdersDTO;
-    console.log("Received filter data:", data);
+    //console.log("Received filter data:", data);
     const filters = await getOrdersFiltereds(data);
+    const filterWithTreasury = await Promise.all(
+      filters?.map(async (item) => {
+        const treasuryOrigin = await getForIdSystem(String(item.id_treasury_origin));
+        const treasuryDestin = await getForIdSystem(String(item.id_treasury_destin));
+        const typeOperation = await getTypeOperationForId(String(item.id_type_operation));
 
+        return {
+          ...item,
+          treasury_origin_name: treasuryOrigin?.name ?? null,
+          treasury_destin_name: treasuryDestin?.name ?? null,
+          type_operation_name: typeOperation?.name ?? null,
+        };
+      }) ?? []
+    );
+    //console.log("Filtro com ", filterWithTreasury)
     // erro real (ex.: erro no Prisma)
-    if (filters === null) {
+    if (filterWithTreasury === null) {
       res.status(500).json({
         message: "Erro ao buscar pedidos.",
       });
@@ -1682,8 +1697,8 @@ export const filtersOrders: RequestHandler = async (req, res): Promise<void> => 
 
     // requisição válida: retorna filtros (pode ser [] mesmo)
     res.status(200).json({
-      filters,
-      total: filters.length,
+      filters: filterWithTreasury,
+      total: filterWithTreasury.length,
     });
   } catch (err) {
     console.error("CONTROLLER /order/filters ERROR =>", err);
@@ -1723,10 +1738,10 @@ export const getOrderForDay: RequestHandler = async (req, res): Promise<void> =>
       for_payment: item.for_payment,
       for_release: item.for_release,
 
-      cassete_a:  item.requested_value_A,
-      cassete_b:  item.requested_value_B,
+      cassete_a: item.requested_value_A,
+      cassete_b: item.requested_value_B,
       cassete_c: item.requested_value_C,
-      cassete_d:  item.requested_value_D,
+      cassete_d: item.requested_value_D,
     }));
 
     const treasuryIds = [
@@ -1754,7 +1769,7 @@ export const getOrderForDay: RequestHandler = async (req, res): Promise<void> =>
 
     treasuryIds.forEach((idTreasury, idx) => {
       const r = atmsRaw[idx];
-      const list = toRows(r); 
+      const list = toRows(r);
 
       const normalized = list.map((a: any) => ({
         id_system: a.id_system,

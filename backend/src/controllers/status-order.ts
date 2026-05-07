@@ -7,6 +7,7 @@ import { diffObjects, sanitizeStatusOrder, sanitizeStatusOrderList, sanitizeStat
 export const getAll: RequestHandler = async (req, res) => {
   try {
     const statusOrder = await getAllStatusOrder()
+    console.log("Status Order encontrado:", statusOrder)
     if (!statusOrder) {
       await createLog({
         level: "ERROR",

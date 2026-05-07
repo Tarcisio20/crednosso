@@ -309,6 +309,86 @@ export const update: RequestHandler = async (req, res) => {
   }
 }
 
+export const del: RequestHandler = async (req, res) => {
+  const userId = req.params.id
+  if (!userId || isNaN(parseInt(userId))) {
+    await createLog({
+      level: 'ERROR',
+      action: 'DELETE_USER',
+      message: 'Requisição sem ID!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Requisição sem ID!' },
+    })
+    res.status(401).json({ error: 'Requisição sem ID!' })
+    return
+  }
+  const safeData = req.body
+  if (!safeData.success) {
+    await createLog({
+      level: 'ERROR',
+      action: 'DELETE_USER',
+      message: 'Erro ao Excluir!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'user',
+      meta: { error: safeData.error.flatten().fieldErrors }
+    })
+    res.json({ error: safeData.error.flatten().fieldErrors })
+    return
+  }
+  try {
+    const updateU = await updateUser(parseInt(userId), safeData.data)
+    if (!updateU) {
+      await createLog({
+        level: 'ERROR',
+        action: 'DELETE_USER',
+        message: 'Erro ao Excluir!',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 401,
+        resource: 'user',
+        meta: { error: 'Erro ao Excluir!' }
+      })
+      res.status(401).json({ error: 'Erro ao Excluir!' })
+      return
+    }
+    await createLog({
+      level: 'INFO',
+      action: 'DELETE_USER',
+      message: 'Sucesso ao Excluir!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 200,
+      resource: 'user',
+      meta: { message: 'Sucesso ao Excluir!' }
+    })
+    res.status(200).json({ user: updateU })
+    return
+  } catch (error) {
+    await createLog({
+      level: 'ERROR',
+      action: 'DELETE_USER',
+      message: 'Erro ao Excluir!',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 401,
+      resource: 'user',
+      meta: { error: 'Erro ao Excluir!' }
+    })
+    res.status(401).json({ error: 'Erro ao Excluir!' })
+    return
+  }
+}
+
 export const changePassword: RequestHandler = async (req, res) => {
   const userId = req.params.id
   if (!userId || isNaN(parseInt(userId))) {

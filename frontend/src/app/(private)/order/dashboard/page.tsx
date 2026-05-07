@@ -17,6 +17,12 @@ import type { statusOrderType } from "@/types/statusOrder";
 import type { filterType } from "@/types/filterType";
 import type { orderType } from "@/types/orderType";
 
+export type OrderIncrementalType = orderType & {
+  treasury_origin_name?: string | null;
+  treasury_destin_name?: string | null;
+  type_operation_name?: string | null;
+}
+
 export default function Dashboard() {
   // Transportadora selecionada (id_treasury_origin)
   const [idTreasuryOrigin, setIdTreasuryOrigin] = useState<string>("");
@@ -33,7 +39,7 @@ export default function Dashboard() {
   const [dateFinal, setDateFinal] = useState<string>("");
 
   // Resultado da busca (pedidos filtrados)
-  const [filteres, setFilteres] = useState<orderType[]>([]);
+  const [filteres, setFilteres] = useState<OrderIncrementalType[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard de Pedidos";
@@ -103,8 +109,9 @@ export default function Dashboard() {
         final: dateFinal,
       },
     };
-    console.log("Dados enviados para filtro:", data);
+   // console.log("Dados enviados para filtro:", data);
     const witchFilters = await getWitchFilters(data);
+   console.log("Resposta da API de filtros:", witchFilters);
 
     if (
       witchFilters.status === 300 ||
@@ -230,11 +237,13 @@ export default function Dashboard() {
       </div>
 
       {/* Tabela de resultados – só mostra se houver filtros retornados */}
+      <div className="px-4">
       {filteres && filteres.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 mb-8">
           <TableSearchOrders orders={filteres} />
         </div>
       )}
+      </div>
     </Page>
   );
 }
