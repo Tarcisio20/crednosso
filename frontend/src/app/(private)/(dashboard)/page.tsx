@@ -59,7 +59,7 @@ export default function Dashboard() {
   const loadingValues = async () => {
     setLoading(true)
     const mediasAnos = await getMediasYears()
-    console.log("Medias Ano", mediasAnos)
+    //console.log("Medias Ano", mediasAnos)
     if (mediasAnos.data !== undefined && mediasAnos.data.medias.length > 0) {
       console.log("Medias", mediasAnos.data.medias)
       setMedias(mediasAnos.data.medias)
@@ -114,7 +114,7 @@ export default function Dashboard() {
   }
 
   const user = useAuthStore((state) => state.user);
-
+  console.log("user", user)
   return (
     <Page>
       <TitlePages linkBack="/" icon={faGauge} >Dahsboard</TitlePages>

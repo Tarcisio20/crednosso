@@ -143,14 +143,15 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  cashMovements     TreasuryCashMovement[]
   moneySplitRefunds MoneySplitRefund[]
   moneySplits       MoneySplit[]
   supply            Supply[]
-  typeOperation     TypeOperation @relation(fields: [id_type_operation], references: [id])
-  treasuryOrigin    Treasury      @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
-  treasuryDestin    Treasury      @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
-  typeOrder         TypeOrder     @relation(fields: [id_type_order], references: [id])
-  statusOrder       StatusOrder   @relation(fields: [status_order], references: [id])
+  typeOperation     TypeOperation          @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin    Treasury               @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
+  treasuryDestin    Treasury               @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
+  typeOrder         TypeOrder              @relation(fields: [id_type_order], references: [id])
+  statusOrder       StatusOrder            @relation(fields: [status_order], references: [id])
 
   @@map("order")
 }
@@ -222,6 +223,9 @@ model Treasury {
   OrdersOrigin      Order[]            @relation("TreasuryOrigin")
   OrdersDestin      Order[]            @relation("TreasuryDestin")
   OperationalError  OperationalError[]
+
+  cashBalance   TreasuryCashBalance?
+  cashMovements TreasuryCashMovement[]
 }
 
 model TypeOperation {
@@ -322,14 +326,114 @@ model OsOpen {
   date_os    DateTime @default(now())
   send_email Boolean  @default(false)
   status     Boolean  @default(true)
+
+  cashMovements TreasuryCashMovement[]
 }
 
 model EmailParametrization {
-  id            Int      @id @default(autoincrement())
+  id            Int     @id @default(autoincrement())
   name          String?
-  email         String   @unique
+  email         String  @unique
   for_send_slug String
-  status        Boolean  @default(true)
+  status        Boolean @default(true)
 
   @@index([for_send_slug], map: "EmailParametrization_for_send_slug_idx")
+}
+
+enum TreasuryCashMovementType {
+  ENTRADA_PEDIDO
+  ABERTURA_OS
+  AJUSTE_CONFIRMACAO_PEDIDO
+  AJUSTE_OS
+  FINALIZACAO_OS
+  CANCELAMENTO_OS
+  AJUSTE_MANUAL
+}
+
+enum TreasuryBalanceMovementStatus {
+  PENDENTE
+  CONFIRMADO
+  CANCELADO
+}
+
+enum TreasuryCashBalanceBucket {
+  DISPONIVEL
+  TRANSICAO
+}
+
+model TreasuryCashBalance {
+  id          Int @id @default(autoincrement())
+  id_treasury Int @unique
+
+  available_bills_10  Int @default(0)
+  available_bills_20  Int @default(0)
+  available_bills_50  Int @default(0)
+  available_bills_100 Int @default(0)
+
+  transit_bills_10  Int @default(0)
+  transit_bills_20  Int @default(0)
+  transit_bills_50  Int @default(0)
+  transit_bills_100 Int @default(0)
+
+  status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
+
+  @@index([id_treasury])
+}
+
+model TreasuryCashMovementItem {
+  id          Int @id @default(autoincrement())
+  movement_id Int
+
+  balance_bucket TreasuryCashBalanceBucket
+
+  denomination Int
+  quantity     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  movement TreasuryCashMovement @relation(fields: [movement_id], references: [id])
+
+  @@unique([movement_id, balance_bucket, denomination])
+  @@index([balance_bucket])
+  @@index([denomination])
+}
+
+model TreasuryCashMovement {
+  id           Int    @id @default(autoincrement())
+  movement_key String @unique
+
+  id_treasury Int
+  id_order    Int?
+  id_os_open  Int?
+
+  type   TreasuryCashMovementType
+  status TreasuryBalanceMovementStatus @default(CONFIRMADO)
+
+  description String @default("")
+
+  source_table String? @db.VarChar(100)
+  source_id    Int?
+
+  createdBy String? @db.VarChar(191)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
+  order    Order?   @relation(fields: [id_order], references: [id])
+  osOpen   OsOpen?  @relation(fields: [id_os_open], references: [id])
+
+  items TreasuryCashMovementItem[]
+
+  @@index([id_treasury, createdAt])
+  @@index([type, status])
+  @@index([source_table, source_id])
+  @@index([id_order])
+  @@index([id_os_open])
 }

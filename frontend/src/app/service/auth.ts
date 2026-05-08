@@ -53,7 +53,7 @@ export const login = async (data: {
         headers: { "Content-Type": "application/json" },
       }
     );
-
+    
     useAuthStore.getState().setAuth({
       token : response.data.token,
       user : response.data.user

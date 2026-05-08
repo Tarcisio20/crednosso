@@ -5,16 +5,13 @@ import { Input } from "@/app/components/ui/Input";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { isValidEmail } from "@/app/utils/emailValidator";
 import { passLoginValidator } from "@/app/utils/passLoginValidator";
 import { login } from "@/app/service/auth";
 import { Loading } from "@/app/components/ux/Loading";
-import { Messeger } from "@/app/components/ux/Messeger";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Separator } from "@radix-ui/react-select";
+
 
 export default function SignIn() {
 

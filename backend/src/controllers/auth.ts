@@ -170,7 +170,8 @@ export const login: RequestHandler = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      slug: user.slug
+      slug: user.slug,
+      nivel : user.nivel
     }
   })
 }

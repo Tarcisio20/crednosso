@@ -65,20 +65,19 @@ export const findUserByEmail = async (email: string) => {
 }
 
 export const findUserBySlug = async (slug: string) => {
-  try {
-    return await prisma.user.findFirst({
-      select: {
-        name: true,
-        email: true,
-        slug: true
-      },
-      where: { slug }
-    })
-  } catch (err) {
-    console.log("SERVICE => [USER] *** FUNCTION => [FIND_USER_BY_SLUG] *** ERROR =>", err)
-    return null
-  }
-}
+  return await prisma.user.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      email: true,
+      nivel: true,
+    },
+  });
+};
 
 
 export const createUser = async (data: Prisma.UserCreateInput) => {
