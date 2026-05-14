@@ -1,7 +1,6 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
-import { createLog } from "./logService";
 
 
 export async function getAllAccountPagination(page: number, pageSize: number) {

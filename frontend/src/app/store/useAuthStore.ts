@@ -5,6 +5,7 @@ export type AuthUser = {
   id: number;
   name: string;
   email: string;
+  nivel: string;
   slug: string;
 };
 

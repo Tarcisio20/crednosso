@@ -39,6 +39,7 @@ model Atm {
 
   treasury Treasury @relation(fields: [id_treasury], references: [id_system])
   supplies Supply[]
+  monitoring AtmMonitoring[]
 }
 
 model Contact {
@@ -436,4 +437,46 @@ model TreasuryCashMovement {
   @@index([source_table, source_id])
   @@index([id_order])
   @@index([id_os_open])
+}
+
+model AtmMonitoring {
+  id  Int    @id @default(autoincrement())
+  id_atm Int
+  name_atm String
+  ativo_atm String
+  saldo_logico String
+  saldo_rejeicao String
+  total_logico String
+  saldo_conta String
+
+  cassete_a String
+  cassete_a_rejeicao String
+  cassete_a_cedula String
+  cassete_a_ativo String
+  cassete_a_habilitado String
+
+  cassete_b String
+  cassete_b_rejeicao String
+  cassete_b_cedula String
+  cassete_b_ativo String
+  cassete_b_habilitado String
+
+  cassete_c String
+  cassete_c_rejeicao String
+  cassete_c_cedula String
+  cassete_c_ativo String    
+  cassete_c_habilitado String
+
+  cassete_d String
+  cassete_d_rejeicao String
+  cassete_d_cedula String
+  cassete_d_ativo String  
+  cassete_d_habilitado String
+
+  status Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+
+   atm Atm @relation(fields: [id_atm], references: [id_system], onDelete: Restrict, onUpdate: Cascade)
 }

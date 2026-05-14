@@ -11,10 +11,13 @@ import { userSaveType } from "@/types/userSaveType";
 import Link from "next/link";
 import { toast } from "sonner";
 import { del, getAllPagination, update } from "@/app/service/user";
+import { useAuthStore } from "@/app/store/useAuthStore";
 
 export default function User() {
   const router = useRouter()
 
+  const user = useAuthStore((state) => state.user);
+  
   const [users, setUsers] = useState<userSaveType[]>([])
   const [loadingng, setLoading] = useState(false)
 
@@ -29,7 +32,7 @@ export default function User() {
   const getAllUsersPagination = useCallback(async () => {
     setLoading(true);
     const allUsers = await getAllPagination(currentPage, pageSize);
-    console.log(allUsers)
+    //console.log(allUsers)
     if (allUsers.status === 300 || allUsers.status === 400 || allUsers.status === 500) {
       toast.error('Erro de requisição, tente novamente')
       setLoading(false);
@@ -91,7 +94,8 @@ export default function User() {
     </TitlePages>
     <div className="flex flex-col gap-4 p-5 w-full">
       <div className="flex flex-col gap-3 items-center justify-center mb-4">
-        <Button
+        {user?.nivel === 'admin' ?(
+          <Button
           color="#2E8B57"
           variant={"primary"}
           textColor="white"
@@ -100,6 +104,8 @@ export default function User() {
         >
           Adicionar
         </Button>
+        ) : null}
+        
       </div>
       <table className="flex-1 text-center p-3" width="100%">
         <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl">
