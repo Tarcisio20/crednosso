@@ -255,7 +255,8 @@ export const add: RequestHandler = async (req, res) => {
       account_number: safeData.data.account_number,
       gmcore_number: safeData.data.gmcore_number,
       name_for_email: safeData.data.name_for_email ?? "",
-      account_number_for_transfer: safeData.data.account_number_for_transfer
+      account_number_for_transfer: safeData.data.account_number_for_transfer,
+      expected_cash_balance: safeData.data.expected_cash_balance ?? 0,
     }
     const newTreasury = await addTreasury({
       id_system: safeData.data.id_system,
@@ -276,6 +277,7 @@ export const add: RequestHandler = async (req, res) => {
       account_number: safeData.data.account_number,
       gmcore_number: safeData.data.gmcore_number,
       name_for_email: safeData.data.name_for_email ?? "",
+      expected_cash_balance: safeData.data.expected_cash_balance ?? 0,
       account_number_for_transfer: safeData.data.account_number_for_transfer
     })
     if (!newTreasury) {

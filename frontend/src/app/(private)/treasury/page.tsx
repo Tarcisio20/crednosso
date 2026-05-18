@@ -103,7 +103,7 @@ export default function Treasury() {
               <th>Nome Reduzido</th>
               <th>N Conta</th>
               <th>GMCore</th>
-              <th>Saldo</th>
+              <th>Espectativa</th>
               <th>Ativo</th>
               <th>Ações</th>
             </tr>
@@ -118,12 +118,7 @@ export default function Treasury() {
                 <td>{item.account_number}</td>
                 <td>{item.gmcore_number}</td>
                 <td>
-                  {generateValueTotal(
-                    item?.bills_10 as number,
-                    item.bills_20 as number,
-                    item.bills_50 as number,
-                    item.bills_100 as number
-                  )}
+                  {(item.expected_cash_balance)?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </td>
                 <td>
                   {item.status ? (

@@ -19,7 +19,7 @@ import {
   faListOl,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function TreasuryAdd() {
@@ -28,26 +28,31 @@ export default function TreasuryAdd() {
   const [typeSupplies, setTypeSupplies] = useState<typeSupplyType[]>([]);
   const [idTypeSupply, setIdTypeSupply] = useState("0");
 
-  const [typeStores, setTypeStores] = useState<typeStoreType[]>([])
+  const [typeStores, setTypeStores] = useState<typeStoreType[]>([]);
   const [idTypeStore, setIdTypeStore] = useState("0");
 
   const [idSystemTreasury, setIdSystemTreasury] = useState("");
   const [nameTreasury, setNameTreasury] = useState("");
   const [nameRedTreasury, setNameRedTreasury] = useState("");
-  const [nameForEmailTreasury, setNameForEmailTreasury] = useState("")
+  const [nameForEmailTreasury, setNameForEmailTreasury] = useState("");
   const [numContaTreasury, setNumContaTreasury] = useState("");
   const [numGMCoreTreasury, setNumGMCoreTreasury] = useState("");
   const [regionTreasury, setRegionTreasury] = useState("");
   const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState("1");
-  const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] = useState("");
-  const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] = useState("");
-  const [error, setError] = useState({ type: '', title: '', messege: '' });
+  const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] =
+    useState("");
+  const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] =
+    useState("");
+
+  const [expected, setExpected] = useState("");
+
+  const [error, setError] = useState({ type: "", title: "", messege: "" });
   const [loading, setLoading] = useState(false);
 
   const allLoadings = async () => {
-    await getTypeSuplies()
-    await getTypeStore()
-  }
+    await getTypeSuplies();
+    await getTypeStore();
+  };
 
   useEffect(() => {
     document.title = "Tesourarias - Add | CredNosso";
@@ -58,41 +63,95 @@ export default function TreasuryAdd() {
     setLoading(true);
     const tSupplies = await getAllSuppy();
 
-    if (tSupplies.status === 300 && tSupplies.status === 400 && tSupplies.status === 500) {
+    if (
+      tSupplies.status === 300 &&
+      tSupplies.status === 400 &&
+      tSupplies.status === 500
+    ) {
       setLoading(false);
-      toast.error('Sem dados a mostrar, tente novamente!');
+      toast.error("Sem dados a mostrar, tente novamente!");
       return;
     }
+
     if (tSupplies.data !== undefined && tSupplies.data.typeSupply.length > 0) {
       setTypeSupplies(tSupplies.data.typeSupply);
       setIdTypeSupply(tSupplies.data.typeSupply[0].id);
       setLoading(false);
       return;
     }
+
     setLoading(false);
-    toast.error('Erro ao retornar dados, tente novamente!');
+    toast.error("Erro ao retornar dados, tente novamente!");
     return;
   };
 
-const getTypeStore = async () => {
-  setLoading(true);
-  const tStore = await getAllStores();
+  const getTypeStore = async () => {
+    setLoading(true);
+    const tStore = await getAllStores();
 
-  if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
+    if (
+      !tStore ||
+      !Array.isArray(tStore.typeStore) ||
+      tStore.typeStore.length === 0
+    ) {
+      setLoading(false);
+      toast.error("Sem dados a mostrar, tente novamente!");
+      return;
+    }
+
+    setTypeStores(tStore.typeStore);
+    setIdTypeStore(tStore.typeStore[0].id?.toString() || "");
     setLoading(false);
-    toast.error('Sem dados a mostrar, tente novamente!');
-    return;
-  }
-  setTypeStores(tStore.typeStore);
-  setIdTypeStore(tStore.typeStore[0].id?.toString() || '');
-  setLoading(false);
-};
+  };
+
+  const formatBRL = (value: string) => {
+    if (!value) return "";
+
+    return Number(value).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const clearLeftZeros = (value: string) => {
+    return value.replace(/^0+(?=\d)/, "");
+  };
+
+  const valueFieldExpectativa = (e: ChangeEvent<HTMLInputElement>) => {
+    const nativeEvent = e.nativeEvent as InputEvent;
+    const inputType = nativeEvent.inputType;
+    const insertedValue = nativeEvent.data ?? "";
+
+    if (
+      inputType === "deleteContentBackward" ||
+      inputType === "deleteContentForward"
+    ) {
+      setExpected((prev) => prev.slice(0, -1));
+      return;
+    }
+
+    if (inputType === "insertText") {
+      if (/^\d$/.test(insertedValue)) {
+        setExpected((prev) => clearLeftZeros(prev + insertedValue));
+      }
+
+      return;
+    }
+
+    const numericValue = e.target.value.replace(/\D/g, "");
+    setExpected(clearLeftZeros(numericValue));
+  };
+
   const cadTeasury = async () => {
     setLoading(true);
+
     if (
       idSystemTreasury === "" ||
       !validateField(nameTreasury) ||
       !validateField(nameRedTreasury) ||
+      expected === "" ||
       numContaTreasury === "" ||
       regionTreasury === "0" ||
       idTypeSupply === "0" ||
@@ -103,7 +162,9 @@ const getTypeStore = async () => {
       bankBranchForTransferTreasury === ""
     ) {
       setLoading(false);
-      toast.error('Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres.');
+      toast.error(
+        "Preencher todos (exceto Numero GMCore se não houver) os campos, e os campos Nome, Nome Reduzido e Numero da conta o minimo é  de 3 catacteres."
+      );
       return;
     }
 
@@ -117,11 +178,14 @@ const getTypeStore = async () => {
       region: parseInt(regionTreasury),
       account_number: numContaTreasury,
       gmcore_number: numGMCoreTreasury === "" ? "0" : numGMCoreTreasury,
-      name_for_email : nameForEmailTreasury.toUpperCase(),
-      account_number_for_transfer : `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
+      name_for_email: nameForEmailTreasury.toUpperCase(),
+      expected_cash_balance: Number(expected || 0),
+      account_number_for_transfer: `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
     };
 
     const treasury = await add(data);
+    console.log("add", treasury);
+
     if (treasury.data.treasury && treasury.data.treasury?.id > 0) {
       setIdTypeSupply("1");
       setIdTypeStore("1");
@@ -131,16 +195,17 @@ const getTypeStore = async () => {
       setNumContaTreasury("");
       setNumGMCoreTreasury("");
       setRegionTreasury("");
-      setNameForEmailTreasury("")
+      setNameForEmailTreasury("");
       setEnanbledGMcoreTreasury("1");
-      setAccountNumberForTransferTreasury("")
-      setBankBranchForTransferTreasury("")
+      setAccountNumberForTransferTreasury("");
+      setBankBranchForTransferTreasury("");
+      setExpected("");
       setLoading(false);
-      toast.success('Item salvo com sucesso!');
+      toast.success("Item salvo com sucesso!");
       return;
     } else {
       setLoading(false);
-      toast.error('Erro ao retornar dados, tente novamente!');
+      toast.error("Erro ao retornar dados, tente novamente!");
       return;
     }
   };
@@ -150,9 +215,9 @@ const getTypeStore = async () => {
       <TitlePages linkBack="/treasury" icon={faAdd}>
         Adicionar Tesouraria
       </TitlePages>
+
       <div className="flex flex-row gap-8 p-5 w-full">
         <div className="flex flex-col gap-4">
-
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Id</label>
             <Input
@@ -166,7 +231,9 @@ const getTypeStore = async () => {
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nome da Transportadora</label>
+            <label className="uppercase leading-3 font-bold">
+              Nome da Transportadora
+            </label>
             <Input
               color="#DDDD"
               placeholder="Digite o nome da Transportadora"
@@ -192,9 +259,7 @@ const getTypeStore = async () => {
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">
-              Nome Loja
-            </label>
+            <label className="uppercase leading-3 font-bold">Nome Loja</label>
             <Input
               color="#DDDD"
               placeholder="Digite o nome reduzido da Transportadora"
@@ -228,31 +293,35 @@ const getTypeStore = async () => {
               icon={faListOl}
             />
           </div>
-
         </div>
 
         <div className="flex flex-col gap-4">
-
-        <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nº Agencia  Pagamento</label>
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">
+              Nº Agencia Pagamento
+            </label>
             <Input
               color="#DDDD"
               placeholder="Digite o numero da agencia para pagamento"
               size="extra-large"
               value={bankBranchForTransferTreasury}
-              onChange={(e) =>  setBankBranchForTransferTreasury(e.target.value)}
+              onChange={(e) => setBankBranchForTransferTreasury(e.target.value)}
               icon={faListOl}
             />
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nº Conta Pagamento</label>
+            <label className="uppercase leading-3 font-bold">
+              Nº Conta Pagamento
+            </label>
             <Input
               color="#DDDD"
               placeholder="Digite o numero da conta para pagamento"
               size="extra-large"
               value={accountNumberForTransferTreasury}
-              onChange={(e) =>  setAccountNumberForTransferTreasury(e.target.value)}
+              onChange={(e) =>
+                setAccountNumberForTransferTreasury(e.target.value)
+              }
               icon={faListOl}
             />
           </div>
@@ -282,18 +351,18 @@ const getTypeStore = async () => {
                   value={idTypeSupply}
                   onChange={(e) => setIdTypeSupply(e.target.value)}
                 >
-                  {typeSupplies &&
-                    typeSupplies.map((item, index) => (
-                      <option
-                        className="uppercase bg-slate-700 text-white"
-                        value={item.id}
-                        key={index}
-                      >
-                        {item.name}
-                      </option>
-                    ))}
+                  {typeSupplies.map((item, index) => (
+                    <option
+                      className="uppercase bg-slate-700 text-white"
+                      value={item.id}
+                      key={index}
+                    >
+                      {item.name}
+                    </option>
+                  ))}
                 </select>
               )}
+
               {typeSupplies?.length === 0 && (
                 <p className="text-white">Sem dados a mostrar</p>
               )}
@@ -313,18 +382,18 @@ const getTypeStore = async () => {
                   value={idTypeStore}
                   onChange={(e) => setIdTypeStore(e.target.value)}
                 >
-                  {typeStores &&
-                    typeStores.map((item, index) => (
-                      <option
-                        className="uppercase bg-slate-700 text-white"
-                        value={item.id}
-                        key={index}
-                      >
-                        {item.name}
-                      </option>
-                    ))}
+                  {typeStores.map((item, index) => (
+                    <option
+                      className="uppercase bg-slate-700 text-white"
+                      value={item.id}
+                      key={index}
+                    >
+                      {item.name}
+                    </option>
+                  ))}
                 </select>
               )}
+
               {typeStores?.length === 0 && (
                 <p className="text-white">Sem dados a mostrar</p>
               )}
@@ -352,6 +421,20 @@ const getTypeStore = async () => {
               </select>
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Espectativa</label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite a expectativa de saldo da  Transportadora"
+              size="extra-large"
+              value={formatBRL(expected)}
+              onChange={valueFieldExpectativa}
+              icon={faListOl}
+            />
+          </div>
 
           <div>
             <Button
@@ -359,16 +442,15 @@ const getTypeStore = async () => {
               onClick={cadTeasury}
               size="medium"
               textColor="white"
-              variant="primary" 
+              variant="primary"
             >
               Cadastrar
             </Button>
           </div>
-         
         </div>
-          {loading && <Loading />}
+
+        {loading && <Loading />}
       </div>
-     
     </Page>
   );
 }

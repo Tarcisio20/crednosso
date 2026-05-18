@@ -380,7 +380,8 @@ def main():
 
     try:
         navegador.maximize_window()
-        navegador.get("http://b2b.crednosso.com.br/backoffice/login.jsf")
+        url = os.getenv("BACKOFFICE_URL", "http://10.85.0.88/backoffice/login.jsf")
+        navegador.get(url)
 
         user = os.getenv("BACKOFFICE_USER")
         pwd = os.getenv("BACKOFFICE_PASS")

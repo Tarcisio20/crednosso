@@ -22,6 +22,7 @@ import * as userController from '../controllers/user'
 import * as socketEventController from '../controllers/socket-event';
 import * as downloadController from '../controllers/download'
 import * as openOSController from '../controllers/open-os'
+import * as atmMonitoringController from '../controllers/atm-monitoring'
 import * as parametrizationController from '../controllers/parametrization'
 import * as telegramController from '../controllers/telegram'
 
@@ -219,6 +220,9 @@ mainRouter.post('/open-os/atender-os-for-ids', openOSController.atenderOsForIds)
 mainRouter.post('/open-os/atender-os-for-ids-return', openOSController.atenderOsHook)
 mainRouter.post('/open-os/atender-os-for-date', openOSController.atenderOsForDate)
 
+
+//ATM Monitoring
+mainRouter.get('/atm-monitoring/:date',verifyJWT, atmMonitoringController.getAllAMonitoringin)
 
 
 // Parametrization

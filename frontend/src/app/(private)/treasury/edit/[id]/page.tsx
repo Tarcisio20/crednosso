@@ -12,7 +12,7 @@ import {
   faDollarSign,
   faListOl,
 } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useEffect, useState } from "react";
+import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { treasuryType } from "@/types/treasuryType";
 import {
@@ -61,9 +61,13 @@ export default function TreasuryEdit() {
   const [regionTreasury, setRegionTreasury] = useState("0");
   const [enanbledGMcoreTreasury, setEnanbledGMcoreTreasury] = useState(true);
   const [saldoTreasury, setSaldoTreasury] = useState("0");
-  const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] = useState("");
-  const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] = useState("");
+  const [bankBranchForTransferTreasury, setBankBranchForTransferTreasury] =
+    useState("");
+  const [accountNumberForTransferTreasury, setAccountNumberForTransferTreasury] =
+    useState("");
   const [statusTreasury, setStatusTreasury] = useState(false);
+
+  const [expected, setExpected] = useState("");
 
   const [error, setError] = useState({ type: "", title: "", messege: "" });
   const [loading, setLoading] = useState(false);
@@ -78,12 +82,57 @@ export default function TreasuryEdit() {
   const [valueAddC, setValueAddC] = useState(0);
   const [valueAddD, setValueAddD] = useState(0);
 
+  const formatBRL = (value: string) => {
+    if (!value) return "";
+
+    return Number(value).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const clearLeftZeros = (value: string) => {
+    return value.replace(/^0+(?=\d)/, "");
+  };
+
+  const valueFieldExpectativa = (e: ChangeEvent<HTMLInputElement>) => {
+    const nativeEvent = e.nativeEvent as InputEvent;
+    const inputType = nativeEvent.inputType;
+    const insertedValue = nativeEvent.data ?? "";
+
+    if (
+      inputType === "deleteContentBackward" ||
+      inputType === "deleteContentForward"
+    ) {
+      setExpected((prev) => prev.slice(0, -1));
+      return;
+    }
+
+    if (inputType === "insertText") {
+      if (/^\d$/.test(insertedValue)) {
+        setExpected((prev) => clearLeftZeros(prev + insertedValue));
+      }
+
+      return;
+    }
+
+    const numericValue = e.target.value.replace(/\D/g, "");
+    setExpected(clearLeftZeros(numericValue));
+  };
+
   const getTreasuryByIdSystem = async () => {
     setLoading(true);
     const treasuryOne = await getByIdSystem(id as string);
     console.log("treasuryOne", treasuryOne);
+
     if ([300, 400, 500].includes(treasuryOne.status)) {
-      setError({ type: "error", title: "Error", messege: "Erro na requisição, tentar novamente!" });
+      setError({
+        type: "error",
+        title: "Error",
+        messege: "Erro na requisição, tentar novamente!",
+      });
       toast.error("Erro na requisição, tentar novamente!");
       setLoading(false);
       return;
@@ -102,12 +151,22 @@ export default function TreasuryEdit() {
       setIdTypeStore(String(t.id_type_store));
       setIdTypeSupply(t.id_type_supply);
       setRegionTreasury(t.region);
-      setSaldoTreasury(generateValueTotal(t.bills_10, t.bills_20, t.bills_50, t.bills_100));
+      setSaldoTreasury(
+        generateValueTotal(t.bills_10, t.bills_20, t.bills_50, t.bills_100)
+      );
       setValueA(t.bills_10);
       setValueB(t.bills_20);
       setValueC(t.bills_50);
       setValueD(t.bills_100);
       setStatusTreasury(t.status);
+
+      const expectedCashBalance = (t as any).expected_cash_balance;
+
+      setExpected(
+        expectedCashBalance === null || expectedCashBalance === undefined
+          ? ""
+          : String(Number(expectedCashBalance))
+      );
 
       const bank = t.account_number_for_transfer;
       if (bank) {
@@ -118,12 +177,14 @@ export default function TreasuryEdit() {
     } else {
       toast.error("Item não encontrado, tente novamente!");
     }
+
     setLoading(false);
   };
 
   const getTypeSuplies = async () => {
     setLoading(true);
     const tSupplies = await getAll();
+
     if ([300, 400, 500].includes(tSupplies.status)) {
       toast.error("Erro na requisição, tente novamente!");
       setLoading(false);
@@ -135,36 +196,48 @@ export default function TreasuryEdit() {
     } else {
       toast.error("Erro ao retornar dados, tente novamente!");
     }
+
     setLoading(false);
   };
 
   const getAllContactsByIdTreasury = async () => {
     setLoading(true);
     const ctc = await getByIdTreasury(parseInt(id as string));
+
     if (ctc.data.contact.length === 0) {
       toast.error("Sem contatos a mostrar, tente novamente!");
     } else {
       setContact(returnArraytoString(ctc.data.contact));
     }
+
     setLoading(false);
   };
 
   const getTypeStore = async () => {
     setLoading(true);
-    const tStore: any = await getllTypeStore(); // tipagem quebrada, forçando como any
-    if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
+    const tStore: any = await getllTypeStore();
+
+    if (
+      !tStore ||
+      !Array.isArray(tStore.typeStore) ||
+      tStore.typeStore.length === 0
+    ) {
       setLoading(false);
-      toast.error('Sem dados a mostrar, tente novamente!');
+      toast.error("Sem dados a mostrar, tente novamente!");
       return;
     }
 
-
     setTypeStores(tStore.typeStore);
+
     const getTypeStore = async () => {
       setLoading(true);
       const tStore: any = await getllTypeStore();
 
-      if (!tStore || !Array.isArray(tStore.typeStore) || tStore.typeStore.length === 0) {
+      if (
+        !tStore ||
+        !Array.isArray(tStore.typeStore) ||
+        tStore.typeStore.length === 0
+      ) {
         setLoading(false);
         toast.error("Sem dados a mostrar, tente novamente!");
         return;
@@ -173,9 +246,8 @@ export default function TreasuryEdit() {
       setTypeStores(tStore.typeStore);
       setLoading(false);
     };
+
     setLoading(false);
-
-
   };
 
   const allLoadings = useCallback(async () => {
@@ -215,22 +287,31 @@ export default function TreasuryEdit() {
       bills_50: valueAddC,
       bills_100: valueAddD,
     };
+
     const saldo = await addSaldoTreasury(parseInt(id as string), data);
+
     if (!saldo.data.treasury) {
       toast.error("Erro ao salvar, tente novamente!");
       return;
     }
+
     closeModal();
     await getTreasuryByIdSystem();
   };
 
   const alterTreasury = async () => {
     setLoading(true);
+
     if (
-      idSystemTreasury === "" || !validateField(nameTreasury) ||
-      !validateField(nameRedTreasury) || numContaTreasury === "" ||
-      regionTreasury === "" || idTypeStore === "" || idTypeSupply === "" ||
-      !validateField(nameForEmailTreasury)
+      idSystemTreasury === "" ||
+      !validateField(nameTreasury) ||
+      !validateField(nameRedTreasury) ||
+      numContaTreasury === "" ||
+      regionTreasury === "" ||
+      idTypeStore === "" ||
+      idTypeSupply === "" ||
+      !validateField(nameForEmailTreasury) ||
+      expected === ""
     ) {
       toast.error("Preencher todos os campos obrigatórios.");
       setLoading(false);
@@ -253,16 +334,19 @@ export default function TreasuryEdit() {
       bills_50: valueC,
       bills_100: valueD,
       status: statusTreasury,
-      account_number_for_transfer: `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`
+      expected_cash_balance: Number(expected || 0),
+      account_number_for_transfer: `Agência: ${bankBranchForTransferTreasury.trim()} - Conta: ${accountNumberForTransferTreasury.trim()}`,
     };
 
     const editTreasury = await update(parseInt(id as string), dataElement);
+
     if (editTreasury.data.treasury?.id > 0) {
       await getTreasuryByIdSystem();
       toast.success("Salvo com sucesso!");
     } else {
       toast.error("Erro ao editar, tente novamente!");
     }
+
     setLoading(false);
   };
 
@@ -271,9 +355,9 @@ export default function TreasuryEdit() {
       <TitlePages linkBack="/treasury" icon={faPenToSquare}>
         Editar Tesouraria
       </TitlePages>
+
       <div className="flex flex-row gap-20 p-5 w-full">
         <div className="flex flex-col gap-4">
-
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Id</label>
             <Input
@@ -313,9 +397,7 @@ export default function TreasuryEdit() {
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">
-              Nome Loja
-            </label>
+            <label className="uppercase leading-3 font-bold">Nome Loja</label>
             <Input
               color="#DDDD"
               placeholder="Digite o nome da Loja da Transportadora"
@@ -386,13 +468,13 @@ export default function TreasuryEdit() {
               </select>
             </div>
           </div>
-
         </div>
 
         <div className="flex flex-col gap-4">
-
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nº Agencia  Pagamento</label>
+            <label className="uppercase leading-3 font-bold">
+              Nº Agencia Pagamento
+            </label>
             <Input
               color="#DDDD"
               placeholder="Digite o numero da agencia para pagamento"
@@ -404,13 +486,17 @@ export default function TreasuryEdit() {
           </div>
 
           <div className="flex flex-col gap-5">
-            <label className="uppercase leading-3 font-bold">Nº Conta Pagamento</label>
+            <label className="uppercase leading-3 font-bold">
+              Nº Conta Pagamento
+            </label>
             <Input
               color="#DDDD"
               placeholder="Digite o numero da conta para pagamento"
               size="extra-large"
               value={accountNumberForTransferTreasury}
-              onChange={(e) => setAccountNumberForTransferTreasury(e.target.value)}
+              onChange={(e) =>
+                setAccountNumberForTransferTreasury(e.target.value)
+              }
               icon={faListOl}
             />
           </div>
@@ -440,6 +526,7 @@ export default function TreasuryEdit() {
               </select>
             </div>
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">
               Ativo GMCORE
@@ -450,21 +537,38 @@ export default function TreasuryEdit() {
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
                 value={enanbledGMcoreTreasury ? "true" : "false"}
-                onChange={e => setEnanbledGMcoreTreasury(e.target.value === "true")}
+                onChange={(e) =>
+                  setEnanbledGMcoreTreasury(e.target.value === "true")
+                }
               >
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="true" >
+                  value="true"
+                >
                   SIM
                 </option>
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="false" >
+                  value="false"
+                >
                   NÃO
                 </option>
               </select>
             </div>
           </div>
+
+          <div className="flex flex-col gap-5">
+            <label className="uppercase leading-3 font-bold">Espectativa</label>
+            <Input
+              color="#DDDD"
+              placeholder="Digite a expectativa de saldo da Transportadora"
+              size="extra-large"
+              value={formatBRL(expected)}
+              onChange={valueFieldExpectativa}
+              icon={faListOl}
+            />
+          </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Saldo</label>
             <div className="flex flex-row gap-1">
@@ -488,6 +592,7 @@ export default function TreasuryEdit() {
               </Button>
             </div>
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Contatos</label>
             <div className="flex gap-2">
@@ -508,6 +613,7 @@ export default function TreasuryEdit() {
               </Button>
             </div>
           </div>
+
           <div className="flex flex-col gap-5">
             <label className="uppercase leading-3 font-bold">Status</label>
             <div
@@ -516,21 +622,24 @@ export default function TreasuryEdit() {
               <select
                 className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-lg uppercase"
                 value={statusTreasury ? "true" : "false"}
-                onChange={e => setStatusTreasury(e.target.value === "true")}
+                onChange={(e) => setStatusTreasury(e.target.value === "true")}
               >
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="true" >
+                  value="true"
+                >
                   Ativo
                 </option>
                 <option
                   className="uppercase bg-slate-700 text-white"
-                  value="false" >
+                  value="false"
+                >
                   Inativo
                 </option>
               </select>
             </div>
           </div>
+
           <div>
             <Button
               color="#2E8B57"
@@ -542,6 +651,7 @@ export default function TreasuryEdit() {
               Alterar
             </Button>
           </div>
+
           {modal && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
@@ -553,11 +663,13 @@ export default function TreasuryEdit() {
                   Saldo Atual:{" "}
                   {generateValueTotal(valueA, valueB, valueC, valueD)}
                 </p>
-                <div className="w-full  flex justify-center items-center mt-2 mb-2">
+
+                <div className="w-full flex justify-center items-center mt-2 mb-2">
                   <div className="w-full h-1 bg-zinc-600 rounded"></div>
                 </div>
+
                 <div className="mb-4 flex flex-col w-full h-full gap-4 text-black">
-                  <div className="w-full flex items-center justify-center gap-2 ">
+                  <div className="w-full flex items-center justify-center gap-2">
                     <div className="w-20 text-center">R$ 10,00</div>
                     <input
                       className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
@@ -569,10 +681,10 @@ export default function TreasuryEdit() {
                         );
                       }}
                     />
-                    <div className="">{generateReal(valueAddA, 10)}</div>
+                    <div>{generateReal(valueAddA, 10)}</div>
                   </div>
 
-                  <div className="w-full flex items-center justify-center gap-2 ">
+                  <div className="w-full flex items-center justify-center gap-2">
                     <div className="w-20 text-center">R$ 20,00</div>
                     <input
                       className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
@@ -587,7 +699,7 @@ export default function TreasuryEdit() {
                     <div>{generateReal(valueAddB, 20)}</div>
                   </div>
 
-                  <div className="w-full flex items-center justify-center gap-2 ">
+                  <div className="w-full flex items-center justify-center gap-2">
                     <div className="w-20 text-center">R$ 50,00</div>
                     <input
                       className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
@@ -602,7 +714,7 @@ export default function TreasuryEdit() {
                     <div>{generateReal(valueAddD, 50)}</div>
                   </div>
 
-                  <div className="w-full flex items-center justify-center gap-2 ">
+                  <div className="w-full flex items-center justify-center gap-2">
                     <div className="w-20 text-center">R$ 100,00</div>
                     <input
                       className="outline-none border-2 border-zinc-600 rounded-lg h-10 text-center w-52"
@@ -617,19 +729,17 @@ export default function TreasuryEdit() {
                     <div>{generateReal(valueAddD, 100)}</div>
                   </div>
                 </div>
+
                 <div className="text-black flex gap-2 justify-center items-center mb-2">
                   <div className="w-80 border-2 border-zinc-700 rounded-lg h-14 flex justify-center items-center">
-                    {generateRealTotal(
-                      valueAddA,
-                      valueAddB,
-                      valueAddC,
-                      valueAddD
-                    )}
+                    {generateRealTotal(valueAddA, valueAddB, valueAddC, valueAddD)}
                   </div>
                 </div>
-                <div className="w-full  flex justify-center items-center mt-2 mb-2">
+
+                <div className="w-full flex justify-center items-center mt-2 mb-2">
                   <div className="w-full h-1 bg-zinc-600 rounded"></div>
                 </div>
+
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={saveSaldo}
@@ -647,9 +757,15 @@ export default function TreasuryEdit() {
               </div>
             </div>
           )}
-          {error.messege &&
-            <Messeger type={error.type} title={error.title} messege={error.messege} />
-          }
+
+          {error.messege && (
+            <Messeger
+              type={error.type}
+              title={error.title}
+              messege={error.messege}
+            />
+          )}
+
           {loading && <Loading />}
         </div>
       </div>

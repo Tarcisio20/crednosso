@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `treasury` ADD COLUMN `expected_cash_balance` INTEGER NOT NULL DEFAULT 0;

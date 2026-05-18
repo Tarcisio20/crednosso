@@ -201,6 +201,11 @@ export default function Order() {
     return
   }
 
+    const atmMonitoring = () => {
+    router.push('/order/atm-monitoring')
+    return
+  }
+
   return (
     <Page>
       <TitlePages linkBack="/" icon={faCoins} >Pedidos</TitlePages>
@@ -422,6 +427,7 @@ export default function Order() {
         <Button color="#2E8B57" onClick={saveOrder} size="large" textColor="white" variant={"primary"}  >Salvar</Button>
         <Button color="#2E8B57" onClick={searchOrder} size="large" textColor="white" variant={"primary"}  >Pesquisar</Button>
         <Button color="#2E8B57" onClick={dashboardOrder} size="large" textColor="white" variant={"primary"}  >Dashboard</Button>
+        <Button color="#2E8B57" onClick={atmMonitoring} size="large" textColor="white" variant={"primary"}  >ATM Monitor</Button>
         <div className="mt-5 flex flex-row gap-3">
           {error.messege &&
             <Messeger type={error.type} title={error.title} messege={error.messege} />

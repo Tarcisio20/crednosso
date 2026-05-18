@@ -12,5 +12,6 @@ export const treasuryAddSchema = z.object({
     gmcore_number : z.string({ message : 'Numero do GMCore é obrigatódio' }).min(1, 'Minimo de 1 caracteres'),
     status : z.boolean({ message : 'Status é obrigatódio' }).optional(),
     account_number_for_transfer : z.string().optional(),
+    expected_cash_balance : z.number().optional(),
     name_for_email : z.string().optional()
 })
