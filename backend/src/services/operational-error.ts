@@ -1,6 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
+
+export const getAllOperationalError = async () => {
+  return await prisma.operationalError.findMany({
+    where: {
+      status: true
+    }
+  })
+}
 export const getAllOperationalErrorPagination = async (page: number, pageSize: number) => {
   try {
     const skip = (page - 1) * pageSize;

@@ -184,6 +184,7 @@ mainRouter.post('/account-bank/update/:id',verifyJWT, accountBankController.upda
 mainRouter.get('/account-bank/:id',verifyJWT, accountBankController.getById)
 
 //opperational-error
+mainRouter.get('/operational-error',verifyJWT, operationalErrorController.getAllOperationError)
 mainRouter.get('/operational-error-pagination',verifyJWT, operationalErrorController.getAllPagination)
 mainRouter.get('/operational-error/:id',verifyJWT, operationalErrorController.getOperationalErrorById)
 mainRouter.get('/operational-error/del/:id',verifyJWT, operationalErrorController.del)

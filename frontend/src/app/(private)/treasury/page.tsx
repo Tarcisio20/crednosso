@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { treasuryType } from "@/types/treasuryType";
 import { del, getAllTreasuryPagination } from "@/app/service/treasury";
-import { generateValueTotal } from "@/app/utils/generateValueTotal";
 import { Loading } from "@/app/components/ux/Loading";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { toast } from "sonner";

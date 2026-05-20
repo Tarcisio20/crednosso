@@ -153,14 +153,46 @@ def normalize_text(value):
     return str(value or "").strip().casefold()
 
 
+SITUACAO_MAX_LENGTH = int(os.getenv("SITUACAO_MAX_LENGTH", "20"))
+
+
+def limpar_texto_curto(value, default="Erro OS"):
+    texto = str(value or default)
+    texto = texto.replace("\r", " ").replace("\n", " ").strip()
+    texto = " ".join(texto.split())
+
+    if not texto:
+        return default
+
+    return texto
+
+
+def limitar_situacao(value, default="Erro OS"):
+    texto = limpar_texto_curto(value, default)
+
+    if len(texto) <= SITUACAO_MAX_LENGTH:
+        return texto
+
+    return texto[:SITUACAO_MAX_LENGTH].rstrip()
+
+
+def erro_para_situacao(e):
+    if isinstance(e, TimeoutException):
+        return "Timeout na OS"
+
+    return "Erro ao atender OS"
+
+
 def post_atender_os_for_ids_return(item_id, situacao):
     base_url = os.getenv("BASE_URL", "http://localhost:3001").rstrip("/")
     api_path = "/open-os/atender-os-for-ids-return"
     api_url = f"{base_url}{api_path}"
 
+    situacao_segura = limitar_situacao(situacao, "Erro OS")
+
     payload = {
         "id": int(item_id),
-        "situacao": str(situacao),
+        "situacao": situacao_segura,
     }
 
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -493,7 +525,7 @@ def handle_post_finalize_modal(navegador, item_id):
     ):
         post_atender_os_for_ids_return(
             item_id=item_id,
-            situacao="Saldo insuficiente!",
+            situacao="Saldo insuficiente",
         )
 
         close_form3_modal(navegador)
@@ -584,7 +616,7 @@ def main():
                 if not encontrou_cartao:
                     api_response = post_atender_os_for_ids_return(
                         item_id=item_id,
-                        situacao="Cartão não encontrado!",
+                        situacao="Cartao nao achado",
                     )
                     result.append(
                         {
@@ -632,9 +664,18 @@ def main():
                 )
 
             except Exception as e:
+                erro_completo = str(e)
+                situacao_erro = erro_para_situacao(e)
+
+                print(
+                    f"[PY][ERRO] OS {os_item.get('os')}: {erro_completo}",
+                    file=sys.stderr,
+                    flush=True
+                )
+
                 post_atender_os_for_ids_return(
                     item_id=item_id,
-                    situacao=str(e),
+                    situacao=situacao_erro,
                 )
                 result.append(
                     {
@@ -642,7 +683,7 @@ def main():
                         "os": str(os_item.get("os", "")),
                         "terminal": str(os_item.get("terminal", "")),
                         "ok": False,
-                        "error": str(e),
+                        "error": erro_completo,
                     }
                 )
 

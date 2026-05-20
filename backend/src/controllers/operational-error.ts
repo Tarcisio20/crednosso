@@ -1,8 +1,58 @@
 import { RequestHandler } from "express"
-import { addError, delOperationalError, editOperationalError, getAllOperationalErrorPagination, getOperationErroForId } from "../services/operational-error";
+import { addError, delOperationalError, editOperationalError, getAllOperationalError, getAllOperationalErrorPagination, getOperationErroForId } from "../services/operational-error";
 import { operationalErrorAddSchema } from "../schemas/operationalErrorAdd";
 import { createLog } from "services/logService";
 import { diffObjects, sanitizeOperationalError, sanitizeOperationalErrorList, sanitizeOperationalErrorPayload } from "utils/audit/audit-operational-error";
+
+export const getAllOperationError : RequestHandler = async (req, res) => {
+   try {
+    const result = await getAllOperationalError();
+    if (!result) {
+      await createLog({
+        level: 'ERROR',
+        action: 'GET_ALL_OPERATIONAL_ERROR',
+        message: 'Erro ao carregar erros operacionais',
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 400,
+        resource: 'operational-error',
+        meta: { },
+      })
+      res.status(400).json({ error: 'Erro ao carregar!' })
+      return
+    }
+    await createLog({
+      level: 'INFO',
+      action: 'GET_ALL_OPERATIONAL_ERROR',
+      message: 'Sucesso ao carregar erros operacionais',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 201,
+      resource: 'operational-error',
+      meta: {
+        message: 'Sucesso ao carregar erros operacionais',
+      },
+    })
+    res.status(201).json({ operationalError: result })
+    return
+  } catch (error: any) {
+    await createLog({
+      level: 'ERROR',
+      action: 'GET_ALL_OPERATIONAL_ERROR',
+      message: 'Erro ao carregar erros operacionais',
+      userSlug: req.userSlug ?? null,
+      route: req.route?.path ?? null,
+      method: req.method ?? null,
+      statusCode: 400,
+      resource: 'operational-error',
+      meta: { error: String(error?.message ?? error) },
+    })
+    res.status(400).json({ error: "Erro interno" });
+    return
+  }
+}
 
 export const getAllPagination: RequestHandler = async (req, res) => {
   const pageRaw = Number(req.query.page);

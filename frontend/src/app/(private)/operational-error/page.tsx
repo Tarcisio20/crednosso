@@ -1,10 +1,11 @@
 "use client";
 
 import { Button } from "@/app/components/ui/Button";
+import { GenerateExcelErros } from "@/app/components/ui/GenerateExcelErros";
 import { Page } from "@/app/components/ux/Page";
 import { Pagination } from "@/app/components/ux/Pagination";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { del, getAllPagination } from "@/app/service/operational-error";
+import { del, getAllOperationError, getAllPagination } from "@/app/service/operational-error";
 import { getAll } from "@/app/service/treasury";
 import { returnNameTreasury } from "@/app/utils/returnNameTreasury";
 import { OperationalErrorType } from "@/types/operationalErrorType";
@@ -23,6 +24,8 @@ export default function OperationalError() {
   const [erros, setErros] = useState<OperationalErrorType[]>([])
   const [treasuries, setTreasuries] = useState<treasuryType[]>([])
   const [loading, setLoading] = useState(false)
+  const [modalRelatory, setModalRelatory] = useState(false)
+  const [periodo, setPeriodo] = useState("PAGINA_ATUAL")
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -94,11 +97,31 @@ export default function OperationalError() {
       return
     }
   }
+  const closeModalRelatory = () => {
+    setModalRelatory(false)
+  }
+
+  const handleGenerateRelatory = async () => {
+    if(periodo === "PAGINA_ATUAL"){
+      await GenerateExcelErros(erros)
+    }
+    else if(periodo === "TODOS_OS_REGISTROS"){
+      const response = await getAllOperationError()
+      if(response.status === 300 || response.status === 400 || response.status === 500){
+        toast.error('Erro de requisição, tente novamente')
+        return
+      }
+      if(response.status === 200 || response.status === 201){
+        await GenerateExcelErros(response.data.operationalError)
+      }
+      console.log("Erros", response)
+    }
+  }
 
   return <Page>
     <TitlePages linkBack="/" icon={faBomb}>Erro Operacional</TitlePages>
     <div className="flex flex-col gap-4 p-5 w-full">
-      <div className="flex flex-col gap-3 items-center justify-center mb-4">
+      <div className="flex flex-row gap-3 items-center justify-center mb-4">
         <Button
           color="#2E8857"
           variant={"primary"}
@@ -106,6 +129,14 @@ export default function OperationalError() {
           onClick={handleAdd}
           size="medium"
         >Adicionar</Button>
+
+        <Button
+          color="#2563EB"
+          variant={"primary"}
+          textColor="white"
+          onClick={() => setModalRelatory(true)}
+          size="medium"
+        >Gerar Relatório</Button>
       </div>
       <table className="flex-1 text-center p-3" width="100%">
         <thead className="border-b-2 border-b-zinc-500 uppercase pb-2 text-2xl">
@@ -171,5 +202,52 @@ export default function OperationalError() {
         />
       }
     </div>
+
+
+
+    {modalRelatory ? (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
+          <h2 className="text-xl font-bold mb-4 text-black text-center uppercase">
+            Selecionar tipo de relatório
+          </h2>
+          <div className="w-full  flex justify-center items-center mt-2 mb-2">
+            <div className="w-full h-1 bg-zinc-600 rounded"></div>
+          </div>
+          <div className="mb-4 flex flex-col w-full h-full gap-4 text-black">
+            <div className={`flex bg-slate-700 pt-2 pb-2 pr-2 pl-2 rounded-md border-4 border-slate-600 h-11 text-lg`} >
+              <select
+                className="w-full h-full m-0 p-0 text-white bg-transparent outline-none text-center text-sm"
+                value={periodo}
+                onChange={(e) => setPeriodo(e.target.value)}
+              >
+
+                <option value="PAGINA_ATUAL" className="uppercase bg-slate-700 text-white">
+                  PÁGINA ATUAL
+                </option>
+                 <option value="TODOS_OS_REGISTROS" className="uppercase bg-slate-700 text-white">
+                  TODOS OS REGISTROS
+                </option>
+
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleGenerateRelatory}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Confirmar
+            </button>
+            <button
+              onClick={closeModalRelatory}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : null}
   </Page>
 }

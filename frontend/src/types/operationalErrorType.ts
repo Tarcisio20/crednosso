@@ -4,4 +4,6 @@ export type OperationalErrorType = {
     num_os: number;
     description: string;
     status ?: boolean;
+    createdAt ?: string;
+    updatedAt ?: string
 }
