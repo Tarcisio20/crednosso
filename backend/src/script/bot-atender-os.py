@@ -344,7 +344,10 @@ def get_first_os_row(navegador):
 
 
 def get_os_status_from_row(linha_os):
-    situacao_el = linha_os.find_element(By.XPATH, "./td[8]/span")
+    situacao_el = linha_os.find_element(
+        By.ID,
+        "formularioOrdemServicoAtmConsultar:tabelaDataTable:0:tabelavalorstOrdemServico"
+    )
     return situacao_el.text.strip()
 
 
