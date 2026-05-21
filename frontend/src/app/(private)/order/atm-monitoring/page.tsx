@@ -3,18 +3,34 @@
 import { Loading } from "@/app/components/ux/Loading";
 import { Page } from "@/app/components/ux/Page";
 import { TitlePages } from "@/app/components/ux/TitlePages";
-import { getAtmMonitoring } from "@/app/service/atm-monitoring";
+import {
+  getAtmMonitoring,
+  getAtmMonitoringManualStatus,
+  updateAtmMonitoringManual,
+} from "@/app/service/atm-monitoring";
 import { Card, CardContent } from "@/components/ui/card";
 import { AtmMonitoringType } from "@/types/atmMonitoringType";
 import { faDisplay } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { io, Socket } from "socket.io-client";
+
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 
 export default function AtmMonitoring() {
   const [dateMonitor, setDateMonitor] = useState("");
   const [monitoring, setMonitoring] = useState<AtmMonitoringType[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [updateMessage, setUpdateMessage] = useState("");
+
+  const socketRef = useRef<Socket | null>(null);
+  const jobIdRef = useRef<string | null>(null);
+
+  const loading = loadingSearch || updating;
 
   useEffect(() => {
     document.title = "Monitoramento de ATMs";
@@ -22,8 +38,112 @@ export default function AtmMonitoring() {
     const dataAtual = getDataAtualInput();
     setDateMonitor(dataAtual);
 
+    const savedJobId = localStorage.getItem("atmMonitoringJobId");
+
+    if (savedJobId) {
+      jobIdRef.current = savedJobId;
+      setUpdating(true);
+      setUpdateMessage("Atualização de saldos em andamento...");
+    }
+
     loadMonitoring(dataAtual);
+    checkManualUpdateStatus();
+    connectSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
   }, []);
+
+  function connectSocket() {
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket"],
+    });
+
+    socketRef.current = socket;
+
+    socket.on("get-saldos:started", (data) => {
+      if (data?.jobId) {
+        jobIdRef.current = data.jobId;
+        localStorage.setItem("atmMonitoringJobId", data.jobId);
+      }
+
+      setUpdating(true);
+      setUpdateMessage(data?.message || "Atualização de saldos iniciada.");
+    });
+
+    socket.on("get-saldos:progress", (data) => {
+      if (!isCurrentJob(data?.jobId)) return;
+
+      setUpdating(true);
+      setUpdateMessage(data?.message || "Atualizando saldos...");
+    });
+
+    socket.on("get-saldos:finished", async (data) => {
+      if (!isCurrentJob(data?.jobId)) return;
+
+      jobIdRef.current = null;
+      localStorage.removeItem("atmMonitoringJobId");
+
+      setUpdating(false);
+      setUpdateMessage("");
+
+      toast.success("Saldos atualizados com sucesso.");
+
+      const dataAtual = getDataAtualInput();
+      setDateMonitor(dataAtual);
+      await loadMonitoring(dataAtual, false);
+    });
+
+    socket.on("get-saldos:error", (data) => {
+      if (!isCurrentJob(data?.jobId)) return;
+
+      jobIdRef.current = null;
+      localStorage.removeItem("atmMonitoringJobId");
+
+      setUpdating(false);
+      setUpdateMessage("");
+
+      toast.error(data?.message || "Erro ao atualizar saldos.");
+    });
+  }
+
+  function isCurrentJob(jobId?: string | null) {
+    if (!jobIdRef.current) return true;
+    if (!jobId) return true;
+
+    return jobIdRef.current === jobId;
+  }
+
+  async function checkManualUpdateStatus() {
+    try {
+      const response = await getAtmMonitoringManualStatus();
+
+      const running = response?.data?.running;
+      const jobId = response?.data?.jobId;
+
+      if (running) {
+        if (jobId) {
+          jobIdRef.current = jobId;
+          localStorage.setItem("atmMonitoringJobId", jobId);
+        }
+
+        setUpdating(true);
+        setUpdateMessage("Atualização de saldos em andamento...");
+        return;
+      }
+
+      jobIdRef.current = null;
+      localStorage.removeItem("atmMonitoringJobId");
+      setUpdating(false);
+      setUpdateMessage("");
+    } catch (error) {
+      console.log("ERRO AO VERIFICAR STATUS DA ATUALIZAÇÃO =>", error);
+    }
+  }
 
   function getDataAtualInput() {
     const hoje = new Date();
@@ -76,9 +196,42 @@ export default function AtmMonitoring() {
     });
   }
 
-  async function loadMonitoring(date: string) {
+  function formatDateTimeBR(value: string | Date | null | undefined) {
+    if (!value) return "Sem atualização";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "Sem atualização";
+
+    return date.toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  }
+
+  function getLastUpdatedAt(data: AtmMonitoringType[]) {
+    if (!Array.isArray(data) || data.length === 0) return null;
+
+    const latest = data.reduce<string | null>((acc, item) => {
+      const itemDate = item.updatedAt || item.createdAt;
+
+      if (!itemDate) return acc;
+      if (!acc) return itemDate;
+
+      const currentTime = new Date(acc).getTime();
+      const itemTime = new Date(itemDate).getTime();
+
+      return itemTime > currentTime ? itemDate : acc;
+    }, null);
+
+    return latest;
+  }
+
+  async function loadMonitoring(date: string, showLoading = true) {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoadingSearch(true);
+      }
 
       const response = await getAtmMonitoring(date);
 
@@ -94,16 +247,21 @@ export default function AtmMonitoring() {
         });
 
         setMonitoring(orderedMonitoring);
+        setLastUpdatedAt(getLastUpdatedAt(orderedMonitoring));
         return;
       }
 
       setMonitoring([]);
+      setLastUpdatedAt(null);
     } catch (error) {
       console.log("ERRO AO BUSCAR MONITORAMENTO =>", error);
       setMonitoring([]);
+      setLastUpdatedAt(null);
       toast.error("Erro ao buscar monitoramento dos ATMs.");
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoadingSearch(false);
+      }
     }
   }
 
@@ -116,6 +274,43 @@ export default function AtmMonitoring() {
     await loadMonitoring(dateMonitor);
   }
 
+  async function handleUpdateManual() {
+    try {
+      setUpdating(true);
+      setUpdateMessage("Iniciando atualização de saldos...");
+
+      const response = await updateAtmMonitoringManual();
+
+      const jobId = response?.data?.jobId;
+
+      if (jobId) {
+        jobIdRef.current = jobId;
+        localStorage.setItem("atmMonitoringJobId", jobId);
+      }
+
+      toast.info("Atualização iniciada em segundo plano.");
+
+      setUpdateMessage(
+        "Atualização de saldos em andamento. Você pode aguardar nesta tela."
+      );
+    } catch (error: any) {
+      console.log("ERRO AO INICIAR ATUALIZAÇÃO MANUAL =>", error);
+
+      jobIdRef.current = null;
+      localStorage.removeItem("atmMonitoringJobId");
+
+      setUpdating(false);
+      setUpdateMessage("");
+
+      toast.error(
+        error?.response?.data?.message ||
+          "Erro ao iniciar atualização dos saldos."
+      );
+    }
+  }
+
+  const isCurrentDay = dateMonitor === getDataAtualInput();
+
   return (
     <Page>
       <TitlePages linkBack="/order/search" icon={faDisplay}>
@@ -123,7 +318,7 @@ export default function AtmMonitoring() {
       </TitlePages>
 
       <div className="flex flex-col gap-4 w-full p-3">
-        <div className="flex flex-col gap-3 w-full md:w-[320px]">
+        <div className="flex flex-col gap-3 w-full md:w-[360px]">
           <label className="text-lg uppercase font-semibold">Data</label>
 
           <input
@@ -138,9 +333,32 @@ export default function AtmMonitoring() {
             disabled={loading}
             className="bg-green-700 hover:bg-green-800 disabled:bg-green-900 disabled:cursor-not-allowed transition-colors rounded-md h-10 px-4 text-white font-medium"
           >
-            {loading ? "Buscando..." : "Buscar"}
+            {loadingSearch ? "Buscando..." : "Buscar"}
           </button>
+
+          {isCurrentDay && (
+            <button
+              onClick={handleUpdateManual}
+              disabled={loading}
+              className="bg-blue-700 hover:bg-blue-800 disabled:bg-blue-900 disabled:cursor-not-allowed transition-colors rounded-md h-10 px-4 text-white font-medium"
+            >
+              {updating ? "Atualizando..." : "Atualizar"}
+            </button>
+          )}
         </div>
+
+         <div className="flex gap-3 rounded-md border border-zinc-700/60 bg-background p-2 text-sm">
+            <div className="font-semibold">Última atualização</div>
+            <div className="text-muted-foreground">
+              {formatDateTimeBR(lastUpdatedAt)}
+            </div>
+          </div>
+
+           {updating && updateMessage && (
+            <div className="rounded-md border border-blue-700/60 bg-blue-500/10 p-2 text-sm text-blue-500">
+              {updateMessage}
+            </div>
+          )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 w-full">
           {monitoring.length > 0 ? (
@@ -262,9 +480,7 @@ export default function AtmMonitoring() {
                                 cassete.cedula
                               );
                               const qtd = parseQuantity(cassete.qtd);
-                              const rejeicao = parseQuantity(
-                                cassete.rejeicao
-                              );
+                              const rejeicao = parseQuantity(cassete.rejeicao);
 
                               return (
                                 <div
@@ -328,7 +544,7 @@ export default function AtmMonitoring() {
             })
           ) : (
             <div className="text-sm text-muted-foreground">
-              {loading ? "Carregando..." : "Nada a mostrar"}
+              {loadingSearch ? "Carregando..." : "Nada a mostrar"}
             </div>
           )}
         </div>

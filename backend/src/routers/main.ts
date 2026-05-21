@@ -224,6 +224,8 @@ mainRouter.post('/open-os/atender-os-for-date', openOSController.atenderOsForDat
 
 //ATM Monitoring
 mainRouter.get('/atm-monitoring/:date',verifyJWT, atmMonitoringController.getAllAMonitoringin)
+mainRouter.get('/atm-monitoring/update-manual/status', atmMonitoringController.getStatusUpdateManual)
+mainRouter.post("/atm-monitoring/update-manual", atmMonitoringController.updateAtmMonitoringManual);
 
 
 // Parametrization

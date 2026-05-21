@@ -2,37 +2,40 @@ import { runGetSaldosAtmsCron } from "../script/get-saldos";
 
 let isRunning = false;
 
+type RunGetSaldosJobOptions = {
+  jobId?: string;
+  onProgress?: (payload: {
+    etapa: string;
+    message: string;
+    totalColetado?: number;
+    totalSalvo?: number;
+    totalErro?: number;
+  }) => void;
+};
+
 export async function runGetSaldosJob(
-  origin: "scheduler" | "manual" = "scheduler"
+  origem: "scheduler" | "manual",
+  options?: RunGetSaldosJobOptions
 ) {
-  if (isRunning) {
-    console.log("[GET SALDOS] Já existe uma execução em andamento.");
-
-    return {
-      success: false,
-      message: "Job get-saldos já está em execução.",
-    };
-  }
-
-  isRunning = true;
-
   try {
-    console.log(`[GET SALDOS] Iniciando execução. Origem: ${origin}`);
+    options?.onProgress?.({
+      etapa: "inicio",
+      message: "Iniciando coleta de saldos.",
+    });
 
-    const result = await runGetSaldosAtmsCron();
+    const result = await runGetSaldosAtmsCron({
+      onProgress: options?.onProgress,
+    });
 
-    console.log("[GET SALDOS] Job finalizado:", result);
+    options?.onProgress?.({
+      etapa: "finalizando",
+      message: "Finalizando atualização de saldos.",
+      totalColetado: result?.totalColetado ?? 0,
+    });
 
     return result;
   } catch (error) {
-    console.error("[GET SALDOS] Erro ao executar job:", error);
-
-    return {
-      success: false,
-      message: "Erro ao executar job get-saldos.",
-      error,
-    };
-  } finally {
-    isRunning = false;
+    console.error("[GET SALDOS] Erro no job:", error);
+    throw error;
   }
 }

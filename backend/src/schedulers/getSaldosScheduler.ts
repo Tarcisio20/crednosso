@@ -1,30 +1,61 @@
 import cron from "node-cron";
 import { runGetSaldosJob } from "../jobs/getSaldosJob";
-import { prisma } from "../utils/prisma"; // ajuste esse caminho se seu prisma estiver em outro lugar
+import { prisma } from "../utils/prisma";
 
 let schedulerStarted = false;
 
-function getInicioDoDia() {
+const TIMEZONE = process.env.TZ || "America/Sao_Paulo";
+
+function getDataSaoPaulo() {
   const now = new Date();
 
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const formatter = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+
+  const get = (type: string) =>
+    Number(parts.find((part) => part.type === type)?.value);
+
+  return {
+    year: get("year"),
+    month: get("month"),
+    day: get("day"),
+    hour: get("hour"),
+    minute: get("minute"),
+    second: get("second"),
+  };
 }
 
-function getFimDoDia() {
-  const now = new Date();
+function getDataHoraSaoPaulo(hora: number, minuto = 0, segundo = 0) {
+  const data = getDataSaoPaulo();
 
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  return new Date(
+    `${data.year}-${String(data.month).padStart(2, "0")}-${String(data.day).padStart(2, "0")}T${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}:${String(segundo).padStart(2, "0")}-03:00`
+  );
 }
 
-async function jaRodouHoje() {
-  const inicio = getInicioDoDia();
-  const fim = getFimDoDia();
+async function jaRodouNaJanela(horaAgendada: number) {
+  const inicio = getDataHoraSaoPaulo(horaAgendada, 0, 0);
+
+  const proximaHora =
+    horaAgendada === 6
+      ? getDataHoraSaoPaulo(12, 0, 0)
+      : getDataHoraSaoPaulo(23, 59, 59);
 
   const total = await prisma.atmMonitoring.count({
     where: {
       createdAt: {
         gte: inicio,
-        lte: fim,
+        lte: proximaHora,
       },
     },
   });
@@ -33,27 +64,29 @@ async function jaRodouHoje() {
 }
 
 async function executarSeHorarioFoiPerdido() {
-  const now = new Date();
+  const dataSP = getDataSaoPaulo();
 
-  const horaAtual = now.getHours();
-  const minutoAtual = now.getMinutes();
+  let horaAgendadaPerdida: number | null = null;
 
-  const passouDasSeis =
-    horaAtual > 6 || (horaAtual === 6 && minutoAtual >= 0);
+  if (dataSP.hour >= 12) {
+    horaAgendadaPerdida = 12;
+  } else if (dataSP.hour >= 6) {
+    horaAgendadaPerdida = 6;
+  }
 
-  if (!passouDasSeis) {
-    console.log("[GET SALDOS] Ainda não passou das 06:00. Aguardando cron.");
+  if (!horaAgendadaPerdida) {
+    console.log("[GET SALDOS] Ainda não passou de nenhum horário agendado. Aguardando cron.");
     return;
   }
 
-  const rodouHoje = await jaRodouHoje();
+  const rodouNaJanela = await jaRodouNaJanela(horaAgendadaPerdida);
 
-  if (rodouHoje) {
-    console.log("[GET SALDOS] Já existe coleta de hoje. Não será executado ao iniciar.");
+  if (rodouNaJanela) {
+    console.log(`[GET SALDOS] Já existe coleta da janela das ${horaAgendadaPerdida}:00. Não será executado ao iniciar.`);
     return;
   }
 
-  console.log("[GET SALDOS] Backend iniciou após 06:00 e ainda não rodou hoje. Executando agora.");
+  console.log(`[GET SALDOS] Backend iniciou após ${horaAgendadaPerdida}:00 e ainda não rodou essa janela. Executando agora.`);
 
   await runGetSaldosJob("scheduler");
 }
@@ -73,7 +106,7 @@ export function startGetSaldosScheduler() {
     return;
   }
 
-  const cronExpression = process.env.GET_SALDOS_CRON || "0 6 * * *";
+  const cronExpression = process.env.GET_SALDOS_CRON || "0 6,12 * * *";
 
   if (!cron.validate(cronExpression)) {
     console.error(`[GET SALDOS] Cron inválido: ${cronExpression}`);
@@ -81,6 +114,7 @@ export function startGetSaldosScheduler() {
   }
 
   console.log(`[GET SALDOS] Scheduler iniciado. Cron: ${cronExpression}`);
+  console.log(`[GET SALDOS] Timezone: ${TIMEZONE}`);
 
   cron.schedule(
     cronExpression,
@@ -94,7 +128,7 @@ export function startGetSaldosScheduler() {
       }
     },
     {
-      timezone: "America/Sao_Paulo",
+      timezone: TIMEZONE,
     }
   );
 

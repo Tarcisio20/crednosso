@@ -39,6 +39,30 @@ export type AtmSaldoData = {
   cassete_D_habilitado: string;
 };
 
+export type GetSaldosProgressPayload = {
+  etapa: string;
+  message: string;
+  totalAtms?: number;
+  atual?: number;
+  totalColetado?: number;
+  totalSalvo?: number;
+  totalErro?: number;
+  atmId?: string;
+  atmName?: string;
+};
+
+export type RunGetSaldosAtmsCronOptions = {
+  onProgress?: (payload: GetSaldosProgressPayload) => void;
+};
+
+function emitirProgresso(
+  options: RunGetSaldosAtmsCronOptions | undefined,
+  payload: GetSaldosProgressPayload
+) {
+  options?.onProgress?.(payload);
+}
+
+
 function toAtmMonitoringCreateInput(
   item: AtmSaldoData
 ): Prisma.AtmMonitoringCreateInput {
@@ -82,7 +106,10 @@ function toAtmMonitoringCreateInput(
   };
 }
 
-async function salvarAtmMonitoring(data: AtmSaldoData[]) {
+async function salvarAtmMonitoring(
+  data: AtmSaldoData[],
+  options?: RunGetSaldosAtmsCronOptions
+) {
   let salvos = 0;
 
   const erros: {
@@ -90,7 +117,15 @@ async function salvarAtmMonitoring(data: AtmSaldoData[]) {
     name: string;
   }[] = [];
 
-  for (const item of data) {
+  emitirProgresso(options, {
+    etapa: "salvando",
+    message: "Iniciando salvamento dos saldos no banco.",
+    totalColetado: data.length,
+    totalSalvo: salvos,
+    totalErro: erros.length,
+  });
+
+  for (const [index, item] of data.entries()) {
     const idAtm = Number(item.id);
 
     if (!Number.isFinite(idAtm)) {
@@ -99,6 +134,17 @@ async function salvarAtmMonitoring(data: AtmSaldoData[]) {
       erros.push({
         id: item.id,
         name: item.name,
+      });
+
+      emitirProgresso(options, {
+        etapa: "erro-salvar",
+        message: `ID inválido para ATM ${item.name || item.id}.`,
+        atual: index + 1,
+        totalColetado: data.length,
+        totalSalvo: salvos,
+        totalErro: erros.length,
+        atmId: item.id,
+        atmName: item.name,
       });
 
       continue;
@@ -116,7 +162,28 @@ async function salvarAtmMonitoring(data: AtmSaldoData[]) {
         name: item.name,
       });
     }
+
+    emitirProgresso(options, {
+      etapa: result ? "salvo" : "erro-salvar",
+      message: result
+        ? `Saldo salvo: ${item.name || item.id}.`
+        : `Erro ao salvar: ${item.name || item.id}.`,
+      atual: index + 1,
+      totalColetado: data.length,
+      totalSalvo: salvos,
+      totalErro: erros.length,
+      atmId: item.id,
+      atmName: item.name,
+    });
   }
+
+  emitirProgresso(options, {
+    etapa: "salvamento-finalizado",
+    message: "Salvamento dos saldos finalizado.",
+    totalColetado: data.length,
+    totalSalvo: salvos,
+    totalErro: erros.length,
+  });
 
   return {
     totalRecebido: data.length,
@@ -271,8 +338,16 @@ async function pegarTextoPorIdSeguro(
   }
 }
 
-export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
+export async function getSaldosAtms(
+  page: Page,
+  options?: RunGetSaldosAtmsCronOptions
+): Promise<AtmSaldoData[]> {
   const data: AtmSaldoData[] = [];
+
+  emitirProgresso(options, {
+    etapa: "coleta-iniciada",
+    message: "Iniciando coleta de saldos dos ATMs.",
+  });
 
   const user = process.env.BACKOFFICE_USER;
   const pass = process.env.BACKOFFICE_PASS;
@@ -314,6 +389,13 @@ export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
 
   console.log(`[GET SALDOS] Total de ATMs encontrados: ${total}`);
 
+  emitirProgresso(options, {
+    etapa: "atms-carregados",
+    message: `Total de ATMs encontrados: ${total}.`,
+    totalAtms: total,
+    totalColetado: data.length,
+  });
+
   for (let i = 0; i < total; i++) {
     try {
       const elemento = page.locator(ATM_SELECTOR).nth(i);
@@ -323,6 +405,14 @@ export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
       await page.waitForTimeout(300);
 
       console.log(`[GET SALDOS] Clicando no ATM ${i + 1}/${total}`);
+
+      emitirProgresso(options, {
+        etapa: "coletando",
+        message: `Coletando ATM ${i + 1} de ${total}.`,
+        atual: i + 1,
+        totalAtms: total,
+        totalColetado: data.length,
+      });
 
       await elemento.click();
 
@@ -505,6 +595,16 @@ export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
 
       console.log(`[GET SALDOS] ATM ${idAtm} - ${nomeReduzido}`);
 
+      emitirProgresso(options, {
+        etapa: "coletado",
+        message: `ATM coletado: ${idAtm} - ${nomeReduzido}.`,
+        atual: i + 1,
+        totalAtms: total,
+        totalColetado: data.length,
+        atmId: idAtm,
+        atmName: nomeReduzido,
+      });
+
       await modal.locator(".ui-dialog-titlebar-close").click().catch(() => null);
     } catch (error) {
       console.error(
@@ -521,6 +621,14 @@ export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
           .catch(() => null);
       }
 
+      emitirProgresso(options, {
+        etapa: "erro-coleta",
+        message: `Erro ao processar ATM ${i + 1} de ${total}.`,
+        atual: i + 1,
+        totalAtms: total,
+        totalColetado: data.length,
+      });
+
       await page.waitForTimeout(500);
 
       continue;
@@ -529,10 +637,19 @@ export async function getSaldosAtms(page: Page): Promise<AtmSaldoData[]> {
 
   console.log("[GET SALDOS] Coleta finalizada. Total coletado:", data.length);
 
+  emitirProgresso(options, {
+    etapa: "coleta-finalizada",
+    message: "Coleta de saldos finalizada.",
+    totalAtms: total,
+    totalColetado: data.length,
+  });
+
   return data;
 }
 
-export async function runGetSaldosAtmsCron() {
+export async function runGetSaldosAtmsCron(
+  options?: RunGetSaldosAtmsCronOptions
+) {
   const headless = process.env.PLAYWRIGHT_HEADLESS === "true";
 
   const browser = await chromium.launch({
@@ -550,23 +667,44 @@ export async function runGetSaldosAtmsCron() {
   try {
     console.log("[GET SALDOS] Iniciando rotina automática.");
 
-    const data = await getSaldosAtms(page);
+    emitirProgresso(options, {
+      etapa: "inicio",
+      message: "Iniciando rotina automática de saldos.",
+    });
+
+    const data = await getSaldosAtms(page, options);
 
     console.log("[GET SALDOS] Resultado final:");
     console.table(data);
 
-    const resultSave = await salvarAtmMonitoring(data);
+    const resultSave = await salvarAtmMonitoring(data, options);
 
     console.log("[GET SALDOS] Resultado ao salvar no banco:");
     console.log(resultSave);
 
-    return {
+    const result = {
       success: true,
       totalColetado: data.length,
       save: resultSave,
     };
+
+    emitirProgresso(options, {
+      etapa: "finalizado",
+      message: "Rotina automática de saldos finalizada.",
+      totalColetado: data.length,
+      totalSalvo: resultSave.totalSalvo,
+      totalErro: resultSave.totalErro,
+    });
+
+    return result;
   } catch (error) {
     console.error("[GET SALDOS] Erro geral na rotina:", error);
+
+    emitirProgresso(options, {
+      etapa: "erro",
+      message: "Erro geral na rotina de saldos.",
+      totalColetado: 0,
+    });
 
     return {
       success: false,

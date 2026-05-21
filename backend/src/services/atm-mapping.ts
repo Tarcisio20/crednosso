@@ -16,12 +16,37 @@ export const getAllAtmMonitoring = async (date: string) => {
           lt: endDate,
         },
       },
-      orderBy: {
-        id_atm: "asc",
-      },
+      orderBy: [
+        {
+          id_atm: "asc",
+        },
+        {
+          createdAt: "desc",
+        },
+        {
+          id: "desc",
+        },
+      ],
     });
 
-    return atmMonitoring;
+    const latestByAtm = new Map<string, (typeof atmMonitoring)[number]>();
+
+    for (const item of atmMonitoring) {
+      const key = String(item.id_atm);
+
+      if (!latestByAtm.has(key)) {
+        latestByAtm.set(key, item);
+      }
+    }
+
+    const latestMonitoring = Array.from(latestByAtm.values()).sort((a, b) => {
+      const idA = Number(String(a.id_atm).replace(/\D/g, ""));
+      const idB = Number(String(b.id_atm).replace(/\D/g, ""));
+
+      return idA - idB;
+    });
+
+    return latestMonitoring;
   } catch (err) {
     console.log(
       "SERVICE => [ATM_MONITORING] *** FUNCTION => [GET_ALL_ATM_MONITORING] *** ERROR =>",

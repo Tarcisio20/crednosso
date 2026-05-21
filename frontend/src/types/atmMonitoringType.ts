@@ -32,4 +32,7 @@ export type AtmMonitoringType = {
   cassete_d_cedula: string;
   cassete_d_ativo: string;
   cassete_d_habilitado: string;
+
+  createdAt: string;
+  updatedAt: string;
 };
