@@ -30,3 +30,18 @@ export const getAllAtmMonitoring = async (date: string) => {
     return null;
   }
 };
+
+export const addAtmMonitoring = async (data: Prisma.AtmMonitoringCreateInput) => {
+  try {
+    const newAtmMonitoring = await prisma.atmMonitoring.create({
+      data,
+    });    
+    return newAtmMonitoring;
+  } catch (err) {
+    console.log(
+      "SERVICE => [ATM_MONITORING] *** FUNCTION => [ADD_ATM_MONITORING] *** ERROR =>",
+      err
+    );
+    return null;
+  }
+};

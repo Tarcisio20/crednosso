@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { chromium, type Locator, type Page } from "playwright";
-import { addAtmMonitoring } from "services/atm-mapping";
+import { addAtmMonitoring } from "../services/atm-mapping";
 
 const ATM_SELECTOR = 'div.divATM[onclick*="linkVisualizar"]';
 const LOGIN_URL = "http://10.85.0.88/backoffice/login.jsf?erro=2";
