@@ -784,7 +784,13 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
       const osOpenResult = await getAllOsOpenInTableForDay(date);
     
       const osList = Array.isArray(osOpenResult?.data)
-        ? osOpenResult.data.filter((item) => item?.situacao === "Pendente" || item?.situacao === "Cartão não encontrado!" ||  item?.situacao === "Saldo insuficiente!")
+        ? osOpenResult.data.filter((item) => 
+            item?.situacao === "Pendente" || 
+        item?.situacao === "Cartão não encontrado!" ||
+        item?.situacao === "Saldo insuficiente!" ||
+        item?.situacao === "Erro ao atender OS"
+      
+      )
         : [];
 
       if (osList.length === 0) {
