@@ -218,13 +218,13 @@ def recover_num_os_single(navegador, terminal):
     situacao = safe_find(
         navegador,
         By.XPATH,
-        "/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[8]/span",
+        "/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[10]/span",
         15,
     )
     valorOS = safe_find(
         navegador,
-        By.ID,
-        "formularioOrdemServicoAtmConsultar:tabelaDataTable:0:tabelavalortarefaSuprimentoordemNumerarioTOvlExibido",
+        By.XPATH,
+        "/html/body/div[2]/div[2]/form/span[2]/div[2]/div/table/tbody/tr[1]/td[15]/span",
         15,
     )
 
