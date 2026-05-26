@@ -1,12 +1,46 @@
 import axios from 'axios'
 import Cookies from "js-cookie"
 
+const normalizeDateOnly = (value?: string | null) => {
+  if (!value) return "";
+
+  const decoded = decodeURIComponent(String(value));
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(decoded)) {
+    return decoded;
+  }
+
+  if (decoded.includes("T")) {
+    return decoded.split("T")[0];
+  }
+
+  const parsed = new Date(decoded);
+
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().split("T")[0];
+  }
+
+  return "";
+};
+
 export const getSuppliesOssOpenForDay = async (day: string) => {
-   const token = Cookies.get("tokenSystemCredNosso");
+  const token = Cookies.get("tokenSystemCredNosso");
 
   try {
+    const dateOnly = normalizeDateOnly(day);
+
+    if (!dateOnly) {
+      return {
+        error: "Data inválida para buscar OS.",
+        status: 400,
+        data: undefined,
+      } as any;
+    }
+
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/open-os/full/day/${day}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/open-os/full/day/${encodeURIComponent(
+        dateOnly
+      )}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -18,15 +52,28 @@ export const getSuppliesOssOpenForDay = async (day: string) => {
     return response;
   } catch (error: any) {
     if (error.response) {
-      const { message } = error.response.data;
-      return { error: message, status: 400, data: undefined } as any;
+      const { message, error: responseError } = error.response.data;
+
+      return {
+        error: message ?? responseError ?? "Erro ao buscar OS.",
+        status: error.response.status ?? 400,
+        data: undefined,
+      } as any;
     } else if (error.request) {
-      return { error: error.request, status: 500, data: undefined } as any;
+      return {
+        error: error.request,
+        status: 500,
+        data: undefined,
+      } as any;
     } else {
-      return { error: error.message, status: 300, data: undefined } as any;
+      return {
+        error: error.message,
+        status: 300,
+        data: undefined,
+      } as any;
     }
   }
-}
+};
 export const getSuppliesOssOpenForDayPagination = async (
   day: string,
   page: number = 1,

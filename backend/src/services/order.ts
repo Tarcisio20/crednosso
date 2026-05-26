@@ -524,12 +524,21 @@ export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
     const where: Prisma.OrderWhereInput = {};
 
     // -------- 1) Transportadora -> id_treasury_origin --------
-    const transportadora = (data.transportadora ?? "").trim();
-    if (transportadora !== "") {
-      const idTreasury = Number(transportadora);
-      if (!Number.isNaN(idTreasury)) {
-        where.id_treasury_origin = idTreasury;
-      }
+    const transportadora = String(data.transportadora ?? "").trim();
+
+    const idTreasury = Number(transportadora);
+
+    // Se vier vazio, 0, "todos", "all", null ou undefined,
+    // NÃO aplica filtro de transportadora e busca todas.
+    const shouldFilterTreasury =
+      transportadora !== "" &&
+      transportadora.toLowerCase() !== "todos" &&
+      transportadora.toLowerCase() !== "all" &&
+      !Number.isNaN(idTreasury) &&
+      idTreasury > 0;
+
+    if (shouldFilterTreasury) {
+      where.id_treasury_origin = idTreasury;
     }
 
     // -------- 2) Status do pedido -> status_order IN [] --------
@@ -542,52 +551,54 @@ export const getOrdersFiltereds = async (data: FilterOrdersDTO) => {
     }
 
     // -------- 3) Datas -> date_order entre inicial e final --------
-    const inicial = (data.datas?.inicial ?? "").trim();
-    const final = (data.datas?.final ?? "").trim();
+    const inicial = String(data.datas?.inicial ?? "").trim();
+    const final = String(data.datas?.final ?? "").trim();
 
     if (inicial !== "" || final !== "") {
       where.date_order = {};
 
       if (inicial !== "") {
         (where.date_order as Prisma.DateTimeFilter).gte = new Date(
-          `${inicial}T00:00:00`,
+          `${inicial}T00:00:00`
         );
       }
 
       if (final !== "") {
         (where.date_order as Prisma.DateTimeFilter).lte = new Date(
-          `${final}T23:59:59`,
+          `${final}T23:59:59`
         );
       }
     }
 
-    // 🔍 DEBUG – ver exatamente o que está indo para o Prisma
     console.log(
       "WHERE PRISMA (getOrdersFiltereds):",
-      JSON.stringify(where, null, 2),
+      JSON.stringify(where, null, 2)
     );
 
     const result = await prisma.order.findMany({
       where,
-      orderBy: { date_order: "desc" },
+      orderBy: {
+        date_order: "desc",
+      },
     });
 
-    // 🔍 DEBUG – ver distribuição de status
     const contagemPorStatus = result.reduce<Record<number, number>>(
       (acc, cur) => {
         acc[cur.status_order] = (acc[cur.status_order] || 0) + 1;
         return acc;
       },
-      {},
+      {}
     );
+
     console.log("RESUMO STATUS ENCONTRADOS:", contagemPorStatus);
 
     return result;
   } catch (err) {
     console.log(
       "SERVICE => [ORDER] *** FUNCTION => [GET_ORDERS_FILTEREDS] *** ERROR =>",
-      err,
+      err
     );
+
     return null;
   }
 };

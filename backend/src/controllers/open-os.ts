@@ -56,24 +56,46 @@ export const getOsOpenForDay: RequestHandler = async (req, res) => {
 
 export const getOsOpenForDayFull: RequestHandler = async (req, res) => {
   const { date } = req.params;
+
   if (!date) {
     await createLog({
-      level: 'ERROR',
-      action: 'GET_OS_OPEN_FOR_DAY',
-      message: 'Preciso de uma data para continuar!',
+      level: "ERROR",
+      action: "GET_OS_OPEN_FOR_DAY",
+      message: "Preciso de uma data para continuar!",
       userSlug: req.userSlug ?? null,
       route: req.route?.path ?? null,
       method: req.method ?? null,
       statusCode: 400,
-      resource: 'atm',
+      resource: "atm",
     });
 
-    res.status(400).json({ error: 'Preciso de uma data para continuar!' });
+    res.status(400).json({ error: "Preciso de uma data para continuar!" });
     return;
   }
 
   try {
-    const os = await getOsOpenInTableForDay(date);
+    const dateOnly = decodeURIComponent(date).split("T")[0];
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
+      await createLog({
+        level: "ERROR",
+        action: "GET_OS_OPEN_FOR_DAY",
+        message: `Data inválida recebida: ${date}`,
+        userSlug: req.userSlug ?? null,
+        route: req.route?.path ?? null,
+        method: req.method ?? null,
+        statusCode: 400,
+        resource: "atm",
+      });
+
+      res.status(400).json({
+        error: "Data inválida!",
+        received: date,
+      });
+      return;
+    }
+
+    const os = await getOsOpenInTableForDay(dateOnly);
 
     console.log("OSs encontradas para a data:", os);
 
@@ -81,21 +103,20 @@ export const getOsOpenForDayFull: RequestHandler = async (req, res) => {
     return;
   } catch (error) {
     await createLog({
-      level: 'ERROR',
-      action: 'GET_OS_OPEN_FOR_DAY',
-      message: 'Erro ao buscar no banco!',
+      level: "ERROR",
+      action: "GET_OS_OPEN_FOR_DAY",
+      message: "Erro ao buscar no banco!",
       userSlug: req.userSlug ?? null,
       route: req.route?.path ?? null,
       method: req.method ?? null,
       statusCode: 400,
-      resource: 'atm',
+      resource: "atm",
     });
 
-    res.status(400).json({ error: 'Erro ao buscar no banco!' });
+    res.status(400).json({ error: "Erro ao buscar no banco!" });
     return;
   }
 };
-
 export const getAllById: RequestHandler = async (req, res) => {
   const { id } = req.params;
   if (!id) {

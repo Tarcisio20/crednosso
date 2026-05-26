@@ -1667,16 +1667,35 @@ export type FilterOrdersDTO = {
   };
 };
 
-export const filtersOrders: RequestHandler = async (req, res): Promise<void> => {
+export const filtersOrders: RequestHandler = async (
+  req,
+  res
+): Promise<void> => {
   try {
     const data = req.body as FilterOrdersDTO;
-    //console.log("Received filter data:", data);
+
     const filters = await getOrdersFiltereds(data);
+
+    if (filters === null) {
+      res.status(500).json({
+        message: "Erro ao buscar pedidos.",
+      });
+      return;
+    }
+
     const filterWithTreasury = await Promise.all(
-      filters?.map(async (item) => {
-        const treasuryOrigin = await getForIdSystem(String(item.id_treasury_origin));
-        const treasuryDestin = await getForIdSystem(String(item.id_treasury_destin));
-        const typeOperation = await getTypeOperationForId(String(item.id_type_operation));
+      filters.map(async (item) => {
+        const treasuryOrigin = await getForIdSystem(
+          String(item.id_treasury_origin)
+        );
+
+        const treasuryDestin = await getForIdSystem(
+          String(item.id_treasury_destin)
+        );
+
+        const typeOperation = await getTypeOperationForId(
+          String(item.id_type_operation)
+        );
 
         return {
           ...item,
@@ -1684,18 +1703,9 @@ export const filtersOrders: RequestHandler = async (req, res): Promise<void> => 
           treasury_destin_name: treasuryDestin?.name ?? null,
           type_operation_name: typeOperation?.name ?? null,
         };
-      }) ?? []
+      })
     );
-    //console.log("Filtro com ", filterWithTreasury)
-    // erro real (ex.: erro no Prisma)
-    if (filterWithTreasury === null) {
-      res.status(500).json({
-        message: "Erro ao buscar pedidos.",
-      });
-      return;
-    }
 
-    // requisição válida: retorna filtros (pode ser [] mesmo)
     res.status(200).json({
       filters: filterWithTreasury,
       total: filterWithTreasury.length,
@@ -1703,13 +1713,11 @@ export const filtersOrders: RequestHandler = async (req, res): Promise<void> => 
   } catch (err) {
     console.error("CONTROLLER /order/filters ERROR =>", err);
 
-    // ⚠️ AQUI NADA DE ANINHAR res.status DENTRO DE OUTRO
     res.status(500).json({
       message: "Erro interno no servidor.",
     });
   }
 };
-
 
 function toRows<T = any>(r: any): T[] {
   if (!r) return [];
