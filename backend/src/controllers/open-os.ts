@@ -809,7 +809,8 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
             item?.situacao === "Pendente" || 
         item?.situacao === "Cartão não encontrado!" ||
         item?.situacao === "Saldo insuficiente!" ||
-        item?.situacao === "Erro ao atender OS"
+        item?.situacao === "Erro ao atender OS" ||
+        item?.situacao === "Timeout na OS"
       
       )
         : [];
