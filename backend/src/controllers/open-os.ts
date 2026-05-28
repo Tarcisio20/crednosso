@@ -507,7 +507,7 @@ export const atenderOsForIds: RequestHandler = async (req, res) => {
           (item, index, arr) =>
             typeof item?.id === "number" &&
             arr.findIndex((x) => x.id === item.id) === index &&
-            item.situacao === "Pendente" || item.situacao === "Cartão não encontrado!" || "Saldo insuficiente!"
+            item.situacao === "Pendente" || item.situacao === "Cartão não encontrado!" || "Saldo insuficiente!" || "Timeout na OS"
         );
         console.log("OSs encontradas para atendimento:", osList);
       if (osList.length === 0) {
