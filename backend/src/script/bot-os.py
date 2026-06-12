@@ -495,7 +495,7 @@ def main():
                     safe_click(
                         navegador,
                         By.XPATH,
-                        '//*[@id="formularioOrdemServicoAtmJanelaCadastrar:j_idt277"]',
+                        '//*[@id="formularioOrdemServicoAtmJanelaCadastrar:j_idt327"]',
                         15,
                     )
 
@@ -513,7 +513,7 @@ def main():
                     safe_click(
                         navegador,
                         By.XPATH,
-                        '//*[@id="formularioOrdemServicoAtmJanelaCadastrar:j_idt279"]',
+                        '//*[@id="formularioOrdemServicoAtmJanelaCadastrar:j_idt329"]',
                         15,
                     )
 
