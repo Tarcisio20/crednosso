@@ -14,7 +14,7 @@ model AccountBank {
   account           String   @default("")
   status            Boolean  @default(true)
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
   account_digit     String   @default("")
   bank_branch_digit String   @default("")
   hash              String?
@@ -39,6 +39,8 @@ model Atm {
 
   treasury Treasury @relation(fields: [id_treasury], references: [id_system])
   supplies Supply[]
+  monitoring AtmMonitoring[]
+  atmServiceOrders AtmServiceOrder[]
 }
 
 model Contact {
@@ -71,7 +73,7 @@ model MoneySplit {
   treasuryRating Treasury @relation("RatingRelation", fields: [id_treasury_rating], references: [id])
 }
 
-model MOneySplitRefund {
+model MoneySplitRefund {
   id                 Int     @id @default(autoincrement())
   id_order           Int
   id_treasury_origin Int
@@ -143,14 +145,15 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  moneySplitRefunds MOneySplitRefund[]
+  cashMovements     TreasuryCashMovement[]
+  moneySplitRefunds MoneySplitRefund[]
   moneySplits       MoneySplit[]
   supply            Supply[]
-  typeOperation     TypeOperation      @relation(fields: [id_type_operation], references: [id])
-  treasuryOrigin    Treasury           @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
-  treasuryDestin    Treasury           @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
-  typeOrder         TypeOrder          @relation(fields: [id_type_order], references: [id])
-  statusOrder       StatusOrder        @relation(fields: [status_order], references: [id])
+  typeOperation     TypeOperation          @relation(fields: [id_type_operation], references: [id])
+  treasuryOrigin    Treasury               @relation("TreasuryOrigin", fields: [id_treasury_origin], references: [id_system])
+  treasuryDestin    Treasury               @relation("TreasuryDestin", fields: [id_treasury_destin], references: [id_system])
+  typeOrder         TypeOrder              @relation(fields: [id_type_order], references: [id])
+  statusOrder       StatusOrder            @relation(fields: [status_order], references: [id])
 
   @@map("order")
 }
@@ -205,6 +208,7 @@ model Treasury {
   bills_100                   Int     @default(0)
   status                      Boolean @default(true)
   account_number_for_transfer String  @default("")
+  expected_cash_balance       Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -212,7 +216,7 @@ model Treasury {
   typeSupply TypeSupply @relation(fields: [id_type_supply], references: [id])
   typeStore  typeStore  @relation(fields: [id_type_store], references: [id])
 
-  moneySplitRefunds MOneySplitRefund[]
+  moneySplitRefunds MoneySplitRefund[]
   originMoneySplits MoneySplit[]       @relation("OriginRelation")
   ratingMoneySplits MoneySplit[]       @relation("RatingRelation")
   atms              Atm[]
@@ -221,8 +225,10 @@ model Treasury {
   operatorCards     OperatorCard[]
   OrdersOrigin      Order[]            @relation("TreasuryOrigin")
   OrdersDestin      Order[]            @relation("TreasuryDestin")
+  OperationalError  OperationalError[]
 
-  OperationalError OperationalError[]
+  cashBalance   TreasuryCashBalance?
+  cashMovements TreasuryCashMovement[]
 }
 
 model TypeOperation {
@@ -284,7 +290,6 @@ model User {
   updatedAt DateTime @default(now())
 }
 
-// --------- ENUM ---------
 enum LogLevel {
   INFO
   WARN
@@ -324,13 +329,195 @@ model OsOpen {
   date_os    DateTime @default(now())
   send_email Boolean  @default(false)
   status     Boolean  @default(true)
+
+  cashMovements TreasuryCashMovement[]
+}
+
+model EmailParametrization {
+  id            Int     @id @default(autoincrement())
+  name          String?
+  email         String  @unique
+  for_send_slug String
+  status        Boolean @default(true)
+
+  @@index([for_send_slug], map: "EmailParametrization_for_send_slug_idx")
+}
+
+enum TreasuryCashMovementType {
+  ENTRADA_PEDIDO
+  ABERTURA_OS
+  AJUSTE_CONFIRMACAO_PEDIDO
+  AJUSTE_OS
+  FINALIZACAO_OS
+  CANCELAMENTO_OS
+  AJUSTE_MANUAL
+}
+
+enum TreasuryBalanceMovementStatus {
+  PENDENTE
+  CONFIRMADO
+  CANCELADO
+}
+
+enum TreasuryCashBalanceBucket {
+  DISPONIVEL
+  TRANSICAO
+}
+
+model TreasuryCashBalance {
+  id          Int @id @default(autoincrement())
+  id_treasury Int @unique
+
+  available_bills_10  Int @default(0)
+  available_bills_20  Int @default(0)
+  available_bills_50  Int @default(0)
+  available_bills_100 Int @default(0)
+
+  transit_bills_10  Int @default(0)
+  transit_bills_20  Int @default(0)
+  transit_bills_50  Int @default(0)
+  transit_bills_100 Int @default(0)
+
+  status Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
+
+  @@index([id_treasury])
+}
+
+model TreasuryCashMovementItem {
+  id          Int @id @default(autoincrement())
+  movement_id Int
+
+  balance_bucket TreasuryCashBalanceBucket
+
+  denomination Int
+  quantity     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  movement TreasuryCashMovement @relation(fields: [movement_id], references: [id])
+
+  @@unique([movement_id, balance_bucket, denomination])
+  @@index([balance_bucket])
+  @@index([denomination])
+}
+
+model TreasuryCashMovement {
+  id           Int    @id @default(autoincrement())
+  movement_key String @unique
+
+  id_treasury Int
+  id_order    Int?
+  id_os_open  Int?
+
+  type   TreasuryCashMovementType
+  status TreasuryBalanceMovementStatus @default(CONFIRMADO)
+
+  description String @default("")
+
+  source_table String? @db.VarChar(100)
+  source_id    Int?
+
+  createdBy String? @db.VarChar(191)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  treasury Treasury @relation(fields: [id_treasury], references: [id_system])
+  order    Order?   @relation(fields: [id_order], references: [id])
+  osOpen   OsOpen?  @relation(fields: [id_os_open], references: [id])
+
+  items TreasuryCashMovementItem[]
+
+  @@index([id_treasury, createdAt])
+  @@index([type, status])
+  @@index([source_table, source_id])
+  @@index([id_order])
+  @@index([id_os_open])
+}
+
+model AtmMonitoring {
+  id  Int    @id @default(autoincrement())
+  id_atm Int
+  name_atm String
+  ativo_atm String
+  saldo_logico String
+  saldo_rejeicao String
+  total_logico String
+  saldo_conta String
+
+  cassete_a String
+  cassete_a_rejeicao String
+  cassete_a_cedula String
+  cassete_a_ativo String
+  cassete_a_habilitado String
+
+  cassete_b String
+  cassete_b_rejeicao String
+  cassete_b_cedula String
+  cassete_b_ativo String
+  cassete_b_habilitado String
+
+  cassete_c String
+  cassete_c_rejeicao String
+  cassete_c_cedula String
+  cassete_c_ativo String    
+  cassete_c_habilitado String
+
+  cassete_d String
+  cassete_d_rejeicao String
+  cassete_d_cedula String
+  cassete_d_ativo String  
+  cassete_d_habilitado String
+
+  status Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+
+   atm Atm @relation(fields: [id_atm], references: [id_system], onDelete: Restrict, onUpdate: Cascade)
 }
 
 
-model EmailParametrization {
-  id         Int      @id @default(autoincrement())
-  name       String?
-  email      String
-  for_send   String
-  status     Boolean @default(true)
+model AtmServiceOrder {
+  id                  Int      @id @default(autoincrement())
+
+  num_os              Int      @unique
+  id_atm              Int
+  name_atm            String   @default("")
+
+  tipo_os             String   @default("")
+  datas_geracao       String   @default("")
+  situacao_os         String   @default("")
+  data_atendimento    String   @default("")
+  data_conclusao      String   @default("")
+
+  transportadora_id   Int
+  transportadora_nome String   @default("")
+
+  operador            String   @default("")
+  suprimento          String   @default("")
+  recolhimento        String   @default("")
+
+  date                DateTime @default(now())
+  status              Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  atm                 Atm      @relation(fields: [id_atm], references: [id_system], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([id_atm])
+  @@index([num_os])
+  @@index([situacao_os])
+  @@index([transportadora_id])
+  @@index([date])
+  @@index([createdAt])
+
+   @@map("atm_service_order")
 }

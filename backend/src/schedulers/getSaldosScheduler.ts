@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { runGetSaldosJob } from "../jobs/getSaldosJob";
+import { runGetSaldosSchedulerFlow } from "./getSaldosSchedulerFlow"; 
 import { prisma } from "../utils/prisma";
 
 let schedulerStarted = false;
@@ -88,7 +88,7 @@ async function executarSeHorarioFoiPerdido() {
 
   console.log(`[GET SALDOS] Backend iniciou após ${horaAgendadaPerdida}:00 e ainda não rodou essa janela. Executando agora.`);
 
-  await runGetSaldosJob("scheduler");
+  await runGetSaldosSchedulerFlow();
 }
 
 export function startGetSaldosScheduler() {
@@ -122,7 +122,7 @@ export function startGetSaldosScheduler() {
       try {
         console.log("[GET SALDOS] Horário do agendamento atingido.");
 
-        await runGetSaldosJob("scheduler");
+        await runGetSaldosSchedulerFlow();
       } catch (error) {
         console.error("[GET SALDOS] Erro inesperado no scheduler:", error);
       }

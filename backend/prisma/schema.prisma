@@ -40,6 +40,7 @@ model Atm {
   treasury Treasury @relation(fields: [id_treasury], references: [id_system])
   supplies Supply[]
   monitoring AtmMonitoring[]
+  atmServiceOrders AtmServiceOrder[]
 }
 
 model Contact {
@@ -480,4 +481,43 @@ model AtmMonitoring {
 
 
    atm Atm @relation(fields: [id_atm], references: [id_system], onDelete: Restrict, onUpdate: Cascade)
+}
+
+
+model AtmServiceOrder {
+  id                  Int      @id @default(autoincrement())
+
+  num_os              Int      @unique
+  id_atm              Int
+  name_atm            String   @default("")
+
+  tipo_os             String   @default("")
+  datas_geracao       String   @default("")
+  situacao_os         String   @default("")
+  data_atendimento    String   @default("")
+  data_conclusao      String   @default("")
+
+  transportadora_id   Int
+  transportadora_nome String   @default("")
+
+  operador            String   @default("")
+  suprimento          String   @default("")
+  recolhimento        String   @default("")
+
+  date                DateTime @default(now())
+  status              Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  atm                 Atm      @relation(fields: [id_atm], references: [id_system], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([id_atm])
+  @@index([num_os])
+  @@index([situacao_os])
+  @@index([transportadora_id])
+  @@index([date])
+  @@index([createdAt])
+
+   @@map("atm_service_order")
 }
