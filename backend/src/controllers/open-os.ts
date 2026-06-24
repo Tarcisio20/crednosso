@@ -508,7 +508,7 @@ export const atenderOsForIds: RequestHandler = async (req, res) => {
             typeof item?.id === "number" &&
             arr.findIndex((x) => x.id === item.id) === index &&
             item.situacao === "Pendente" || item.situacao === "Cartão não encontrado!" 
-            || "Saldo insuficiente!" || "Timeout na OS" || "Saldo insuficiente"
+            || "Saldo insuficiente!" || "Timeout na OS" || "Saldo insuficiente" || "Cartao nao achado"
         );
         console.log("OSs encontradas para atendimento:", osList);
       if (osList.length === 0) {
@@ -812,7 +812,8 @@ export const atenderOsForDate: RequestHandler = async (req, res) => {
         item?.situacao === "Saldo insuficiente!" ||
         item?.situacao === "Erro ao atender OS" ||
         item?.situacao === "Timeout na OS" ||
-        item?.situacao === "Saldo insuficiente"
+        item?.situacao === "Saldo insuficiente" ||
+        item?.situacao === "Cartao nao achado"
       
       )
         : [];
